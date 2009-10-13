@@ -1791,11 +1791,11 @@ static int seekFunction_nolock(void *data,
 
     camlOffset = copy_int64(offset);
 
-    if (origin = SEEK_SET)
+    if (SEEK_SET == origin)
         camlOrigin = Val_long(0);
-    else if (origin = SEEK_CUR)
+    else if (SEEK_CUR == origin)
         camlOrigin = Val_long(1);
-    else if (origin = SEEK_END)
+    else if (SEEK_END == origin)
         camlOrigin = Val_long(2);
     else
         camlOrigin = Val_long(0);
