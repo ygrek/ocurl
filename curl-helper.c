@@ -1854,7 +1854,7 @@ CAMLprim value helper_curl_global_init(value initOption)
         break;
     }
 
-    CAMLreturn0;
+    CAMLreturn(Val_unit);
 }
 
 /**
