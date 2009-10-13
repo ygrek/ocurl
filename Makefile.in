@@ -1,0 +1,96 @@
+###
+###	@configure_input@
+###
+
+.PHONY:		all targets examples install clean depend
+
+.SUFFIXES:	.ml .mli .cmx .cmi .cmo .cmxa .cma .c .o
+
+INSTALLDIR	= @INSTALLDIR@
+INSTALL		= @INSTALL@
+INSTALLDATA	= @INSTALL_DATA@
+
+FINDLIB		= @OCAMLFIND@
+OCBYTE		= @OCAMLC@
+OCOPT		= @OCAMLOPT@
+
+OC		= @OCAMLC@
+CC		= @CC@
+
+FLAGS		=
+LIBS		=
+
+CFLAGS		= @CFLAGS@ @DEFS@
+CAMLINCDIR	= -I@OCAMLLIB@
+
+CURLHELPEROBJS	= curl-helper.o
+CURLOBJS	= curl.cmx
+CURLBCOBJS	= $(CURLOBJS:.cmx=.cmo)
+
+CURLFLAGS	= -ccopt @CURLFLAGS@
+CURLCLIBS	= -cclib -lcurl-helper -cclib "@CURLLIBS@"
+
+ifeq (@OCAMLBEST@,opt)
+TARGETS		= curl.cma curl.cmxa libcurl-helper.a
+else
+TARGETS		= curl.cma libcurl-helper.a
+endif
+
+all:
+		@$(MAKE) depend
+		@$(MAKE) targets
+
+targets:	$(TARGETS) examples
+
+examples:
+		(cd examples; $(MAKE))
+
+curl.cma:	$(CURLBCOBJS) libcurl-helper.a
+		$(OCBYTE) -custom -a $(FLAGS) $(CURLFLAGS) -o $@ $(CURLBCOBJS) $(CURLCLIBS)
+
+curl.cmxa:	$(CURLOBJS) libcurl-helper.a
+		$(OCOPT) -a $(FLAGS) $(CURLFLAGS) $(LIBS) $(CURLOBJS) -o $@ $(CURLCLIBS)
+
+.ml.cmx:
+		$(OCOPT) -c $(FLAGS) $< -o $@
+
+.mli.cmi:
+		$(OCBYTE) -c $(FLAGS) $< -o $@
+
+.ml.cmo:
+		$(OCBYTE) -c $(FLAGS) $< -o $@
+
+libcurl-helper.a:	$(CURLHELPEROBJS)
+		ar crus libcurl-helper.a $(CURLHELPEROBJS)
+		ranlib libcurl-helper.a
+
+.c.o:
+		$(CC) -c $(CFLAGS) $(CAMLINCDIR) $< -o $@
+
+install:
+ifeq ($(FINDLIB),ocamlfind)
+		ocamlfind install curl META $(wildcard *.cmi) \
+			 $(wildcard *.a) $(wildcard *.cma) $(wildcard *.cmxa)
+else
+		mkdir -p $(INSTALLDIR)
+		$(INSTALLDATA) curl.cma $(INSTALLDIR)
+ifeq (@OCAMLBEST@,opt)
+		$(INSTALLDATA) curl.cmxa $(INSTALLDIR)
+endif
+		$(INSTALLDATA) curl.mli curl.cmi $(INSTALLDIR)
+		$(INSTALLDATA) curl.a libcurl-helper.a $(INSTALLDIR)
+endif
+
+
+clean:
+		@rm -f $(TARGETS) *~ *.cm* *.o *.a .depend core
+		@(cd examples; $(MAKE) clean)
+
+depend:
+		@ocamldep *.mli *.ml > .depend
+
+ifeq ($(wildcard .depend),.depend)
+ifneq ($(MAKECMDGOALS),clean)
+include .depend
+endif
+endif

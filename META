@@ -1,0 +1,7 @@
+name="curl"
+version="0.5.1"
+description="Lib Curl"
+requires=""
+archive(byte)="curl.cma"
+archive(native)="curl.cmxa"
+linkopts = ""

@@ -1,0 +1,71 @@
+###
+###	@configure_input@
+###
+
+.SUFFIXES:	.ml .mli .cmx .cmi .cmo .cmxa .cma .c .obj
+
+OCBYTE		= ocamlc
+OCOPT		= ocamlopt
+
+OC		= ocamlc
+CC		= ocamlc
+
+FLAGS		= -I ..
+LFLAGS		= -I .. -cclib "/link /LIBPATH:c:/devtools/curl"
+LIBS		= libcurl.lib
+
+OCURLLIB	= curl.cma
+OCURLOPTLIB	= curl.cmxa
+
+TARGETS	= ocurl ocurl.opt oput oput.opt ominimal ominimal.opt ossl ossl.opt
+
+all:
+		@$(MAKE) -f Makefile.windows depend
+		@$(MAKE) -f Makefile.windows targets
+
+targets:	$(TARGETS)
+
+ocurl:		ocurl.cmo
+		$(OCBYTE) $(LFLAGS) $(OCURLLIB) ocurl.cmo -o $@ $(LIBS)
+
+ocurl.opt:	ocurl.cmx
+		$(OCOPT) $(LFLAGS) $(OCURLOPTLIB) ocurl.cmx -o $@ $(LIBS)
+
+oput:		oput.cmo
+		$(OCBYTE) $(LFLAGS) $(OCURLLIB) oput.cmo -o $@ $(LIBS)
+
+oput.opt:	oput.cmx
+		$(OCOPT) $(LFLAGS) $(OCURLOPTLIB) oput.cmx -o $@ $(LIBS)
+
+ominimal:	ominimal.cmo
+		$(OCBYTE) $(LFLAGS) $(OCURLLIB) ominimal.cmo -o $@ $(LIBS)
+
+ominimal.opt:	ominimal.cmx
+		$(OCOPT) $(LFLAGS) $(OCURLOPTLIB) ominimal.cmx -o $@ $(LIBS)
+
+ossl:		ossl.cmo
+		$(OCBYTE) $(LFLAGS) $(OCURLLIB) ossl.cmo -o $@ $(LIBS)
+
+ossl.opt:	ossl.cmx
+		$(OCOPT) $(LFLAGS) $(OCURLOPTLIB) ossl.cmx -o $@ $(LIBS)
+
+.ml.cmx:
+		$(OCOPT) -c $(FLAGS) $< -o $@
+
+.mli.cmi:
+		$(OCBYTE) -c $(FLAGS) $< -o $@
+
+.ml.cmo:
+		$(OCBYTE) -c $(FLAGS) $< -o $@
+
+clean:
+		@rm -f $(TARGETS) *~ *.cm* *.o *.a .depend core
+
+depend:
+		@ocamldep *.mli *.ml > .depend
+
+ifeq ($(wildcard .depend),.depend)
+ifneq ($(MAKECMDGOALS),clean)
+include .depend
+endif
+endif
