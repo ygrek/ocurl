@@ -1073,7 +1073,7 @@ static void raiseError(Connection *conn, CURLcode code)
     Field(exceptionData, 1) = Val_int(code);
     Field(exceptionData, 2) = copy_string(errorString);
 
-    if (conn->errorBuffer != NULL)
+    if (conn != NULL && conn->errorBuffer != NULL)
     {
         Field(Field(conn->ocamlValues, OcamlErrorBuffer), 0) =
             copy_string(conn->errorBuffer);
@@ -5730,3 +5730,30 @@ CAMLprim value helper_curl_version(void)
 
     CAMLreturn(result);
 }
+
+#define CURLM_val(v) ((CURLM*)v)
+#define Val_CURLM(h) ((value)h)
+
+CAMLprim value caml_curl_multi_init(value unit)
+{
+  CAMLparam1(unit);
+  CURLM* h;
+
+  h = curl_multi_init();
+
+  if (!h)
+    failwith("caml_curl_multi_init");
+
+  CAMLreturn(Val_CURLM(h));
+}
+
+CAMLprim value caml_curl_multi_cleanup(value handle)
+{
+  CAMLparam1(handle);
+
+  if (CURLM_OK != curl_multi_cleanup(CURLM_val(handle)))
+    failwith("caml_curl_multi_cleanup");
+
+  CAMLreturn(Val_unit);
+}
+

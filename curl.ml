@@ -1140,3 +1140,12 @@ class handle =
     method get_lastsocket = get_lastsocket conn
     method get_ftpentrypath = get_ftpentrypath conn
 end
+
+module Multi = struct
+
+  type t
+
+  external create : unit -> t = "caml_curl_multi_init"
+  external cleanup : t -> unit = "caml_curl_multi_cleanup"
+
+end

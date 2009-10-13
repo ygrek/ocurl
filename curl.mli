@@ -722,3 +722,14 @@ class handle :
     method get_lastsocket : int
     method get_ftpentrypath : string
   end
+
+module Multi : sig
+
+  (** type of Curl multi handle *)
+  type t
+
+  val create : unit -> t
+  val cleanup : t -> unit
+
+end
+
