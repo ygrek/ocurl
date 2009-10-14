@@ -5828,3 +5828,76 @@ CAMLprim value caml_curlm_remove_finished(value v_multi)
   }
 }
 
+static int curlm_wait_data(CURLM* multi_handle)
+{
+	struct timeval timeout;
+
+	fd_set fdread;
+	fd_set fdwrite;
+	fd_set fdexcep;
+	int maxfd;
+
+	FD_ZERO(&fdread);
+	FD_ZERO(&fdwrite);
+	FD_ZERO(&fdexcep);
+
+	/* set a suitable timeout */
+	timeout.tv_sec = 1;
+	timeout.tv_usec = 0;
+
+	/* get file descriptors from the transfers */
+	CURLMcode ret = curl_multi_fdset(multi_handle, &fdread, &fdwrite, &fdexcep, &maxfd);
+
+	if (ret == CURLM_OK && maxfd >= 0)
+	{
+		int rc = select(maxfd+1, &fdread, &fdwrite, &fdexcep, &timeout);
+		if (-1 != rc) return 0;
+		//printf("select error\n");
+	}
+	else
+	{
+		//printf("curl_multi_fdset error\n");
+	}
+	return 1;
+}
+
+CAMLprim value caml_curlm_wait_data(value v_multi)
+{
+  CAMLparam1(v_multi);
+  int ret;
+  CURLM* h;
+
+  h = CURLM_val(v_multi);
+
+  caml_enter_blocking_section();
+  ret = curlm_wait_data(h);
+  caml_leave_blocking_section();
+
+  CAMLreturn(Val_bool(0 == ret));
+}
+
+CAMLprim value caml_curl_multi_add_handle(value v_multi, value v_easy)
+{
+  CAMLparam2(v_multi,v_easy);
+
+  if (CURLM_OK != curl_multi_add_handle(CURLM_val(v_multi), Connection_val(v_easy)->connection))
+    failwith("caml_curl_multi_add_handle");
+
+  CAMLreturn(Val_unit);
+}
+
+CAMLprim value caml_curl_multi_perform_all(value v_multi)
+{
+  CAMLparam1(v_multi);
+  CURLM* h;
+  int still_running = 0;
+
+  h = CURLM_val(v_multi);
+
+  caml_enter_blocking_section();
+  while (CURLM_CALL_MULTI_PERFORM == curl_multi_perform(h, &still_running));
+  caml_leave_blocking_section();
+
+  CAMLreturn(Val_int(still_running));
+}
+

@@ -1146,8 +1146,11 @@ module Multi = struct
   type mt
 
   external create : unit -> mt = "caml_curl_multi_init"
-  external cleanup : mt -> unit = "caml_curl_multi_cleanup"
+  external add : mt -> t -> unit = "caml_curl_multi_add_handle"
+  external perform : mt -> int = "caml_curl_multi_perform_all"
+  external wait : mt -> bool = "caml_curlm_wait_data"
   external remove_finished : mt -> t option = "caml_curlm_remove_finished"
+  external cleanup : mt -> unit = "caml_curl_multi_cleanup"
 
 end
 

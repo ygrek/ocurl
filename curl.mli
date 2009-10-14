@@ -723,14 +723,31 @@ class handle :
     method get_ftpentrypath : string
   end
 
+(** Curl multi stack. Functions may raise [Failure] on critical errors *)
 module Multi : sig
 
-  (** type of Curl multi handle *)
+  (** type of Curl multi stack *)
   type mt
 
+  (** create new multi stack *)
   val create : unit -> mt
-  val cleanup : mt -> unit
+
+  (** add handle to multi stack *)
+  val add : mt -> t -> unit
+
+  (** perform pending data transfers (if any) on all handles currently in multi stack
+      @return the number of handles that still transfer data *)
+  val perform : mt -> int
+
+  (** wait till there are some active data transfers on multi stack
+      @return whether [perform] should be called *)
+  val wait : mt -> bool
+
+  (** remove finished handle from the multi stack if any. The handle can be reused *)
   val remove_finished : mt -> t option
+
+  (** destroy multi handle (all transfers are stopped, but individual handles are left alive) *)
+  val cleanup : mt -> unit
 
 end
 
