@@ -40,6 +40,8 @@ Val_some( value v )
 typedef struct Connection Connection;
 typedef struct ConnectionList ConnectionList;
 
+#define Connection_val(v) ((Connection *)Field(v, 0))
+
 enum OcamlValues
 {
     OcamlWriteCallback,
@@ -5212,7 +5214,7 @@ CAMLprim void helper_curl_easy_setopt(value conn, value option)
 {
     CAMLparam2(conn, option);
     CAMLlocal1(data);
-    Connection *connection = (Connection *)Field(conn, 0);
+    Connection *connection = Connection_val(conn);
 
     checkConnection(connection);
 
@@ -5252,7 +5254,7 @@ CAMLprim void helper_curl_easy_perform(value conn)
 {
     CAMLparam1(conn);
     CURLcode result = CURLE_OK;
-    Connection *connection = (Connection *)Field(conn, 0);
+    Connection *connection = Connection_val(conn);
 
     checkConnection(connection);
 
@@ -5273,7 +5275,7 @@ CAMLprim void helper_curl_easy_perform(value conn)
 CAMLprim void helper_curl_easy_cleanup(value conn)
 {
     CAMLparam1(conn);
-    Connection *connection = (Connection *)Field(conn, 0);
+    Connection *connection = Connection_val(conn);
 
     checkConnection(connection);
 
@@ -5290,7 +5292,7 @@ CAMLprim value helper_curl_easy_duphandle(value conn)
 {
     CAMLparam1(conn);
     CAMLlocal1(result);
-    Connection *connection = (Connection *)Field(conn, 0);
+    Connection *connection = Connection_val(conn);
 
     checkConnection(connection);
 
@@ -5345,7 +5347,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     CAMLparam2(conn, option);
     CAMLlocal1(result);
     CURLcode curlResult;
-    Connection *connection = (Connection *)Field(conn, 0);
+    Connection *connection = Connection_val(conn);
     enum GetInfoResultType resultType;
     char *strValue = NULL;
     double doubleValue;
