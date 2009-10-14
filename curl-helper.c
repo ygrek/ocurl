@@ -5762,6 +5762,14 @@ CAMLprim value helper_curl_version(void)
     CAMLreturn(result);
 }
 
+/*
+ * Curl multi stack support
+ *
+ * Exported thin wrappers for libcurl are prefixed with caml_curl_multi_.
+ * Other exported functions are prefixed with caml_curlm_, some of them
+ * can/should be decomposed into smaller parts.
+ */
+
 #define CURLM_val(v) ((CURLM*)v)
 #define Val_CURLM(h) ((value)h)
 
@@ -5813,8 +5821,14 @@ CAMLprim value caml_curlm_remove_finished(value v_multi)
   CAMLparam1(v_multi);
   CAMLlocal1(v_easy);
   CURL* handle;
+  CURLM* multi_handle;
 
-  handle = curlm_remove_finished(CURLM_val(v_multi));
+  multi_handle = CURLM_val(v_multi);
+
+  caml_enter_blocking_section();
+  handle = curlm_remove_finished(multi_handle);
+  caml_leave_blocking_section();
+
   if (NULL == handle)
   {
     CAMLreturn(Val_none);
