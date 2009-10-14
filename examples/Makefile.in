@@ -20,9 +20,9 @@ OCURLLIB	= curl.cma
 OCURLOPTLIB	= curl.cmxa
 
 ifeq (@OCAMLBEST@,opt)
-TARGETS	= ocurl ocurl.opt oput oput.opt ominimal ominimal.opt ossl ossl.opt
+TARGETS	= ocurl ocurl.opt oput oput.opt ominimal ominimal.opt ossl ossl.opt omulti omulti.opt
 else
-TARGETS = ocurl oput ominimal ossl
+TARGETS = ocurl oput ominimal ossl omulti
 endif
 
 all:
@@ -31,29 +31,11 @@ all:
 
 targets:	$(TARGETS)
 
-ocurl:		ocurl.cmo
-		$(OCBYTE) $(LFLAGS) $(OCURLLIB) ocurl.cmo -o $@
+%: %.cmo
+		$(OCBYTE) $(LFLAGS) $(OCURLLIB) $< -o $@
 
-ocurl.opt:	ocurl.cmx
-		$(OCOPT) $(LFLAGS) $(OCURLOPTLIB) ocurl.cmx -o $@
-
-oput:		oput.cmo
-		$(OCBYTE) $(LFLAGS) $(OCURLLIB) oput.cmo -o $@
-
-oput.opt:	oput.cmx
-		$(OCOPT) $(LFLAGS) $(OCURLOPTLIB) oput.cmx -o $@
-
-ominimal:	ominimal.cmo
-		$(OCBYTE) $(LFLAGS) $(OCURLLIB) ominimal.cmo -o $@
-
-ominimal.opt:	ominimal.cmx
-		$(OCOPT) $(LFLAGS) $(OCURLOPTLIB) ominimal.cmx -o $@
-
-ossl:		ossl.cmo
-		$(OCBYTE) $(LFLAGS) $(OCURLLIB) ossl.cmo -o $@
-
-ossl.opt:	ossl.cmx
-		$(OCOPT) $(LFLAGS) $(OCURLOPTLIB) ossl.cmx -o $@
+%.opt: %.cmx
+		$(OCOPT) $(LFLAGS) $(OCURLOPTLIB) $< -o $@
 
 .ml.cmx:
 		$(OCOPT) -c $(FLAGS) $< -o $@

@@ -17,7 +17,7 @@ LIBS		= libcurl.lib
 OCURLLIB	= curl.cma
 OCURLOPTLIB	= curl.cmxa
 
-TARGETS	= ocurl ocurl.opt oput oput.opt ominimal ominimal.opt ossl ossl.opt
+TARGETS	= ocurl.exe ocurl.opt.exe oput.exe oput.opt.exe ominimal.exe ominimal.opt.exe ossl.exe ossl.opt.exe omulti.exe omulti.opt.exe
 
 all:
 		@$(MAKE) -f Makefile.windows depend
@@ -25,29 +25,11 @@ all:
 
 targets:	$(TARGETS)
 
-ocurl:		ocurl.cmo
-		$(OCBYTE) $(LFLAGS) $(OCURLLIB) ocurl.cmo -o $@ $(LIBS)
+%.exe: %.cmo
+		$(OCBYTE) $(LFLAGS) $(OCURLLIB) $< -o $@ $(LIBS)
 
-ocurl.opt:	ocurl.cmx
-		$(OCOPT) $(LFLAGS) $(OCURLOPTLIB) ocurl.cmx -o $@ $(LIBS)
-
-oput:		oput.cmo
-		$(OCBYTE) $(LFLAGS) $(OCURLLIB) oput.cmo -o $@ $(LIBS)
-
-oput.opt:	oput.cmx
-		$(OCOPT) $(LFLAGS) $(OCURLOPTLIB) oput.cmx -o $@ $(LIBS)
-
-ominimal:	ominimal.cmo
-		$(OCBYTE) $(LFLAGS) $(OCURLLIB) ominimal.cmo -o $@ $(LIBS)
-
-ominimal.opt:	ominimal.cmx
-		$(OCOPT) $(LFLAGS) $(OCURLOPTLIB) ominimal.cmx -o $@ $(LIBS)
-
-ossl:		ossl.cmo
-		$(OCBYTE) $(LFLAGS) $(OCURLLIB) ossl.cmo -o $@ $(LIBS)
-
-ossl.opt:	ossl.cmx
-		$(OCOPT) $(LFLAGS) $(OCURLOPTLIB) ossl.cmx -o $@ $(LIBS)
+%.opt.exe: %.cmx
+		$(OCOPT) $(LFLAGS) $(OCURLOPTLIB) $< -o $@ $(LIBS)
 
 .ml.cmx:
 		$(OCOPT) -c $(FLAGS) $< -o $@
