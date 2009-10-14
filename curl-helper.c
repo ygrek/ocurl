@@ -5297,7 +5297,7 @@ CAMLprim value helper_curl_easy_duphandle(value conn)
     checkConnection(connection);
 
     result = alloc(1, Abstract_tag);
-    Field(result, 0) = (value)duplicateConnection(connection);
+    Store_field(result, 0, (value)duplicateConnection(connection));
 
     CAMLreturn(result);
 }
@@ -5323,20 +5323,20 @@ value convertStringList(struct curl_slist *slist)
     while (p != NULL)
     {
         next = alloc_tuple(2);
-        Field(next, 0) = copy_string(p->data);
-        Field(next, 1) = Val_int(0);
+        Store_field(next, 0, copy_string(p->data));
+        Store_field(next, 1, Val_int(0));
 
         if (result == Val_int(0))
             result = next;
 
         if (current != Val_int(0))
-            Field(current, 1) = next;
+            Store_field(current, 1, next);
 
         current = next;
 
         p = p->next;
     }
-    
+
     curl_slist_free_all(slist);
 
     CAMLreturn(result);
@@ -5672,22 +5672,22 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     {
     case StringValue:
         result = alloc(1, StringValue);
-        Field(result, 0) = copy_string(strValue);
+        Store_field(result, 0, copy_string(strValue));
         break;
 
     case LongValue:
         result = alloc(1, LongValue);
-        Field(result, 0) = Val_long(longValue);
+        Store_field(result, 0, Val_long(longValue));
         break;
 
     case DoubleValue:
         result = alloc(1, DoubleValue);
-        Field(result, 0) = copy_double(doubleValue);
+        Store_field(result, 0, copy_double(doubleValue));
         break;
 
     case StringListValue:
         result = alloc(1, StringListValue);
-        Field(result, 0) = convertStringList(stringListValue);
+        Store_field(result, 0, convertStringList(stringListValue));
         break;
     }
 
