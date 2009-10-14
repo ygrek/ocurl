@@ -20,7 +20,7 @@ CC		= @CC@
 FLAGS		=
 LIBS		=
 
-CFLAGS		= @CFLAGS@ @DEFS@
+CFLAGS		= @CFLAGS@ @DEFS@ -Wall
 CAMLINCDIR	= -I@OCAMLLIB@
 
 CURLHELPEROBJS	= curl-helper.o
