@@ -726,10 +726,11 @@ class handle :
 module Multi : sig
 
   (** type of Curl multi handle *)
-  type t
+  type mt
 
-  val create : unit -> t
-  val cleanup : t -> unit
+  val create : unit -> mt
+  val cleanup : mt -> unit
+  val remove_finished : mt -> t option
 
 end
 

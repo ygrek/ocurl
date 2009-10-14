@@ -25,6 +25,18 @@
 void leave_blocking_section(void);
 void enter_blocking_section(void);
 
+#define Val_none Val_int(0)
+
+static inline value
+Val_some( value v )
+{
+    CAMLparam1( v );
+    CAMLlocal1( some );
+    some = caml_alloc(1, 0);
+    Store_field( some, 0, v );
+    CAMLreturn( some );
+}
+
 typedef struct Connection Connection;
 typedef struct ConnectionList ConnectionList;
 
@@ -1519,6 +1531,23 @@ static void checkConnection(Connection *connection)
     }
 
     failwith("Invalid Connection");
+}
+
+static Connection* findConnection(CURL* h)
+{
+    Connection *listIter;
+
+    listIter = connectionList.tail;
+
+    while (listIter != NULL)
+    {
+        if (listIter->connection == h)
+            return listIter;
+
+        listIter = listIter->next;
+    }
+
+    failwith("Unknown handle");
 }
 
 #define WRAP_DATA_CALLBACK(f) \
@@ -5755,5 +5784,45 @@ CAMLprim value caml_curl_multi_cleanup(value handle)
     failwith("caml_curl_multi_cleanup");
 
   CAMLreturn(Val_unit);
+}
+
+static CURL* curlm_remove_finished(CURLM* multi_handle)
+{
+	int msgs_in_queue = 0;
+
+	while (1)
+	{
+		CURLMsg* msg = curl_multi_info_read(multi_handle, &msgs_in_queue);
+		if (NULL == msg) return NULL;
+		if (CURLMSG_DONE == msg->msg)
+		{
+			CURL* easy_handle = msg->easy_handle;
+			if (CURLM_OK != curl_multi_remove_handle(multi_handle, easy_handle))
+			{
+        //failwith("curlm_remove_finished");
+			}
+			return easy_handle;
+		}
+	}
+}
+
+CAMLprim value caml_curlm_remove_finished(value v_multi)
+{
+  CAMLparam1(v_multi);
+  CAMLlocal1(v_easy);
+  CURL* handle;
+
+  handle = curlm_remove_finished(CURLM_val(v_multi));
+  if (NULL == handle)
+  {
+    CAMLreturn(Val_none);
+  }
+  else
+  {
+    /* not good */
+    v_easy = alloc(1, Abstract_tag);
+    Store_field(v_easy, 0, (value)findConnection(handle));
+    CAMLreturn(Val_some(v_easy));
+  }
 }
 
