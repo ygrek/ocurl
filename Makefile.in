@@ -31,9 +31,9 @@ CURLFLAGS	= -ccopt @CURLFLAGS@
 CURLCLIBS	= -cclib -lcurl-helper -cclib "@CURLLIBS@"
 
 ifeq (@OCAMLBEST@,opt)
-TARGETS		= curl.cma curl.cmxa libcurl-helper.a
+TARGETS		= curl.cma curl.cmxa libcurl-helper.a dllcurl-helper.so
 else
-TARGETS		= curl.cma libcurl-helper.a
+TARGETS		= curl.cma libcurl-helper.a dllcurl-helper.so
 endif
 
 all:
@@ -45,11 +45,11 @@ targets:	$(TARGETS) examples
 examples:
 		(cd examples; $(MAKE))
 
-curl.cma:	$(CURLBCOBJS) libcurl-helper.a
-		$(OCBYTE) -custom -a $(FLAGS) $(CURLFLAGS) -o $@ $(CURLBCOBJS) $(CURLCLIBS)
+curl.cma:	$(CURLBCOBJS) dllcurl-helper.so
+		ocamlmklib  -o curl $(CURLBCOBJS) -oc curl-helper @CURLLIBS@
 
-curl.cmxa:	$(CURLOBJS) libcurl-helper.a
-		$(OCOPT) -a $(FLAGS) $(CURLFLAGS) $(LIBS) $(CURLOBJS) -o $@ $(CURLCLIBS)
+curl.cmxa:	$(CURLOBJS) dllcurl-helper.so
+		ocamlmklib  -o curl $(CURLOBJS) -oc curl-helper @CURLLIBS@
 
 .ml.cmx:
 		$(OCOPT) -c $(FLAGS) $< -o $@
@@ -60,17 +60,19 @@ curl.cmxa:	$(CURLOBJS) libcurl-helper.a
 .ml.cmo:
 		$(OCBYTE) -c $(FLAGS) $< -o $@
 
-libcurl-helper.a:	$(CURLHELPEROBJS)
-		ar crus libcurl-helper.a $(CURLHELPEROBJS)
-		ranlib libcurl-helper.a
+libcurl-helper.a dllcurl-helper.so:	$(CURLHELPEROBJS)
+		ocamlmklib  -oc curl-helper $(CURLHELPEROBJS) \
+			@CURLLIBS@
 
 .c.o:
-		$(CC) -c $(CFLAGS) $(CAMLINCDIR) $< -o $@
+	        $(OC) -c -ccopt "$(CFLAGS)" $<
 
 install:
 ifeq ($(FINDLIB),ocamlfind)
-		ocamlfind install curl META $(wildcard *.cmi) \
-			 $(wildcard *.a) $(wildcard *.cma) $(wildcard *.cmxa)
+		ocamlfind install -destdir $(DESTDIR) -ldconf ignore \
+			curl META $(wildcard *.cmi) \
+			 $(wildcard *.a) $(wildcard *.cma) \
+			 $(wildcard *.cmxa) $(wildcard *.so) $(wildcard *.mli)
 else
 		mkdir -p $(INSTALLDIR)
 		$(INSTALLDATA) curl.cma $(INSTALLDIR)
@@ -83,7 +85,7 @@ endif
 
 
 clean:
-		@rm -f $(TARGETS) *~ *.cm* *.o *.a .depend core
+		@rm -f $(TARGETS) *~ *.cm* *.o *.a *.so .depend core
 		@(cd examples; $(MAKE) clean)
 
 depend:
