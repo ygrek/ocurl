@@ -32,7 +32,7 @@ all:
 targets:	$(TARGETS)
 
 %: %.cmo
-		$(OCBYTE) $(LFLAGS) $(OCURLLIB) $< -o $@
+		$(OCBYTE) -custom $(LFLAGS) $(OCURLLIB) $< -o $@
 
 %.opt: %.cmx
 		$(OCOPT) $(LFLAGS) $(OCURLOPTLIB) $< -o $@
