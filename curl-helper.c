@@ -1521,14 +1521,22 @@ static void checkConnection(Connection *connection)
     failwith("Invalid Connection");
 }
 
-static size_t writeFunction(char *ptr, size_t size, size_t nmemb, void *data)
+#define WRAP_DATA_CALLBACK(f) \
+static size_t f(char *ptr, size_t size, size_t nmemb, void *data)\
+{\
+    size_t result;\
+    leave_blocking_section();\
+    result = f##_nolock(ptr,size,nmemb,data);\
+    enter_blocking_section();\
+    return result;\
+}
+
+static size_t writeFunction_nolock(char *ptr, size_t size, size_t nmemb, void *data)
 {
     CAMLparam0();
     CAMLlocal2(result, str);
     Connection *conn = (Connection *)data;
     int i;
-
-    leave_blocking_section();
 
     checkConnection(conn);
 
@@ -1539,18 +1547,17 @@ static size_t writeFunction(char *ptr, size_t size, size_t nmemb, void *data)
 
     result = callback(Field(conn->ocamlValues, OcamlWriteCallback), str);
 
-    enter_blocking_section();
-
     CAMLreturnT(size_t, Int_val(result));
 }
 
-static size_t readFunction(void *ptr, size_t size, size_t nmemb, void *data)
+WRAP_DATA_CALLBACK(writeFunction)
+
+static size_t readFunction_nolock(void *ptr, size_t size, size_t nmemb, void *data)
 {
-    value result;
+    CAMLparam0();
+    CAMLlocal1(result);
     Connection *conn = (Connection *)data;
     int length;
-
-    leave_blocking_section();
 
     checkConnection(conn);
 
@@ -1564,19 +1571,17 @@ static size_t readFunction(void *ptr, size_t size, size_t nmemb, void *data)
 
     memcpy(ptr, String_val(result), length);
 
-    enter_blocking_section();
-
-    return length;
+    CAMLreturnT(size_t,length);
 }
 
-static size_t headerFunction(char *ptr, size_t size, size_t nmemb, void *data)
+WRAP_DATA_CALLBACK(readFunction)
+
+static size_t headerFunction_nolock(char *ptr, size_t size, size_t nmemb, void *data)
 {
-    value result;
-    value str;
+    CAMLparam0();
+    CAMLlocal2(result,str);
     Connection *conn = (Connection *)data;
     int i;
-
-    leave_blocking_section();
 
     checkConnection(conn);
 
@@ -1587,12 +1592,12 @@ static size_t headerFunction(char *ptr, size_t size, size_t nmemb, void *data)
 
     result = callback(Field(conn->ocamlValues, OcamlHeaderCallback), str);
 
-    enter_blocking_section();
-
-    return Int_val(result);
+    CAMLreturnT(size_t, Int_val(result));
 }
 
-static int progressFunction(void *data,
+WRAP_DATA_CALLBACK(headerFunction)
+
+static int progressFunction_nolock(void *data,
                             double dlTotal,
                             double dlNow,
                             double ulTotal,
@@ -1602,8 +1607,6 @@ static int progressFunction(void *data,
     CAMLlocal1(result);
     CAMLlocalN(callbackData, 4);
     Connection *conn = (Connection *)data;
-
-    leave_blocking_section();
 
     checkConnection(conn);
 
@@ -1615,12 +1618,23 @@ static int progressFunction(void *data,
     result = callbackN(Field(conn->ocamlValues, OcamlProgressCallback),
                        4, callbackData);
 
-    enter_blocking_section();
-
     CAMLreturnT(int, Bool_val(result));
 }
 
-static int passwdFunction(void *data,
+static int progressFunction(void *data,
+                            double dlTotal,
+                            double dlNow,
+                            double ulTotal,
+                            double ulNow)
+{
+  int r;
+  leave_blocking_section();
+  r = progressFunction_nolock(data,dlTotal,dlNow,ulTotal,ulNow);
+  enter_blocking_section();
+  return r;
+}
+
+static int passwdFunction_nolock(void *data,
                           char *prompt,
                           char *buffer,
                           int bufferLength)
@@ -1629,8 +1643,6 @@ static int passwdFunction(void *data,
     CAMLlocal2(ocamlPasswd, ocamlPrompt);
     int length;
     Connection *conn = (Connection *)data;
-
-    leave_blocking_section();
 
     checkConnection(conn);
 
@@ -1642,8 +1654,6 @@ static int passwdFunction(void *data,
 
     if (Wosize_val(ocamlPasswd) != 2)
     {
-        enter_blocking_section();
-
         return 1;
     }
 
@@ -1655,12 +1665,22 @@ static int passwdFunction(void *data,
 
     buffer[length] = 0;
 
-    enter_blocking_section();
-
     CAMLreturnT(int, !(Bool_val(Field(ocamlPasswd, 0))));
 }
 
-static int debugFunction(CURL *debugConnection,
+static int passwdFunction(void *data,
+                          char *prompt,
+                          char *buffer,
+                          int bufferLength)
+{
+  int r;
+  leave_blocking_section();
+  r = passwdFunction_nolock(data,prompt,buffer,bufferLength);
+  enter_blocking_section();
+  return r;
+}
+
+static int debugFunction_nolock(CURL *debugConnection,
                          curl_infotype infoType,
                          char *buffer,
                          size_t bufferLength,
@@ -1670,8 +1690,6 @@ static int debugFunction(CURL *debugConnection,
     CAMLlocal3(camlDebugConnection, camlInfoType, camlMessage);
     int i;
     Connection *conn = (Connection *)data;
-
-    leave_blocking_section();
 
     checkConnection(conn);
 
@@ -1687,12 +1705,23 @@ static int debugFunction(CURL *debugConnection,
               camlInfoType,
               camlMessage);
 
-    enter_blocking_section();
-
     CAMLreturnT(int, 0);
 }
 
-static curlioerr ioctlFunction(CURL *ioctl,
+static int debugFunction(CURL *debugConnection,
+                         curl_infotype infoType,
+                         char *buffer,
+                         size_t bufferLength,
+                         void *data)
+{
+  int r;
+  leave_blocking_section();
+  r = debugFunction_nolock(debugConnection, infoType, buffer, bufferLength, data);
+  enter_blocking_section();
+  return r;
+}
+
+static curlioerr ioctlFunction_nolock(CURL *ioctl,
                                int cmd,
                                void *data)
 {
@@ -1700,8 +1729,6 @@ static curlioerr ioctlFunction(CURL *ioctl,
     CAMLlocal3(camlResult, camlConnection, camlCmd);
     Connection *conn = (Connection *)data;
     curlioerr result = CURLIOE_OK;
-
-    leave_blocking_section();
 
     checkConnection(conn);
 
@@ -1738,13 +1765,22 @@ static curlioerr ioctlFunction(CURL *ioctl,
         break;
     }
 
-    enter_blocking_section();
-
     CAMLreturnT(curlioerr, result);
 }
 
+static curlioerr ioctlFunction(CURL *ioctl,
+                               int cmd,
+                               void *data)
+{
+  curlioerr r;
+  leave_blocking_section();
+  r = ioctlFunction_nolock(ioctl, cmd, data);
+  enter_blocking_section();
+  return r;
+}
+
 #ifdef HAVE_DECL_CURLOPT_SEEKFUNCTION
-static int seekFunction(void *data,
+static int seekFunction_nolock(void *data,
                         curl_off_t offset,
                         int origin)
 {
@@ -1752,8 +1788,6 @@ static int seekFunction(void *data,
     CAMLlocal3(camlResult, camlOffset, camlOrigin);
     Connection *conn = (Connection *)data;
     int result = 0;
-
-    leave_blocking_section();
 
     camlOffset = copy_int64(offset);
 
@@ -1773,10 +1807,20 @@ static int seekFunction(void *data,
 
     result = Int_val(camlResult);
 
-    enter_blocking_section();
-
     CAMLreturnT(int, result);
 }
+
+static int seekFunction(void *data,
+                        curl_off_t offset,
+                        int origin)
+{
+  int r;
+  leave_blocking_section();
+  r = seekFunction_nolock(data,offset,origin);
+  enter_blocking_section();
+  return r;
+}
+
 #endif
 
 /**
