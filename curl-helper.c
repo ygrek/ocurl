@@ -1892,13 +1892,13 @@ CAMLprim value helper_curl_global_init(value initOption)
  **  curl_global_cleanup helper function
  **/
 
-CAMLprim void helper_curl_global_cleanup(void)
+CAMLprim value helper_curl_global_cleanup(void)
 {
     CAMLparam0();
 
     curl_global_cleanup();
 
-    CAMLreturn0;
+    CAMLreturn(Val_unit);
 }
 
 /**
@@ -5210,7 +5210,7 @@ static void handleSeekFunction(Connection *conn, value option)
  **  curl_easy_setopt helper function
  **/
 
-CAMLprim void helper_curl_easy_setopt(value conn, value option)
+CAMLprim value helper_curl_easy_setopt(value conn, value option)
 {
     CAMLparam2(conn, option);
     CAMLlocal1(data);
@@ -5243,14 +5243,14 @@ CAMLprim void helper_curl_easy_setopt(value conn, value option)
     else
         failwith("Invalid CURLOPT Option");
 
-    CAMLreturn0;
+    CAMLreturn(Val_unit);
 }
 
 /**
  **  curl_easy_perform helper function
  **/
 
-CAMLprim void helper_curl_easy_perform(value conn)
+CAMLprim value helper_curl_easy_perform(value conn)
 {
     CAMLparam1(conn);
     CURLcode result = CURLE_OK;
@@ -5265,14 +5265,14 @@ CAMLprim void helper_curl_easy_perform(value conn)
     if (result != CURLE_OK)
         raiseError(connection, result);
 
-    CAMLreturn0;
+    CAMLreturn(Val_unit);
 }
 
 /**
  **  curl_easy_cleanup helper function
  **/
 
-CAMLprim void helper_curl_easy_cleanup(value conn)
+CAMLprim value helper_curl_easy_cleanup(value conn)
 {
     CAMLparam1(conn);
     Connection *connection = Connection_val(conn);
@@ -5281,7 +5281,7 @@ CAMLprim void helper_curl_easy_cleanup(value conn)
 
     removeConnection(connection);
 
-    CAMLreturn0;
+    CAMLreturn(Val_unit);
 }
 
 /**
