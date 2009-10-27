@@ -5672,7 +5672,11 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     {
     case StringValue:
         result = alloc(1, StringValue);
-        Store_field(result, 0, copy_string(strValue));
+        /*
+         libcurl can return NULL, e.g. for CONTENT_TYPE or PRIVATE
+         alternative: add StringOptionValue and break API..
+         */
+        Store_field(result, 0, copy_string(strValue?strValue:""));
         break;
 
     case LongValue:
