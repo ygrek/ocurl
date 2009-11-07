@@ -40,7 +40,6 @@ enum OcamlValues
     OcamlPostQuote,
     OcamlHeaderCallback,
     OcamlProgressCallback,
-    OcamlPasswdCallback,
     OcamlDebugCallback,
     OcamlHTTP200Aliases,
     OcamlIOCTLCallback,
@@ -638,7 +637,6 @@ static void handleProgressFunction(Connection *, value);
 static void handleSSLVerifyPeer(Connection *, value);
 static void handleCAInfo(Connection *, value);
 static void handleCAPath(Connection *, value);
-static void handlePasswdFunction(Connection *, value);
 static void handleFileTime(Connection *, value);
 static void handleMaxRedirs(Connection *, value);
 static void handleMaxConnects(Connection *, value);
@@ -1218,8 +1216,6 @@ static Connection *duplicateConnection(Connection *original)
 		Field(original->ocamlValues, OcamlHeaderCallback));
     Store_field(connection->ocamlValues, OcamlProgressCallback,
 		Field(original->ocamlValues, OcamlProgressCallback));
-    Store_field(connection->ocamlValues, OcamlPasswdCallback,
-		Field(original->ocamlValues, OcamlPasswdCallback));
     Store_field(connection->ocamlValues, OcamlDebugCallback,
 		Field(original->ocamlValues, OcamlDebugCallback));
     Store_field(connection->ocamlValues, OcamlHTTP200Aliases,
@@ -1630,52 +1626,6 @@ static int progressFunction(void *data,
   int r;
   leave_blocking_section();
   r = progressFunction_nolock(data,dlTotal,dlNow,ulTotal,ulNow);
-  enter_blocking_section();
-  return r;
-}
-
-static int passwdFunction_nolock(void *data,
-                          char *prompt,
-                          char *buffer,
-                          int bufferLength)
-{
-    CAMLparam0();
-    CAMLlocal2(ocamlPasswd, ocamlPrompt);
-    int length;
-    Connection *conn = (Connection *)data;
-
-    checkConnection(conn);
-
-    ocamlPrompt = copy_string(prompt);
-
-    ocamlPasswd = callback2(Field(conn->ocamlValues, OcamlPasswdCallback),
-                            ocamlPrompt,
-                            Val_long(bufferLength));
-
-    if (Wosize_val(ocamlPasswd) != 2)
-    {
-        return 1;
-    }
-
-    length = string_length(Field(ocamlPasswd, 1));
-    if (length > bufferLength - 1)
-        length = bufferLength - 1;
-
-    memcpy(buffer, String_val(Field(ocamlPasswd, 0)), length);
-
-    buffer[length] = 0;
-
-    CAMLreturnT(int, !(Bool_val(Field(ocamlPasswd, 0))));
-}
-
-static int passwdFunction(void *data,
-                          char *prompt,
-                          char *buffer,
-                          int bufferLength)
-{
-  int r;
-  leave_blocking_section();
-  r = passwdFunction_nolock(data,prompt,buffer,bufferLength);
   enter_blocking_section();
   return r;
 }
