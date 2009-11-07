@@ -65,7 +65,7 @@ libcurl-helper.a:	$(CURLHELPEROBJS)
 		ranlib libcurl-helper.a
 
 .c.o:
-		$(CC) -c $(CFLAGS) $(CAMLINCDIR) $< -o $@
+		$(CC) -c -Wall $(CFLAGS) $(CAMLINCDIR) $< -o $@
 
 install:
 ifeq ($(FINDLIB),ocamlfind)
