@@ -1791,11 +1791,11 @@ static int seekFunction_nolock(void *data,
 
     camlOffset = copy_int64(offset);
 
-    if (origin = SEEK_SET)
+    if (origin == SEEK_SET)
         camlOrigin = Val_long(0);
-    else if (origin = SEEK_CUR)
+    else if (origin == SEEK_CUR)
         camlOrigin = Val_long(1);
-    else if (origin = SEEK_END)
+    else if (origin == SEEK_END)
         camlOrigin = Val_long(2);
     else
         camlOrigin = Val_long(0);
@@ -1854,7 +1854,8 @@ CAMLprim value helper_curl_global_init(value initOption)
         break;
     }
 
-    CAMLreturn0;
+    /* Keep compiler happy, we should never get here due to failwith() */
+    CAMLreturn(Val_long(1));
 }
 
 /**
