@@ -1103,13 +1103,20 @@ static void raiseError(Connection *conn, CURLcode code)
     CAMLreturn0;
 }
 
+static void resetOcamlValues(Connection* connection)
+{
+    int i;
+
+    for (i = 0; i < OcamlValuesSize; i++)
+        Store_field(connection->ocamlValues, i, Val_unit);
+}
+
 static Connection *newConnection(void)
 {
     Connection *connection;
-    int i;
 
     connection = (Connection *)malloc(sizeof(Connection));
-     
+
     enter_blocking_section();
     connection->connection = curl_easy_init();
     leave_blocking_section();
@@ -1130,9 +1137,7 @@ static Connection *newConnection(void)
     }
 
     connection->ocamlValues = alloc(OcamlValuesSize, 0);
-    for (i = 0; i < OcamlValuesSize; i++)
-        Store_field(connection->ocamlValues, i, Val_unit);
-
+    resetOcamlValues(connection);
     register_global_root(&connection->ocamlValues);
 
     connection->url = NULL;
@@ -1185,7 +1190,6 @@ static Connection *newConnection(void)
 static Connection *duplicateConnection(Connection *original)
 {
     Connection *connection;
-    int i;
 
     connection = (Connection *)malloc(sizeof(Connection));
 
@@ -1209,9 +1213,7 @@ static Connection *duplicateConnection(Connection *original)
     }
 
     connection->ocamlValues = alloc(OcamlValuesSize, 0);
-    for (i = 0; i < OcamlValuesSize; i++)
-        Store_field(connection->ocamlValues, i, Val_unit);
-
+    resetOcamlValues(connection);
     register_global_root(&connection->ocamlValues);
 
     Store_field(connection->ocamlValues, OcamlWriteCallback,
@@ -1916,6 +1918,18 @@ CAMLprim value helper_curl_easy_init(void)
     Store_field(result, 0, (value)conn);
 
     CAMLreturn(result);
+}
+
+CAMLprim value helper_curl_easy_reset(value conn)
+{
+    CAMLparam1(conn);
+    Connection *connection = Connection_val(conn);
+
+    checkConnection(connection);
+    curl_easy_reset(connection->connection);
+    resetOcamlValues(connection);
+
+    CAMLreturn(Val_unit);
 }
 
 /**

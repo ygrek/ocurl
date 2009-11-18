@@ -398,9 +398,11 @@ external helper_escape : string -> string = "helper_curl_escape"
 external helper_unescape : string -> string = "helper_curl_unescape"
 external helper_getdate : string -> float -> float = "helper_curl_getdate"
 external helper_version : unit -> string = "helper_curl_version"
-					     
+
 let init () =
   helper_init ()
+
+external reset : t -> unit = "helper_curl_easy_reset"
 
 let duphandle conn =
   helper_duphandle conn

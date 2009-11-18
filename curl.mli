@@ -389,6 +389,8 @@ type curlInfoResult =
 val global_init : initOption -> unit
 val global_cleanup : unit -> unit
 val init : unit -> t
+(** Reset [t] to the default state *)
+val reset : t -> unit
 val duphandle : t -> t
 val setopt : t -> curlOption -> unit
 val perform : t -> unit
