@@ -1,5 +1,5 @@
 name="curl"
-version="0.5.1"
+version="0.5.2"
 description="Lib Curl"
 requires=""
 archive(byte)="curl.cma"
