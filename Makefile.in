@@ -69,7 +69,7 @@ libcurl-helper.a dllcurl-helper.so:	$(CURLHELPEROBJS)
 
 install:
 ifeq ($(FINDLIB),ocamlfind)
-		ocamlfind install -destdir $(DESTDIR) -ldconf ignore \
+		ocamlfind install -ldconf ignore \
 			curl META $(wildcard *.cmi) \
 			 $(wildcard *.a) $(wildcard *.cma) \
 			 $(wildcard *.cmxa) $(wildcard *.so) $(wildcard *.mli)
