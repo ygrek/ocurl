@@ -65,7 +65,7 @@ libcurl-helper.a dllcurl-helper.so:	$(CURLHELPEROBJS)
 			@CURLLIBS@
 
 .c.o:
-	        $(OC) -c -ccopt "$(CFLAGS)" $<
+		$(OC) -c -ccopt "$(CFLAGS)" $<
 
 install:
 ifeq ($(FINDLIB),ocamlfind)
