@@ -22,12 +22,18 @@
 #warning "No config file given."
 #endif
 
+#if defined(_MSC_VER)
+#ifdef interface
+#undef interface
+#endif
+#endif
+
 void leave_blocking_section(void);
 void enter_blocking_section(void);
 
 #define Val_none Val_int(0)
 
-static inline value
+static __inline value
 Val_some( value v )
 {
     CAMLparam1( v );
@@ -5814,6 +5820,7 @@ CAMLprim value caml_curlm_remove_finished(value v_multi)
 static int curlm_wait_data(CURLM* multi_handle)
 {
 	struct timeval timeout;
+  CURLMcode ret;
 
 	fd_set fdread;
 	fd_set fdwrite;
@@ -5829,7 +5836,7 @@ static int curlm_wait_data(CURLM* multi_handle)
 	timeout.tv_usec = 0;
 
 	/* get file descriptors from the transfers */
-	CURLMcode ret = curl_multi_fdset(multi_handle, &fdread, &fdwrite, &fdexcep, &maxfd);
+	ret = curl_multi_fdset(multi_handle, &fdread, &fdwrite, &fdexcep, &maxfd);
 
 	if (ret == CURLM_OK && maxfd >= 0)
 	{

@@ -10,9 +10,11 @@ OCOPT		= ocamlopt
 OC		= ocamlc
 CC		= ocamlc
 
+CURLDIR = C:/my/contrib/curl-7.19.7
+
 FLAGS		= -I ..
-LFLAGS		= -I .. -cclib "/link /LIBPATH:c:/devtools/curl"
-LIBS		= libcurl.lib
+LFLAGS		= -I .. -cclib "-L$(CURLDIR)"
+LIBS		= libcurl_imp.lib
 
 OCURLLIB	= curl.cma
 OCURLOPTLIB	= curl.cmxa
@@ -41,7 +43,7 @@ targets:	$(TARGETS)
 		$(OCBYTE) -c $(FLAGS) $< -o $@
 
 clean:
-		@rm -f $(TARGETS) *~ *.cm* *.o *.a .depend core
+		@del $(TARGETS) *~ *.cm* *.o *.a *.obj *.lib .depend core
 
 depend:
 		@ocamldep *.mli *.ml > .depend

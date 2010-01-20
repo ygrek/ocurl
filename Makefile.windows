@@ -15,8 +15,10 @@ CC		= cl
 FLAGS		=
 LIBS		=
 
-CFLAGS		= #/Ic:/devtools/ocaml/lib/caml /Ic:/devtools/curl/include
-CAMLINCDIR	= -I c:/devtools/ocaml/lib/caml -I c:/devtools/curl/include
+CURLDIR = c:/my/contrib/curl-7.19.7
+
+CFLAGS		=
+CAMLINCDIR	= -I $(CURLDIR)/include
 
 CURLHELPEROBJS	= curl-helper.obj
 CURLOBJS	= curl.cmx
@@ -34,7 +36,7 @@ all:
 targets:	$(TARGETS) examples
 
 examples:
-		(cd examples; $(MAKE) -f Makefile.windows)
+		$(MAKE) -C examples -f Makefile.windows
 
 curl.cma:	$(CURLBCOBJS) libcurl-helper.lib
 		$(OCBYTE) -custom -a $(FLAGS) $(CURLFLAGS) -o $@ $(CURLBCOBJS) $(CURLCLIBS)
@@ -55,11 +57,11 @@ libcurl-helper.lib:	$(CURLHELPEROBJS)
 		lib /OUT:libcurl-helper.lib $(CURLHELPEROBJS)
 
 .c.obj:
-		$(OC) -c $(CFLAGS) $(CAMLINCDIR) $< -o $@
+		$(OC) -c $(CFLAGS) -ccopt -DHAVE_CONFIG_H $(CAMLINCDIR) $< -o $@
 
 clean:
-		@rm -f $(TARGETS) *~ *.cm* *.o *.a .depend core
-		@(cd examples; $(MAKE) -f Makefile.windows clean)
+		@del $(TARGETS) *~ *.cm* *.o *.a *.obj *.lib .depend core
+		@$(MAKE) -C examples -f Makefile.windows clean
 
 depend:
 		@ocamldep *.mli *.ml > .depend
