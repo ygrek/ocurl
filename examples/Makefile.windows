@@ -10,11 +10,8 @@ OCOPT		= ocamlopt
 OC		= ocamlc
 CC		= ocamlc
 
-CURLDIR = C:/my/contrib/curl-7.19.7
-
 FLAGS		= -I ..
-LFLAGS		= -I .. -cclib "-L$(CURLDIR)"
-LIBS		= libcurl_imp.lib
+LFLAGS		= -I ..
 
 OCURLLIB	= curl.cma
 OCURLOPTLIB	= curl.cmxa
@@ -28,10 +25,10 @@ all:
 targets:	$(TARGETS)
 
 %.exe: %.cmo
-		$(OCBYTE) $(LFLAGS) $(OCURLLIB) $< -o $@ $(LIBS)
+		$(OCBYTE) $(LFLAGS) $(OCURLLIB) $< -o $@
 
 %.opt.exe: %.cmx
-		$(OCOPT) $(LFLAGS) $(OCURLOPTLIB) $< -o $@ $(LIBS)
+		$(OCOPT) $(LFLAGS) $(OCURLOPTLIB) $< -o $@
 
 .ml.cmx:
 		$(OCOPT) -c $(FLAGS) $< -o $@
