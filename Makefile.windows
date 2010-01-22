@@ -30,7 +30,7 @@ CURLOBJS	= curl.cmx
 CURLBCOBJS	= $(CURLOBJS:.cmx=.cmo)
 
 CURLFLAGS	= 
-CURLCLIBS	= $(CURLIMPORTLIB)
+CURLCLIBS	= $(CURLIMPORTLIB) ws2_32.lib
 
 TARGETS		= curl.cma curl.cmxa
 
@@ -44,10 +44,10 @@ examples:
 		$(MAKE) -C examples -f Makefile.windows
 
 curl.cma:	$(CURLBCOBJS) dllcurl-helper.dll
-		$(OCAMLMKLIB) -o curl $(CURLBCOBJS) -oc curl-helper $(CURLCLIBS)
+		$(OCAMLMKLIB) -o curl $(CURLBCOBJS) -oc curl-helper
 
-curl.cmxa:	$(CURLOBJS) dllcurl-helper.dll
-		$(OCAMLMKLIB) -o curl $(CURLOBJS) -oc curl-helper $(CURLCLIBS)
+curl.cmxa:	$(CURLOBJS) libcurl-helper.lib
+		$(OCAMLMKLIB) -o curl $(CURLOBJS) -oc curl-helper
 
 .ml.cmx:
 		$(OCOPT) -c $(FLAGS) $< -o $@
@@ -59,13 +59,13 @@ curl.cmxa:	$(CURLOBJS) dllcurl-helper.dll
 		$(OCBYTE) -c $(FLAGS) $< -o $@
 
 libcurl-helper.lib dllcurl-helper.dll:	$(CURLHELPEROBJS)
-		$(OCAMLMKLIB) -oc curl-helper $(CURLHELPEROBJS) $(CURLIMPORTLIB)
+		$(OCAMLMKLIB) -oc curl-helper $(CURLHELPEROBJS) $(CURLCLIBS)
 
 .c.obj:
 		$(OC) -c $(CFLAGS) -ccopt -DHAVE_CONFIG_H $(CAMLINCDIR) $< -o $@
 
 clean:
-		@del $(TARGETS) *~ *.cm* *.o *.a *.obj *.lib .depend core
+		@del $(TARGETS) *~ *.cm* *.o *.a *.obj *.lib *.dll .depend core
 		@$(MAKE) -C examples -f Makefile.windows clean
 
 depend:
