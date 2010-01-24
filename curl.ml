@@ -1156,5 +1156,12 @@ module Multi = struct
 
   external events : mt -> unit = "caml_curl_multi_socketfunction"
 
+  type poll = POLL_NONE | POLL_IN | POLL_OUT | POLL_INOUT | POLL_REMOVE
+  type kind = EVENT_READ | EVENT_WRITE
+
+  external set_socket_f : mt -> (mt -> Unix.file_descr -> poll -> unit) -> unit = "caml_curl_multi_socketfunction"
+  external action_all : mt -> int = "caml_curl_multi_socket_all"
+  external action : mt -> Unix.file_descr -> kind list -> int = "caml_curl_multi_socket_action"
+
 end
 

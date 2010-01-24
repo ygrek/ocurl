@@ -753,5 +753,12 @@ module Multi : sig
 
   val events : mt -> unit
 
+  type poll = POLL_NONE | POLL_IN | POLL_OUT | POLL_INOUT | POLL_REMOVE
+  type kind = EVENT_READ | EVENT_WRITE
+
+  val set_socket_f : mt -> (mt -> Unix.file_descr -> poll -> unit) -> unit
+  val action_all : mt -> int
+  val action : mt -> Unix.file_descr -> kind list -> int
+
 end
 

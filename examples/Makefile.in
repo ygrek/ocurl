@@ -12,12 +12,14 @@ OCOPT		= @OCAMLOPT@
 OC		= @OCAMLC@
 CC		= @CC@
 
-FLAGS		= -I ..
-LFLAGS		= -I .. -ccopt -L..
+LIBEVENTDIR = "$(shell ocamlfind query liboevent)"
+
+FLAGS		= -I .. -I $(LIBEVENTDIR)
+LFLAGS		= -I .. -I $(LIBEVENTDIR) -ccopt -L..
 LIBS		= 
 
-OCURLLIB	= curl.cma
-OCURLOPTLIB	= curl.cmxa
+OCURLLIB	= curl.cma unix.cma liboevent.cma
+OCURLOPTLIB	= curl.cmxa unix.cmxa liboevent.cmxa
 
 ifeq (@OCAMLBEST@,opt)
 TARGETS	= ocurl ocurl.opt oput oput.opt ominimal ominimal.opt ossl ossl.opt omulti omulti.opt

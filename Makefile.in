@@ -27,7 +27,7 @@ CURLHELPEROBJS	= curl-helper.o
 CURLOBJS	= curl.cmx
 CURLBCOBJS	= $(CURLOBJS:.cmx=.cmo)
 
-CLIBS = @CURLLIBS@ -levent
+CLIBS = @CURLLIBS@
 
 ifeq (@OCAMLBEST@,opt)
 TARGETS		= curl.cma curl.cmxa libcurl-helper.a dllcurl-helper.so

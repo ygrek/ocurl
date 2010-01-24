@@ -5,21 +5,51 @@
  *)
 
 module M = Curl.Multi
+module Ev = Libevent
+
+let pr fmt = Printf.ksprintf print_endline fmt
 
 let loop mt =
-  (*
+(*
   while M.perform mt > 0 do
     ignore (M.wait mt)
   done;
-  *)
-  M.events mt;
-  let rec rm n =
+*)
+  let rm () =
+    let rec loop n =
     match M.remove_finished mt with
-    | None -> n
-    | Some _ -> rm (n+1)
+    | None -> (*pr "Removed %u handles" n*) ()
+    | Some _ -> loop (n+1)
+    in loop 0
   in
-  let n = rm 0 in
-  Printf.printf "Removed %u handles\n" n
+  let events = Hashtbl.create 32 in
+  let on_event fd flags =
+    let _ = M.action mt fd [] in
+    rm ()
+  in
+  let evs = ref 0 in
+  M.set_socket_f mt begin fun h fd what ->
+    List.iter (fun ev -> decr evs; Ev.del ev) (Hashtbl.find_all events fd); Hashtbl.remove events fd;
+    let flags = match what with
+          | M.POLL_REMOVE | M.POLL_NONE -> []
+          | M.POLL_IN -> [Ev.READ]
+          | M.POLL_OUT -> [Ev.WRITE]
+          | M.POLL_INOUT -> [Ev.READ;Ev.WRITE]
+    in
+    match flags with
+    | [] -> ()
+    | flags ->
+      let ev = Ev.create () in
+      Ev.set ev fd flags true on_event;
+      Ev.add ev None;
+      incr evs;
+      Hashtbl.add events fd ev
+  end;
+  M.action_all mt;
+  Ev.dispatch ();
+  pr "events : %u" !evs;
+(*   rm (); *)
+  ()
 
 let input_lines file =
   let ch = open_in file in
