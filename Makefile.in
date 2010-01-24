@@ -27,8 +27,7 @@ CURLHELPEROBJS	= curl-helper.o
 CURLOBJS	= curl.cmx
 CURLBCOBJS	= $(CURLOBJS:.cmx=.cmo)
 
-CURLFLAGS	= -ccopt @CURLFLAGS@
-CURLCLIBS	= -cclib -lcurl-helper -cclib "@CURLLIBS@"
+CLIBS = @CURLLIBS@ -levent
 
 ifeq (@OCAMLBEST@,opt)
 TARGETS		= curl.cma curl.cmxa libcurl-helper.a dllcurl-helper.so
@@ -46,10 +45,10 @@ examples:
 		(cd examples; $(MAKE))
 
 curl.cma:	$(CURLBCOBJS) dllcurl-helper.so
-		ocamlmklib  -o curl $(CURLBCOBJS) -oc curl-helper @CURLLIBS@
+		ocamlmklib  -o curl $(CURLBCOBJS) -oc curl-helper $(CLIBS)
 
 curl.cmxa:	$(CURLOBJS) dllcurl-helper.so
-		ocamlmklib  -o curl $(CURLOBJS) -oc curl-helper @CURLLIBS@
+		ocamlmklib  -o curl $(CURLOBJS) -oc curl-helper $(CLIBS)
 
 .ml.cmx:
 		$(OCOPT) -c $(FLAGS) $< -o $@
@@ -61,8 +60,7 @@ curl.cmxa:	$(CURLOBJS) dllcurl-helper.so
 		$(OCBYTE) -c $(FLAGS) $< -o $@
 
 libcurl-helper.a dllcurl-helper.so:	$(CURLHELPEROBJS)
-		ocamlmklib  -oc curl-helper $(CURLHELPEROBJS) \
-			@CURLLIBS@
+		ocamlmklib  -oc curl-helper $(CURLHELPEROBJS) $(CLIBS)
 
 .c.o:
 		$(OC) -c -ccopt "$(CFLAGS)" $<

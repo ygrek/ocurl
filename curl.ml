@@ -1154,5 +1154,7 @@ module Multi = struct
   external remove_finished : mt -> t option = "caml_curlm_remove_finished"
   external cleanup : mt -> unit = "caml_curl_multi_cleanup"
 
+  external events : mt -> unit = "caml_curl_multi_socketfunction"
+
 end
 

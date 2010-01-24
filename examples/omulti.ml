@@ -7,9 +7,12 @@
 module M = Curl.Multi
 
 let loop mt =
+  (*
   while M.perform mt > 0 do
     ignore (M.wait mt)
   done;
+  *)
+  M.events mt;
   let rec rm n =
     match M.remove_finished mt with
     | None -> n

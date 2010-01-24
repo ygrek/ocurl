@@ -5928,3 +5928,137 @@ CAMLprim value caml_curl_multi_perform_all(value v_multi)
   CAMLreturn(Val_int(still_running));
 }
 
+/*
+ * from curl hiperfifo.c example
+ */
+
+#include <event.h>
+
+#define MSG_OUT stderr
+
+/* Information associated with a specific socket */
+typedef struct _SockInfo 
+{
+  curl_socket_t sockfd;
+  CURL *easy;
+//  int action;
+//  long timeout;
+  struct event ev;
+  int evset;
+//  GlobalInfo *global;
+} SockInfo;
+
+/* Called by libevent when we get action on a multi socket */
+static void event_cb(int fd, short kind, void *userp)
+{
+  ml_multi_handle *mh = (ml_multi_handle*) userp;
+  CURLMcode rc;
+  int still_running = 0;
+  (void)kind; /* unused */
+
+  fprintf(MSG_OUT, "event on socket %d", fd);
+  do {
+    rc = curl_multi_socket_action(mh->handle, fd, 0, &still_running);
+  } while (rc == CURLM_CALL_MULTI_PERFORM);
+/*  mcode_or_die("event_cb: curl_multi_socket", rc);*/
+/*
+  check_run_count(g);
+  if ( g->still_running <= 0 ) {
+    fprintf(MSG_OUT, "last transfer done, kill timeout\n");
+    if (evtimer_pending(&g->timer_event, NULL)) {
+      evtimer_del(&g->timer_event);
+    }
+  }
+*/
+}
+
+/* Clean up the SockInfo structure */
+static void remsock(SockInfo *f)
+{
+  if (!f) return;
+  if (f->evset)
+    event_del(&f->ev);
+  caml_stat_free(f);
+}
+
+/* Assign information to a SockInfo structure */
+static void setsock(SockInfo*f, curl_socket_t sock, CURL*e, int act, ml_multi_handle* mh)
+{
+  int kind =
+     (act&CURL_POLL_IN?EV_READ:0)|(act&CURL_POLL_OUT?EV_WRITE:0)|EV_PERSIST;
+
+  f->sockfd = sock;
+//  f->action = act;
+  f->easy = e;
+  if (f->evset)
+    event_del(&f->ev);
+  event_set(&f->ev, sock, kind, event_cb, mh);
+  f->evset=1;
+  event_add(&f->ev, NULL);
+}
+
+/* Initialize a new SockInfo structure */
+static void addsock(curl_socket_t sock, CURL *easy, int action, ml_multi_handle *mh) 
+{
+  SockInfo *si = caml_stat_alloc(sizeof(SockInfo));
+
+  //si->global = g;
+  setsock(si, sock, easy, action, mh);
+  curl_multi_assign(mh->handle, sock, si);
+}
+
+/* CURLMOPT_SOCKETFUNCTION */
+static int sock_cb(CURL *e, curl_socket_t sock, int what, void *cbp, void *sockp)
+{
+  ml_multi_handle *mh = (ml_multi_handle*) cbp;
+  SockInfo *si = (SockInfo*) sockp;
+  const char *whatstr[]={ "none", "IN", "OUT", "INOUT", "REMOVE" };
+
+  fprintf(MSG_OUT,
+          "socket callback: s=%d e=%p what=%s ", sock, e, whatstr[what]);
+  if (what == CURL_POLL_REMOVE)
+  {
+    fprintf(MSG_OUT, "\n");
+    remsock(si);
+  }
+  else 
+  {
+    if (!si)
+    {
+      fprintf(MSG_OUT, "Adding data: %s\n", whatstr[what]);
+      addsock(sock, e, what, mh);
+    }
+    else
+    {
+      fprintf(MSG_OUT,
+              "Changing action to %s\n",
+              /*whatstr[si->action], */whatstr[what]);
+      setsock(si, sock, e, what, mh);
+    }
+  }
+  return 0;
+}
+
+CAMLprim value caml_curl_multi_socketfunction(value v_multi)
+{
+  CAMLparam1(v_multi);
+  CURLM* h = CURLM_val(v_multi);
+  CURLMcode rc;
+  int still_running = 0;
+
+  event_init();
+
+  curl_multi_setopt(h, CURLMOPT_SOCKETFUNCTION, sock_cb);
+  curl_multi_setopt(h, CURLMOPT_SOCKETDATA, Multi_val(v_multi));
+
+  do {
+    rc = curl_multi_socket_all(h, &still_running);
+  } while (CURLM_CALL_MULTI_PERFORM == rc);
+
+  caml_enter_blocking_section();
+  event_dispatch();
+  caml_leave_blocking_section();
+
+  CAMLreturn(Val_unit);
+}
+

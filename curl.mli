@@ -751,5 +751,7 @@ module Multi : sig
   (** destroy multi handle (all transfers are stopped, but individual handles are left alive) *)
   val cleanup : mt -> unit
 
+  val events : mt -> unit
+
 end
 
