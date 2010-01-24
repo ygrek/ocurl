@@ -15,6 +15,7 @@
 #include <caml/mlvalues.h>
 #include <caml/callback.h>
 #include <caml/fail.h>
+#include <caml/custom.h>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -5739,28 +5740,71 @@ CAMLprim value helper_curl_version(void)
  * can/should be decomposed into smaller parts.
  */
 
-#define CURLM_val(v) ((CURLM*)v)
-#define Val_CURLM(h) ((value)h)
+struct ml_multi_handle
+{
+  CURLM* handle;
+  value values; /* callbacks */
+};
+
+enum
+{
+  curlmopt_socket_function,
+
+  /* last, not used */
+  multi_values_total,
+};
+
+typedef struct ml_multi_handle ml_multi_handle;
+
+#define Multi_val(v) (*(ml_multi_handle**)Data_custom_val(v))
+#define CURLM_val(v) (Multi_val(v)->handle)
+
+static struct custom_operations curl_multi_ops = {
+  "ygrek.curl_multi",
+  custom_finalize_default,
+  custom_compare_default,
+  custom_hash_default,
+  custom_serialize_default,
+  custom_deserialize_default
+};
 
 CAMLprim value caml_curl_multi_init(value unit)
 {
   CAMLparam1(unit);
-  CURLM* h;
-
-  h = curl_multi_init();
+  CAMLlocal1(v);
+  ml_multi_handle* multi = (ml_multi_handle*)caml_stat_alloc(sizeof(ml_multi_handle));
+  CURLM* h = curl_multi_init();
 
   if (!h)
+  {
+    caml_stat_free(multi);
     failwith("caml_curl_multi_init");
+  }
 
-  CAMLreturn(Val_CURLM(h));
+  multi->handle = h;
+  multi->values = caml_alloc(multi_values_total, 0);
+  caml_register_generational_global_root(&multi->values);
+
+  v = caml_alloc_custom(&curl_multi_ops, sizeof(ml_multi_handle*), 0, 1);
+  Multi_val(v) = multi;
+
+  CAMLreturn(v);
 }
 
 CAMLprim value caml_curl_multi_cleanup(value handle)
 {
   CAMLparam1(handle);
+  ml_multi_handle* h = Multi_val(handle);
 
-  if (CURLM_OK != curl_multi_cleanup(CURLM_val(handle)))
+  if (NULL == h)
+    CAMLreturn(Val_unit);
+
+  caml_remove_generational_global_root(&h->values);
+
+  if (CURLM_OK != curl_multi_cleanup(h->handle))
     failwith("caml_curl_multi_cleanup");
+
+  Multi_val(handle) = (ml_multi_handle*)NULL;
 
   CAMLreturn(Val_unit);
 }
