@@ -64,8 +64,17 @@ libcurl-helper.lib dllcurl-helper.dll:	$(CURLHELPEROBJS)
 .c.obj:
 		$(OC) -c $(CFLAGS) -ccopt -DHAVE_CONFIG_H $(CAMLINCDIR) $< -o $@
 
+install:
+		ocamlfind install -ldconf ignore \
+			 curl META $(wildcard *.cmi) \
+			 $(wildcard *.lib) $(wildcard *.cma) \
+			 $(wildcard *.cmxa) $(wildcard *.dll) $(wildcard *.mli)
+
+uninstall:
+		ocamlfind remove curl
+
 clean:
-		@del $(TARGETS) *~ *.cm* *.o *.a *.obj *.lib *.dll .depend core
+		@del $(TARGETS) *~ *.cm* *.obj *.lib *.dll .depend core
 		@$(MAKE) -C examples -f Makefile.windows clean
 
 depend:
