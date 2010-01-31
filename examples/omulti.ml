@@ -5,27 +5,28 @@
  *)
 
 module M = Curl.Multi
-module Ev = Libevent
+module Ev = Liboevent
 
 let pr fmt = Printf.ksprintf print_endline fmt
 
-let loop mt =
-(*
+let finished mt =
+  let rec loop n =
+  match M.remove_finished mt with
+  | None -> if n > 0 then pr "Removed %u handles" n
+  | Some _ -> loop (n+1)
+  in loop 0
+
+let loop1 mt =
   while M.perform mt > 0 do
     ignore (M.wait mt)
   done;
-*)
-  let rm () =
-    let rec loop n =
-    match M.remove_finished mt with
-    | None -> (*pr "Removed %u handles" n*) ()
-    | Some _ -> loop (n+1)
-    in loop 0
-  in
+  finished mt
+
+let loop_async mt =
   let events = Hashtbl.create 32 in
   let on_event fd flags =
     let _ = M.action mt fd [] in
-    rm ()
+    finished mt
   in
   let evs = ref 0 in
   M.set_socket_f mt begin fun h fd what ->
@@ -37,7 +38,7 @@ let loop mt =
           | M.POLL_INOUT -> [Ev.READ;Ev.WRITE]
     in
     match flags with
-    | [] -> ()
+    | [] -> finished mt
     | flags ->
       let ev = Ev.create () in
       Ev.set ev fd flags true on_event;
@@ -45,11 +46,10 @@ let loop mt =
       incr evs;
       Hashtbl.add events fd ev
   end;
-  M.action_all mt;
+  let _ = M.action_all mt in
   Ev.dispatch ();
-  pr "events : %u" !evs;
-(*   rm (); *)
-  ()
+  assert (0 = !evs);
+  finished mt
 
 let input_lines file =
   let ch = open_in file in
@@ -88,12 +88,19 @@ let () =
       (Curl.get_effectiveurl h);
     Curl.cleanup h
   in
-  let hs = A.map init urls in
-  let mt = M.create () in
-  A.iter (M.add mt) hs;
-  loop mt;
-  A.iter cleanup hs;
-  M.cleanup mt;
-  print_endline "Finished";
+  let test name loop =
+   pr "test %s" name;
+   let hs = A.map init urls in
+   let mt = M.create () in
+   A.iter (M.add mt) hs;
+   loop mt;
+   A.iter cleanup hs;
+   M.cleanup mt;
+   pr "Finished";
+  in
+  for i = 1 to 2 do
+  test "perform/wait" loop1;
+  test "async libevent" loop_async;
+  done;
   ()
 

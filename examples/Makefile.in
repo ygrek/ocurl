@@ -12,7 +12,7 @@ OCOPT		= @OCAMLOPT@
 OC		= @OCAMLC@
 CC		= @CC@
 
-LIBEVENTDIR = "$(shell ocamlfind query liboevent)"
+LIBEVENTDIR = "$(shell ocamlfind query event)"
 
 FLAGS		= -I .. -I $(LIBEVENTDIR)
 LFLAGS		= -I .. -I $(LIBEVENTDIR) -ccopt -L..
