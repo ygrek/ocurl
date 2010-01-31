@@ -1154,14 +1154,12 @@ module Multi = struct
   external remove_finished : mt -> t option = "caml_curlm_remove_finished"
   external cleanup : mt -> unit = "caml_curl_multi_cleanup"
 
-  external events : mt -> unit = "caml_curl_multi_socketfunction"
-
   type poll = POLL_NONE | POLL_IN | POLL_OUT | POLL_INOUT | POLL_REMOVE
-  type kind = EVENT_READ | EVENT_WRITE
+  type fd_status = EVENT_AUTO | EVENT_READ | EVENT_WRITE
 
   external set_socket_f : mt -> (mt -> Unix.file_descr -> poll -> unit) -> unit = "caml_curl_multi_socketfunction"
   external action_all : mt -> int = "caml_curl_multi_socket_all"
-  external action : mt -> Unix.file_descr -> kind list -> int = "caml_curl_multi_socket_action"
+  external action : mt -> Unix.file_descr -> fd_status -> int = "caml_curl_multi_socket_action"
 
 end
 

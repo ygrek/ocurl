@@ -25,7 +25,7 @@ let loop1 mt =
 let loop_async mt =
   let events = Hashtbl.create 32 in
   let on_event fd flags =
-    let _ = M.action mt fd [] in
+    let _ = M.action mt fd M.EVENT_AUTO in
     finished mt
   in
   let evs = ref 0 in

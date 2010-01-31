@@ -4,6 +4,8 @@
  * Copyright (c) 2003-2008, Lars Nilsson, <lars@quantumchamaeleon.com>
  *)
 
+(** libcurl wrapper *)
+
 type t
 
 type curlCode =
@@ -389,8 +391,8 @@ type curlInfoResult =
 val global_init : initOption -> unit
 val global_cleanup : unit -> unit
 val init : unit -> t
-(** Reset [t] to the default state *)
 val reset : t -> unit
+(** Reset [t] to the default state *)
 val duphandle : t -> t
 val setopt : t -> curlOption -> unit
 val perform : t -> unit
@@ -745,20 +747,37 @@ module Multi : sig
       @return whether [perform] should be called *)
   val wait : mt -> bool
 
-  (** remove finished handle from the multi stack if any. The handle can be reused *)
+  (** remove finished handle from the multi stack if any. The returned handle can be reused *)
   val remove_finished : mt -> t option
 
-  (** destroy multi handle (all transfers are stopped, but individual handles are left alive) *)
+  (** destroy multi handle (all transfers are stopped, but individual {!type: Curl.t} handles can be reused) *)
   val cleanup : mt -> unit
 
-  val events : mt -> unit
+  (** events that should be reported for the socket *)
+  type poll = 
+    | POLL_NONE    (** none *)
+    | POLL_IN      (** available for reading *)
+    | POLL_OUT     (** available for writing *)
+    | POLL_INOUT   (** both *)
+    | POLL_REMOVE  (** socket not needed anymore *)
 
-  type poll = POLL_NONE | POLL_IN | POLL_OUT | POLL_INOUT | POLL_REMOVE
-  type kind = EVENT_READ | EVENT_WRITE
+  (** socket status *)
+  type fd_status = 
+    | EVENT_AUTO (** determine socket status automatically (with extra system call) *)
+    | EVENT_READ (** socket has incoming data *)
+    | EVENT_WRITE (** socket is available for writing *)
 
+  (** set the function to receive notifications on what socket events
+      are currently interesting for libcurl on the specified socket handle *)
   val set_socket_f : mt -> (mt -> Unix.file_descr -> poll -> unit) -> unit
+
+  (** perform pending data transfers (if any) on all handles currently in multi stack
+      @return the number of handles that still transfer data *)
   val action_all : mt -> int
-  val action : mt -> Unix.file_descr -> kind list -> int
+
+  (** [action mt fd status] performs pending data transfers on the specified socket only.
+      [status] specifies socket status *)
+  val action : mt -> Unix.file_descr -> fd_status -> int
 
 end
 
