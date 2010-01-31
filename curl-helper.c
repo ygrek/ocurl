@@ -5811,22 +5811,22 @@ CAMLprim value caml_curl_multi_cleanup(value handle)
 
 static CURL* curlm_remove_finished(CURLM* multi_handle)
 {
-	int msgs_in_queue = 0;
+  int msgs_in_queue = 0;
 
-	while (1)
-	{
-		CURLMsg* msg = curl_multi_info_read(multi_handle, &msgs_in_queue);
-		if (NULL == msg) return NULL;
-		if (CURLMSG_DONE == msg->msg)
-		{
-			CURL* easy_handle = msg->easy_handle;
-			if (CURLM_OK != curl_multi_remove_handle(multi_handle, easy_handle))
-			{
-        //failwith("curlm_remove_finished");
-			}
-			return easy_handle;
-		}
-	}
+  while (1)
+  {
+    CURLMsg* msg = curl_multi_info_read(multi_handle, &msgs_in_queue);
+    if (NULL == msg) return NULL;
+    if (CURLMSG_DONE == msg->msg)
+    {
+      CURL* easy_handle = msg->easy_handle;
+      if (CURLM_OK != curl_multi_remove_handle(multi_handle, easy_handle))
+      {
+        failwith("curlm_remove_finished");
+      }
+      return easy_handle;
+    }
+  }
 }
 
 CAMLprim value caml_curlm_remove_finished(value v_multi)
@@ -5862,7 +5862,8 @@ static int curlm_wait_data(CURLM* multi_handle)
 	fd_set fdread;
 	fd_set fdwrite;
 	fd_set fdexcep;
-	int maxfd;
+	CURLMcode ret;
+	int maxfd = -1;
 
 	FD_ZERO(&fdread);
 	FD_ZERO(&fdwrite);
@@ -5873,17 +5874,12 @@ static int curlm_wait_data(CURLM* multi_handle)
 	timeout.tv_usec = 0;
 
 	/* get file descriptors from the transfers */
-	CURLMcode ret = curl_multi_fdset(multi_handle, &fdread, &fdwrite, &fdexcep, &maxfd);
+	ret = curl_multi_fdset(multi_handle, &fdread, &fdwrite, &fdexcep, &maxfd);
 
 	if (ret == CURLM_OK && maxfd >= 0)
 	{
 		int rc = select(maxfd+1, &fdread, &fdwrite, &fdexcep, &timeout);
 		if (-1 != rc) return 0;
-		//printf("select error\n");
-	}
-	else
-	{
-		//printf("curl_multi_fdset error\n");
 	}
 	return 1;
 }
@@ -5892,9 +5888,7 @@ CAMLprim value caml_curlm_wait_data(value v_multi)
 {
   CAMLparam1(v_multi);
   int ret;
-  CURLM* h;
-
-  h = CURLM_val(v_multi);
+  CURLM* h = CURLM_val(v_multi);
 
   caml_enter_blocking_section();
   ret = curlm_wait_data(h);
@@ -5916,10 +5910,8 @@ CAMLprim value caml_curl_multi_add_handle(value v_multi, value v_easy)
 CAMLprim value caml_curl_multi_perform_all(value v_multi)
 {
   CAMLparam1(v_multi);
-  CURLM* h;
   int still_running = 0;
-
-  h = CURLM_val(v_multi);
+  CURLM* h = CURLM_val(v_multi);
 
   caml_enter_blocking_section();
   while (CURLM_CALL_MULTI_PERFORM == curl_multi_perform(h, &still_running));
@@ -5943,8 +5935,19 @@ CAMLprim value caml_curl_multi_socket_action(value v_multi, value v_fd, value v_
   CURLM* h = CURLM_val(v_multi);
   int still_running = 0;
   CURLMcode rc;
-  int kind = 0; /* FIXME */
-  (void)v_kind; /* unused */
+  int kind = 0;
+
+  switch (Int_val(v_kind))
+  {
+    case 0 : break;
+    case 1 : kind |= CURL_CSELECT_IN; break;
+    case 2 : kind |= CURL_CSELECT_OUT; break;
+    case 3 : kind |= CURL_CSELECT_IN | CURL_CSELECT_OUT; break;
+    default:
+      failwith("caml_curl_multi_socket_action");
+  }
+
+/*  fprintf(stdout,"fd %u kind %u\n",Socket_val(v_fd), kind); fflush(stdout); */
 
   do {
     rc = curl_multi_socket_action(h, Socket_val(v_fd), kind, &still_running);
@@ -5984,14 +5987,16 @@ static int curlm_sock_cb(CURL *e, curl_socket_t sock, int what, void *cbp, void 
   v = caml_alloc_custom(&curl_multi_ops, sizeof(ml_multi_handle*), 0, 1);
   Multi_val(v) = multi;
 
-  if (what >=0 && what <= 4)
+  /* v_what = Val_int(what); */
+  switch (what)
   {
-    v_what = Val_int(what);
-  }
-  else
-  {
-    //assert(false);
-    v_what = 0;
+    case CURL_POLL_NONE   : v_what = Val_int(0); break;
+    case CURL_POLL_IN     : v_what = Val_int(1); break;
+    case CURL_POLL_OUT    : v_what = Val_int(2); break;
+    case CURL_POLL_INOUT  : v_what = Val_int(3); break;
+    case CURL_POLL_REMOVE : v_what = Val_int(4); break;
+    default:
+      failwith("curlm_sock_cb");
   }
 
   callback3(Field(multi->values,curlmopt_socket_function),

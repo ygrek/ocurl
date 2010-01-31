@@ -763,9 +763,10 @@ module Multi : sig
 
   (** socket status *)
   type fd_status = 
-    | EVENT_AUTO (** determine socket status automatically (with extra system call) *)
-    | EVENT_READ (** socket has incoming data *)
-    | EVENT_WRITE (** socket is available for writing *)
+    | EV_AUTO  (** determine socket status automatically (with extra system call) *)
+    | EV_IN    (** socket has incoming data *)
+    | EV_OUT   (** socket is available for writing *)
+    | EV_INOUT (** both *)
 
   (** set the function to receive notifications on what socket events
       are currently interesting for libcurl on the specified socket handle *)
