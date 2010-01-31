@@ -1729,8 +1729,8 @@ static curlioerr ioctlFunction_nolock(CURL *ioctl,
     else
         failwith("Invalid IOCTL Cmd!");
 
-    camlConnection = alloc(1, Abstract_tag);
-    Store_field(camlConnection, 0, (value)conn);
+    camlConnection = caml_alloc(1, Abstract_tag);
+    Field(camlConnection, 0) = (value)conn;
 
     camlResult = callback2(Field(conn->ocamlValues, OcamlIOCTLCallback),
                            camlConnection,
@@ -1872,8 +1872,8 @@ CAMLprim value helper_curl_easy_init(void)
 
     Connection *conn = newConnection();
 
-    result = alloc(1, Abstract_tag);
-    Store_field(result, 0, (value)conn);
+    result = caml_alloc(1, Abstract_tag);
+    Field(result, 0) = (value)conn;
 
     CAMLreturn(result);
 }
@@ -5268,8 +5268,8 @@ CAMLprim value helper_curl_easy_duphandle(value conn)
 
     checkConnection(connection);
 
-    result = alloc(1, Abstract_tag);
-    Store_field(result, 0, (value)duplicateConnection(connection));
+    result = caml_alloc(1, Abstract_tag);
+    Field(result, 0) = (value)duplicateConnection(connection);
 
     CAMLreturn(result);
 }
@@ -5854,9 +5854,9 @@ CAMLprim value caml_curlm_remove_finished(value v_multi)
   }
   else
   {
-    /* not good */
-    v_easy = alloc(1, Abstract_tag);
-    Store_field(v_easy, 0, (value)findConnection(handle));
+    /* not good: same handle, but different block */
+    v_easy = caml_alloc(1, Abstract_tag);
+    Field(v_easy, 0) = (value)findConnection(handle);
     CAMLreturn(Val_some(v_easy));
   }
 }
