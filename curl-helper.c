@@ -1086,22 +1086,21 @@ static void raiseError(Connection *conn, CURLcode code)
         }
     }
 
-    exceptionData = alloc(3, 0);
+    exceptionData = caml_alloc(3, 0);
 
-    Field(exceptionData, 0) = Val_int(code);
-    Field(exceptionData, 1) = Val_int(code);
-    Field(exceptionData, 2) = copy_string(errorString);
+    Store_field(exceptionData, 0, Val_int(code));
+    Store_field(exceptionData, 1, Val_int(code));
+    Store_field(exceptionData, 2, caml_copy_string(errorString));
 
     if (conn != NULL && conn->errorBuffer != NULL)
     {
-        Field(Field(conn->ocamlValues, OcamlErrorBuffer), 0) =
-            copy_string(conn->errorBuffer);
+        Store_field(Field(conn->ocamlValues, OcamlErrorBuffer), 0, caml_copy_string(conn->errorBuffer));
     }
 
     exception = caml_named_value("CurlException");
 
     if (exception == NULL)
-        failwith(errorString);
+        caml_failwith("CurlException not registered");
 
     raise_with_arg(*exception, exceptionData);
 
