@@ -1,6 +1,11 @@
 ###	-*- Makefile -*-
-###	Makefile.windows
+###	Makefile.msvc
 ###
+
+# libcurl directory
+CURLDIR = c:/my/contrib/libcurl-7.19.3-win32-ssl-msvc
+
+#####################
 
 .PHONY:		all targets examples install clean depend
 
@@ -13,12 +18,9 @@ OC		= ocamlc
 CC		= cl
 
 FLAGS		=
-LIBS		=
-
-CURLDIR = c:/my/contrib/curl-7.19.7
 
 CFLAGS		=
-CAMLINCDIR	= -I $(CURLDIR)/include
+CURLINCDIR	= -I $(CURLDIR)/include
 
 CURLIMPORTLIB	= $(CURLDIR)/libcurl_imp.lib
 
@@ -35,18 +37,18 @@ CURLCLIBS	= $(CURLIMPORTLIB) ws2_32.lib
 TARGETS		= curl.cma curl.cmxa
 
 all:
-		@$(MAKE) -f Makefile.windows depend
-		@$(MAKE) -f Makefile.windows targets
+		@$(MAKE) -f Makefile.msvc depend
+		@$(MAKE) -f Makefile.msvc targets
 
 targets:	$(TARGETS) examples
 
-examples:
+examples: $(TARGETS)
 		$(MAKE) -C examples -f Makefile.windows
 
-curl.cma:	$(CURLBCOBJS) dllcurl-helper.dll
+curl.cma:	curl.cmi $(CURLBCOBJS) dllcurl-helper.dll
 		$(OCAMLMKLIB) -o curl $(CURLBCOBJS) -oc curl-helper
 
-curl.cmxa:	$(CURLOBJS) libcurl-helper.lib
+curl.cmxa: curl.cmi $(CURLOBJS) libcurl-helper.lib
 		$(OCAMLMKLIB) -o curl $(CURLOBJS) -oc curl-helper
 
 .ml.cmx:
@@ -62,13 +64,10 @@ libcurl-helper.lib dllcurl-helper.dll:	$(CURLHELPEROBJS)
 		$(OCAMLMKLIB) -oc curl-helper $(CURLHELPEROBJS) $(CURLCLIBS)
 
 .c.obj:
-		$(OC) -c $(CFLAGS) -ccopt -DHAVE_CONFIG_H $(CAMLINCDIR) $< -o $@
+		$(OC) -c $(CFLAGS) -ccopt -DHAVE_CONFIG_H $(CURLINCDIR) $< -o $@
 
 install:
-		ocamlfind install -ldconf ignore \
-			 curl META $(wildcard *.cmi) \
-			 $(wildcard *.lib) $(wildcard *.cma) \
-			 $(wildcard *.cmxa) $(wildcard *.dll) $(wildcard *.mli)
+		ocamlfind install -ldconf ignore curl META $(wildcard *.cmi *.lib *.cma *.cmxa *.cmx *.dll *.mli)
 
 uninstall:
 		ocamlfind remove curl
