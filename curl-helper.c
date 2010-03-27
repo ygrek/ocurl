@@ -1065,7 +1065,7 @@ static void raiseError(Connection *conn, CURLcode code)
         }
     }
 
-    exceptionData = alloc(3, 0);
+    exceptionData = caml_alloc(3, 0);
 
     Store_field(exceptionData, 0, Val_int(code));
     Store_field(exceptionData, 1, Val_int(code));
@@ -1080,7 +1080,7 @@ static void raiseError(Connection *conn, CURLcode code)
     exception = caml_named_value("CurlException");
 
     if (exception == NULL)
-        failwith(errorString);
+        caml_failwith("CurlException not registered");
 
     raise_with_arg(*exception, exceptionData);
 
@@ -5592,7 +5592,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     {
     case StringValue:
         result = alloc(1, StringValue);
-        Store_field(result, 0, copy_string(strValue));
+        Store_field(result, 0, copy_string(strValue?strValue:""));
         break;
 
     case LongValue:
