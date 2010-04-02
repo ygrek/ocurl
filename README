@@ -1,4 +1,18 @@
 
+ocurl enhancements
+==================
+
+Upstream at <http://ocurl.sourceforge.net>
+This code lives at <http://repo.or.cz/w/ocurl.git>
+
+Changes from upstream:
+
+  * bugfixes (merged upstream)
+  * compilation on windows (msvc)
+  * curl multi stack wrappers
+  * pluggable asynchronous curl multi interface (experimental, branch `event`)
+
+
 Building on Windows with ocaml/msvc
 ===================================
 
@@ -20,3 +34,7 @@ Copy `config.h.windows` to `config.h`.
 Compile with `make -f Makefile.msvc`.
 Install with `make -f Makefile.msvc install`.
 Compile examples with `make -f Makefile.msvc examples`.
+
+---- 
+ ygrek at autistici dot org
+
