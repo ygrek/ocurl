@@ -5862,7 +5862,6 @@ static int curlm_wait_data(CURLM* multi_handle)
 	fd_set fdread;
 	fd_set fdwrite;
 	fd_set fdexcep;
-	CURLMcode ret;
 	int maxfd = -1;
 
 	FD_ZERO(&fdread);

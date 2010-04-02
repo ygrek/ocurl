@@ -23,6 +23,8 @@ let loop_wait mt =
   done;
   finished mt
 
+let events_base = Ev.init ()
+
 let loop_async mt =
   pr "action/event";
   let events = Hashtbl.create 32 in
@@ -49,12 +51,12 @@ let loop_async mt =
     | flags ->
       let ev = Ev.create () in
       Ev.set ev fd flags true on_event;
-      Ev.add ev None;
+      Ev.add events_base ev None;
       incr evs;
       Hashtbl.add events fd ev
   end;
   let _ = M.action_all mt in
-  Ev.dispatch ();
+  Ev.dispatch events_base;
   assert (0 = !evs);
   finished mt
 
