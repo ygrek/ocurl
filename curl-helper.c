@@ -1090,11 +1090,12 @@ static void raiseError(Connection *conn, CURLcode code)
 
     Store_field(exceptionData, 0, Val_int(code));
     Store_field(exceptionData, 1, Val_int(code));
-    Store_field(exceptionData, 2, caml_copy_string(errorString));
+    Store_field(exceptionData, 2, copy_string(errorString));
 
     if (conn != NULL && conn->errorBuffer != NULL)
     {
-        Store_field(Field(conn->ocamlValues, OcamlErrorBuffer), 0, caml_copy_string(conn->errorBuffer));
+        Store_field(Field(conn->ocamlValues, OcamlErrorBuffer), 0,
+		    copy_string(conn->errorBuffer));
     }
 
     exception = caml_named_value("CurlException");
@@ -5301,7 +5302,7 @@ value convertStringList(struct curl_slist *slist)
             result = next;
 
         if (current != Val_int(0))
-            Store_field(current, 1, next);
+	    Store_field(current, 1, next);
 
         current = next;
 
@@ -5643,10 +5644,6 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     {
     case StringValue:
         result = alloc(1, StringValue);
-        /*
-         libcurl can return NULL, e.g. for CONTENT_TYPE or PRIVATE
-         alternative: add StringOptionValue and break API..
-         */
         Store_field(result, 0, copy_string(strValue?strValue:""));
         break;
 
