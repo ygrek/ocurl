@@ -5934,6 +5934,7 @@ CAMLprim value caml_curl_multi_socket_action(value v_multi, value v_fd, value v_
   CURLM* h = CURLM_val(v_multi);
   int still_running = 0;
   CURLMcode rc;
+  int socket = Socket_val(v_fd);
   int kind = 0;
 
   switch (Int_val(v_kind))
@@ -5948,9 +5949,12 @@ CAMLprim value caml_curl_multi_socket_action(value v_multi, value v_fd, value v_
 
 /*  fprintf(stdout,"fd %u kind %u\n",Socket_val(v_fd), kind); fflush(stdout); */
 
+  caml_enter_blocking_section();
   do {
-    rc = curl_multi_socket_action(h, Socket_val(v_fd), kind, &still_running);
+    rc = curl_multi_socket_action(h, socket, kind, &still_running);
   } while (rc == CURLM_CALL_MULTI_PERFORM);
+  caml_leave_blocking_section();
+
 /*  mcode_or_die("event_cb: curl_multi_socket", rc);*/
 /*
   check_run_count(g);
@@ -5977,7 +5981,7 @@ CAMLprim value caml_curl_multi_socket_all(value v_multi)
   CAMLreturn(Val_int(still_running));
 }
 
-static int curlm_sock_cb(CURL *e, curl_socket_t sock, int what, void *cbp, void *sockp)
+static int curlm_sock_cb_nolock(CURL *e, curl_socket_t sock, int what, void *cbp, void *sockp)
 {
   CAMLparam0();
   CAMLlocal2(v,v_what);
@@ -6002,6 +6006,15 @@ static int curlm_sock_cb(CURL *e, curl_socket_t sock, int what, void *cbp, void 
             v, Val_socket(sock), v_what);
 
   CAMLreturn(0);
+}
+
+static int curlm_sock_cb(CURL *e, curl_socket_t sock, int what, void *cbp, void *sockp)
+{
+  int ret;
+  caml_leave_blocking_section();
+  ret = curlm_sock_cb_nolock(e, sock, what, cbp, sockp);
+  caml_enter_blocking_section();
+  return ret;
 }
 
 CAMLprim value caml_curl_multi_socketfunction(value v_multi, value v_cb)
