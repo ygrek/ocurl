@@ -38,7 +38,7 @@ let loop_async mt =
     finished mt
   in
   let evs = ref 0 in
-  M.set_socket_f mt begin fun h fd what ->
+  M.set_socket_function mt begin fun h fd what ->
     List.iter (fun ev -> decr evs; Ev.del ev) (Hashtbl.find_all events fd); Hashtbl.remove events fd;
     let flags = match what with
           | M.POLL_REMOVE | M.POLL_NONE -> []
@@ -68,7 +68,7 @@ let loop_select mt =
     let _ = M.action mt fd event in
     finished mt
   in
-  M.set_socket_f mt begin fun h fd what ->
+  M.set_socket_function mt begin fun h fd what ->
     in_fd := List.filter ((<>) fd) !in_fd;
     out_fd := List.filter ((<>) fd) !out_fd;
     match what with

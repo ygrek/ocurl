@@ -5749,6 +5749,7 @@ struct ml_multi_handle
 enum
 {
   curlmopt_socket_function,
+  curlmopt_timer_function,
 
   /* last, not used */
   multi_values_total,
@@ -5899,9 +5900,17 @@ CAMLprim value caml_curlm_wait_data(value v_multi)
 CAMLprim value caml_curl_multi_add_handle(value v_multi, value v_easy)
 {
   CAMLparam2(v_multi,v_easy);
+  CURLM* multi = CURLM_val(v_multi);
+  CURL* easy = Connection_val(v_easy)->connection;
 
-  if (CURLM_OK != curl_multi_add_handle(CURLM_val(v_multi), Connection_val(v_easy)->connection))
+  /* may invoke callbacks so need to be consistent with locks */
+  caml_enter_blocking_section();
+  if (CURLM_OK != curl_multi_add_handle(multi, easy))
+  {
+    caml_leave_blocking_section();
     failwith("caml_curl_multi_add_handle");
+  }
+  caml_leave_blocking_section();
 
   CAMLreturn(Val_unit);
 }
@@ -6026,6 +6035,42 @@ CAMLprim value caml_curl_multi_socketfunction(value v_multi, value v_cb)
 
   curl_multi_setopt(multi->handle, CURLMOPT_SOCKETFUNCTION, curlm_sock_cb);
   curl_multi_setopt(multi->handle, CURLMOPT_SOCKETDATA, multi);
+
+  CAMLreturn(Val_unit);
+}
+
+static void curlm_timer_cb_nolock(CURLM *h, long timeout_ms, void* userp)
+{
+  CAMLparam0();
+  CAMLlocal1(v);
+  ml_multi_handle *multi = (ml_multi_handle*) userp;
+
+  v = caml_alloc_custom(&curl_multi_ops, sizeof(ml_multi_handle*), 0, 1);
+  Multi_val(v) = multi;
+
+  callback2(Field(multi->values,curlmopt_timer_function),
+            v, Val_long(timeout_ms));
+
+  CAMLreturn0;
+}
+
+static int curlm_timer_cb(CURLM *multi, long timeout_ms, void *userp)
+{
+  caml_leave_blocking_section();
+  curlm_timer_cb_nolock(multi, timeout_ms, userp);
+  caml_enter_blocking_section();
+  return 0;
+}
+
+CAMLprim value caml_curl_multi_timerfunction(value v_multi, value v_cb)
+{
+  CAMLparam2(v_multi, v_cb);
+  ml_multi_handle* multi = Multi_val(v_multi);
+
+  Store_field(multi->values, curlmopt_timer_function, v_cb);
+
+  curl_multi_setopt(multi->handle, CURLMOPT_TIMERFUNCTION, curlm_timer_cb);
+  curl_multi_setopt(multi->handle, CURLMOPT_TIMERDATA, multi);
 
   CAMLreturn(Val_unit);
 }

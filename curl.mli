@@ -770,11 +770,20 @@ module Multi : sig
 
   (** set the function to receive notifications on what socket events
       are currently interesting for libcurl on the specified socket handle *)
-  val set_socket_f : mt -> (mt -> Unix.file_descr -> poll -> unit) -> unit
+  val set_socket_function : mt -> (mt -> Unix.file_descr -> poll -> unit) -> unit
+
+  (** set the function to receive notification when libcurl internal timeout changes,
+      timeout value is in milliseconds
+
+      NB {!action_timeout} should be called when timeout occurs *)
+  val set_timer_function : mt -> (mt -> int -> unit) -> unit
 
   (** perform pending data transfers (if any) on all handles currently in multi stack
       @return the number of handles that still transfer data *)
   val action_all : mt -> int
+
+  (** inform libcurl that timeout occured *)
+  val action_timeout : mt -> unit
 
   (** [action mt fd status] performs pending data transfers on the specified socket only.
       [status] specifies socket status *)
