@@ -5632,6 +5632,16 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
         break;
 #endif
 
+#if HAVE_DECL_CURLINFO_FTP_ENTRY_PATH
+    case 30: /* CURLINFO_FTP_ENTRY_PATH */
+        resultType = StringValue;
+
+        curlResult = curl_easy_getinfo(connection->connection,
+                                       CURLINFO_FTP_ENTRY_PATH,
+                                       &strValue);
+        break;
+#endif
+
     default:
         failwith("Invalid CURLINFO Option");
         break;
