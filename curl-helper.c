@@ -5552,12 +5552,12 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
         break;
 #endif
 
-#if HAVE_DECL_CURLINFO_HTTP_CONNECT_CODE
-    case 22: /* CURLINFO_HTTP_CONNECT_CODE */
+#if HAVE_DECL_CURLINFO_HTTP_CONNECTCODE
+    case 22: /* CURLINFO_HTTP_CONNECTCODE */
         resultType = LongValue;
 
         curlResult = curl_easy_getinfo(connection->connection,
-                                       CURLINFO_HTTP_CONNECT_CODE,
+                                       CURLINFO_HTTP_CONNECTCODE,
                                        &longValue);
         break;
 #endif
