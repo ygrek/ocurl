@@ -437,6 +437,7 @@ let version () =
   helper_version ()
 
 external strerror : curlCode -> string = "helper_curl_easy_strerror"
+let errno : curlCode -> int = Obj.magic
 
 let set_writefunction conn closure =
   setopt conn (CURLOPT_WRITEFUNCTION closure)

@@ -400,6 +400,7 @@ val unescape : string -> string
 val getdate : string -> float -> float
 val version : unit -> string
 val strerror : curlCode -> string
+val errno : curlCode -> int
 
 val set_writefunction : t -> (string -> int) -> unit
 val set_readfunction : t -> (int -> string) -> unit
