@@ -5821,7 +5821,7 @@ CAMLprim value caml_curl_multi_cleanup(value handle)
   CAMLreturn(Val_unit);
 }
 
-static CURL* curlm_remove_finished(CURLM* multi_handle)
+static CURL* curlm_remove_finished(CURLM* multi_handle, CURLcode* result)
 {
 	int msgs_in_queue = 0;
 
@@ -5832,6 +5832,7 @@ static CURL* curlm_remove_finished(CURLM* multi_handle)
 		if (CURLMSG_DONE == msg->msg)
 		{
 			CURL* easy_handle = msg->easy_handle;
+			if (result) *result = msg->data.result;
 			if (CURLM_OK != curl_multi_remove_handle(multi_handle, easy_handle))
 			{
         //failwith("curlm_remove_finished");
@@ -5844,14 +5845,15 @@ static CURL* curlm_remove_finished(CURLM* multi_handle)
 CAMLprim value caml_curlm_remove_finished(value v_multi)
 {
   CAMLparam1(v_multi);
-  CAMLlocal1(v_easy);
+  CAMLlocal2(v_easy, v_tuple);
   CURL* handle;
   CURLM* multi_handle;
+  CURLcode result;
 
   multi_handle = CURLM_val(v_multi);
 
   caml_enter_blocking_section();
-  handle = curlm_remove_finished(multi_handle);
+  handle = curlm_remove_finished(multi_handle,&result);
   caml_leave_blocking_section();
 
   if (NULL == handle)
@@ -5863,7 +5865,10 @@ CAMLprim value caml_curlm_remove_finished(value v_multi)
     /* not good: same handle, but different block */
     v_easy = caml_alloc(1, Abstract_tag);
     Field(v_easy, 0) = (value)findConnection(handle);
-    CAMLreturn(Val_some(v_easy));
+    v_tuple = caml_alloc(2, 0);
+    Store_field(v_tuple,0,v_easy);
+    Store_field(v_tuple,1,Val_int(result)); /* CURLcode */
+    CAMLreturn(Val_some(v_tuple));
   }
 }
 
@@ -5939,5 +5944,11 @@ CAMLprim value caml_curl_multi_perform_all(value v_multi)
   caml_leave_blocking_section();
 
   CAMLreturn(Val_int(still_running));
+}
+
+CAMLprim value helper_curl_easy_strerror(value v_code)
+{
+  CAMLparam1(v_code);
+  CAMLreturn(caml_copy_string(curl_easy_strerror(Int_val(v_code))));
 }
 

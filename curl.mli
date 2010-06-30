@@ -399,6 +399,7 @@ val escape : string -> string
 val unescape : string -> string
 val getdate : string -> float -> float
 val version : unit -> string
+val strerror : curlCode -> string
 
 val set_writefunction : t -> (string -> int) -> unit
 val set_readfunction : t -> (int -> string) -> unit
@@ -745,7 +746,7 @@ module Multi : sig
   val wait : mt -> bool
 
   (** remove finished handle from the multi stack if any. The handle can be reused *)
-  val remove_finished : mt -> t option
+  val remove_finished : mt -> (t * curlCode) option
 
   (** destroy multi handle (all transfers are stopped, but individual handles are left alive) *)
   val cleanup : mt -> unit
