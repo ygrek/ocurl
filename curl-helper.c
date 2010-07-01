@@ -2247,6 +2247,18 @@ static void handleEncoding(Connection *conn, value option)
                                   "deflate");
         break;
 
+    case 2: /* CURL_ENCODING_GZIP */
+        result = curl_easy_setopt(conn->connection,
+                                  CURLOPT_ENCODING,
+                                  "gzip");
+        break;
+
+    case 3: /* CURL_ENCODING_ANY */
+        result = curl_easy_setopt(conn->connection,
+                                  CURLOPT_ENCODING,
+                                  "");
+        break;
+
     default:
         failwith("Invalid Encoding Option");
         break;

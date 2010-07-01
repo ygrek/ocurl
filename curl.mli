@@ -98,8 +98,10 @@ type curlNETRCOption =
   | CURL_NETRC_REQUIRED
 
 type curlEncoding =
-  | CURL_ENCODING_NONE
-  | CURL_ENCODING_DEFLATE
+  | CURL_ENCODING_NONE (* identity *)
+  | CURL_ENCODING_DEFLATE (* deflate *)
+  | CURL_ENCODING_GZIP (* gzip *)
+  | CURL_ENCODING_ANY (* all supported encodings *)
 
 type curlContentType =
   | DEFAULT

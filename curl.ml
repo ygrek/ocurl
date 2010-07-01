@@ -100,7 +100,9 @@ type curlNETRCOption =
 type curlEncoding =
   | CURL_ENCODING_NONE
   | CURL_ENCODING_DEFLATE
-      
+  | CURL_ENCODING_GZIP
+  | CURL_ENCODING_ANY
+
 type curlContentType =
   | DEFAULT
   | CONTENTTYPE of string
