@@ -5478,7 +5478,9 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
 
         curlResult = curl_easy_getinfo(connection->connection,
                                        CURLINFO_FILETIME,
-                                       &doubleValue);
+                                       &longValue);
+
+        doubleValue = longValue;
         break;
 #endif
 
