@@ -1419,6 +1419,8 @@ static Connection *duplicateConnection(Connection *original)
     return connection;
 }
 
+static void free_if(void* p) { if (NULL != p) free(p); }
+
 static void removeConnection(Connection *connection)
 {
     enter_blocking_section();
@@ -1437,88 +1439,53 @@ static void removeConnection(Connection *connection)
 
     remove_global_root(&connection->ocamlValues);
 
-    if (connection->url != NULL)
-        free(connection->url);
-    if (connection->proxy != NULL)
-        free(connection->proxy);
-    if (connection->userPwd != NULL)
-        free(connection->userPwd);
-    if (connection->proxyUserPwd != NULL)
-        free(connection->proxyUserPwd);
-    if (connection->range != NULL)
-        free(connection->range);
-    if (connection->errorBuffer != NULL)
-        free(connection->range);
-    if (connection->postFields != NULL)
-        free(connection->postFields);
-    if (connection->referer != NULL)
-        free(connection->referer);
-    if (connection->userAgent != NULL)
-        free(connection->userAgent);
-    if (connection->ftpPort != NULL)
-        free(connection->ftpPort);
-    if (connection->cookie != NULL)
-        free(connection->cookie);
+    free_if(connection->url);
+    free_if(connection->proxy);
+    free_if(connection->userPwd);
+    free_if(connection->proxyUserPwd);
+    free_if(connection->range);
+    free_if(connection->errorBuffer);
+    free_if(connection->postFields);
+    free_if(connection->referer);
+    free_if(connection->userAgent);
+    free_if(connection->ftpPort);
+    free_if(connection->cookie);
     if (connection->httpHeader != NULL)
         free_curl_slist(connection->httpHeader);
     if (connection->httpPostFirst != NULL)
         curl_formfree(connection->httpPostFirst);
     if (connection->httpPostStrings != NULL)
         free_curl_slist(connection->httpPostStrings);
-    if (connection->sslCert != NULL)
-        free(connection->sslCert);
-    if (connection->sslCertType != NULL)
-        free(connection->sslCertType);
-    if (connection->sslCertPasswd != NULL)
-        free(connection->sslCertPasswd);
-    if (connection->sslKey != NULL)
-        free(connection->sslKey);
-    if (connection->sslKeyType != NULL)
-        free(connection->sslKeyType);
-    if (connection->sslKeyPasswd != NULL)
-        free(connection->sslKeyPasswd);
-    if (connection->sslEngine != NULL)
-        free(connection->sslEngine);
+    free_if(connection->sslCert);
+    free_if(connection->sslCertType);
+    free_if(connection->sslCertPasswd);
+    free_if(connection->sslKey);
+    free_if(connection->sslKeyType);
+    free_if(connection->sslKeyPasswd);
+    free_if(connection->sslEngine);
     if (connection->quote != NULL)
         free_curl_slist(connection->quote);
     if (connection->postQuote != NULL)
         free_curl_slist(connection->postQuote);
-    if (connection->cookieFile != NULL)
-        free(connection->cookieFile);
-    if (connection->customRequest != NULL)
-        free(connection->customRequest);
-    if (connection->interface != NULL)
-        free(connection->interface);
-    if (connection->caInfo != NULL)
-        free(connection->caInfo);
-    if (connection->caPath != NULL)
-        free(connection->caPath);
-    if (connection->randomFile != NULL)
-        free(connection->randomFile);
-    if (connection->egdSocket != NULL)
-        free(connection->egdSocket);
-    if (connection->cookieJar != NULL)
-        free(connection->cookieJar);
-    if (connection->sslCipherList != NULL)
-        free(connection->sslCipherList);
-    if (connection->private != NULL)
-        free(connection->private);
+    free_if(connection->cookieFile);
+    free_if(connection->customRequest);
+    free_if(connection->interface);
+    free_if(connection->caInfo);
+    free_if(connection->caPath);
+    free_if(connection->randomFile);
+    free_if(connection->egdSocket);
+    free_if(connection->cookieJar);
+    free_if(connection->sslCipherList);
+    free_if(connection->private);
     if (connection->http200Aliases != NULL)
         free_curl_slist(connection->http200Aliases);
-    if (connection->netrcFile != NULL)
-        free(connection->netrcFile);
-    if (connection->ftpaccount != NULL)
-        free(connection->ftpaccount);
-    if (connection->cookielist != NULL)
-        free(connection->cookielist);
-    if (connection->ftpAlternativeToUser != NULL)
-        free(connection->ftpAlternativeToUser);
-    if (connection->sshPublicKeyFile != NULL)
-        free(connection->sshPublicKeyFile);
-    if (connection->sshPrivateKeyFile != NULL)
-        free(connection->sshPrivateKeyFile);
-    if (connection->copyPostFields != NULL)
-        free(connection->copyPostFields);
+    free_if(connection->netrcFile);
+    free_if(connection->ftpaccount);
+    free_if(connection->cookielist);
+    free_if(connection->ftpAlternativeToUser);
+    free_if(connection->sshPublicKeyFile);
+    free_if(connection->sshPrivateKeyFile);
+    free_if(connection->copyPostFields);
 
     free(connection);
 }
