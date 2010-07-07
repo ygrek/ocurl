@@ -5804,23 +5804,23 @@ CAMLprim value caml_curl_multi_cleanup(value handle)
 
 static CURL* curlm_remove_finished(CURLM* multi_handle, CURLcode* result)
 {
-	int msgs_in_queue = 0;
+  int msgs_in_queue = 0;
 
-	while (1)
-	{
-		CURLMsg* msg = curl_multi_info_read(multi_handle, &msgs_in_queue);
-		if (NULL == msg) return NULL;
-		if (CURLMSG_DONE == msg->msg)
-		{
-			CURL* easy_handle = msg->easy_handle;
-			if (result) *result = msg->data.result;
-			if (CURLM_OK != curl_multi_remove_handle(multi_handle, easy_handle))
-			{
+  while (1)
+  {
+    CURLMsg* msg = curl_multi_info_read(multi_handle, &msgs_in_queue);
+    if (NULL == msg) return NULL;
+    if (CURLMSG_DONE == msg->msg)
+    {
+      CURL* easy_handle = msg->easy_handle;
+      if (result) *result = msg->data.result;
+      if (CURLM_OK != curl_multi_remove_handle(multi_handle, easy_handle))
+      {
         //failwith("curlm_remove_finished");
-			}
-			return easy_handle;
-		}
-	}
+      }
+      return easy_handle;
+    }
+  }
 }
 
 CAMLprim value caml_curlm_remove_finished(value v_multi)
