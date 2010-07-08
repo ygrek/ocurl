@@ -2369,7 +2369,7 @@ static void handlePostFields(Connection *conn, value option)
         free(conn->postFields);
 
     conn->postFields = malloc(string_length(option)+1);
-    memcpy(conn->postFields, String_val(option), string_length(option));
+    memcpy(conn->postFields, String_val(option), string_length(option)+1);
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_POSTFIELDS,
