@@ -1160,8 +1160,8 @@ module Multi = struct
   (* see caml_curl_multi_socket_action *)
   type fd_status = EV_AUTO | EV_IN | EV_OUT | EV_INOUT
 
-  external set_socket_function : mt -> (mt -> Unix.file_descr -> poll -> unit) -> unit = "caml_curl_multi_socketfunction"
-  external set_timer_function : mt -> (mt -> int -> unit) -> unit = "caml_curl_multi_timerfunction"
+  external set_socket_function : mt -> (Unix.file_descr -> poll -> unit) -> unit = "caml_curl_multi_socketfunction"
+  external set_timer_function : mt -> (int -> unit) -> unit = "caml_curl_multi_timerfunction"
   external action_all : mt -> int = "caml_curl_multi_socket_all"
   external action : mt -> Unix.file_descr -> fd_status -> int = "caml_curl_multi_socket_action"
 

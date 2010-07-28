@@ -5990,14 +5990,10 @@ CAMLprim value caml_curl_multi_socket_all(value v_multi)
   CAMLreturn(Val_int(still_running));
 }
 
-static int curlm_sock_cb_nolock(CURL *e, curl_socket_t sock, int what, void *cbp, void *sockp)
+static int curlm_sock_cb_nolock(CURL *e, curl_socket_t sock, int what, ml_multi_handle* multi, void *sockp)
 {
   CAMLparam0();
-  CAMLlocal2(v,v_what);
-  ml_multi_handle *multi = (ml_multi_handle*) cbp;
-
-  v = caml_alloc_custom(&curl_multi_ops, sizeof(ml_multi_handle*), 0, 1);
-  Multi_val(v) = multi;
+  CAMLlocal1(v_what);
 
   /* v_what = Val_int(what); */
   switch (what)
@@ -6008,11 +6004,11 @@ static int curlm_sock_cb_nolock(CURL *e, curl_socket_t sock, int what, void *cbp
     case CURL_POLL_INOUT  : v_what = Val_int(3); break;
     case CURL_POLL_REMOVE : v_what = Val_int(4); break;
     default:
-      failwith("curlm_sock_cb");
+      caml_failwith("curlm_sock_cb");
   }
 
-  callback3(Field(multi->values,curlmopt_socket_function),
-            v, Val_socket(sock), v_what);
+  caml_callback2(Field(multi->values,curlmopt_socket_function),
+                 Val_socket(sock), v_what);
 
   CAMLreturn(0);
 }
@@ -6021,7 +6017,7 @@ static int curlm_sock_cb(CURL *e, curl_socket_t sock, int what, void *cbp, void 
 {
   int ret;
   caml_leave_blocking_section();
-  ret = curlm_sock_cb_nolock(e, sock, what, cbp, sockp);
+  ret = curlm_sock_cb_nolock(e, sock, what, (ml_multi_handle*)cbp, sockp);
   caml_enter_blocking_section();
   return ret;
 }
@@ -6039,25 +6035,17 @@ CAMLprim value caml_curl_multi_socketfunction(value v_multi, value v_cb)
   CAMLreturn(Val_unit);
 }
 
-static void curlm_timer_cb_nolock(CURLM *h, long timeout_ms, void* userp)
+static void curlm_timer_cb_nolock(ml_multi_handle *multi, long timeout_ms)
 {
   CAMLparam0();
-  CAMLlocal1(v);
-  ml_multi_handle *multi = (ml_multi_handle*) userp;
-
-  v = caml_alloc_custom(&curl_multi_ops, sizeof(ml_multi_handle*), 0, 1);
-  Multi_val(v) = multi;
-
-  callback2(Field(multi->values,curlmopt_timer_function),
-            v, Val_long(timeout_ms));
-
+  caml_callback(Field(multi->values,curlmopt_timer_function), Val_long(timeout_ms));
   CAMLreturn0;
 }
 
 static int curlm_timer_cb(CURLM *multi, long timeout_ms, void *userp)
 {
   caml_leave_blocking_section();
-  curlm_timer_cb_nolock(multi, timeout_ms, userp);
+  curlm_timer_cb_nolock((ml_multi_handle*)userp, timeout_ms);
   caml_enter_blocking_section();
   return 0;
 }
