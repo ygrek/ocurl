@@ -733,6 +733,9 @@ module Multi : sig
   (** type of Curl multi stack *)
   type mt
 
+  (** exception raised on internal errors *)
+  exception Error of string
+
   (** create new multi stack *)
   val create : unit -> mt
 
@@ -779,17 +782,29 @@ module Multi : sig
   val set_timer_function : mt -> (int -> unit) -> unit
 
   (** perform pending data transfers (if any) on all handles currently in multi stack
-      @return the number of handles that still transfer data *)
+      (not recommended, {!action} should be used instead)
+      @return the number of handles that still transfer data 
+      @raise Error on errors
+  *)
   val action_all : mt -> int
 
-  (** inform libcurl that timeout occured *)
+  (** inform libcurl that timeout occured 
+      @raise Error on errors
+  *)
   val action_timeout : mt -> unit
 
   (** [action mt fd status] informs libcurl about event on the specified socket.
       [status] specifies socket status. Perform pending data transfers.
       @return the number of handles still active
-      *)
+      @raise Error on errors
+  *)
   val action : mt -> Unix.file_descr -> fd_status -> int
+
+  (** [timeout mt] polls multi handle for timeout (not recommended, use {!set_timer_function} instead).
+      @return maximum allowed number of milliseconds to wait before calling libcurl to perform actions
+      @raise Error on errors
+  *)
+  external timeout : mt -> int = "caml_curl_multi_timeout"
 
 end
 

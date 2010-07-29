@@ -1147,6 +1147,10 @@ module Multi = struct
 
   type mt
 
+  exception Error of string
+
+  let () = Callback.register_exception "Curl.Multi.Error" (Error "")
+
   external create : unit -> mt = "caml_curl_multi_init"
   external add : mt -> t -> unit = "caml_curl_multi_add_handle"
   external perform : mt -> int = "caml_curl_multi_perform_all"
@@ -1169,6 +1173,8 @@ module Multi = struct
     (* FIXME win32unix *)
     let curl_socket_timeout = (Obj.magic (-1) : Unix.file_descr) in
     ignore (action mt curl_socket_timeout EV_AUTO)
+
+  external timeout : mt -> int = "caml_curl_multi_timeout"
 
 end
 

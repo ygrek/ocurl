@@ -5937,12 +5937,44 @@ CAMLprim value caml_curl_multi_perform_all(value v_multi)
 #define Socket_val(v) Int_val(v)
 #define Val_socket(v) Val_int(v)
 
+static void raise_error(char const* msg)
+{
+  static value* exception = NULL;
+
+  if (NULL == exception)
+  {
+    exception = caml_named_value("Curl.Multi.Error");
+    if (NULL == exception) caml_invalid_argument("Curl.Multi.Error");
+  }
+
+  caml_raise_with_string(*exception, msg);
+}
+
+static void check_mcode(CURLMcode code)
+{
+  char const *s = NULL;
+  switch (code)
+  {
+    case CURLM_OK                  : return;
+    case CURLM_CALL_MULTI_PERFORM  : s="CURLM_CALL_MULTI_PERFORM"; break;
+    case CURLM_BAD_HANDLE          : s="CURLM_BAD_HANDLE";         break;
+    case CURLM_BAD_EASY_HANDLE     : s="CURLM_BAD_EASY_HANDLE";    break;
+    case CURLM_OUT_OF_MEMORY       : s="CURLM_OUT_OF_MEMORY";      break;
+    case CURLM_INTERNAL_ERROR      : s="CURLM_INTERNAL_ERROR";     break;
+    case CURLM_UNKNOWN_OPTION      : s="CURLM_UNKNOWN_OPTION";     break;
+    case CURLM_LAST                : s="CURLM_LAST";               break;
+    case CURLM_BAD_SOCKET          : s="CURLM_BAD_SOCKET";         break;
+    default                        : s="CURLM_unknown";            break;
+  }
+  raise_error(s);
+}
+
 CAMLprim value caml_curl_multi_socket_action(value v_multi, value v_fd, value v_kind)
 {
   CAMLparam3(v_multi, v_fd, v_kind);
   CURLM* h = CURLM_val(v_multi);
   int still_running = 0;
-  CURLMcode rc;
+  CURLMcode rc = CURLM_OK;
   int socket = Socket_val(v_fd);
   int kind = 0;
 
@@ -5953,7 +5985,7 @@ CAMLprim value caml_curl_multi_socket_action(value v_multi, value v_fd, value v_
     case 2 : kind |= CURL_CSELECT_OUT; break;
     case 3 : kind |= CURL_CSELECT_IN | CURL_CSELECT_OUT; break;
     default:
-      failwith("caml_curl_multi_socket_action");
+      raise_error("caml_curl_multi_socket_action");
   }
 
 /*  fprintf(stdout,"fd %u kind %u\n",Socket_val(v_fd), kind); fflush(stdout); */
@@ -5964,16 +5996,8 @@ CAMLprim value caml_curl_multi_socket_action(value v_multi, value v_fd, value v_
   } while (rc == CURLM_CALL_MULTI_PERFORM);
   caml_leave_blocking_section();
 
-/*  mcode_or_die("event_cb: curl_multi_socket", rc);*/
-/*
-  check_run_count(g);
-  if ( g->still_running <= 0 ) {
-    fprintf(MSG_OUT, "last transfer done, kill timeout\n");
-    if (evtimer_pending(&g->timer_event, NULL)) {
-      evtimer_del(&g->timer_event);
-    }
-  }
-*/
+  check_mcode(rc);
+
   CAMLreturn(Val_int(still_running));
 }
 
@@ -5981,11 +6005,16 @@ CAMLprim value caml_curl_multi_socket_all(value v_multi)
 {
   CAMLparam1(v_multi);
   int still_running = 0;
+  CURLMcode rc = CURLM_OK;
   CURLM* h = CURLM_val(v_multi);
 
   caml_enter_blocking_section();
-  while (CURLM_CALL_MULTI_PERFORM == curl_multi_socket_all(h, &still_running));
+  do {
+    rc = curl_multi_socket_all(h, &still_running);
+  } while (rc == CURLM_CALL_MULTI_PERFORM);
   caml_leave_blocking_section();
+
+  check_mcode(rc);
 
   CAMLreturn(Val_int(still_running));
 }
@@ -6004,7 +6033,9 @@ static int curlm_sock_cb_nolock(CURL *e, curl_socket_t sock, int what, ml_multi_
     case CURL_POLL_INOUT  : v_what = Val_int(3); break;
     case CURL_POLL_REMOVE : v_what = Val_int(4); break;
     default:
-      caml_failwith("curlm_sock_cb");
+      fprintf(stderr, "curlm_sock_cb sock=%d what=%d\n", sock, what);
+      fflush(stderr);
+      raise_error("curlm_sock_cb"); /* FIXME exception from callback */
   }
 
   caml_callback2(Field(multi->values,curlmopt_socket_function),
@@ -6061,5 +6092,19 @@ CAMLprim value caml_curl_multi_timerfunction(value v_multi, value v_cb)
   curl_multi_setopt(multi->handle, CURLMOPT_TIMERDATA, multi);
 
   CAMLreturn(Val_unit);
+}
+
+CAMLprim value caml_curl_multi_timeout(value v_multi)
+{
+  CAMLparam1(v_multi);
+  long ms = 0;
+  CURLMcode rc = CURLM_OK;
+  ml_multi_handle* multi = Multi_val(v_multi);
+
+  rc = curl_multi_timeout(multi->handle, &ms);
+
+  check_mcode(rc);
+
+  CAMLreturn(Val_long(ms));
 }
 
