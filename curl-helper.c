@@ -1492,6 +1492,8 @@ static void removeConnection(Connection *connection)
 
 static void checkConnection(Connection *connection)
 {
+    return;
+
     Connection *listIter;
 
     listIter = connectionList.tail;
