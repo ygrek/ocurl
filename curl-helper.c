@@ -5623,6 +5623,18 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
         break;
 #endif
 
+#if HAVE_DECL_CURLINFO_REDIRECT_URL
+    case 31: /* CURLINFO_REDIRECT_URL */
+        resultType = StringValue;
+
+        curlResult = curl_easy_getinfo(connection->connection,
+                                       CURLINFO_REDIRECT_URL,
+                                       &strValue);
+        break;
+#else
+#warning "libcurl does not provide CURLINFO_REDIRECT_URL"
+#endif
+
     default:
         failwith("Invalid CURLINFO Option");
         break;

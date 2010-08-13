@@ -380,6 +380,7 @@ type curlInfo =
   | CURLINFO_COOKIELIST
   | CURLINFO_LASTSOCKET
   | CURLINFO_FTP_ENTRY_PATH
+  | CURLINFO_REDIRECT_URL
 
 type curlInfoResult =
   | CURLINFO_String of string
@@ -818,6 +819,11 @@ let set_seekfunction conn closure =
 
 let get_effectiveurl conn =
   match (getinfo conn CURLINFO_EFFECTIVE_URL) with
+  | CURLINFO_String s -> s
+  | _ -> ""
+
+let get_redirecturl conn =
+  match (getinfo conn CURLINFO_REDIRECT_URL) with
   | CURLINFO_String s -> s
   | _ -> ""
 

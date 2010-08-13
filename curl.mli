@@ -380,6 +380,7 @@ type curlInfo =
   | CURLINFO_COOKIELIST
   | CURLINFO_LASTSOCKET
   | CURLINFO_FTP_ENTRY_PATH
+  | CURLINFO_REDIRECT_URL
 
 type curlInfoResult =
   | CURLINFO_String of string
@@ -530,6 +531,7 @@ val set_proxytransfermode : t -> bool -> unit
 val set_seekfunction : t -> (int64 -> curlSeek -> int) -> unit
 
 val get_effectiveurl : t -> string
+val get_redirecturl : t -> string
 val get_httpcode : t -> int
 val get_responsecode : t -> int
 val get_totaltime : t -> float

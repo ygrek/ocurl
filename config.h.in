@@ -352,6 +352,10 @@
    to 0 if you don't. */
 #undef HAVE_DECL_CURLINFO_FTP_ENTRY_PATH
 
+/* Define to 1 if you have the declaration of `CURLINFO_REDIRECT_URL', and
+   to 0 if you don't. */
+#undef HAVE_DECL_CURLINFO_REDIRECT_URL
+
 /* Define to 1 if you have the declaration of `CURLINFO_HEADER_SIZE', and to 0
    if you don't. */
 #undef HAVE_DECL_CURLINFO_HEADER_SIZE
