@@ -1,0 +1,16 @@
+OCAML_LIBS += ../curl
+OCAML_CLIBS += ../libcurl-helper
+OCAMLINCLUDES += ..
+OCAML_LINK_FLAGS += -ccopt $(shell curl-config --libs)
+
+OCamlProgram(ocurl, ocurl)
+OCamlProgram(oput, oput)
+OCamlProgram(ominimal, ominimal)
+OCamlProgram(ossl, ossl)
+
+.DEFAULT: ocurl$(EXE) oput$(EXE) ominimal$(EXE) ossl$(EXE)
+
+clean:
+	rm -f ocurl$(EXE) oput$(EXE) ominimal$(EXE) ossl$(EXE)
+	rm -f ocurl.opt$(EXE) oput.opt$(EXE) ominimal.opt$(EXE) ossl.opt$(EXE)
+	rm -f *.cm* *~ *.o
