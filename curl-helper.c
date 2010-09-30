@@ -2567,7 +2567,6 @@ static void handleHTTPHeader(Connection *conn, value option)
     CAMLparam1(option);
     CAMLlocal1(listIter);
     CURLcode result = CURLE_OK;
-    char *str;
 
     Store_field(conn->ocamlValues, OcamlHTTPHeader, option);
 
@@ -2580,12 +2579,7 @@ static void handleHTTPHeader(Connection *conn, value option)
 
     while (!Is_long(listIter))
     {
-        if (Tag_val(Field(listIter, 0)) != String_tag)
-            failwith("Not a string");
-
-        str = strdup(String_val(Field(listIter, 0)));
-
-        conn->httpHeader = curl_slist_append(conn->httpHeader, str);
+        conn->httpHeader = curl_slist_append(conn->httpHeader, String_val(Field(listIter, 0)));
 
         listIter = Field(listIter, 1);
     }
@@ -3181,7 +3175,6 @@ static void handleQuote(Connection *conn, value option)
     CAMLparam1(option);
     CAMLlocal1(listIter);
     CURLcode result = CURLE_OK;
-    char *str;
 
     Store_field(conn->ocamlValues, OcamlQuote, option);
 
@@ -3194,12 +3187,7 @@ static void handleQuote(Connection *conn, value option)
 
     while (!Is_long(listIter))
     {
-        if (Tag_val(Field(listIter, 0)) != String_tag)
-            failwith("Not a string");
-
-        str = strdup(String_val(Field(listIter, 0)));
-
-        conn->quote = curl_slist_append(conn->quote, str);
+        conn->quote = curl_slist_append(conn->quote, String_val(Field(listIter, 0)));
 
         listIter = Field(listIter, 1);
     }
@@ -3219,7 +3207,6 @@ static void handlePostQuote(Connection *conn, value option)
     CAMLparam1(option);
     CAMLlocal1(listIter);
     CURLcode result = CURLE_OK;
-    char *str;
 
     Store_field(conn->ocamlValues, OcamlPostQuote, option);
 
@@ -3232,12 +3219,7 @@ static void handlePostQuote(Connection *conn, value option)
 
     while (!Is_long(listIter))
     {
-        if (Tag_val(Field(listIter, 0)) != String_tag)
-            failwith("Not a string");
-
-        str = strdup(String_val(Field(listIter, 0)));
-
-        conn->postQuote = curl_slist_append(conn->postQuote, str);
+        conn->postQuote = curl_slist_append(conn->postQuote, String_val(Field(listIter, 0)));
 
         listIter = Field(listIter, 1);
     }
@@ -3931,7 +3913,6 @@ static void handleHTTP200Aliases(Connection *conn, value option)
     CAMLparam1(option);
     CAMLlocal1(listIter);
     CURLcode result = CURLE_OK;
-    char *str;
 
     Store_field(conn->ocamlValues, OcamlHTTP200Aliases, option);
 
@@ -3944,12 +3925,7 @@ static void handleHTTP200Aliases(Connection *conn, value option)
 
     while (!Is_long(listIter))
     {
-        if (Tag_val(Field(listIter, 0)) != String_tag)
-            failwith("Not a string");
-
-        str = strdup(String_val(Field(listIter, 0)));
-
-        conn->http200Aliases = curl_slist_append(conn->http200Aliases, str);
+        conn->http200Aliases = curl_slist_append(conn->http200Aliases, String_val(Field(listIter, 0)));
 
         listIter = Field(listIter, 1);
     }
