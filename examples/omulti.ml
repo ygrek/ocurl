@@ -28,7 +28,7 @@ let events_base = Ev.init ()
 let loop_async mt =
   pr "action/event";
   let events = Hashtbl.create 32 in
-  let on_event _ev fd flags =
+  let on_event fd flags =
     let event = match flags with
                 | Ev.READ -> M.EV_IN
                 | Ev.WRITE -> M.EV_OUT
@@ -49,7 +49,8 @@ let loop_async mt =
     match flags with
     | [] -> finished mt
     | flags ->
-      let ev = Ev.create events_base fd flags ~persist:true on_event in
+      let ev = Ev.create () in
+      Ev.set events_base ev fd flags ~persist:true on_event;
       Ev.add ev None;
       incr evs;
       Hashtbl.add events fd ev
