@@ -44,6 +44,20 @@ Val_some( value v )
     CAMLreturn( some );
 }
 
+static value Val_pair(value v1, value v2)
+{
+  CAMLparam2(v1,v2);
+  CAMLlocal1(pair);
+  pair = caml_alloc_small(2,0);
+  Field(pair,0) = v1;
+  Field(pair,1) = v2;
+  CAMLreturn(pair);
+}
+
+static value Val_cons(value list, value v) { return Val_pair(v,list); }
+
+#define Val_nil Val_int(0)
+
 typedef struct Connection Connection;
 typedef struct ConnectionList ConnectionList;
 
@@ -5713,6 +5727,38 @@ CAMLprim value helper_curl_version(void)
     result = copy_string(str);
 
     CAMLreturn(result);
+}
+
+CAMLprim value caml_curl_version_info(value unit)
+{
+  CAMLparam1(unit);
+  CAMLlocal3(v, vlist, vnum);
+  const char* const* p = NULL;
+
+  curl_version_info_data* data = curl_version_info(CURLVERSION_NOW);
+  if (NULL == data) caml_failwith("curl_version_info");
+
+  vlist = Val_nil;
+  for (p = data->protocols; NULL != *p; p++)
+  {
+    vlist = Val_cons(vlist, caml_copy_string(*p));
+  }
+
+  vnum = caml_alloc_tuple(3);
+  Store_field(vnum,0,Val_int(0xFF & (data->version_num >> 16)));
+  Store_field(vnum,1,Val_int(0xFF & (data->version_num >> 8)));
+  Store_field(vnum,2,Val_int(0xFF & (data->version_num)));
+
+  v = caml_alloc_tuple(7);
+  Store_field(v,0,caml_copy_string(data->version));
+  Store_field(v,1,vnum);
+  Store_field(v,2,caml_copy_string(data->host));
+  Store_field(v,3,Val_int(data->features));
+  Store_field(v,4,data->ssl_version ? Val_some(caml_copy_string(data->ssl_version)) : Val_none);
+  Store_field(v,5,data->libz_version ? Val_some(caml_copy_string(data->libz_version)) : Val_none);
+  Store_field(v,6,vlist);
+
+  CAMLreturn(v);
 }
 
 /*

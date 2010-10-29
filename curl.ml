@@ -439,6 +439,18 @@ let getdate str now =
 let version () =
   helper_version ()
 
+type version_info = { 
+  version : string;
+  number : int * int * int;
+  host : string;
+  features : int;
+  ssl_version : string option;
+  libz_version : string option;
+  protocols : string list;
+}
+
+external version_info : unit -> version_info = "caml_curl_version_info"
+
 external strerror : curlCode -> string = "helper_curl_easy_strerror"
 let errno : curlCode -> int = Obj.magic
 

@@ -388,6 +388,16 @@ type curlInfoResult =
   | CURLINFO_Double of float
   | CURLINFO_StringList of string list
 
+type version_info = { 
+  version : string;
+  number : int * int * int;
+  host : string;
+  features : int;
+  ssl_version : string option;
+  libz_version : string option;
+  protocols : string list;
+}
+
 val global_init : initOption -> unit
 val global_cleanup : unit -> unit
 val init : unit -> t
@@ -404,6 +414,7 @@ val getdate : string -> float -> float
 val version : unit -> string
 val strerror : curlCode -> string
 val errno : curlCode -> int
+val version_info : unit -> version_info
 
 val set_writefunction : t -> (string -> int) -> unit
 val set_readfunction : t -> (int -> string) -> unit
