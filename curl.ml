@@ -341,6 +341,7 @@ type curlOption =
   | CURLOPT_COPYPOSTFIELDS of string
   | CURLOPT_PROXYTRANSFERMODE of bool
   | CURLOPT_SEEKFUNCTION of (int64 -> curlSeek -> int)
+  | CURLOPT_AUTOREFERER of bool
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -829,6 +830,9 @@ let set_proxytransfermode conn flag =
 let set_seekfunction conn closure =
   setopt conn (CURLOPT_SEEKFUNCTION closure)
 
+let set_autoreferer conn b =
+  setopt conn (CURLOPT_AUTOREFERER b)
+
 let get_effectiveurl conn =
   match (getinfo conn CURLINFO_EFFECTIVE_URL) with
   | CURLINFO_String s -> s
@@ -1131,6 +1135,7 @@ class handle =
     method set_copypostfields post = set_copypostfields conn post
     method set_proxytransfermode flag = set_proxytransfermode conn flag
     method set_seekfunction closure = set_seekfunction conn closure
+    method set_autoreferer b = set_autoreferer conn b
 
     method get_effectiveurl = get_effectiveurl conn
     method get_responsecode = get_responsecode conn

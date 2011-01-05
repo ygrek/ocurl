@@ -341,6 +341,7 @@ type curlOption =
   | CURLOPT_COPYPOSTFIELDS of string
   | CURLOPT_PROXYTRANSFERMODE of bool
   | CURLOPT_SEEKFUNCTION of (int64 -> curlSeek -> int)
+  | CURLOPT_AUTOREFERER of bool
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -540,6 +541,7 @@ val set_sshhostpublickeymd5 : t -> string -> unit
 val set_copypostfields : t -> string -> unit
 val set_proxytransfermode : t -> bool -> unit
 val set_seekfunction : t -> (int64 -> curlSeek -> int) -> unit
+val set_autoreferer : t -> bool -> unit
 
 val get_effectiveurl : t -> string
 val get_redirecturl : t -> string
@@ -707,6 +709,7 @@ class handle :
     method set_copypostfields : string -> unit
     method set_proxytransfermode : bool -> unit
     method set_seekfunction : (int64 -> curlSeek -> int) -> unit
+    method set_autoreferer : bool -> unit
 
     method get_effectiveurl : string
     method get_httpcode : int

@@ -736,6 +736,7 @@ static void handleSSHHostPublicKeyMD5(Connection *, value);
 static void handleCopyPostFields(Connection *, value);
 static void handleProxyTransferMode(Connection *, value);
 static void handleSeekFunction(Connection *, value);
+static void handleAutoReferer(Connection *, value);
 
 CURLOptionMapping implementedOptionMap[] =
 {
@@ -1055,6 +1056,11 @@ CURLOptionMapping implementedOptionMap[] =
     {handleSeekFunction, "CURLOPT_SEEKFUNCTION", CURLOPT_SEEKFUNCTION},
 #else
     {handleSeekFunction, "CURLOPT_SEEKFUNCTION", 0},
+#endif
+#if HAVE_DECL_CURLOPT_AUTOREFERER
+    {handleAutoReferer, "CURLOPT_AUTOREFERER", CURLOPT_AUTOREFERER},
+#else
+    {handleAutoReferer, "CURLOPT_AUTOREFERER", 0},
 #endif
 };
 
@@ -5146,6 +5152,24 @@ static void handleSeekFunction(Connection *conn, value option)
 #else
 #warning "libcurl does not implement CURLOPT_SEEKFUNCTION"
     failwith("libcurl does not implement CURLOPT_SEEKFUNCTION");
+#endif
+}
+
+static void handleAutoReferer(Connection *conn, value option)
+{
+#if HAVE_DECL_CURLOPT_AUTOREFERER
+    CAMLparam1(option);
+    CURLcode result = curl_easy_setopt(conn->connection,
+                              CURLOPT_AUTOREFERER,
+                              Bool_val(option));
+
+    if (result != CURLE_OK)
+        raiseError(conn, result);
+
+    CAMLreturn0;
+#else
+#warning "libcurl does not implement CURLOPT_AUTOREFERER"
+    failwith("libcurl does not implement CURLOPT_AUTOREFERER");
 #endif
 }
 
