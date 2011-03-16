@@ -140,16 +140,17 @@ type curlKRB4Level =
 type curlClosePolicy =
   | CLOSEPOLICY_OLDEST
   | CLOSEPOLICY_LEAST_RECENTLY_USED
-      
+
 type curlSSLVerifyHost =
-  | SSLVERIFYHOST_EXISTENCE
-  | SSLVERIFYHOST_HOSTNAME
-      
+  | SSLVERIFYHOST_NONE (** connection succeeds regardless of the names in the certificate *)
+  | SSLVERIFYHOST_EXISTENCE (** certificate must contain a Common Name field, but it doesn’t matter what name it says *)
+  | SSLVERIFYHOST_HOSTNAME (** certificate must indicate the matching hostname, or the connection fails *)
+
 type curlHTTPVersion =
   | HTTP_VERSION_NONE
   | HTTP_VERSION_1_0
   | HTTP_VERSION_1_1
-      
+
 type curlDebugType =
   | DEBUGTYPE_TEXT
   | DEBUGTYPE_HEADER_IN

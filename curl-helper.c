@@ -56,8 +56,6 @@ static value Val_pair(value v1, value v2)
 
 static value Val_cons(value list, value v) { return Val_pair(v,list); }
 
-#define Val_nil Val_int(0)
-
 typedef struct Connection Connection;
 typedef struct ConnectionList ConnectionList;
 
@@ -3726,16 +3724,12 @@ static void handleSSLVerifyHost(Connection *conn, value option)
 
     switch (Long_val(option))
     {
-    case 0: /* SSLVERIFYHOST_EXISTENCE */
+    case 0: /* SSLVERIFYHOST_NONE */
+    case 1: /* SSLVERIFYHOST_EXISTENCE */
+    case 2: /* SSLVERIFYHOST_HOSTNAME */
         result = curl_easy_setopt(conn->connection,
                                   CURLOPT_SSL_VERIFYHOST,
-                                  1);
-        break;
-
-    case 1: /* SSLVERIFYHOST_HOSTNAME */
-        result = curl_easy_setopt(conn->connection,
-                                  CURLOPT_SSL_VERIFYHOST,
-                                  2);
+                                  Long_val(option));
         break;
 
     default:
@@ -5762,7 +5756,7 @@ CAMLprim value caml_curl_version_info(value unit)
   curl_version_info_data* data = curl_version_info(CURLVERSION_NOW);
   if (NULL == data) caml_failwith("curl_version_info");
 
-  vlist = Val_nil;
+  vlist = Val_emptylist;
   for (p = data->protocols; NULL != *p; p++)
   {
     vlist = Val_cons(vlist, caml_copy_string(*p));
