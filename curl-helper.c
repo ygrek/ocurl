@@ -77,6 +77,7 @@ enum OcamlValues
     OcamlHTTP200Aliases,
     OcamlIOCTLCallback,
     OcamlSeekFunctionCallback,
+    OcamlOpenSocketFunctionCallback,
 
     OcamlURL,
     OcamlProxy,
@@ -735,6 +736,7 @@ static void handleCopyPostFields(Connection *, value);
 static void handleProxyTransferMode(Connection *, value);
 static void handleSeekFunction(Connection *, value);
 static void handleAutoReferer(Connection *, value);
+static void handleOpenSocketFunction(Connection *, value);
 
 CURLOptionMapping implementedOptionMap[] =
 {
@@ -1059,6 +1061,11 @@ CURLOptionMapping implementedOptionMap[] =
     {handleAutoReferer, "CURLOPT_AUTOREFERER", CURLOPT_AUTOREFERER},
 #else
     {handleAutoReferer, "CURLOPT_AUTOREFERER", 0},
+#endif
+#if HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
+    {handleOpenSocketFunction, "CURLOPT_OPENSOCKETFUNCTION", CURLOPT_OPENSOCKETFUNCTION},
+#else
+    {handleOpenSocketFunction, "CURLOPT_OPENSOCKETFUNCTION", 0},
 #endif
 };
 
@@ -1794,6 +1801,39 @@ static int seekFunction(void *data,
   int r;
   leave_blocking_section();
   r = seekFunction_nolock(data,offset,origin);
+  enter_blocking_section();
+  return r;
+}
+
+#endif
+
+#ifdef HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
+static int openSocketFunction_nolock(void *data,
+                        curlsocktype purpose,
+                        struct curl_sockaddr *addr)
+{
+    CAMLparam0();
+    Connection *conn = (Connection *)data;
+    int sock = -1;
+
+    sock = socket(addr->family, addr->socktype, addr->protocol);
+
+    if (-1 != sock)
+    {
+      /* FIXME windows */
+      callback(Field(conn->ocamlValues, OcamlOpenSocketFunctionCallback), Val_int(sock));
+    }
+
+    CAMLreturnT(int, sock);
+}
+
+static int openSocketFunction(void *data,
+                        curlsocktype purpose,
+                        struct curl_sockaddr *address)
+{
+  int r;
+  leave_blocking_section();
+  r = openSocketFunction_nolock(data,purpose,address);
   enter_blocking_section();
   return r;
 }
@@ -5166,6 +5206,36 @@ static void handleAutoReferer(Connection *conn, value option)
     failwith("libcurl does not implement CURLOPT_AUTOREFERER");
 #endif
 }
+
+static void handleOpenSocketFunction(Connection *conn, value option)
+{
+#if HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
+    CAMLparam1(option);
+    CURLcode result = CURLE_OK;
+
+    Store_field(conn->ocamlValues, OcamlOpenSocketFunctionCallback, option);
+
+    result = curl_easy_setopt(conn->connection,
+                              CURLOPT_OPENSOCKETDATA,
+                              conn);
+
+    if (result != CURLE_OK)
+        raiseError(conn, result);
+
+    result = curl_easy_setopt(conn->connection,
+                              CURLOPT_OPENSOCKETFUNCTION,
+                              openSocketFunction);
+
+    if (result != CURLE_OK)
+        raiseError(conn, result);
+
+    CAMLreturn0;
+#else
+#warning "libcurl does not implement CURLOPT_OPENSOCKETFUNCTION"
+    failwith("libcurl does not implement CURLOPT_OPENSOCKETFUNCTION");
+#endif
+}
+
 
 /**
  **  curl_easy_setopt helper function

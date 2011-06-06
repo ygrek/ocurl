@@ -343,6 +343,7 @@ type curlOption =
   | CURLOPT_PROXYTRANSFERMODE of bool
   | CURLOPT_SEEKFUNCTION of (int64 -> curlSeek -> int)
   | CURLOPT_AUTOREFERER of bool
+  | CURLOPT_OPENSOCKETFUNCTION of (Unix.file_descr -> unit)
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -834,6 +835,9 @@ let set_seekfunction conn closure =
 let set_autoreferer conn b =
   setopt conn (CURLOPT_AUTOREFERER b)
 
+let set_opensocketfunction conn closure =
+  setopt conn (CURLOPT_OPENSOCKETFUNCTION closure)
+
 let get_effectiveurl conn =
   match (getinfo conn CURLINFO_EFFECTIVE_URL) with
   | CURLINFO_String s -> s
@@ -1137,6 +1141,7 @@ class handle =
     method set_proxytransfermode flag = set_proxytransfermode conn flag
     method set_seekfunction closure = set_seekfunction conn closure
     method set_autoreferer b = set_autoreferer conn b
+    method set_opensocketfunction closure = set_opensocketfunction conn closure
 
     method get_effectiveurl = get_effectiveurl conn
     method get_responsecode = get_responsecode conn

@@ -343,6 +343,7 @@ type curlOption =
   | CURLOPT_PROXYTRANSFERMODE of bool
   | CURLOPT_SEEKFUNCTION of (int64 -> curlSeek -> int)
   | CURLOPT_AUTOREFERER of bool
+  | CURLOPT_OPENSOCKETFUNCTION of (Unix.file_descr -> unit)
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -543,6 +544,7 @@ val set_copypostfields : t -> string -> unit
 val set_proxytransfermode : t -> bool -> unit
 val set_seekfunction : t -> (int64 -> curlSeek -> int) -> unit
 val set_autoreferer : t -> bool -> unit
+val set_opensocketfunction : t -> (Unix.file_descr -> unit) -> unit
 
 val get_effectiveurl : t -> string
 val get_redirecturl : t -> string
@@ -711,6 +713,7 @@ class handle :
     method set_proxytransfermode : bool -> unit
     method set_seekfunction : (int64 -> curlSeek -> int) -> unit
     method set_autoreferer : bool -> unit
+    method set_opensocketfunction : (Unix.file_descr -> unit) -> unit
 
     method get_effectiveurl : string
     method get_httpcode : int
