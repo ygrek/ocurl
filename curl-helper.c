@@ -737,6 +737,7 @@ static void handleProxyTransferMode(Connection *, value);
 static void handleSeekFunction(Connection *, value);
 static void handleAutoReferer(Connection *, value);
 static void handleOpenSocketFunction(Connection *, value);
+static void handleProxyType(Connection *, value);
 
 CURLOptionMapping implementedOptionMap[] =
 {
@@ -1066,6 +1067,11 @@ CURLOptionMapping implementedOptionMap[] =
     {handleOpenSocketFunction, "CURLOPT_OPENSOCKETFUNCTION", CURLOPT_OPENSOCKETFUNCTION},
 #else
     {handleOpenSocketFunction, "CURLOPT_OPENSOCKETFUNCTION", 0},
+#endif
+#if HAVE_DECL_CURLOPT_PROXYTYPE
+    {handleProxyType, "CURLOPT_PROXYTYPE", CURLOPT_PROXYTYPE},
+#else
+    {handleProxyType, "CURLOPT_PROXYTYPE", 0},
 #endif
 };
 
@@ -5235,6 +5241,40 @@ static void handleOpenSocketFunction(Connection *conn, value option)
     failwith("libcurl does not implement CURLOPT_OPENSOCKETFUNCTION");
 #endif
 }
+
+static void handleProxyType(Connection *conn, value option)
+{
+#if HAVE_DECL_CURLOPT_PROXYTYPE
+    CAMLparam1(option);
+    CURLcode result = CURLE_OK;
+    long proxy_type;
+
+    switch (Long_val(option))
+    {
+      case 0: proxy_type = CURLPROXY_HTTP; break;
+      case 1: proxy_type = CURLPROXY_HTTP_1_0; break;
+      case 2: proxy_type = CURLPROXY_SOCKS4; break;
+      case 3: proxy_type = CURLPROXY_SOCKS5; break;
+      case 4: proxy_type = CURLPROXY_SOCKS4A; break;
+      case 5: proxy_type = CURLPROXY_SOCKS5_HOSTNAME; break;
+      default:
+        failwith("Invalid curl proxy type");
+    }
+
+    result = curl_easy_setopt(conn->connection,
+                              CURLOPT_PROXYTYPE,
+                              proxy_type);
+
+    if (result != CURLE_OK)
+        raiseError(conn, result);
+
+    CAMLreturn0;
+#else
+#warning "libcurl does not implement CURLOPT_PROXYTYPE"
+    failwith("libcurl does not implement CURLOPT_PROXYTYPE");
+#endif
+}
+
 
 
 /**

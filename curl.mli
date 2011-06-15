@@ -215,6 +215,14 @@ type curlSeek =
   | SEEK_CUR
   | SEEK_END
 
+type curlProxyType =
+  | CURLPROXY_HTTP
+  | CURLPROXY_HTTP_1_0 (** added in 7.19.4 *)
+  | CURLPROXY_SOCKS4 (** added in 7.15.2 *)
+  | CURLPROXY_SOCKS5
+  | CURLPROXY_SOCKS4A (** added in 7.18.0 *)
+  | CURLPROXY_SOCKS5_HOSTNAME (** added in 7.18.0 *)
+
 type curlOption =
   | CURLOPT_WRITEFUNCTION of (string -> int)
   | CURLOPT_READFUNCTION of (int -> string)
@@ -344,6 +352,7 @@ type curlOption =
   | CURLOPT_SEEKFUNCTION of (int64 -> curlSeek -> int)
   | CURLOPT_AUTOREFERER of bool
   | CURLOPT_OPENSOCKETFUNCTION of (Unix.file_descr -> unit)
+  | CURLOPT_PROXYTYPE of curlProxyType
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -545,6 +554,7 @@ val set_proxytransfermode : t -> bool -> unit
 val set_seekfunction : t -> (int64 -> curlSeek -> int) -> unit
 val set_autoreferer : t -> bool -> unit
 val set_opensocketfunction : t -> (Unix.file_descr -> unit) -> unit
+val set_proxytype : t -> curlProxyType -> unit
 
 val get_effectiveurl : t -> string
 val get_redirecturl : t -> string
@@ -714,6 +724,7 @@ class handle :
     method set_seekfunction : (int64 -> curlSeek -> int) -> unit
     method set_autoreferer : bool -> unit
     method set_opensocketfunction : (Unix.file_descr -> unit) -> unit
+    method set_proxytype : curlProxyType -> unit
 
     method get_effectiveurl : string
     method get_httpcode : int

@@ -215,6 +215,14 @@ type curlSeek =
   | SEEK_CUR
   | SEEK_END
 
+type curlProxyType =
+  | CURLPROXY_HTTP
+  | CURLPROXY_HTTP_1_0 (** added in 7.19.4 *)
+  | CURLPROXY_SOCKS4 (** added in 7.15.2 *)
+  | CURLPROXY_SOCKS5
+  | CURLPROXY_SOCKS4A (** added in 7.18.0 *)
+  | CURLPROXY_SOCKS5_HOSTNAME (** added in 7.18.0 *)
+
 type curlOption =
   | CURLOPT_WRITEFUNCTION of (string -> int)
   | CURLOPT_READFUNCTION of (int -> string)
@@ -344,6 +352,7 @@ type curlOption =
   | CURLOPT_SEEKFUNCTION of (int64 -> curlSeek -> int)
   | CURLOPT_AUTOREFERER of bool
   | CURLOPT_OPENSOCKETFUNCTION of (Unix.file_descr -> unit)
+  | CURLOPT_PROXYTYPE of curlProxyType
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -838,6 +847,9 @@ let set_autoreferer conn b =
 let set_opensocketfunction conn closure =
   setopt conn (CURLOPT_OPENSOCKETFUNCTION closure)
 
+let set_proxytype conn ptype =
+  setopt conn (CURLOPT_PROXYTYPE ptype)
+
 let get_effectiveurl conn =
   match (getinfo conn CURLINFO_EFFECTIVE_URL) with
   | CURLINFO_String s -> s
@@ -1142,6 +1154,7 @@ class handle =
     method set_seekfunction closure = set_seekfunction conn closure
     method set_autoreferer b = set_autoreferer conn b
     method set_opensocketfunction closure = set_opensocketfunction conn closure
+    method set_proxytype t = set_proxytype conn t
 
     method get_effectiveurl = get_effectiveurl conn
     method get_responsecode = get_responsecode conn
