@@ -352,10 +352,6 @@
    to 0 if you don't. */
 #undef HAVE_DECL_CURLINFO_FTP_ENTRY_PATH
 
-/* Define to 1 if you have the declaration of `CURLINFO_REDIRECT_URL', and
-   to 0 if you don't. */
-#undef HAVE_DECL_CURLINFO_REDIRECT_URL
-
 /* Define to 1 if you have the declaration of `CURLINFO_HEADER_SIZE', and to 0
    if you don't. */
 #undef HAVE_DECL_CURLINFO_HEADER_SIZE
@@ -388,6 +384,10 @@
    to 0 if you don't. */
 #undef HAVE_DECL_CURLINFO_PRETRANSFER_TIME
 
+/* Define to 1 if you have the declaration of `CURLINFO_PRIMARY_IP', and to 0
+   if you don't. */
+#undef HAVE_DECL_CURLINFO_PRIMARY_IP
+
 /* Define to 1 if you have the declaration of `CURLINFO_PRIVATE', and to 0 if
    you don't. */
 #undef HAVE_DECL_CURLINFO_PRIVATE
@@ -403,6 +403,10 @@
 /* Define to 1 if you have the declaration of `CURLINFO_REDIRECT_TIME', and to
    0 if you don't. */
 #undef HAVE_DECL_CURLINFO_REDIRECT_TIME
+
+/* Define to 1 if you have the declaration of `CURLINFO_REDIRECT_URL', and to
+   0 if you don't. */
+#undef HAVE_DECL_CURLINFO_REDIRECT_URL
 
 /* Define to 1 if you have the declaration of `CURLINFO_REQUEST_SIZE', and to
    0 if you don't. */
@@ -760,6 +764,10 @@
    you don't. */
 #undef HAVE_DECL_CURLOPT_NOSIGNAL
 
+/* Define to 1 if you have the declaration of `CURLOPT_OPENSOCKETFUNCTION',
+   and to 0 if you don't. */
+#undef HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
+
 /* Define to 1 if you have the declaration of `CURLOPT_PORT', and to 0 if you
    don't. */
 #undef HAVE_DECL_CURLOPT_PORT
@@ -1004,10 +1012,6 @@
    you don't. */
 #undef HAVE_DECL_CURLOPT_WRITEINFO
 
-/* Define to 1 if you have the declaration of `CURLOPT_OPENSOCKETFUNCTION', and to 0 if
-   you don't. */
-#undef HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
-
 /* Define to the address where bug reports for this package should be sent. */
 #undef PACKAGE_BUGREPORT
 
@@ -1019,6 +1023,9 @@
 
 /* Define to the one symbol short name of this package. */
 #undef PACKAGE_TARNAME
+
+/* Define to the home page for this package. */
+#undef PACKAGE_URL
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION

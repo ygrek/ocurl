@@ -393,6 +393,7 @@ type curlInfo =
   | CURLINFO_LASTSOCKET
   | CURLINFO_FTP_ENTRY_PATH
   | CURLINFO_REDIRECT_URL
+  | CURLINFO_PRIMARY_IP
 
 type curlInfoResult =
   | CURLINFO_String of string
@@ -1016,6 +1017,11 @@ let get_ftpentrypath conn =
   | CURLINFO_String s -> s
   | _ -> ""
 
+let get_primaryip conn =
+  match (getinfo conn CURLINFO_PRIMARY_IP) with
+  | CURLINFO_String s -> s
+  | _ -> ""
+
 let () =
   Callback.register_exception "CurlException"
     (CurlException (CURLE_OK, 0, ""))
@@ -1187,6 +1193,7 @@ class handle =
     method get_cookielist = get_cookielist conn
     method get_lastsocket = get_lastsocket conn
     method get_ftpentrypath = get_ftpentrypath conn
+    method get_primaryip = get_primaryip conn
 end
 
 module Multi = struct

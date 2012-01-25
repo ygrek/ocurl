@@ -5755,6 +5755,18 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
 #warning "libcurl does not provide CURLINFO_REDIRECT_URL"
 #endif
 
+#if HAVE_DECL_CURLINFO_PRIMARY_IP
+    case 32: /* CURLINFO_PRIMARY_IP */
+        resultType = StringValue;
+
+        curlResult = curl_easy_getinfo(connection->connection,
+                                       CURLINFO_PRIMARY_IP,
+                                       &strValue);
+        break;
+#else
+#warning "libcurl does not provide CURLINFO_PRIMARY_IP"
+#endif
+
     default:
         failwith("Invalid CURLINFO Option");
         break;

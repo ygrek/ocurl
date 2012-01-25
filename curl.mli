@@ -393,6 +393,7 @@ type curlInfo =
   | CURLINFO_LASTSOCKET
   | CURLINFO_FTP_ENTRY_PATH
   | CURLINFO_REDIRECT_URL
+  | CURLINFO_PRIMARY_IP
 
 type curlInfoResult =
   | CURLINFO_String of string
@@ -588,6 +589,7 @@ val get_sslengines : t -> string list
 val get_cookielist : t -> string list
 val get_lastsocket : t -> int
 val get_ftpentrypath : t -> string
+val get_primaryip : t -> string
 
 class handle :
   object ('a)
@@ -757,6 +759,7 @@ class handle :
     method get_cookielist : string list
     method get_lastsocket : int
     method get_ftpentrypath : string
+    method get_primaryip : string
   end
 
 (** Curl multi stack. Functions may raise [Failure] on critical errors *)

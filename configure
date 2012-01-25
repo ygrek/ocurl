@@ -5442,6 +5442,19 @@ fi
 cat >>confdefs.h <<_ACEOF
 #define HAVE_DECL_CURLINFO_REDIRECT_URL $ac_have_decl
 _ACEOF
+ac_fn_c_check_decl "$LINENO" "CURLINFO_PRIMARY_IP" "ac_cv_have_decl_CURLINFO_PRIMARY_IP" "
+#include \"curl/curl.h\"
+
+"
+if test "x$ac_cv_have_decl_CURLINFO_PRIMARY_IP" = x""yes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_CURLINFO_PRIMARY_IP $ac_have_decl
+_ACEOF
 ac_fn_c_check_decl "$LINENO" "CURLE_UNSUPPORTED_PROTOCOL" "ac_cv_have_decl_CURLE_UNSUPPORTED_PROTOCOL" "
 #include \"curl/curl.h\"
 
