@@ -25,8 +25,7 @@ CURLHELPEROBJS	= curl-helper.o
 CURLOBJS	= curl.cmx
 CURLBCOBJS	= $(CURLOBJS:.cmx=.cmo)
 
-CURLFLAGS	= -ccopt @CURLFLAGS@
-CURLCLIBS	= -cclib -lcurl-helper -cclib "@CURLLIBS@"
+CLIBS = @CURLLIBS@
 
 ifeq (@OCAMLBEST@,opt)
 TARGETS		= curl.cma curl.cmxa libcurl-helper.a dllcurl-helper.so
@@ -44,10 +43,10 @@ examples:
 		(cd examples; $(MAKE))
 
 curl.cma:	$(CURLBCOBJS) dllcurl-helper.so
-		$(OCAMLMKLIB) -o curl $(CURLBCOBJS) -oc curl-helper @CURLLIBS@
+		$(OCAMLMKLIB) -o curl $(CURLBCOBJS) -oc curl-helper $(CLIBS)
 
 curl.cmxa:	$(CURLOBJS) dllcurl-helper.so
-		$(OCAMLMKLIB) -o curl $(CURLOBJS) -oc curl-helper @CURLLIBS@
+		$(OCAMLMKLIB) -o curl $(CURLOBJS) -oc curl-helper $(CLIBS)
 
 .ml.cmx:
 		$(OCAMLOPT) -c $(FLAGS) $< -o $@
@@ -59,14 +58,14 @@ curl.cmxa:	$(CURLOBJS) dllcurl-helper.so
 		$(OCAMLC) -c $(FLAGS) $< -o $@
 
 libcurl-helper.a dllcurl-helper.so:	$(CURLHELPEROBJS)
-		$(OCAMLMKLIB) -oc curl-helper $(CURLHELPEROBJS) @CURLLIBS@
+		$(OCAMLMKLIB) -oc curl-helper $(CURLHELPEROBJS) $(CLIBS)
 
 .c.o:
 		$(OCAMLC) -c -ccopt "$(CFLAGS)" $<
 
 install:
 ifneq (@OCAMLFIND@,no)
-		$(FINDLIB) install -ldconf ignore curl META $(wildcard *.cmi *.mli) $(TARGETS)
+		$(FINDLIB) install -ldconf ignore curl META curl.a curl.cmi curl.mli $(TARGETS)
 else
 		mkdir -p $(INSTALLDIR)
 		$(INSTALLDATA) curl.cma $(INSTALLDIR)
