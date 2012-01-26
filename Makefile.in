@@ -10,18 +10,16 @@ INSTALLDIR	= @INSTALLDIR@
 INSTALL		= @INSTALL@
 INSTALLDATA	= @INSTALL_DATA@
 
-FINDLIB		= @OCAMLFIND@
-OCBYTE		= @OCAMLC@
-OCOPT		= @OCAMLOPT@
-
-OC		= @OCAMLC@
-CC		= @CC@
+FINDLIB = @OCAMLFIND@
+OCAMLC = @OCAMLC@
+OCAMLOPT = @OCAMLOPT@
+OCAMLDEP = @OCAMLDEP@
+OCAMLMKLIB = @OCAMLMKLIB@
 
 FLAGS		=
 LIBS		=
 
 CFLAGS		= @CFLAGS@ @DEFS@ -Wall
-CAMLINCDIR	= -I@OCAMLLIB@
 
 CURLHELPEROBJS	= curl-helper.o
 CURLOBJS	= curl.cmx
@@ -46,33 +44,29 @@ examples:
 		(cd examples; $(MAKE))
 
 curl.cma:	$(CURLBCOBJS) dllcurl-helper.so
-		ocamlmklib  -o curl $(CURLBCOBJS) -oc curl-helper @CURLLIBS@
+		$(OCAMLMKLIB) -o curl $(CURLBCOBJS) -oc curl-helper @CURLLIBS@
 
 curl.cmxa:	$(CURLOBJS) dllcurl-helper.so
-		ocamlmklib  -o curl $(CURLOBJS) -oc curl-helper @CURLLIBS@
+		$(OCAMLMKLIB) -o curl $(CURLOBJS) -oc curl-helper @CURLLIBS@
 
 .ml.cmx:
-		$(OCOPT) -c $(FLAGS) $< -o $@
+		$(OCAMLOPT) -c $(FLAGS) $< -o $@
 
 .mli.cmi:
-		$(OCBYTE) -c $(FLAGS) $< -o $@
+		$(OCAMLC) -c $(FLAGS) $< -o $@
 
 .ml.cmo:
-		$(OCBYTE) -c $(FLAGS) $< -o $@
+		$(OCAMLC) -c $(FLAGS) $< -o $@
 
 libcurl-helper.a dllcurl-helper.so:	$(CURLHELPEROBJS)
-		ocamlmklib  -oc curl-helper $(CURLHELPEROBJS) \
-			@CURLLIBS@
+		$(OCAMLMKLIB) -oc curl-helper $(CURLHELPEROBJS) @CURLLIBS@
 
 .c.o:
-		$(OC) -c -ccopt "$(CFLAGS)" $<
+		$(OCAMLC) -c -ccopt "$(CFLAGS)" $<
 
 install:
-ifeq ($(FINDLIB),ocamlfind)
-		ocamlfind install -ldconf ignore \
-			curl META $(wildcard *.cmi) \
-			 $(wildcard *.a) $(wildcard *.cma) \
-			 $(wildcard *.cmxa) $(wildcard *.so) $(wildcard *.mli)
+ifneq (@OCAMLFIND@,no)
+		$(FINDLIB) install -ldconf ignore curl META $(wildcard *.cmi *.mli) $(TARGETS)
 else
 		mkdir -p $(INSTALLDIR)
 		$(INSTALLDATA) curl.cma $(INSTALLDIR)
@@ -89,7 +83,7 @@ clean:
 		@(cd examples; $(MAKE) clean)
 
 depend:
-		@ocamldep *.mli *.ml > .depend
+		@$(OCAMLDEP) *.mli *.ml > .depend
 
 ifeq ($(wildcard .depend),.depend)
 ifneq ($(MAKECMDGOALS),clean)
