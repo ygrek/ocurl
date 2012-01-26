@@ -77,6 +77,14 @@ endif
 		$(INSTALLDATA) curl.a libcurl-helper.a $(INSTALLDIR)
 endif
 
+uninstall:
+ifneq (@OCAMLFIND@,no)
+		$(FINDLIB) remove curl
+else
+		(cd $(INSTALLDIR) && rm -f curl.cma curl.cmxa curl.mli curl.cmi curl.a libcurl-helper.a)
+		rmdir $(INSTALLDIR)
+endif
+
 
 clean:
 		@rm -f $(TARGETS) *~ *.cm* *.o *.a *.so .depend core
