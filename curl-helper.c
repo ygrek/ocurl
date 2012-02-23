@@ -1083,19 +1083,8 @@ static char *findOption(CURLOptionMapping optionMap[],
 
 static void free_curl_slist(struct curl_slist *slist)
 {
-    struct curl_slist *item;
-
-    if (slist == NULL)
-        return;
-
-    item = slist;
-
-    while (item != NULL)
-    {
-        free(item->data);
-        item->data = NULL;
-        item = item->next;
-    }
+    if (NULL == slist)
+      return;
 
     curl_slist_free_all(slist);
 }
@@ -1481,12 +1470,10 @@ static void removeConnection(Connection *connection)
     free_if(connection->userAgent);
     free_if(connection->ftpPort);
     free_if(connection->cookie);
-    if (connection->httpHeader != NULL)
-        free_curl_slist(connection->httpHeader);
+    free_curl_slist(connection->httpHeader);
     if (connection->httpPostFirst != NULL)
         curl_formfree(connection->httpPostFirst);
-    if (connection->httpPostStrings != NULL)
-        free_curl_slist(connection->httpPostStrings);
+    free_curl_slist(connection->httpPostStrings);
     free_if(connection->sslCert);
     free_if(connection->sslCertType);
     free_if(connection->sslCertPasswd);
@@ -1494,10 +1481,8 @@ static void removeConnection(Connection *connection)
     free_if(connection->sslKeyType);
     free_if(connection->sslKeyPasswd);
     free_if(connection->sslEngine);
-    if (connection->quote != NULL)
-        free_curl_slist(connection->quote);
-    if (connection->postQuote != NULL)
-        free_curl_slist(connection->postQuote);
+    free_curl_slist(connection->quote);
+    free_curl_slist(connection->postQuote);
     free_if(connection->cookieFile);
     free_if(connection->customRequest);
     free_if(connection->interface);
@@ -1508,8 +1493,7 @@ static void removeConnection(Connection *connection)
     free_if(connection->cookieJar);
     free_if(connection->sslCipherList);
     free_if(connection->private);
-    if (connection->http200Aliases != NULL)
-        free_curl_slist(connection->http200Aliases);
+    free_curl_slist(connection->http200Aliases);
     free_if(connection->netrcFile);
     free_if(connection->ftpaccount);
     free_if(connection->cookielist);
@@ -2634,9 +2618,7 @@ static void handleHTTPHeader(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, OcamlHTTPHeader, option);
 
-    if (conn->httpHeader != NULL)
-        free_curl_slist(conn->httpHeader);
-
+    free_curl_slist(conn->httpHeader);
     conn->httpHeader = NULL;
 
     listIter = option;
@@ -2675,8 +2657,8 @@ static void handleHTTPPost(Connection *conn, value option)
     conn->httpPostFirst = NULL;
     conn->httpPostLast = NULL;
 
-    if (conn->httpPostStrings != NULL)
-        free_curl_slist(conn->httpPostStrings);
+    free_curl_slist(conn->httpPostStrings);
+    conn->httpPostStrings = NULL;
 
     while (!Is_long(listIter))
     {
@@ -3242,9 +3224,7 @@ static void handleQuote(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, OcamlQuote, option);
 
-    if (conn->quote != NULL)
-        free_curl_slist(conn->quote);
-
+    free_curl_slist(conn->quote);
     conn->quote = NULL;
 
     listIter = option;
@@ -3274,9 +3254,7 @@ static void handlePostQuote(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, OcamlPostQuote, option);
 
-    if (conn->postQuote != NULL)
-        free_curl_slist(conn->postQuote);
-
+    free_curl_slist(conn->postQuote);
     conn->postQuote = NULL;
 
     listIter = option;
@@ -3976,9 +3954,7 @@ static void handleHTTP200Aliases(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, OcamlHTTP200Aliases, option);
 
-    if (conn->http200Aliases != NULL)
-        free_curl_slist(conn->http200Aliases);
-
+    free_curl_slist(conn->http200Aliases);
     conn->http200Aliases = NULL;
 
     listIter = option;
