@@ -224,6 +224,36 @@ type curlProxyType =
   | CURLPROXY_SOCKS4A (** added in 7.18.0 *)
   | CURLPROXY_SOCKS5_HOSTNAME (** added in 7.18.0 *)
 
+(** Protocols to enable (via CURLOPT_PROTOCOLS and CURLOPT_REDIR_PROTOCOLS) *)
+type curlProto =
+| CURLPROTO_ALL (** enable everything *)
+| CURLPROTO_HTTP
+| CURLPROTO_HTTPS
+| CURLPROTO_FTP
+| CURLPROTO_FTPS
+| CURLPROTO_SCP
+| CURLPROTO_SFTP
+| CURLPROTO_TELNET
+| CURLPROTO_LDAP
+| CURLPROTO_LDAPS
+| CURLPROTO_DICT
+| CURLPROTO_FILE
+| CURLPROTO_TFTP
+| CURLPROTO_IMAP
+| CURLPROTO_IMAPS
+| CURLPROTO_POP3
+| CURLPROTO_POP3S
+| CURLPROTO_SMTP
+| CURLPROTO_SMTPS
+| CURLPROTO_RTSP
+| CURLPROTO_RTMP
+| CURLPROTO_RTMPT
+| CURLPROTO_RTMPE
+| CURLPROTO_RTMPTE
+| CURLPROTO_RTMPS
+| CURLPROTO_RTMPTS
+| CURLPROTO_GOPHER
+
 type curlOption =
   | CURLOPT_WRITEFUNCTION of (string -> int)
   | CURLOPT_READFUNCTION of (int -> string)
@@ -354,6 +384,8 @@ type curlOption =
   | CURLOPT_AUTOREFERER of bool
   | CURLOPT_OPENSOCKETFUNCTION of (Unix.file_descr -> unit)
   | CURLOPT_PROXYTYPE of curlProxyType
+  | CURLOPT_PROTOCOLS of curlProto list
+  | CURLOPT_REDIR_PROTOCOLS of curlProto list
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -851,6 +883,12 @@ let set_opensocketfunction conn closure =
 
 let set_proxytype conn ptype =
   setopt conn (CURLOPT_PROXYTYPE ptype)
+
+let set_protocols conn l =
+  setopt conn (CURLOPT_PROTOCOLS l)
+
+let set_redirprotocols conn l =
+  setopt conn (CURLOPT_REDIR_PROTOCOLS l)
 
 let get_effectiveurl conn =
   match (getinfo conn CURLINFO_EFFECTIVE_URL) with

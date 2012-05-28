@@ -224,6 +224,36 @@ type curlProxyType =
   | CURLPROXY_SOCKS4A (** added in 7.18.0 *)
   | CURLPROXY_SOCKS5_HOSTNAME (** added in 7.18.0 *)
 
+(** Protocols to enable (via CURLOPT_PROTOCOLS and CURLOPT_REDIR_PROTOCOLS) *)
+type curlProto =
+| CURLPROTO_ALL (** enable everything *)
+| CURLPROTO_HTTP
+| CURLPROTO_HTTPS
+| CURLPROTO_FTP
+| CURLPROTO_FTPS
+| CURLPROTO_SCP
+| CURLPROTO_SFTP
+| CURLPROTO_TELNET
+| CURLPROTO_LDAP
+| CURLPROTO_LDAPS
+| CURLPROTO_DICT
+| CURLPROTO_FILE
+| CURLPROTO_TFTP
+| CURLPROTO_IMAP
+| CURLPROTO_IMAPS
+| CURLPROTO_POP3
+| CURLPROTO_POP3S
+| CURLPROTO_SMTP
+| CURLPROTO_SMTPS
+| CURLPROTO_RTSP
+| CURLPROTO_RTMP
+| CURLPROTO_RTMPT
+| CURLPROTO_RTMPE
+| CURLPROTO_RTMPTE
+| CURLPROTO_RTMPS
+| CURLPROTO_RTMPTS
+| CURLPROTO_GOPHER
+
 type curlOption =
   | CURLOPT_WRITEFUNCTION of (string -> int)
   | CURLOPT_READFUNCTION of (int -> string)
@@ -354,6 +384,8 @@ type curlOption =
   | CURLOPT_AUTOREFERER of bool
   | CURLOPT_OPENSOCKETFUNCTION of (Unix.file_descr -> unit)
   | CURLOPT_PROXYTYPE of curlProxyType
+  | CURLOPT_PROTOCOLS of curlProto list
+  | CURLOPT_REDIR_PROTOCOLS of curlProto list
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -557,6 +589,8 @@ val set_seekfunction : t -> (int64 -> curlSeek -> int) -> unit
 val set_autoreferer : t -> bool -> unit
 val set_opensocketfunction : t -> (Unix.file_descr -> unit) -> unit
 val set_proxytype : t -> curlProxyType -> unit
+val set_protocols : t -> curlProto list -> unit
+val set_redirprotocols : t -> curlProto list -> unit
 
 val get_effectiveurl : t -> string
 val get_redirecturl : t -> string

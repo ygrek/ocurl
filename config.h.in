@@ -812,6 +812,10 @@
    to 0 if you don't. */
 #undef HAVE_DECL_CURLOPT_PROGRESSFUNCTION
 
+/* Define to 1 if you have the declaration of `CURLOPT_PROTOCOLS', and to 0 if
+   you don't. */
+#undef HAVE_DECL_CURLOPT_PROTOCOLS
+
 /* Define to 1 if you have the declaration of `CURLOPT_PROXY', and to 0 if you
    don't. */
 #undef HAVE_DECL_CURLOPT_PROXY
@@ -855,6 +859,10 @@
 /* Define to 1 if you have the declaration of `CURLOPT_READFUNCTION', and to 0
    if you don't. */
 #undef HAVE_DECL_CURLOPT_READFUNCTION
+
+/* Define to 1 if you have the declaration of `CURLOPT_REDIR_PROTOCOLS', and
+   to 0 if you don't. */
+#undef HAVE_DECL_CURLOPT_REDIR_PROTOCOLS
 
 /* Define to 1 if you have the declaration of `CURLOPT_REFERER', and to 0 if
    you don't. */

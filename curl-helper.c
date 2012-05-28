@@ -739,6 +739,8 @@ static void handleSeekFunction(Connection *, value);
 static void handleAutoReferer(Connection *, value);
 static void handleOpenSocketFunction(Connection *, value);
 static void handleProxyType(Connection *, value);
+static void handleProtocols(Connection *, value);
+static void handleRedirProtocols(Connection *, value);
 
 CURLOptionMapping implementedOptionMap[] =
 {
@@ -1073,6 +1075,16 @@ CURLOptionMapping implementedOptionMap[] =
     {handleProxyType, "CURLOPT_PROXYTYPE", CURLOPT_PROXYTYPE},
 #else
     {handleProxyType, "CURLOPT_PROXYTYPE", 0},
+#endif
+#if HAVE_DECL_CURLOPT_PROTOCOLS
+    {handleProtocols, "CURLOPT_PROTOCOLS", CURLOPT_PROTOCOLS},
+#else
+    {handleProtocols, "CURLOPT_PROTOCOLS", 0},
+#endif
+#if HAVE_DECL_CURLOPT_REDIR_PROTOCOLS
+    {handleRedirProtocols, "CURLOPT_REDIR_PROTOCOLS", CURLOPT_REDIR_PROTOCOLS},
+#else
+    {handleRedirProtocols, "CURLOPT_REDIR_PROTOCOLS", 0},
 #endif
 };
 
@@ -5252,6 +5264,135 @@ static void handleProxyType(Connection *conn, value option)
 #endif
 }
 
+#if HAVE_DECL_CURLOPT_PROTOCOLS && HAVE_DECL_CURLOPT_REDIR_PROTOCOLS
+
+long protoMap[] =
+{
+  CURLPROTO_ALL,
+  CURLPROTO_HTTP, CURLPROTO_HTTPS, CURLPROTO_FTP, CURLPROTO_FTPS, CURLPROTO_SCP, CURLPROTO_SFTP,
+  CURLPROTO_TELNET, CURLPROTO_LDAP, CURLPROTO_LDAPS, CURLPROTO_DICT, CURLPROTO_FILE, CURLPROTO_TFTP,
+/* factor out with autoconf? */
+#if defined(CURLPROTO_IMAP)
+  CURLPROTO_IMAP,
+#else
+  0,
+#endif
+#if defined(CURLPROTO_IMAPS)
+  CURLPROTO_IMAPS,
+#else
+  0,
+#endif
+#if defined(CURLPROTO_POP3)
+  CURLPROTO_POP3,
+#else
+  0,
+#endif
+#if defined(CURLPROTO_POP3S)
+  CURLPROTO_POP3S,
+#else
+  0,
+#endif
+#if defined(CURLPROTO_SMTP)
+  CURLPROTO_SMTP,
+#else
+  0,
+#endif
+#if defined(CURLPROTO_SMTPS)
+  CURLPROTO_SMTPS,
+#else
+  0,
+#endif
+#if defined(CURLPROTO_RTSP)
+  CURLPROTO_RTSP,
+#else
+  0,
+#endif
+#if defined(CURLPROTO_RTMP)
+  CURLPROTO_RTMP,
+#else
+  0,
+#endif
+#if defined(CURLPROTO_RTMPT)
+  CURLPROTO_RTMPT,
+#else
+  0,
+#endif
+#if defined(CURLPROTO_RTMPE)
+  CURLPROTO_RTMPE,
+#else
+  0,
+#endif
+#if defined(CURLPROTO_RTMPTE)
+  CURLPROTO_RTMPTE,
+#else
+  0,
+#endif
+#if defined(CURLPROTO_RTMPS)
+  CURLPROTO_RTMPS,
+#else
+  0,
+#endif
+#if defined(CURLPROTO_RTMPTS)
+  CURLPROTO_RTMPTS,
+#else
+  0,
+#endif
+#if defined(CURLPROTO_GOPHER)
+  CURLPROTO_GOPHER,
+#else
+  0,
+#endif
+};
+
+static void handleProtocolsOption(CURLoption curlopt, Connection *conn, value option)
+{
+    CAMLparam1(option);
+    CURLcode result = CURLE_OK;
+    long protocols = 0;
+    int index;
+
+    while (Val_emptylist != option)
+    {
+        index = Int_val(Field(option, 0));
+        if ((index < 0) || (index >= sizeof(protoMap) / sizeof(protoMap[0])))
+          failwith("Invalid curl protocol");
+
+        protocols = protocols | protoMap[index];
+
+        option = Field(option, 1);
+    }
+
+    result = curl_easy_setopt(conn->connection,
+                              curlopt,
+                              protocols);
+
+    if (result != CURLE_OK)
+        raiseError(conn, result);
+
+    CAMLreturn0;
+}
+
+static void handleProtocols(Connection *conn, value option)
+{
+  handleProtocolsOption(CURLOPT_PROTOCOLS, conn, option);
+}
+
+static void handleRedirProtocols(Connection *conn, value option)
+{
+  handleProtocolsOption(CURLOPT_REDIR_PROTOCOLS, conn, option);
+}
+
+#else
+#warning "libcurl does not implement CURLOPT_PROTOCOLS or CURLOPT_REDIR_PROTOCOLS"
+static void handleProtocols(Connection *conn, value option)
+{
+    failwith("libcurl does not implement CURLOPT_PROTOCOLS");
+}
+static void handleRedirProtocols(Connection *conn, value option)
+{
+    failwith("libcurl does not implement CURLOPT_REDIR_PROTOCOLS");
+}
+#endif
 
 
 /**
