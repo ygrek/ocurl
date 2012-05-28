@@ -2,6 +2,7 @@
  ***  curl-helper.c
  ***
  ***  Copyright (c) 2003-2008, Lars Nilsson, <lars@quantumchamaeleon.com>
+ ***  Copyright (c) 2009, ygrek, <ygrek@autistici.org>
  ***/
 
 #include <stdio.h>
