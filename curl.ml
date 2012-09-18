@@ -386,6 +386,8 @@ type curlOption =
   | CURLOPT_PROXYTYPE of curlProxyType
   | CURLOPT_PROTOCOLS of curlProto list
   | CURLOPT_REDIR_PROTOCOLS of curlProto list
+  | CURLOPT_RESOLVE of string list
+  | CURLOPT_DNS_SERVERS of string
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -890,6 +892,14 @@ let set_protocols conn l =
 let set_redirprotocols conn l =
   setopt conn (CURLOPT_REDIR_PROTOCOLS l)
 
+let set_resolve conn l_add l_del =
+  let acc = List.fold_left (fun acc (host,port,address) -> (host ^ ":" ^ string_of_int port ^ ":" ^ address) :: acc) [] l_add in
+  let acc = List.fold_left (fun acc (host,port) -> ("-" ^ host ^ ":" ^ string_of_int port) :: acc) acc l_del in
+  setopt conn (CURLOPT_RESOLVE acc)
+
+let set_dns_servers conn l =
+  setopt conn (CURLOPT_DNS_SERVERS (String.concat "," l))
+
 let get_effectiveurl conn =
   match (getinfo conn CURLINFO_EFFECTIVE_URL) with
   | CURLINFO_String s -> s
@@ -1197,6 +1207,8 @@ class handle =
     method set_copypostfields post = set_copypostfields conn post
     method set_proxytransfermode flag = set_proxytransfermode conn flag
     method set_seekfunction closure = set_seekfunction conn closure
+    method set_resolve l = set_resolve conn l
+    method set_dns_servers l = set_dns_servers conn l
     method set_autoreferer b = set_autoreferer conn b
     method set_opensocketfunction closure = set_opensocketfunction conn closure
     method set_proxytype t = set_proxytype conn t

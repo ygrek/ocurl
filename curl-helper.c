@@ -144,6 +144,7 @@ struct Connection
     struct curl_httppost *httpPostFirst;
     struct curl_httppost *httpPostLast;
     struct curl_slist *httpPostStrings;
+    struct curl_slist *resolve;
     char *sslCert;
     char *sslCertType;
     char *sslCertPasswd;
@@ -172,6 +173,7 @@ struct Connection
     char *sshPrivateKeyFile;
     char *sshHostPublicKeyMD5;
     char *copyPostFields;
+    char *dns_servers;
 };
 
 struct ConnectionList
@@ -741,6 +743,8 @@ static void handleOpenSocketFunction(Connection *, value);
 static void handleProxyType(Connection *, value);
 static void handleProtocols(Connection *, value);
 static void handleRedirProtocols(Connection *, value);
+static void handleResolve(Connection *, value);
+static void handleDnsServers(Connection *, value);
 
 CURLOptionMapping implementedOptionMap[] =
 {
@@ -1086,6 +1090,16 @@ CURLOptionMapping implementedOptionMap[] =
 #else
     {handleRedirProtocols, "CURLOPT_REDIR_PROTOCOLS", 0},
 #endif
+#if HAVE_DECL_CURLOPT_RESOLVE
+    {handleResolve, "CURLOPT_RESOLVE", CURLOPT_RESOLVE},
+#else
+    {handleResolve, "CURLOPT_RESOLVE", 0},
+#endif
+#if HAVE_DECL_CURLOPT_DNS_SERVERS
+    {handleDnsServers, "CURLOPT_DNS_SERVERS", CURLOPT_DNS_SERVERS},
+#else
+    {handleDnsServers, "CURLOPT_DNS_SERVERS", 0},
+#endif
 };
 
 static char *findOption(CURLOptionMapping optionMap[],
@@ -1221,6 +1235,8 @@ static Connection *newConnection(void)
     connection->sshPublicKeyFile = NULL;
     connection->sshPrivateKeyFile = NULL;
     connection->copyPostFields = NULL;
+    connection->resolve = NULL;
+    connection->dns_servers = NULL;
 
     return connection;
 }
@@ -1323,6 +1339,8 @@ static Connection *duplicateConnection(Connection *original)
     connection->sshPublicKeyFile = NULL;
     connection->sshPrivateKeyFile = NULL;
     connection->copyPostFields = NULL;
+    connection->resolve = NULL;
+    connection->dns_servers = NULL;
 
     if (Field(original->ocamlValues, OcamlURL) != Val_unit)
         handleURL(connection, Field(original->ocamlValues,
@@ -1487,6 +1505,7 @@ static void removeConnection(Connection *connection)
     if (connection->httpPostFirst != NULL)
         curl_formfree(connection->httpPostFirst);
     free_curl_slist(connection->httpPostStrings);
+    free_curl_slist(connection->resolve);
     free_if(connection->sslCert);
     free_if(connection->sslCertType);
     free_if(connection->sslCertPasswd);
@@ -1514,6 +1533,7 @@ static void removeConnection(Connection *connection)
     free_if(connection->sshPublicKeyFile);
     free_if(connection->sshPrivateKeyFile);
     free_if(connection->copyPostFields);
+    free_if(connection->dns_servers);
 
     free(connection);
 }
@@ -5394,6 +5414,70 @@ static void handleRedirProtocols(Connection *conn, value option)
 }
 #endif
 
+#ifdef HAVE_DECL_CURLOPT_RESOLVE
+static void handleResolve(Connection *conn, value option)
+{
+  CAMLparam1(option);
+  CAMLlocal1(head);
+
+
+  free_curl_slist(conn->resolve);
+  conn->resolve = NULL;
+
+  CURLcode result = CURLE_OK;
+
+  head = option;
+
+  while (head != Val_emptylist)
+  {
+     conn->resolve = curl_slist_append(conn->resolve, String_val(Field(head,0)));
+     head = Field(head, 1);
+  }
+
+  result = curl_easy_setopt(conn->connection,
+                            CURLOPT_RESOLVE,
+                            conn->resolve);
+
+  if (result != CURLE_OK)
+    raiseError(conn, result);
+
+  CAMLreturn0;
+}
+
+#else
+#warning "libcurl does not implement CURLOPT_RESOLVE"
+static void handleResolve(Connection *conn, value option)
+{
+  failwith("libcurl does not implement CURLOPT_RESOLVE");
+}
+#endif
+
+#ifdef HAVE_DECL_CURLOPT_DNS_SERVERS
+static void handleDnsServers(Connection *conn, value option)
+{
+  CAMLparam1(option);
+
+  CURLcode result = CURLE_OK;
+  free_if(conn->dns_servers);
+
+  conn->dns_servers = strdup(String_val(option));
+
+  result = curl_easy_setopt(conn->connection,
+                            CURLOPT_DNS_SERVERS,
+                            conn->dns_servers);
+
+  if (result != CURLE_OK)
+    raiseError(conn, result);
+
+  CAMLreturn0;
+}
+#else
+#warning "libcurl does not implement CURLOPT_DNS_SERVERS"
+static void handleDnsServers(Connection *conn, value option)
+{
+  failwith("libcurl does not implement CURLOPT_DNS_SERVERS");
+}
+#endif
 
 /**
  **  curl_easy_setopt helper function

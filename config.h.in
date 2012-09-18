@@ -524,6 +524,10 @@
    to 0 if you don't. */
 #undef HAVE_DECL_CURLOPT_DNS_CACHE_TIMEOUT
 
+/* Define to 1 if you have the declaration of `CURLOPT_DNS_SERVERS', and to 0
+   if you don't. */
+#undef HAVE_DECL_CURLOPT_DNS_SERVERS
+
 /* Define to 1 if you have the declaration of `CURLOPT_DNS_USE_GLOBAL_CACHE',
    and to 0 if you don't. */
 #undef HAVE_DECL_CURLOPT_DNS_USE_GLOBAL_CACHE
@@ -867,6 +871,10 @@
 /* Define to 1 if you have the declaration of `CURLOPT_REFERER', and to 0 if
    you don't. */
 #undef HAVE_DECL_CURLOPT_REFERER
+
+/* Define to 1 if you have the declaration of `CURLOPT_RESOLVE', and to 0 if
+   you don't. */
+#undef HAVE_DECL_CURLOPT_RESOLVE
 
 /* Define to 1 if you have the declaration of `CURLOPT_RESUME_FROM', and to 0
    if you don't. */

@@ -5,6 +5,8 @@
  * Copyright (c) 2009, ygrek, <ygrek@autistici.org>
  *)
 
+(** libcurl wrapper *)
+
 type t
 
 type curlCode =
@@ -386,6 +388,8 @@ type curlOption =
   | CURLOPT_PROXYTYPE of curlProxyType
   | CURLOPT_PROTOCOLS of curlProto list
   | CURLOPT_REDIR_PROTOCOLS of curlProto list
+  | CURLOPT_RESOLVE of string list
+  | CURLOPT_DNS_SERVERS of string
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -592,6 +596,14 @@ val set_proxytype : t -> curlProxyType -> unit
 val set_protocols : t -> curlProto list -> unit
 val set_redirprotocols : t -> curlProto list -> unit
 
+(** [set_resolve t add del] adjusts builtin dns mapping
+
+  @param add is the (host,port,address) list to add to dns mapping
+  @param del is the (host,port) list to remove from mapping
+*)
+val set_resolve : t -> (string * int * string) list -> (string * int) list -> unit
+val set_dns_servers : t -> string list -> unit
+
 val get_effectiveurl : t -> string
 val get_redirecturl : t -> string
 val get_httpcode : t -> int
@@ -762,6 +774,8 @@ class handle :
     method set_autoreferer : bool -> unit
     method set_opensocketfunction : (Unix.file_descr -> unit) -> unit
     method set_proxytype : curlProxyType -> unit
+    method set_resolve : (string * int * string) list -> (string * int) list -> unit
+    method set_dns_servers : string list -> unit
 
     method get_effectiveurl : string
     method get_httpcode : int
