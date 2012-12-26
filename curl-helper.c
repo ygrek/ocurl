@@ -6094,11 +6094,38 @@ CAMLprim value helper_curl_version(void)
     CAMLreturn(result);
 }
 
+struct CURLVersionBitsMapping
+{
+    int code;
+    char *name;
+};
+
+struct CURLVersionBitsMapping versionBitsMap[] =
+{
+    {CURL_VERSION_IPV6, "ipv6"},
+    {CURL_VERSION_KERBEROS4, "kerberos4"},
+    {CURL_VERSION_SSL, "ssl"},
+    {CURL_VERSION_LIBZ, "libz"},
+    {CURL_VERSION_NTLM, "ntlm"},
+    {CURL_VERSION_GSSNEGOTIATE, "gssnegotiate"},
+    {CURL_VERSION_DEBUG, "debug"},
+    {CURL_VERSION_CURLDEBUG, "curldebug"},
+    {CURL_VERSION_ASYNCHDNS, "asynchdns"},
+    {CURL_VERSION_SPNEGO, "spnego"},
+    {CURL_VERSION_LARGEFILE, "largefile"},
+    {CURL_VERSION_IDN, "idn"},
+    {CURL_VERSION_SSPI, "sspi"},
+    {CURL_VERSION_CONV, "conv"},
+    {CURL_VERSION_TLSAUTH_SRP, "srp"},
+    {CURL_VERSION_NTLM_WB, "wb"},
+};
+
 CAMLprim value caml_curl_version_info(value unit)
 {
   CAMLparam1(unit);
-  CAMLlocal3(v, vlist, vnum);
+  CAMLlocal4(v, vlist, vnum, vfeatures);
   const char* const* p = NULL;
+  int i = 0;
 
   curl_version_info_data* data = curl_version_info(CURLVERSION_NOW);
   if (NULL == data) caml_failwith("curl_version_info");
@@ -6107,6 +6134,13 @@ CAMLprim value caml_curl_version_info(value unit)
   for (p = data->protocols; NULL != *p; p++)
   {
     vlist = Val_cons(vlist, caml_copy_string(*p));
+  }
+
+  vfeatures = Val_emptylist;
+  for (i = 0; i < sizeof(versionBitsMap)/sizeof(versionBitsMap[0]); i++)
+  {
+    if (0 != (versionBitsMap[i].code & data->features))
+      vfeatures = Val_cons(vfeatures, caml_copy_string(versionBitsMap[i].name));
   }
 
   vnum = caml_alloc_tuple(3);
@@ -6118,7 +6152,7 @@ CAMLprim value caml_curl_version_info(value unit)
   Store_field(v,0,caml_copy_string(data->version));
   Store_field(v,1,vnum);
   Store_field(v,2,caml_copy_string(data->host));
-  Store_field(v,3,Val_int(data->features));
+  Store_field(v,3,vfeatures);
   Store_field(v,4,data->ssl_version ? Val_some(caml_copy_string(data->ssl_version)) : Val_none);
   Store_field(v,5,data->libz_version ? Val_some(caml_copy_string(data->libz_version)) : Val_none);
   Store_field(v,6,vlist);

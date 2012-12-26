@@ -491,7 +491,7 @@ type version_info = {
   version : string;
   number : int * int * int;
   host : string;
-  features : int;
+  features : string list;
   ssl_version : string option;
   libz_version : string option;
   protocols : string list;
