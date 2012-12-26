@@ -448,6 +448,11 @@ type version_info = {
   ssl_version : string option;
   libz_version : string option;
   protocols : string list;
+  ares : string; (** starting from this field are optional features - may be empty/zero *)
+  ares_num : int;
+  libidn : string;
+  iconv_ver_num : int;
+  libssh_version : string;
 }
 
 val global_init : initOption -> unit

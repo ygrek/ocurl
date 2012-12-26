@@ -6114,7 +6114,7 @@ CAMLprim value caml_curl_version_info(value unit)
   Store_field(vnum,1,Val_int(0xFF & (data->version_num >> 8)));
   Store_field(vnum,2,Val_int(0xFF & (data->version_num)));
 
-  v = caml_alloc_tuple(7);
+  v = caml_alloc_tuple(12);
   Store_field(v,0,caml_copy_string(data->version));
   Store_field(v,1,vnum);
   Store_field(v,2,caml_copy_string(data->host));
@@ -6122,6 +6122,11 @@ CAMLprim value caml_curl_version_info(value unit)
   Store_field(v,4,data->ssl_version ? Val_some(caml_copy_string(data->ssl_version)) : Val_none);
   Store_field(v,5,data->libz_version ? Val_some(caml_copy_string(data->libz_version)) : Val_none);
   Store_field(v,6,vlist);
+  Store_field(v,7,caml_copy_string((data->age >= 1 && data->ares) ? data->ares : ""));
+  Store_field(v,8,Val_int((data->age >= 1) ? data->ares_num : 0));
+  Store_field(v,9,caml_copy_string((data->age >= 2 && data->libidn) ? data->libidn : ""));
+  Store_field(v,10,Val_int((data->age >= 3) ? data->iconv_ver_num : 0));
+  Store_field(v,11,caml_copy_string((data->age >= 3 && data->libssh_version) ? data->libssh_version : ""));
 
   CAMLreturn(v);
 }

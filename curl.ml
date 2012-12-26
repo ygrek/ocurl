@@ -495,6 +495,11 @@ type version_info = {
   ssl_version : string option;
   libz_version : string option;
   protocols : string list;
+  ares : string;
+  ares_num : int;
+  libidn : string;
+  iconv_ver_num : int;
+  libssh_version : string;
 }
 
 external version_info : unit -> version_info = "caml_curl_version_info"
