@@ -3779,6 +3779,29 @@ static void handleSSLVerifyHost(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
+    static int v_major = 0;
+    static int v_minor = 0;
+    curl_version_info_data* version = NULL;
+
+    long verify = Long_val(option);
+
+    if (1 == verify) /* SSLVERIFYHOST_EXISTENCE */
+    {
+      if (0 == v_major)
+      {
+        version = curl_version_info(CURLVERSION_NOW);
+        if (NULL != version)
+        {
+          v_major = 0xFF & (version->version_num >> 16);
+          v_minor = 0xFF & (version->version_num >> 8);
+        }
+      }
+      if ((v_major == 7 && v_minor >= 28) || v_major > 7)
+      {
+        verify = 2; /* libcurl will error out on SSLVERIFYHOST_EXISTENCE since 7.28.0 */
+      }
+    }
+
     switch (Long_val(option))
     {
     case 0: /* SSLVERIFYHOST_NONE */
