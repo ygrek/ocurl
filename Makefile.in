@@ -2,7 +2,7 @@
 ###	@configure_input@
 ###
 
-.PHONY:		all targets examples install clean depend
+.PHONY:		all targets examples install clean distclean depend
 
 .SUFFIXES:	.ml .mli .cmx .cmi .cmo .cmxa .cma .c .o
 
@@ -88,6 +88,10 @@ endif
 clean:
 		@rm -f $(TARGETS) *~ *.cm* *.o *.a *.so .depend core
 		@(cd examples; $(MAKE) clean)
+
+distclean: clean
+		@rm -f config.log config.status config.h examples/Makefile
+		@rm -f Makefile
 
 depend:
 		@$(OCAMLDEP) *.mli *.ml > .depend
