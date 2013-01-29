@@ -1,0 +1,69 @@
+0.5.4  -  29 Jan 2013
+
+    Makefile: add release target
+    add CHANGES.txt
+    Makefile: add distclean target
+
+Older changes:
+
+2012
+    version_info: return features as list of strings
+    more version info fields
+    replace SSLVERIFYHOST_EXISTENCE with SSLVERIFYHOST_HOSTNAME for new libcurl
+    + CURLOPT_RESOLVE CURLOPT_DNS_SERVERS
+    + CURLOPT_PROTOCOLS and CURLOPT_REDIR_PROTOCOLS
+    update Copyright
+    fix free_curl_slist (crash with 7.24.0)
+    Makefile: add uninstall target
+    update ocaml m4 macros (in particular ocamlfind will be used by default, if present)
+    + CURLINFO_PRIMARY_IP
+
+2011
+    + CURLOPT_PROXYTYPE
+    + CURLOPT_OPENSOCKETFUNCTION
+    + SSLVERIFYHOST_NONE
+    support CURLOPT_AUTOREFERER
+
+2010
+    + version_info
+    fix: memory leak in curl_slist handling
+    disable checkConnection (kills performance with many handles)
+    support CURLINFO_REDIRECT_URL
+    tabs -> spaces
+    fix: double free (connection->range)
+    support all encodings
+    fix: CURLINFO_FILETIME has type long
+    add errno
+    add strerror, return curlCode from remove_finished
+    actually retrieve CURLINFO_FTP_ENTRY_PATH
+    fix typo HAVE_DECL_CURLINFO_HTTP_CONNECTCODE
+    remove CURLE_FTP_SSL_FAILED (breaks int to curlCode conversion)
+    add README for ocaml/msvc build
+    fix crash bug (use Store_field) in raiseError
+    fix: do not use Store_field on Abstract_tag blocks
+    install with ocamlfind on windows too
+    fix ocamlfind installation
+    wrap CURLM* as custom value
+    fix build (build dllcurl-helper.dll once)
+    link with ws2_32.dll for select for curlm_wait_data
+    use explicit -dllpath in examples (so that examples work without installing)
+    start use ocamlmklib
+    tweak code and Makefile for msvc build
+
+2009
+    test code for threads
+    + Curl.reset
+    fix crash: NULL from curl_easy_getinfo
+    fix: helper_* functions should return Val_unit
+    examples/omulti: accept command-line args
+    build dllcurl-helper (partially merged deb patch)
+    + examples/omulti
+    fix crash bug (use Store_field)
+    + Multi.{add,perform,wait}
+    + Connection_val
+    + Curl.Multi.remove_finished
+    make -Wall happier
+    fix error in seekFunction
+    start Curl.Multi
+    fix locking in callbacks
+    start from ocurl 0.5.1
