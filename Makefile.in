@@ -2,7 +2,7 @@
 ###	@configure_input@
 ###
 
-.PHONY:		all targets examples install clean distclean depend
+.PHONY:		all targets examples install clean distclean depend release
 
 .SUFFIXES:	.ml .mli .cmx .cmi .cmo .cmxa .cma .c .o
 
@@ -65,7 +65,7 @@ libcurl-helper.a dllcurl-helper.so:	$(CURLHELPEROBJS)
 
 install:
 ifneq (@OCAMLFIND@,no)
-		$(FINDLIB) install -ldconf ignore curl META curl.a curl.cmi curl.mli $(TARGETS)
+		$(FINDLIB) install -patch-version @PACKAGE_VERSION@ -ldconf ignore curl META curl.a curl.cmi curl.mli $(TARGETS)
 else
 		mkdir -p $(INSTALLDIR)
 		$(INSTALLDATA) curl.cma $(INSTALLDIR)
@@ -84,6 +84,12 @@ else
 		rmdir $(INSTALLDIR)
 endif
 
+NAME=@PACKAGE_NAME@-@PACKAGE_VERSION@
+
+release:
+	git tag -a -m @PACKAGE_VERSION@ @PACKAGE_VERSION@
+	git archive --prefix=$(NAME)/ @PACKAGE_VERSION@ | gzip > $(NAME).tar.gz
+	gpg -a -b $(NAME).tar.gz
 
 clean:
 		@rm -f $(TARGETS) *~ *.cm* *.o *.a *.so .depend core

@@ -1,6 +1,6 @@
 name="curl"
-version="0.5.3"
-description="Lib Curl"
+version=""
+description="bindings to libcurl"
 requires=""
 archive(byte)="curl.cma"
 archive(native)="curl.cmxa"
