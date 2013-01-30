@@ -7248,6 +7248,32 @@ fi
 cat >>confdefs.h <<_ACEOF
 #define HAVE_DECL_CURLE_AGAIN $ac_have_decl
 _ACEOF
+ac_fn_c_check_decl "$LINENO" "CURL_VERSION_TLSAUTH_SRP" "ac_cv_have_decl_CURL_VERSION_TLSAUTH_SRP" "
+#include \"curl/curl.h\"
+
+"
+if test "x$ac_cv_have_decl_CURL_VERSION_TLSAUTH_SRP" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_CURL_VERSION_TLSAUTH_SRP $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "CURL_VERSION_NTLM_WB" "ac_cv_have_decl_CURL_VERSION_NTLM_WB" "
+#include \"curl/curl.h\"
+
+"
+if test "x$ac_cv_have_decl_CURL_VERSION_NTLM_WB" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_CURL_VERSION_NTLM_WB $ac_have_decl
+_ACEOF
 
 
 ac_config_headers="$ac_config_headers config.h"

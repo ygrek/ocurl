@@ -1786,7 +1786,7 @@ static curlioerr ioctlFunction(CURL *ioctl,
   return r;
 }
 
-#ifdef HAVE_DECL_CURLOPT_SEEKFUNCTION
+#if HAVE_DECL_CURLOPT_SEEKFUNCTION
 static int seekFunction_nolock(void *data,
                         curl_off_t offset,
                         int origin)
@@ -1830,7 +1830,7 @@ static int seekFunction(void *data,
 
 #endif
 
-#ifdef HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
+#if HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
 static int openSocketFunction_nolock(void *data,
                         curlsocktype purpose,
                         struct curl_sockaddr *addr)
@@ -5437,7 +5437,7 @@ static void handleRedirProtocols(Connection *conn, value option)
 }
 #endif
 
-#ifdef HAVE_DECL_CURLOPT_RESOLVE
+#if HAVE_DECL_CURLOPT_RESOLVE
 static void handleResolve(Connection *conn, value option)
 {
   CAMLparam1(option);
@@ -5475,7 +5475,7 @@ static void handleResolve(Connection *conn, value option)
 }
 #endif
 
-#ifdef HAVE_DECL_CURLOPT_DNS_SERVERS
+#if HAVE_DECL_CURLOPT_DNS_SERVERS
 static void handleDnsServers(Connection *conn, value option)
 {
   CAMLparam1(option);
@@ -6116,8 +6116,12 @@ struct CURLVersionBitsMapping versionBitsMap[] =
     {CURL_VERSION_IDN, "idn"},
     {CURL_VERSION_SSPI, "sspi"},
     {CURL_VERSION_CONV, "conv"},
+#if HAVE_DECL_CURL_VERSION_TLSAUTH_SRP
     {CURL_VERSION_TLSAUTH_SRP, "srp"},
+#endif
+#if HAVE_DECL_CURL_VERSION_NTLM_WB
     {CURL_VERSION_NTLM_WB, "wb"},
+#endif
 };
 
 CAMLprim value caml_curl_version_info(value unit)
