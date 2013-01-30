@@ -1028,6 +1028,14 @@
    you don't. */
 #undef HAVE_DECL_CURLOPT_WRITEINFO
 
+/* Define to 1 if you have the declaration of `CURL_VERSION_TLSAUTH_SRP', and
+   to 0 if you don't. */
+#undef HAVE_DECL_CURL_VERSION_TLSAUTH_SRP
+
+/* Define to 1 if you have the declaration of `CURL_VERSION_NTLM_WB', and to 0
+   if you don't. */
+#undef HAVE_DECL_CURL_VERSION_NTLM_WB
+
 /* Define to the address where bug reports for this package should be sent. */
 #undef PACKAGE_BUGREPORT
 
