@@ -429,6 +429,8 @@ type curlInfo =
   | CURLINFO_FTP_ENTRY_PATH
   | CURLINFO_REDIRECT_URL
   | CURLINFO_PRIMARY_IP
+  | CURLINFO_LOCAL_IP
+  | CURLINFO_LOCAL_PORT
 
 type curlInfoResult =
   | CURLINFO_String of string
@@ -1076,6 +1078,16 @@ let get_primaryip conn =
   | CURLINFO_String s -> s
   | _ -> ""
 
+let get_localip conn =
+  match (getinfo conn CURLINFO_LOCAL_IP) with
+  | CURLINFO_String s -> s
+  | _ -> ""
+
+let get_localport conn =
+  match (getinfo conn CURLINFO_LOCAL_PORT) with
+  | CURLINFO_Long n -> n
+  | _ -> 0
+
 let () =
   Callback.register_exception "CurlException"
     (CurlException (CURLE_OK, 0, ""))
@@ -1250,6 +1262,8 @@ class handle =
     method get_lastsocket = get_lastsocket conn
     method get_ftpentrypath = get_ftpentrypath conn
     method get_primaryip = get_primaryip conn
+    method get_localip = get_localip conn
+    method get_localport = get_localport conn
 end
 
 module Multi = struct

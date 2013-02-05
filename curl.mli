@@ -433,6 +433,8 @@ type curlInfo =
   | CURLINFO_FTP_ENTRY_PATH
   | CURLINFO_REDIRECT_URL
   | CURLINFO_PRIMARY_IP
+  | CURLINFO_LOCAL_IP (** @since 7.21.0 *)
+  | CURLINFO_LOCAL_PORT (** @since 7.21.0 *)
 
 type curlInfoResult =
   | CURLINFO_String of string
@@ -644,6 +646,8 @@ val get_cookielist : t -> string list
 val get_lastsocket : t -> int
 val get_ftpentrypath : t -> string
 val get_primaryip : t -> string
+val get_localip : t -> string
+val get_localport : t -> int
 
 class handle :
   object ('a)
@@ -816,6 +820,8 @@ class handle :
     method get_lastsocket : int
     method get_ftpentrypath : string
     method get_primaryip : string
+    method get_localip : string
+    method get_localport : int
   end
 
 (** Curl multi stack. Functions may raise [Failure] on critical errors *)

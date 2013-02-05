@@ -1,3 +1,6 @@
+? - ?
+    + CURLINFO_LOCAL_IP CURLINFO_LOCAL_PORT
+
 0.5.4  -  29 Jan 2013
 
     Makefile: add release target

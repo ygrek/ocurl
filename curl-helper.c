@@ -5992,6 +5992,30 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
 #warning "libcurl does not provide CURLINFO_PRIMARY_IP"
 #endif
 
+#if HAVE_DECL_CURLINFO_LOCAL_IP
+    case 33: /* CURLINFO_LOCAL_IP */
+        resultType = StringValue;
+
+        curlResult = curl_easy_getinfo(connection->connection,
+                                       CURLINFO_LOCAL_IP,
+                                       &strValue);
+        break;
+#else
+#warning "libcurl does not provide CURLINFO_LOCAL_IP"
+#endif
+
+#if HAVE_DECL_CURLINFO_LOCAL_PORT
+    case 34: /* CURLINFO_LOCAL_PORT */
+        resultType = LongValue;
+
+        curlResult = curl_easy_getinfo(connection->connection,
+                                       CURLINFO_LOCAL_PORT,
+                                       &longValue);
+        break;
+#else
+#warning "libcurl does not provide CURLINFO_LOCAL_PORT"
+#endif
+
     default:
         failwith("Invalid CURLINFO Option");
         break;
