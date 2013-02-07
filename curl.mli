@@ -457,6 +457,8 @@ type version_info = {
   libssh_version : string;
 }
 
+type pauseOption = PAUSE_SEND | PAUSE_RECV | PAUSE_ALL
+
 val global_init : initOption -> unit
 val global_cleanup : unit -> unit
 val init : unit -> t
@@ -474,6 +476,7 @@ val version : unit -> string
 val strerror : curlCode -> string
 val errno : curlCode -> int
 val version_info : unit -> version_info
+val pause : t -> pauseOption list -> unit
 
 val set_writefunction : t -> (string -> int) -> unit
 val set_readfunction : t -> (int -> string) -> unit

@@ -6193,6 +6193,33 @@ CAMLprim value caml_curl_version_info(value unit)
   CAMLreturn(v);
 }
 
+CAMLprim value caml_curl_pause(value conn, value opts)
+{
+  CAMLparam2(conn, opts);
+  CAMLlocal4(v, vlist, vnum, vfeatures);
+  Connection *connection = Connection_val(conn);
+  int bitmask = 0;
+  CURLcode result;
+
+  while (Val_emptylist != opts)
+  {
+    switch (Int_val(Field(opts,0)))
+    {
+      case 0: bitmask |= CURLPAUSE_SEND; break;
+      case 1: bitmask |= CURLPAUSE_RECV; break;
+      case 2: bitmask |= CURLPAUSE_ALL; break;
+      default: caml_failwith("wrong pauseOption");
+    }
+    opts = Field(opts,1);
+  }
+
+  result = curl_easy_pause(connection->connection,bitmask);
+  if (result != CURLE_OK)
+    raiseError(connection, result);
+
+  CAMLreturn(Val_unit);
+}
+
 /*
  * Curl multi stack support
  *

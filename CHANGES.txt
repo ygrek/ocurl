@@ -1,5 +1,6 @@
 ? - ?
     + CURLINFO_LOCAL_IP CURLINFO_LOCAL_PORT
+    + pause
 
 0.5.4  -  29 Jan 2013
 

@@ -509,6 +509,10 @@ external version_info : unit -> version_info = "caml_curl_version_info"
 external strerror : curlCode -> string = "helper_curl_easy_strerror"
 let errno : curlCode -> int = Obj.magic
 
+type pauseOption = PAUSE_SEND | PAUSE_RECV | PAUSE_ALL
+
+external pause : t -> pauseOption list -> unit = "caml_curl_pause"
+
 let set_writefunction conn closure =
   setopt conn (CURLOPT_WRITEFUNCTION closure)
 
