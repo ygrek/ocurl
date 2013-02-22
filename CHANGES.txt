@@ -1,6 +1,8 @@
-? - ?
+0.5.5  -  23 Feb 2013
+
     + CURLINFO_LOCAL_IP CURLINFO_LOCAL_PORT
     + pause
+    + compatibility fixes for old libcurl versions
 
 0.5.4  -  29 Jan 2013
 
