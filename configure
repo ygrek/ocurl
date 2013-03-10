@@ -585,8 +585,6 @@ ac_subst_vars='LTLIBOBJS
 LIBOBJS
 INSTALLDIR
 CURLLIBS
-CURLFLAGS
-CURLDIR
 ac_prefix_program
 OCAMLFIND
 OCAMLBUILD
@@ -1792,12 +1790,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-CURLDIR=`curl-config --cflags`
-CURLFLAGS=`curl-config --libs | cut -d ' ' -f 1`
-CURLLIBS=`curl-config --libs | cut -d ' ' -f 2-`
-
-CFLAGS=$CURLDIR
-
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -2586,6 +2578,25 @@ ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for libcurl cflags" >&5
+$as_echo_n "checking for libcurl cflags... " >&6; }
+CFLAGS=`pkg-config libcurl --cflags || curl-config --cflags`
+if  test "$?" ; then :
+  as_fn_error $? "libcurl was not found" "$LINENO" 5
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $CFLAGS" >&5
+$as_echo "$CFLAGS" >&6; }
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for libcurl libs" >&5
+$as_echo_n "checking for libcurl libs... " >&6; }
+CURLLIBS=`pkg-config libcurl --libs || curl-config --libs`
+if  test "$?" ; then :
+  as_fn_error $? "libcurl was not found" "$LINENO" 5
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $CURLLIBS" >&5
+$as_echo "$CURLLIBS" >&6; }
 
 ac_aux_dir=
 for ac_dir in "$srcdir" "$srcdir/.." "$srcdir/../.."; do
@@ -3897,8 +3908,6 @@ $as_echo X"$prefix" |
 	  s/.*/./; q'`
   fi
 fi
-
-
 
 
 

@@ -4,13 +4,18 @@ dnl
 
 AC_INIT(ocurl,0.5.5)
 
-CURLDIR=`curl-config --cflags`
-CURLFLAGS=`curl-config --libs | cut -d ' ' -f 1`
-CURLLIBS=`curl-config --libs | cut -d ' ' -f 2-`
-
-CFLAGS=$CURLDIR
-
 AC_PROG_CC()
+
+AC_MSG_CHECKING([for libcurl cflags])
+CFLAGS=`pkg-config libcurl --cflags || curl-config --cflags`
+AS_IF([ test "$?" ], [AC_MSG_ERROR([libcurl was not found])] )
+AC_MSG_RESULT([$CFLAGS])
+
+AC_MSG_CHECKING([for libcurl libs])
+CURLLIBS=`pkg-config libcurl --libs || curl-config --libs`
+AS_IF([ test "$?" ], [AC_MSG_ERROR([libcurl was not found])] )
+AC_MSG_RESULT([$CURLLIBS])
+
 AC_PROG_INSTALL()
 AC_PROG_OCAML()
 AC_PROG_FINDLIB()
@@ -19,8 +24,6 @@ INSTALLDIR=$OCAMLLIB/curl
 
 AC_PREFIX_PROGRAM(ocamlc)
 
-AC_SUBST(CURLDIR)
-AC_SUBST(CURLFLAGS)
 AC_SUBST(CURLLIBS)
 AC_SUBST(OCAMLLIB)
 AC_SUBST(INSTALLDIR)
