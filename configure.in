@@ -8,12 +8,12 @@ AC_PROG_CC()
 
 AC_MSG_CHECKING([for libcurl cflags])
 CFLAGS=`pkg-config libcurl --cflags || curl-config --cflags`
-AS_IF([ test "$?" ], [AC_MSG_ERROR([libcurl was not found])] )
+AS_IF([ test "$?" -eq 0 ],,[AC_MSG_ERROR([libcurl was not found])] )
 AC_MSG_RESULT([$CFLAGS])
 
 AC_MSG_CHECKING([for libcurl libs])
 CURLLIBS=`pkg-config libcurl --libs || curl-config --libs`
-AS_IF([ test "$?" ], [AC_MSG_ERROR([libcurl was not found])] )
+AS_IF([ test "$?" -eq 0 ],,[AC_MSG_ERROR([libcurl was not found])] )
 AC_MSG_RESULT([$CURLLIBS])
 
 AC_PROG_INSTALL()
