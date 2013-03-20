@@ -1,3 +1,6 @@
+0.5.6  -  21 Mar 2013
+    * configure: more robust test for libcurl
+
 0.5.5  -  23 Feb 2013
 
     + CURLINFO_LOCAL_IP CURLINFO_LOCAL_PORT
