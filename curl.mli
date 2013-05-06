@@ -146,9 +146,7 @@ type curlClosePolicy =
 
 type curlSSLVerifyHost =
   | SSLVERIFYHOST_NONE (** connection succeeds regardless of the names in the certificate *)
-  | SSLVERIFYHOST_EXISTENCE (** certificate must contain a Common Name field, but it doesn’t matter what name it says
-                                (libcurl >= 7.28.0 will error out on this option, in such cases this library will pass
-                                SSLVERIFYHOST_HOSTNAME to libcurl instead) *)
+  | SSLVERIFYHOST_EXISTENCE (** deprecated, equivalent to SSLVERIFYHOST_HOSTNAME *)
   | SSLVERIFYHOST_HOSTNAME (** certificate must indicate the matching hostname, or the connection fails *)
 
 type curlHTTPVersion =
