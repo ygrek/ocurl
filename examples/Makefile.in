@@ -6,23 +6,26 @@
 
 INSTALLDIR	= @INSTALLDIR@
 
-OCBYTE		= @OCAMLC@
-OCOPT		= @OCAMLOPT@
+OCBYTE		= @OCAMLC@ -thread
+OCOPT		= @OCAMLOPT@ -thread
 
 OC		= @OCAMLC@
 CC		= @CC@
 
-FLAGS		= -I ..
-LFLAGS		= -I .. -ccopt -L..
+LIBEVENTDIR = "$(shell ocamlfind query event)"
+
+FLAGS		= -I .. -I $(LIBEVENTDIR)
+LFLAGS		= -I .. -I $(LIBEVENTDIR) -ccopt -L..
 LIBS		= 
 
-OCURLLIB	= curl.cma
-OCURLOPTLIB	= curl.cmxa
+OCURLLIB	= curl.cma unix.cma threads.cma liboevent.cma
+OCURLOPTLIB	= curl.cmxa unix.cmxa threads.cmxa liboevent.cmxa
 
 ifeq (@OCAMLBEST@,opt)
-TARGETS	= ocurl ocurl.opt oput oput.opt ominimal ominimal.opt ossl ossl.opt omulti omulti.opt
+TARGETS	= ocurl ocurl.opt oput oput.opt ominimal ominimal.opt ossl ossl.opt omulti omulti.opt \
+	ocurl_test_threads ocurl_test_threads.opt opar opar.opt
 else
-TARGETS = ocurl oput ominimal ossl omulti
+TARGETS = ocurl oput ominimal ossl omulti ocurl_test_threads opar
 endif
 
 all:

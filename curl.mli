@@ -460,8 +460,8 @@ type pauseOption = PAUSE_SEND | PAUSE_RECV | PAUSE_ALL
 val global_init : initOption -> unit
 val global_cleanup : unit -> unit
 val init : unit -> t
-(** Reset [t] to the default state *)
 val reset : t -> unit
+(** Reset [t] to the default state *)
 val duphandle : t -> t
 val setopt : t -> curlOption -> unit
 val perform : t -> unit
@@ -831,6 +831,9 @@ module Multi : sig
   (** type of Curl multi stack *)
   type mt
 
+  (** exception raised on internal errors *)
+  exception Error of string
+
   (** create new multi stack *)
   val create : unit -> mt
 
@@ -845,11 +848,61 @@ module Multi : sig
       @return whether [perform] should be called *)
   val wait : mt -> bool
 
-  (** remove finished handle from the multi stack if any. The handle can be reused *)
+  (** remove finished handle from the multi stack if any. The returned handle may be reused *)
   val remove_finished : mt -> (t * curlCode) option
 
-  (** destroy multi handle (all transfers are stopped, but individual handles are left alive) *)
+  (** destroy multi handle (all transfers are stopped, but individual {!type: Curl.t} handles can be reused) *)
   val cleanup : mt -> unit
+
+  (** events that should be reported for the socket *)
+  type poll = 
+    | POLL_NONE    (** none *)
+    | POLL_IN      (** available for reading *)
+    | POLL_OUT     (** available for writing *)
+    | POLL_INOUT   (** both *)
+    | POLL_REMOVE  (** socket not needed anymore *)
+
+  (** socket status *)
+  type fd_status = 
+    | EV_AUTO  (** determine socket status automatically (with extra system call) *)
+    | EV_IN    (** socket has incoming data *)
+    | EV_OUT   (** socket is available for writing *)
+    | EV_INOUT (** both *)
+
+  (** set the function to receive notifications on what socket events
+      are currently interesting for libcurl on the specified socket handle *)
+  val set_socket_function : mt -> (Unix.file_descr -> poll -> unit) -> unit
+
+  (** set the function to receive notification when libcurl internal timeout changes,
+      timeout value is in milliseconds
+
+      NB {!action_timeout} should be called when timeout occurs *)
+  val set_timer_function : mt -> (int -> unit) -> unit
+
+  (** perform pending data transfers (if any) on all handles currently in multi stack
+      (not recommended, {!action} should be used instead)
+      @return the number of handles that still transfer data 
+      @raise Error on errors
+  *)
+  val action_all : mt -> int
+
+  (** inform libcurl that timeout occured 
+      @raise Error on errors
+  *)
+  val action_timeout : mt -> unit
+
+  (** [action mt fd status] informs libcurl about event on the specified socket.
+      [status] specifies socket status. Perform pending data transfers.
+      @return the number of handles still active
+      @raise Error on errors
+  *)
+  val action : mt -> Unix.file_descr -> fd_status -> int
+
+  (** [timeout mt] polls multi handle for timeout (not recommended, use {!set_timer_function} instead).
+      @return maximum allowed number of milliseconds to wait before calling libcurl to perform actions
+      @raise Error on errors
+  *)
+  external timeout : mt -> int = "caml_curl_multi_timeout"
 
 end
 

@@ -6215,6 +6215,7 @@ struct ml_multi_handle
 enum
 {
   curlmopt_socket_function,
+  curlmopt_timer_function,
 
   /* last, not used */
   multi_values_total,
@@ -6334,7 +6335,7 @@ static int curlm_wait_data(CURLM* multi_handle)
 	fd_set fdread;
 	fd_set fdwrite;
 	fd_set fdexcep;
-	int maxfd;
+	int maxfd = -1;
 
 	FD_ZERO(&fdread);
 	FD_ZERO(&fdwrite);
@@ -6351,11 +6352,6 @@ static int curlm_wait_data(CURLM* multi_handle)
 	{
 		int rc = select(maxfd+1, &fdread, &fdwrite, &fdexcep, &timeout);
 		if (-1 != rc) return 0;
-		//printf("select error\n");
-	}
-	else
-	{
-		//printf("curl_multi_fdset error\n");
 	}
 	return 1;
 }
@@ -6364,9 +6360,7 @@ CAMLprim value caml_curlm_wait_data(value v_multi)
 {
   CAMLparam1(v_multi);
   int ret;
-  CURLM* h;
-
-  h = CURLM_val(v_multi);
+  CURLM* h = CURLM_val(v_multi);
 
   caml_enter_blocking_section();
   ret = curlm_wait_data(h);
@@ -6378,9 +6372,17 @@ CAMLprim value caml_curlm_wait_data(value v_multi)
 CAMLprim value caml_curl_multi_add_handle(value v_multi, value v_easy)
 {
   CAMLparam2(v_multi,v_easy);
+  CURLM* multi = CURLM_val(v_multi);
+  CURL* easy = Connection_val(v_easy)->connection;
 
-  if (CURLM_OK != curl_multi_add_handle(CURLM_val(v_multi), Connection_val(v_easy)->connection))
+  /* may invoke callbacks so need to be consistent with locks */
+  caml_enter_blocking_section();
+  if (CURLM_OK != curl_multi_add_handle(multi, easy))
+  {
+    caml_leave_blocking_section();
     failwith("caml_curl_multi_add_handle");
+  }
+  caml_leave_blocking_section();
 
   CAMLreturn(Val_unit);
 }
@@ -6388,10 +6390,8 @@ CAMLprim value caml_curl_multi_add_handle(value v_multi, value v_easy)
 CAMLprim value caml_curl_multi_perform_all(value v_multi)
 {
   CAMLparam1(v_multi);
-  CURLM* h;
   int still_running = 0;
-
-  h = CURLM_val(v_multi);
+  CURLM* h = CURLM_val(v_multi);
 
   caml_enter_blocking_section();
   while (CURLM_CALL_MULTI_PERFORM == curl_multi_perform(h, &still_running));
@@ -6406,3 +6406,182 @@ CAMLprim value helper_curl_easy_strerror(value v_code)
   CAMLreturn(caml_copy_string(curl_easy_strerror(Int_val(v_code))));
 }
 
+/*
+ * Wrappers for the curl_multi_socket_action infrastructure
+ * Based on curl hiperfifo.c example
+ */
+
+/* FIXME win32unix */
+#define Socket_val(v) Int_val(v)
+#define Val_socket(v) Val_int(v)
+
+static void raise_error(char const* msg)
+{
+  static value* exception = NULL;
+
+  if (NULL == exception)
+  {
+    exception = caml_named_value("Curl.Multi.Error");
+    if (NULL == exception) caml_invalid_argument("Curl.Multi.Error");
+  }
+
+  caml_raise_with_string(*exception, msg);
+}
+
+static void check_mcode(CURLMcode code)
+{
+  char const *s = NULL;
+  switch (code)
+  {
+    case CURLM_OK                  : return;
+    case CURLM_CALL_MULTI_PERFORM  : s="CURLM_CALL_MULTI_PERFORM"; break;
+    case CURLM_BAD_HANDLE          : s="CURLM_BAD_HANDLE";         break;
+    case CURLM_BAD_EASY_HANDLE     : s="CURLM_BAD_EASY_HANDLE";    break;
+    case CURLM_OUT_OF_MEMORY       : s="CURLM_OUT_OF_MEMORY";      break;
+    case CURLM_INTERNAL_ERROR      : s="CURLM_INTERNAL_ERROR";     break;
+    case CURLM_UNKNOWN_OPTION      : s="CURLM_UNKNOWN_OPTION";     break;
+    case CURLM_LAST                : s="CURLM_LAST";               break;
+    case CURLM_BAD_SOCKET          : s="CURLM_BAD_SOCKET";         break;
+    default                        : s="CURLM_unknown";            break;
+  }
+  raise_error(s);
+}
+
+CAMLprim value caml_curl_multi_socket_action(value v_multi, value v_fd, value v_kind)
+{
+  CAMLparam3(v_multi, v_fd, v_kind);
+  CURLM* h = CURLM_val(v_multi);
+  int still_running = 0;
+  CURLMcode rc = CURLM_OK;
+  int socket = Socket_val(v_fd);
+  int kind = 0;
+
+  switch (Int_val(v_kind))
+  {
+    case 0 : break;
+    case 1 : kind |= CURL_CSELECT_IN; break;
+    case 2 : kind |= CURL_CSELECT_OUT; break;
+    case 3 : kind |= CURL_CSELECT_IN | CURL_CSELECT_OUT; break;
+    default:
+      raise_error("caml_curl_multi_socket_action");
+  }
+
+/*  fprintf(stdout,"fd %u kind %u\n",Socket_val(v_fd), kind); fflush(stdout); */
+
+  caml_enter_blocking_section();
+  do {
+    rc = curl_multi_socket_action(h, socket, kind, &still_running);
+  } while (rc == CURLM_CALL_MULTI_PERFORM);
+  caml_leave_blocking_section();
+
+  check_mcode(rc);
+
+  CAMLreturn(Val_int(still_running));
+}
+
+CAMLprim value caml_curl_multi_socket_all(value v_multi)
+{
+  CAMLparam1(v_multi);
+  int still_running = 0;
+  CURLMcode rc = CURLM_OK;
+  CURLM* h = CURLM_val(v_multi);
+
+  caml_enter_blocking_section();
+  do {
+    rc = curl_multi_socket_all(h, &still_running);
+  } while (rc == CURLM_CALL_MULTI_PERFORM);
+  caml_leave_blocking_section();
+
+  check_mcode(rc);
+
+  CAMLreturn(Val_int(still_running));
+}
+
+static int curlm_sock_cb_nolock(CURL *e, curl_socket_t sock, int what, ml_multi_handle* multi, void *sockp)
+{
+  CAMLparam0();
+  CAMLlocal1(v_what);
+
+  /* v_what = Val_int(what); */
+  switch (what)
+  {
+    case CURL_POLL_NONE   : v_what = Val_int(0); break;
+    case CURL_POLL_IN     : v_what = Val_int(1); break;
+    case CURL_POLL_OUT    : v_what = Val_int(2); break;
+    case CURL_POLL_INOUT  : v_what = Val_int(3); break;
+    case CURL_POLL_REMOVE : v_what = Val_int(4); break;
+    default:
+      fprintf(stderr, "curlm_sock_cb sock=%d what=%d\n", sock, what);
+      fflush(stderr);
+      raise_error("curlm_sock_cb"); /* FIXME exception from callback */
+  }
+
+  caml_callback2(Field(multi->values,curlmopt_socket_function),
+                 Val_socket(sock), v_what);
+
+  CAMLreturn(0);
+}
+
+static int curlm_sock_cb(CURL *e, curl_socket_t sock, int what, void *cbp, void *sockp)
+{
+  int ret;
+  caml_leave_blocking_section();
+  ret = curlm_sock_cb_nolock(e, sock, what, (ml_multi_handle*)cbp, sockp);
+  caml_enter_blocking_section();
+  return ret;
+}
+
+CAMLprim value caml_curl_multi_socketfunction(value v_multi, value v_cb)
+{
+  CAMLparam2(v_multi, v_cb);
+  ml_multi_handle* multi = Multi_val(v_multi);
+
+  Store_field(multi->values, curlmopt_socket_function, v_cb);
+
+  curl_multi_setopt(multi->handle, CURLMOPT_SOCKETFUNCTION, curlm_sock_cb);
+  curl_multi_setopt(multi->handle, CURLMOPT_SOCKETDATA, multi);
+
+  CAMLreturn(Val_unit);
+}
+
+static void curlm_timer_cb_nolock(ml_multi_handle *multi, long timeout_ms)
+{
+  CAMLparam0();
+  caml_callback(Field(multi->values,curlmopt_timer_function), Val_long(timeout_ms));
+  CAMLreturn0;
+}
+
+static int curlm_timer_cb(CURLM *multi, long timeout_ms, void *userp)
+{
+  caml_leave_blocking_section();
+  curlm_timer_cb_nolock((ml_multi_handle*)userp, timeout_ms);
+  caml_enter_blocking_section();
+  return 0;
+}
+
+CAMLprim value caml_curl_multi_timerfunction(value v_multi, value v_cb)
+{
+  CAMLparam2(v_multi, v_cb);
+  ml_multi_handle* multi = Multi_val(v_multi);
+
+  Store_field(multi->values, curlmopt_timer_function, v_cb);
+
+  curl_multi_setopt(multi->handle, CURLMOPT_TIMERFUNCTION, curlm_timer_cb);
+  curl_multi_setopt(multi->handle, CURLMOPT_TIMERDATA, multi);
+
+  CAMLreturn(Val_unit);
+}
+
+CAMLprim value caml_curl_multi_timeout(value v_multi)
+{
+  CAMLparam1(v_multi);
+  long ms = 0;
+  CURLMcode rc = CURLM_OK;
+  ml_multi_handle* multi = Multi_val(v_multi);
+
+  rc = curl_multi_timeout(multi->handle, &ms);
+
+  check_mcode(rc);
+
+  CAMLreturn(Val_long(ms));
+}

@@ -1274,12 +1274,34 @@ module Multi = struct
 
   type mt
 
+  exception Error of string
+
+  let () = Callback.register_exception "Curl.Multi.Error" (Error "")
+
   external create : unit -> mt = "caml_curl_multi_init"
   external add : mt -> t -> unit = "caml_curl_multi_add_handle"
   external perform : mt -> int = "caml_curl_multi_perform_all"
   external wait : mt -> bool = "caml_curlm_wait_data"
   external remove_finished : mt -> (t * curlCode) option = "caml_curlm_remove_finished"
   external cleanup : mt -> unit = "caml_curl_multi_cleanup"
+
+  (* see curlm_sock_cb *)
+  type poll = POLL_NONE | POLL_IN | POLL_OUT | POLL_INOUT | POLL_REMOVE
+
+  (* see caml_curl_multi_socket_action *)
+  type fd_status = EV_AUTO | EV_IN | EV_OUT | EV_INOUT
+
+  external set_socket_function : mt -> (Unix.file_descr -> poll -> unit) -> unit = "caml_curl_multi_socketfunction"
+  external set_timer_function : mt -> (int -> unit) -> unit = "caml_curl_multi_timerfunction"
+  external action_all : mt -> int = "caml_curl_multi_socket_all"
+  external action : mt -> Unix.file_descr -> fd_status -> int = "caml_curl_multi_socket_action"
+
+  let action_timeout mt =
+    (* FIXME win32unix *)
+    let curl_socket_timeout = (Obj.magic (-1) : Unix.file_descr) in
+    ignore (action mt curl_socket_timeout EV_AUTO)
+
+  external timeout : mt -> int = "caml_curl_multi_timeout"
 
 end
 
