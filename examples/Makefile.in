@@ -14,7 +14,6 @@ CC		= @CC@
 
 FLAGS		= -I .. 
 LFLAGS		= -I .. -ccopt -L..
-LIBS		= 
 
 OCURLLIB	= curl.cma unix.cma threads.cma
 OCURLOPTLIB	= curl.cmxa unix.cmxa threads.cmxa
@@ -26,11 +25,7 @@ else
 TARGETS = ocurl oput ominimal ossl ocurl_test_threads opar
 endif
 
-all:
-		@$(MAKE) depend
-		@$(MAKE) targets
-
-targets:	$(TARGETS)
+all:	$(TARGETS)
 
 %: %.cmo
 		$(OCBYTE) -custom $(LFLAGS) $(OCURLLIB) $< -o $@
@@ -48,13 +43,4 @@ targets:	$(TARGETS)
 		$(OCBYTE) -c $(FLAGS) $< -o $@
 
 clean:
-		@rm -f $(TARGETS) *~ *.cm* *.o *.a .depend core
-
-depend:
-		@ocamldep *.mli *.ml > .depend
-
-ifeq ($(wildcard .depend),.depend)
-ifneq ($(MAKECMDGOALS),clean)
-include .depend
-endif
-endif
+		@rm -f $(TARGETS) *.cm* *.o *.a
