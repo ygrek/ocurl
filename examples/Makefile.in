@@ -12,20 +12,18 @@ OCOPT		= @OCAMLOPT@ -thread
 OC		= @OCAMLC@
 CC		= @CC@
 
-LIBEVENTDIR = "$(shell ocamlfind query event)"
-
-FLAGS		= -I .. -I $(LIBEVENTDIR)
-LFLAGS		= -I .. -I $(LIBEVENTDIR) -ccopt -L..
+FLAGS		= -I .. 
+LFLAGS		= -I .. -ccopt -L..
 LIBS		= 
 
-OCURLLIB	= curl.cma unix.cma threads.cma liboevent.cma
-OCURLOPTLIB	= curl.cmxa unix.cmxa threads.cmxa liboevent.cmxa
+OCURLLIB	= curl.cma unix.cma threads.cma
+OCURLOPTLIB	= curl.cmxa unix.cmxa threads.cmxa
 
 ifeq (@OCAMLBEST@,opt)
-TARGETS	= ocurl ocurl.opt oput oput.opt ominimal ominimal.opt ossl ossl.opt omulti omulti.opt \
+TARGETS	= ocurl ocurl.opt oput oput.opt ominimal ominimal.opt ossl ossl.opt \
 	ocurl_test_threads ocurl_test_threads.opt opar opar.opt
 else
-TARGETS = ocurl oput ominimal ossl omulti ocurl_test_threads opar
+TARGETS = ocurl oput ominimal ossl ocurl_test_threads opar
 endif
 
 all:

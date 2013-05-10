@@ -1,17 +1,16 @@
 
-ocurl enhancements
-==================
+ocurl - OCaml libcurl bindings
+==============================
 
-Upstream at <http://ocurl.sourceforge.net>
-This code lives at <http://repo.or.cz/w/ocurl.git>
+Homepage: http://ocurl.forge.ocamlcore.org
 
-Changes from upstream:
+OCaml bindings to libcurl - client-side URL transfer library,
+supporting HTTP and a multitude of other network protocols.
+This is a continuation of ocurl project by Lars Nilsson,
+previously hosted at http://ocurl.sourceforge.net/
 
-  * bugfixes (merged upstream)
-  * compilation on windows (msvc)
-  * curl multi stack wrappers
-  * pluggable asynchronous curl multi interface (experimental, branch `event`)
-
+NB examples/omulti is not built by default, as it requires
+  patched ocaml-event available at http://repo.or.cz/w/ocaml-event.git
 
 Building on Windows with ocaml/msvc
 ===================================
@@ -35,6 +34,12 @@ Compile with `make -f Makefile.msvc`.
 Install with `make -f Makefile.msvc install`.
 Compile examples with `make -f Makefile.msvc examples`.
 
+Making release
+==============
+
+* Update CHANGES.txt
+* Update version in configure.in
+* make release
+
 ---- 
  ygrek at autistici dot org
-
