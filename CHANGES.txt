@@ -3,6 +3,8 @@
     * introduce bindings to asynchronous multi interface
     + Multi: set_socket_function set_timer_function action_all action_timeout action timeout
     * treat SSLVERIFYHOST_EXISTENCE as SSLVERIFYHOST_HOSTNAME, previous workaround was broken
+    * MSVC compatibility
+    * configure: do not override CFLAGS
 
 0.5.6  -  21 Mar 2013
 
