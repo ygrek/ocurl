@@ -1538,10 +1538,14 @@ static void removeConnection(Connection *connection)
     free(connection);
 }
 
+#if 1
+static void checkConnection(Connection * connection)
+{
+  (void)connection;
+}
+#else
 static void checkConnection(Connection *connection)
 {
-    return;
-
     Connection *listIter;
 
     listIter = connectionList.tail;
@@ -1556,6 +1560,7 @@ static void checkConnection(Connection *connection)
 
     failwith("Invalid Connection");
 }
+#endif
 
 static Connection* findConnection(CURL* h)
 {
@@ -1589,7 +1594,7 @@ static size_t writeFunction_nolock(char *ptr, size_t size, size_t nmemb, void *d
     CAMLparam0();
     CAMLlocal2(result, str);
     Connection *conn = (Connection *)data;
-    int i;
+    size_t i;
 
     checkConnection(conn);
 
@@ -1610,7 +1615,7 @@ static size_t readFunction_nolock(void *ptr, size_t size, size_t nmemb, void *da
     CAMLparam0();
     CAMLlocal1(result);
     Connection *conn = (Connection *)data;
-    int length;
+    size_t length;
 
     checkConnection(conn);
 
@@ -1634,7 +1639,7 @@ static size_t headerFunction_nolock(char *ptr, size_t size, size_t nmemb, void *
     CAMLparam0();
     CAMLlocal2(result,str);
     Connection *conn = (Connection *)data;
-    int i;
+    size_t i;
 
     checkConnection(conn);
 
@@ -1695,8 +1700,9 @@ static int debugFunction_nolock(CURL *debugConnection,
 {
     CAMLparam0();
     CAMLlocal3(camlDebugConnection, camlInfoType, camlMessage);
-    int i;
+    size_t i;
     Connection *conn = (Connection *)data;
+    (void)debugConnection; /* not used */
 
     checkConnection(conn);
 
@@ -1736,6 +1742,7 @@ static curlioerr ioctlFunction_nolock(CURL *ioctl,
     CAMLlocal3(camlResult, camlConnection, camlCmd);
     Connection *conn = (Connection *)data;
     curlioerr result = CURLIOE_OK;
+    (void)ioctl; /* not used */
 
     checkConnection(conn);
 
@@ -1838,6 +1845,7 @@ static int openSocketFunction_nolock(void *data,
     CAMLparam0();
     Connection *conn = (Connection *)data;
     int sock = -1;
+    (void)purpose; /* not used */
 
     sock = socket(addr->family, addr->socktype, addr->protocol);
 
@@ -5375,7 +5383,7 @@ static void handleProtocolsOption(CURLoption curlopt, Connection *conn, value op
     while (Val_emptylist != option)
     {
         index = Int_val(Field(option, 0));
-        if ((index < 0) || (index >= sizeof(protoMap) / sizeof(protoMap[0])))
+        if ((index < 0) || ((size_t)index >= sizeof(protoMap) / sizeof(protoMap[0])))
           failwith("Invalid curl protocol");
 
         protocols = protocols | protoMap[index];
@@ -5421,11 +5429,10 @@ static void handleResolve(Connection *conn, value option)
   CAMLparam1(option);
   CAMLlocal1(head);
 
+  CURLcode result = CURLE_OK;
 
   free_curl_slist(conn->resolve);
   conn->resolve = NULL;
-
-  CURLcode result = CURLE_OK;
 
   head = option;
 
@@ -6131,7 +6138,7 @@ CAMLprim value caml_curl_version_info(value unit)
   CAMLparam1(unit);
   CAMLlocal4(v, vlist, vnum, vfeatures);
   const char* const* p = NULL;
-  int i = 0;
+  size_t i = 0;
 
   curl_version_info_data* data = curl_version_info(CURLVERSION_NOW);
   if (NULL == data) caml_failwith("curl_version_info");
@@ -6218,7 +6225,7 @@ enum
   curlmopt_timer_function,
 
   /* last, not used */
-  multi_values_total,
+  multi_values_total
 };
 
 typedef struct ml_multi_handle ml_multi_handle;
@@ -6232,7 +6239,10 @@ static struct custom_operations curl_multi_ops = {
   custom_compare_default,
   custom_hash_default,
   custom_serialize_default,
-  custom_deserialize_default
+  custom_deserialize_default,
+#if defined(custom_compare_ext_default)
+  custom_compare_ext_default,
+#endif
 };
 
 CAMLprim value caml_curl_multi_init(value unit)
@@ -6290,7 +6300,7 @@ static CURL* curlm_remove_finished(CURLM* multi_handle, CURLcode* result)
       if (result) *result = msg->data.result;
       if (CURLM_OK != curl_multi_remove_handle(multi_handle, easy_handle))
       {
-        //failwith("curlm_remove_finished");
+        /*failwith("curlm_remove_finished");*/
       }
       return easy_handle;
     }
@@ -6501,6 +6511,8 @@ static int curlm_sock_cb_nolock(CURL *e, curl_socket_t sock, int what, ml_multi_
 {
   CAMLparam0();
   CAMLlocal1(v_what);
+  (void)e;
+  (void)sockp; /* not used */
 
   /* v_what = Val_int(what); */
   switch (what)
@@ -6553,6 +6565,8 @@ static void curlm_timer_cb_nolock(ml_multi_handle *multi, long timeout_ms)
 
 static int curlm_timer_cb(CURLM *multi, long timeout_ms, void *userp)
 {
+  (void)multi;
+
   caml_leave_blocking_section();
   curlm_timer_cb_nolock((ml_multi_handle*)userp, timeout_ms);
   caml_enter_blocking_section();
