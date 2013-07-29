@@ -1,4 +1,11 @@
+?  -  ?
+
+    * introduce bindings to asynchronous multi interface
+    + Multi: set_socket_function set_timer_function action_all action_timeout action timeout
+    * treat SSLVERIFYHOST_EXISTENCE as SSLVERIFYHOST_HOSTNAME, previous workaround was broken
+
 0.5.6  -  21 Mar 2013
+
     * configure: more robust test for libcurl
 
 0.5.5  -  23 Feb 2013
