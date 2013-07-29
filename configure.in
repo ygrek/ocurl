@@ -7,9 +7,9 @@ AC_INIT(ocurl,0.5.6)
 AC_PROG_CC()
 
 AC_MSG_CHECKING([for libcurl cflags])
-CFLAGS=`pkg-config libcurl --cflags || curl-config --cflags`
+CURLCFLAGS=`pkg-config libcurl --cflags || curl-config --cflags`
 AS_IF([ test "$?" -eq 0 ],,[AC_MSG_ERROR([libcurl was not found])] )
-AC_MSG_RESULT([$CFLAGS])
+AC_MSG_RESULT([$CURLCFLAGS])
 
 AC_MSG_CHECKING([for libcurl libs])
 CURLLIBS=`pkg-config libcurl --libs || curl-config --libs`
@@ -24,6 +24,7 @@ INSTALLDIR=$OCAMLLIB/curl
 
 AC_PREFIX_PROGRAM(ocamlc)
 
+AC_SUBST(CURLCFLAGS)
 AC_SUBST(CURLLIBS)
 AC_SUBST(OCAMLLIB)
 AC_SUBST(INSTALLDIR)
