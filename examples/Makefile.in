@@ -2,15 +2,12 @@
 ###	@configure_input@
 ###
 
-.SUFFIXES:	.ml .mli .cmx .cmi .cmo .cmxa .cma .c .o
-
-INSTALLDIR	= @INSTALLDIR@
+.PHONY: clean
+.PRECIOUS: %.cmx %.cmo %.cmi
+.SUFFIXES: .ml .mli .cmx .cmi .cmo
 
 OCBYTE		= @OCAMLC@ -thread
 OCOPT		= @OCAMLOPT@ -thread
-
-OC		= @OCAMLC@
-CC		= @CC@
 
 FLAGS		= -I .. 
 LFLAGS		= -I .. -ccopt -L..
