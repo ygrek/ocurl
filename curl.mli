@@ -588,6 +588,7 @@ val set_ftpalternativetouser : t -> string -> unit
 val set_sslsessionidcache : t -> bool -> unit
 val set_sshauthtypes : t -> curlSSHAuthTypes list -> unit
 val set_sshpublickeyfile : t -> string -> unit
+val set_sshprivatekeyfile : t -> string -> unit
 val set_ftpsslccc : t -> curlFTPSSLCCC -> unit
 val set_timeoutms : t -> int -> unit
 val set_connecttimeoutms : t -> int -> unit
