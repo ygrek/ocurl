@@ -1,10 +1,11 @@
-?  -  ?
+0.6.0  -  29 Aug 2013
 
     * introduce bindings to asynchronous multi interface
     + Multi: set_socket_function set_timer_function action_all action_timeout action timeout
     * treat SSLVERIFYHOST_EXISTENCE as SSLVERIFYHOST_HOSTNAME, previous workaround was broken
     * MSVC compatibility
     * configure: do not override CFLAGS
+    * expose set_sshprivatekeyfile
 
 0.5.6  -  21 Mar 2013
 
