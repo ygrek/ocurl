@@ -24,12 +24,6 @@
 #pragma message("No config file given.")
 #endif
 
-#if defined(_MSC_VER)
-#ifdef interface
-#undef interface
-#endif
-#endif
-
 void leave_blocking_section(void);
 void enter_blocking_section(void);
 
@@ -156,7 +150,7 @@ struct Connection
     struct curl_slist *postQuote;
     char *cookieFile;
     char *customRequest;
-    char *interface;
+    char *interface_; /* `interface` gives problems on windows */
     char *caInfo;
     char *caPath;
     char *randomFile;
@@ -1219,7 +1213,7 @@ static Connection *newConnection(void)
     connection->postQuote = NULL;
     connection->cookieFile = NULL;
     connection->customRequest = NULL;
-    connection->interface = NULL;
+    connection->interface_ = NULL;
     connection->caInfo = NULL;
     connection->caPath = NULL;
     connection->randomFile = NULL;
@@ -1324,7 +1318,7 @@ static Connection *duplicateConnection(Connection *original)
     connection->postQuote = NULL;
     connection->cookieFile = NULL;
     connection->customRequest = NULL;
-    connection->interface = NULL;
+    connection->interface_ = NULL;
     connection->caInfo = NULL;
     connection->caPath = NULL;
     connection->randomFile = NULL;
@@ -1517,7 +1511,7 @@ static void removeConnection(Connection *connection)
     free_curl_slist(connection->postQuote);
     free_if(connection->cookieFile);
     free_if(connection->customRequest);
-    free_if(connection->interface);
+    free_if(connection->interface_);
     free_if(connection->caInfo);
     free_if(connection->caPath);
     free_if(connection->randomFile);
@@ -3455,14 +3449,14 @@ static void handleInterface(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, OcamlInterface, option);
 
-    if (conn->interface != NULL)
-        free(conn->interface);
+    if (conn->interface_ != NULL)
+        free(conn->interface_);
 
-    conn->interface = strdup(String_val(option));
+    conn->interface_ = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_INTERFACE,
-                              conn->interface);
+                              conn->interface_);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
