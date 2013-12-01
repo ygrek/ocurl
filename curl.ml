@@ -1099,6 +1099,7 @@ let () =
 class handle =
   object
     val conn = init ()
+    method handle = conn
     method duphandle = {< conn = duphandle conn >}
     method perform = perform conn
     method cleanup = cleanup conn

@@ -654,6 +654,7 @@ val get_localport : t -> int
 class handle :
   object ('a)
     val conn : t
+    method handle : t
     method cleanup : unit
     method duphandle : 'a
     method perform : unit
