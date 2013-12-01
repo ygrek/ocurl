@@ -791,6 +791,7 @@ class handle :
     method set_dns_servers : string list -> unit
 
     method get_effectiveurl : string
+    method get_redirecturl : string
     method get_httpcode : int
     method get_responsecode : int
     method get_totaltime : float

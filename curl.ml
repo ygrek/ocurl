@@ -1235,6 +1235,7 @@ class handle =
     method set_proxytype t = set_proxytype conn t
 
     method get_effectiveurl = get_effectiveurl conn
+    method get_redirecturl = get_redirecturl conn
     method get_responsecode = get_responsecode conn
     method get_httpcode = get_responsecode conn
     method get_totaltime = get_totaltime conn
