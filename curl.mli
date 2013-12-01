@@ -220,11 +220,11 @@ type curlSeek =
 
 type curlProxyType =
   | CURLPROXY_HTTP
-  | CURLPROXY_HTTP_1_0 (** added in 7.19.4 *)
-  | CURLPROXY_SOCKS4 (** added in 7.15.2 *)
+  | CURLPROXY_HTTP_1_0 (** since libcurl 7.19.4 *)
+  | CURLPROXY_SOCKS4 (** since libcurl 7.15.2 *)
   | CURLPROXY_SOCKS5
-  | CURLPROXY_SOCKS4A (** added in 7.18.0 *)
-  | CURLPROXY_SOCKS5_HOSTNAME (** added in 7.18.0 *)
+  | CURLPROXY_SOCKS4A (** since libcurl 7.18.0 *)
+  | CURLPROXY_SOCKS5_HOSTNAME (** since libcurl 7.18.0 *)
 
 (** Protocols to enable (via CURLOPT_PROTOCOLS and CURLOPT_REDIR_PROTOCOLS) *)
 type curlProto =
@@ -431,8 +431,8 @@ type curlInfo =
   | CURLINFO_FTP_ENTRY_PATH
   | CURLINFO_REDIRECT_URL
   | CURLINFO_PRIMARY_IP
-  | CURLINFO_LOCAL_IP (** @since 7.21.0 *)
-  | CURLINFO_LOCAL_PORT (** @since 7.21.0 *)
+  | CURLINFO_LOCAL_IP
+  | CURLINFO_LOCAL_PORT
   | CURLINFO_CONDITION_UNMET
 
 type curlInfoResult =
@@ -650,8 +650,11 @@ val get_lastsocket : t -> int
 val get_ftpentrypath : t -> string
 val get_primaryip : t -> string
 val get_localip : t -> string
+(** @since 0.5.5 (libcurl 7.21.0) *)
 val get_localport : t -> int
+(** @since 0.5.5 (libcurl 7.21.0) *)
 val get_conditionunmet : t -> bool
+(** @since 0.6.1 (libcurl 7.19.4) *)
 
 class handle :
   object ('a)
