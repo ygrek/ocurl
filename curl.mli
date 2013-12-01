@@ -433,6 +433,7 @@ type curlInfo =
   | CURLINFO_PRIMARY_IP
   | CURLINFO_LOCAL_IP (** @since 7.21.0 *)
   | CURLINFO_LOCAL_PORT (** @since 7.21.0 *)
+  | CURLINFO_CONDITION_UNMET
 
 type curlInfoResult =
   | CURLINFO_String of string
@@ -650,6 +651,7 @@ val get_ftpentrypath : t -> string
 val get_primaryip : t -> string
 val get_localip : t -> string
 val get_localport : t -> int
+val get_conditionunmet : t -> bool
 
 class handle :
   object ('a)
@@ -826,6 +828,7 @@ class handle :
     method get_primaryip : string
     method get_localip : string
     method get_localport : int
+    method get_conditionunmet : bool
   end
 
 (** Curl multi stack. Functions may raise [Failure] on critical errors *)

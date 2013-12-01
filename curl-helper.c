@@ -6001,6 +6001,18 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
 #pragma message("libcurl does not provide CURLINFO_LOCAL_PORT")
 #endif
 
+#if HAVE_DECL_CURLINFO_CONDITION_UNMET
+    case 35: /* CURLINFO_CONDITION_UNMET */
+        resultType = LongValue;
+
+        curlResult = curl_easy_getinfo(connection->connection,
+                                       CURLINFO_CONDITION_UNMET,
+                                       &longValue);
+        break;
+#else
+#pragma message("libcurl does not provide CURLINFO_CONDITION_UNMET")
+#endif
+
     default:
         failwith("Invalid CURLINFO Option");
         break;

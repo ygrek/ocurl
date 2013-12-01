@@ -431,6 +431,7 @@ type curlInfo =
   | CURLINFO_PRIMARY_IP
   | CURLINFO_LOCAL_IP
   | CURLINFO_LOCAL_PORT
+  | CURLINFO_CONDITION_UNMET
 
 type curlInfoResult =
   | CURLINFO_String of string
@@ -1092,6 +1093,11 @@ let get_localport conn =
   | CURLINFO_Long n -> n
   | _ -> 0
 
+let get_conditionunmet conn =
+  match (getinfo conn CURLINFO_CONDITION_UNMET) with
+  | CURLINFO_Long n -> n <> 0
+  | _ -> assert false
+
 let () =
   Callback.register_exception "CurlException"
     (CurlException (CURLE_OK, 0, ""))
@@ -1270,6 +1276,7 @@ class handle =
     method get_primaryip = get_primaryip conn
     method get_localip = get_localip conn
     method get_localport = get_localport conn
+    method get_conditionunmet = get_conditionunmet conn
 end
 
 module Multi = struct

@@ -320,6 +320,10 @@
    you don't. */
 #undef HAVE_DECL_CURLE_WRITE_ERROR
 
+/* Define to 1 if you have the declaration of `CURLINFO_CONDITION_UNMET', and
+   to 0 if you don't. */
+#undef HAVE_DECL_CURLINFO_CONDITION_UNMET
+
 /* Define to 1 if you have the declaration of `CURLINFO_CONNECT_TIME', and to
    0 if you don't. */
 #undef HAVE_DECL_CURLINFO_CONNECT_TIME
