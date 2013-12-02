@@ -3379,25 +3379,20 @@ static void handleTimeCondition(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
+    int timecond = CURL_TIMECOND_NONE;
 
     switch (Long_val(option))
     {
-    case 0: /* TIMECOND_IFMODSINCE */
-        result = curl_easy_setopt(conn->connection,
-                                  CURLOPT_TIMECONDITION,
-                                  CURL_TIMECOND_IFMODSINCE);
-        break;
-
-    case 1: /* TIMECOND_IFUNMODSINCE */
-        result = curl_easy_setopt(conn->connection,
-                                  CURLOPT_TIMECONDITION,
-                                  CURL_TIMECOND_IFUNMODSINCE);
-        break;
-
+    case 0: timecond = CURL_TIMECOND_NONE; break;
+    case 1: timecond = CURL_TIMECOND_IFMODSINCE; break;
+    case 2: timecond = CURL_TIMECOND_IFUNMODSINCE; break;
+    case 3: timecond = CURL_TIMECOND_LASTMOD; break;
     default:
         failwith("Invalid TIMECOND Option");
         break;
     }
+
+    result = curl_easy_setopt(conn->connection, CURLOPT_TIMECONDITION, timecond);
 
     if (result != CURLE_OK)
         raiseError(conn, result);

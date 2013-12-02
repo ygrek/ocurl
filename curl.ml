@@ -114,7 +114,7 @@ type curlHTTPPost =
   | CURLFORM_FILE of string * string * curlContentType
   | CURLFORM_BUFFER of string * string * string * curlContentType
 
-(*      
+(*
 type curlHTTPPost =
   | CURLFORM_COPYNAME of string
   | CURLFORM_PTRNAME of string
@@ -128,8 +128,10 @@ type curlHTTPPost =
 *)
 
 type curlTimeCondition =
+  | TIMECOND_NONE
   | TIMECOND_IFMODSINCE
   | TIMECOND_IFUNMODSINCE
+  | TIMECOND_LASTMOD
 
 type curlKRB4Level =
   | KRB4_NONE

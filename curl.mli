@@ -130,9 +130,11 @@ type curlHTTPPost =
 *)
 
 type curlTimeCondition =
+  | TIMECOND_NONE (** since 0.6.1 *)
   | TIMECOND_IFMODSINCE
   | TIMECOND_IFUNMODSINCE
-      
+  | TIMECOND_LASTMOD (** since 0.6.1 *)
+
 type curlKRB4Level =
   | KRB4_NONE
   | KRB4_CLEAR
