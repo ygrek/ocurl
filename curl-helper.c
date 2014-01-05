@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <unistd.h>
 #include <curl/curl.h>
 
 #include <caml/alloc.h>
@@ -1597,9 +1598,9 @@ static size_t writeFunction_nolock(char *ptr, size_t size, size_t nmemb, void *d
     for (i = 0; i < size*nmemb; i++)
         Byte(str, i) = ptr[i];
 
-    result = callback(Field(conn->ocamlValues, OcamlWriteCallback), str);
+    result = callback_exn(Field(conn->ocamlValues, OcamlWriteCallback), str);
 
-    CAMLreturnT(size_t, Int_val(result));
+    CAMLreturnT(size_t, Is_exception_result(result) ? 0 : Int_val(result));
 }
 
 WRAP_DATA_CALLBACK(writeFunction)
@@ -1613,8 +1614,13 @@ static size_t readFunction_nolock(void *ptr, size_t size, size_t nmemb, void *da
 
     checkConnection(conn);
 
-    result = callback(Field(conn->ocamlValues, OcamlReadCallback),
+    result = callback_exn(Field(conn->ocamlValues, OcamlReadCallback),
                       Val_int(size*nmemb));
+
+    if (Is_exception_result(result))
+    {
+      CAMLreturnT(size_t,CURL_READFUNC_ABORT);
+    }
 
     length = string_length(result);
 
@@ -1642,9 +1648,9 @@ static size_t headerFunction_nolock(char *ptr, size_t size, size_t nmemb, void *
     for (i = 0; i < size*nmemb; i++)
         Byte(str, i) = ptr[i];
 
-    result = callback(Field(conn->ocamlValues, OcamlHeaderCallback), str);
+    result = callback_exn(Field(conn->ocamlValues, OcamlHeaderCallback), str);
 
-    CAMLreturnT(size_t, Int_val(result));
+    CAMLreturnT(size_t, Is_exception_result(result) ? 0 : Int_val(result));
 }
 
 WRAP_DATA_CALLBACK(headerFunction)
@@ -1667,10 +1673,10 @@ static int progressFunction_nolock(void *data,
     callbackData[2] = copy_double(ulTotal);
     callbackData[3] = copy_double(ulNow);
 
-    result = callbackN(Field(conn->ocamlValues, OcamlProgressCallback),
+    result = callbackN_exn(Field(conn->ocamlValues, OcamlProgressCallback),
                        4, callbackData);
 
-    CAMLreturnT(int, Bool_val(result));
+    CAMLreturnT(int, Is_exception_result(result) ? 1 : Bool_val(result));
 }
 
 static int progressFunction(void *data,
@@ -1707,7 +1713,7 @@ static int debugFunction_nolock(CURL *debugConnection,
     for (i = 0; i < bufferLength; i++)
         Byte(camlMessage, i) = buffer[i];
 
-    callback3(Field(conn->ocamlValues, OcamlDebugCallback),
+    callback3_exn(Field(conn->ocamlValues, OcamlDebugCallback),
               camlDebugConnection,
               camlInfoType,
               camlMessage);
@@ -1750,10 +1756,15 @@ static curlioerr ioctlFunction_nolock(CURL *ioctl,
     camlConnection = caml_alloc(1, Abstract_tag);
     Field(camlConnection, 0) = (value)conn;
 
-    camlResult = callback2(Field(conn->ocamlValues, OcamlIOCTLCallback),
+    camlResult = callback2_exn(Field(conn->ocamlValues, OcamlIOCTLCallback),
                            camlConnection,
                            camlCmd);
 
+    if (Is_exception_result(camlResult))
+    {
+      result = CURLIOE_FAILRESTART;
+    }
+    else
     switch (Long_val(camlResult))
     {
     case 0: /* CURLIOE_OK */
@@ -1795,7 +1806,6 @@ static int seekFunction_nolock(void *data,
     CAMLparam0();
     CAMLlocal3(camlResult, camlOffset, camlOrigin);
     Connection *conn = (Connection *)data;
-    int result = 0;
 
     camlOffset = copy_int64(offset);
 
@@ -1808,14 +1818,12 @@ static int seekFunction_nolock(void *data,
     else
         camlOrigin = Val_long(0);
 
-    camlResult = callback2(Field(conn->ocamlValues,
+    camlResult = callback2_exn(Field(conn->ocamlValues,
                                  OcamlSeekFunctionCallback),
                            camlOffset,
                            camlOrigin);
 
-    result = Int_val(camlResult);
-
-    CAMLreturnT(int, result);
+    CAMLreturnT(int, Is_exception_result(camlResult) ? CURL_SEEKFUNC_FAIL : Int_val(camlResult)); /* FIXME why int? */
 }
 
 static int seekFunction(void *data,
@@ -1837,6 +1845,7 @@ static int openSocketFunction_nolock(void *data,
                         struct curl_sockaddr *addr)
 {
     CAMLparam0();
+    CAMLlocal1(result);
     Connection *conn = (Connection *)data;
     int sock = -1;
     (void)purpose; /* not used */
@@ -1846,10 +1855,15 @@ static int openSocketFunction_nolock(void *data,
     if (-1 != sock)
     {
       /* FIXME windows */
-      callback(Field(conn->ocamlValues, OcamlOpenSocketFunctionCallback), Val_int(sock));
+      result = callback_exn(Field(conn->ocamlValues, OcamlOpenSocketFunctionCallback), Val_int(sock));
+      if (Is_exception_result(result))
+      {
+        close(sock);
+        sock = -1;
+      }
     }
 
-    CAMLreturnT(int, sock);
+    CAMLreturnT(int, (sock == -1) ? CURL_SOCKET_BAD : sock);
 }
 
 static int openSocketFunction(void *data,

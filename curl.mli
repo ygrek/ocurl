@@ -479,6 +479,10 @@ val errno : curlCode -> int
 val version_info : unit -> version_info
 val pause : t -> pauseOption list -> unit
 
+(** NB
+  All callback functions shouldn't raise exceptions.
+  Any exception raised in callback function will be silently caught and discared,
+  and transfer will be aborted. *)
 val set_writefunction : t -> (string -> int) -> unit
 val set_readfunction : t -> (int -> string) -> unit
 val set_infilesize : t -> int -> unit
