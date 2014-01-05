@@ -17,9 +17,9 @@ OCURLOPTLIB	= curl.cmxa unix.cmxa threads.cmxa
 
 ifeq (@OCAMLBEST@,opt)
 TARGETS	= ocurl ocurl.opt oput oput.opt ominimal ominimal.opt ossl ossl.opt \
-	ocurl_test_threads ocurl_test_threads.opt opar opar.opt
+	ocurl_test_threads ocurl_test_threads.opt opar opar.opt test_cb_exn.opt
 else
-TARGETS = ocurl oput ominimal ossl ocurl_test_threads opar
+TARGETS = ocurl oput ominimal ossl ocurl_test_threads opar test_cb_exn
 endif
 
 all:	$(TARGETS)

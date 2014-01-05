@@ -16,7 +16,7 @@ LFLAGS		= -I ..
 OCURLLIB	= -dllpath .. curl.cma
 OCURLOPTLIB	= curl.cmxa
 
-TARGETS	= ocurl.exe ocurl.opt.exe oput.exe oput.opt.exe ominimal.exe ominimal.opt.exe ossl.exe ossl.opt.exe omulti.exe omulti.opt.exe
+TARGETS	= ocurl.exe ocurl.opt.exe oput.exe oput.opt.exe ominimal.exe ominimal.opt.exe ossl.exe ossl.opt.exe omulti.exe omulti.opt.exe test_cb_exn.exe
 
 all:
 		@$(MAKE) -f Makefile.windows depend
