@@ -195,6 +195,11 @@ type curlIOErr =
   | IOE_UNKNOWNCMD
   | IOE_FAILRESTART
 
+type curlSeekResult =
+  | SEEKFUNC_OK
+  | SEEKFUNC_FAIL
+  | SEEKFUNC_CANTSEEK
+
 type curlFTPMethod =
   | FTPMETHOD_DEFAULT
   | FTPMETHOD_MULTICWD
@@ -382,7 +387,7 @@ type curlOption =
   | CURLOPT_SSHHOSTPUBLICKEYMD5 of string
   | CURLOPT_COPYPOSTFIELDS of string
   | CURLOPT_PROXYTRANSFERMODE of bool
-  | CURLOPT_SEEKFUNCTION of (int64 -> curlSeek -> int)
+  | CURLOPT_SEEKFUNCTION of (int64 -> curlSeek -> curlSeekResult)
   | CURLOPT_AUTOREFERER of bool
   | CURLOPT_OPENSOCKETFUNCTION of (Unix.file_descr -> unit)
   | CURLOPT_PROXYTYPE of curlProxyType

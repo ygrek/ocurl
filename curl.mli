@@ -197,6 +197,11 @@ type curlIOErr =
   | IOE_UNKNOWNCMD
   | IOE_FAILRESTART
 
+type curlSeekResult =
+  | SEEKFUNC_OK
+  | SEEKFUNC_FAIL
+  | SEEKFUNC_CANTSEEK
+
 type curlFTPMethod =
   | FTPMETHOD_DEFAULT
   | FTPMETHOD_MULTICWD
@@ -384,7 +389,7 @@ type curlOption =
   | CURLOPT_SSHHOSTPUBLICKEYMD5 of string
   | CURLOPT_COPYPOSTFIELDS of string
   | CURLOPT_PROXYTRANSFERMODE of bool
-  | CURLOPT_SEEKFUNCTION of (int64 -> curlSeek -> int)
+  | CURLOPT_SEEKFUNCTION of (int64 -> curlSeek -> curlSeekResult)
   | CURLOPT_AUTOREFERER of bool
   | CURLOPT_OPENSOCKETFUNCTION of (Unix.file_descr -> unit)
   | CURLOPT_PROXYTYPE of curlProxyType
@@ -607,7 +612,7 @@ val set_post301 : t -> bool -> unit
 val set_sshhostpublickeymd5 : t -> string -> unit
 val set_copypostfields : t -> string -> unit
 val set_proxytransfermode : t -> bool -> unit
-val set_seekfunction : t -> (int64 -> curlSeek -> int) -> unit
+val set_seekfunction : t -> (int64 -> curlSeek -> curlSeekResult) -> unit
 val set_autoreferer : t -> bool -> unit
 val set_opensocketfunction : t -> (Unix.file_descr -> unit) -> unit
 val set_proxytype : t -> curlProxyType -> unit
@@ -795,7 +800,7 @@ class handle :
     method set_sshhostpublickeymd5 : string -> unit
     method set_copypostfields : string -> unit
     method set_proxytransfermode : bool -> unit
-    method set_seekfunction : (int64 -> curlSeek -> int) -> unit
+    method set_seekfunction : (int64 -> curlSeek -> curlSeekResult) -> unit
     method set_autoreferer : bool -> unit
     method set_opensocketfunction : (Unix.file_descr -> unit) -> unit
     method set_proxytype : curlProxyType -> unit

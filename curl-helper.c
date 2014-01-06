@@ -1816,14 +1816,26 @@ static int seekFunction_nolock(void *data,
     else if (origin == SEEK_END)
         camlOrigin = Val_long(2);
     else
-        camlOrigin = Val_long(0);
+        failwith("Invalid seek code");
 
     camlResult = callback2_exn(Field(conn->ocamlValues,
                                  OcamlSeekFunctionCallback),
                            camlOffset,
                            camlOrigin);
 
-    CAMLreturnT(int, Is_exception_result(camlResult) ? CURL_SEEKFUNC_FAIL : Int_val(camlResult)); /* FIXME why int? */
+    int result;
+    if (Is_exception_result(camlResult))
+      result = CURL_SEEKFUNC_FAIL;
+    else
+    switch (Int_val(camlResult))
+    {
+      case 0: result = CURL_SEEKFUNC_OK; break;
+      case 1: result = CURL_SEEKFUNC_FAIL; break;
+      case 2: result = CURL_SEEKFUNC_CANTSEEK; break;
+      default: failwith("Invalid seek result");
+    }
+
+    CAMLreturnT(int, result);
 }
 
 static int seekFunction(void *data,
