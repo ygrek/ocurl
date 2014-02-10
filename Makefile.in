@@ -27,10 +27,20 @@ CURLBCOBJS	= $(CURLOBJS:.cmx=.cmo)
 
 CLIBS = @CURLLIBS@
 
+TARGETS := curl.cma libcurl-helper.a dllcurl-helper.so
+ifneq (@OCAML_PKG_lwt@,no)
+TARGETS += curl_lwt.cmo
+endif
 ifeq (@OCAMLBEST@,opt)
-TARGETS		= curl.cma curl.cmxa libcurl-helper.a dllcurl-helper.so
-else
-TARGETS		= curl.cma libcurl-helper.a dllcurl-helper.so
+TARGETS += curl.cmxa
+ifneq (@OCAML_PKG_lwt@,no)
+TARGETS += curl_lwt.cmx
+endif
+endif
+
+INSTALL_TARGETS = curl.a curl.cmi curl.mli $(TARGETS)
+ifneq (@OCAML_PKG_lwt@,no)
+INSTALL_TARGETS += curl_lwt.cmi curl_lwt.mli curl_lwt.o
 endif
 
 all:
@@ -39,7 +49,11 @@ all:
 
 doc:
 		mkdir -p doc
+ifneq (@OCAML_PKG_lwt@,no)
+		ocamlfind ocamldoc -html -d doc -package lwt curl.mli curl_lwt.mli
+else
 		ocamldoc -html -d doc curl.mli
+endif
 
 targets:	$(TARGETS) examples
 
@@ -51,6 +65,15 @@ curl.cma:	$(CURLBCOBJS) dllcurl-helper.so
 
 curl.cmxa:	$(CURLOBJS) dllcurl-helper.so
 		$(OCAMLMKLIB) -o curl $(CURLOBJS) -oc curl-helper $(CLIBS)
+
+curl_lwt.cmo: curl_lwt.ml
+	$(FINDLIB) c -package lwt.unix -c $< -o $@
+
+curl_lwt.cmx: curl_lwt.ml
+	$(FINDLIB) opt -package lwt.unix -c $< -o $@
+
+curl_lwt.cmi: curl_lwt.mli
+	$(FINDLIB) c -package lwt -c $< -o $@
 
 .ml.cmx:
 		$(OCAMLOPT) -c $(FLAGS) $< -o $@
@@ -69,7 +92,7 @@ libcurl-helper.a dllcurl-helper.so:	$(CURLHELPEROBJS)
 
 install:
 ifneq (@OCAMLFIND@,no)
-		$(FINDLIB) install -patch-version @PACKAGE_VERSION@ -ldconf ignore curl META curl.a curl.cmi curl.mli $(TARGETS)
+		$(FINDLIB) install -patch-version @PACKAGE_VERSION@ -ldconf ignore curl META $(INSTALL_TARGETS)
 else
 		mkdir -p $(INSTALLDIR)
 		$(INSTALLDATA) curl.cma $(INSTALLDIR)

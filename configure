@@ -626,6 +626,7 @@ CPP
 INSTALLDIR
 CURLLIBS
 ac_prefix_program
+OCAML_PKG_lwt
 OCAMLFIND
 OCAMLBUILD
 OCAMLDOC
@@ -4058,6 +4059,31 @@ fi
 
 
 
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for OCaml findlib package lwt" >&5
+$as_echo_n "checking for OCaml findlib package lwt... " >&6; }
+
+  unset found
+  unset pkg
+  found=no
+  for pkg in lwt  ; do
+    if $OCAMLFIND query $pkg >/dev/null 2>/dev/null; then
+      { $as_echo "$as_me:${as_lineno-$LINENO}: result: found" >&5
+$as_echo "found" >&6; }
+      OCAML_PKG_lwt=$pkg
+      found=yes
+      break
+    fi
+  done
+  if test "$found" = "no" ; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: not found" >&5
+$as_echo "not found" >&6; }
+    OCAML_PKG_lwt=no
+  fi
+
+
+
+
 INSTALLDIR=$OCAMLLIB/curl
 
 if test "x$prefix" = xNONE; then
@@ -4572,6 +4598,7 @@ else
 fi
 
 done
+
 
 
 ac_fn_c_check_decl "$LINENO" "CURLOPT_FILE" "ac_cv_have_decl_CURLOPT_FILE" "

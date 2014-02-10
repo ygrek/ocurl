@@ -4,4 +4,12 @@ description="bindings to libcurl"
 requires=""
 archive(byte)="curl.cma"
 archive(native)="curl.cmxa"
-linkopts = ""
+
+package "lwt" (
+ version = ""
+ description = "lwt interface to libcurl"
+ requires = "curl lwt.unix"
+ archive(byte) = "curl_lwt.cmo"
+ archive(native) = "curl_lwt.cmx"
+ exists_if = "curl_lwt.cmo"
+)
