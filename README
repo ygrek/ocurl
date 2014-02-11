@@ -39,6 +39,7 @@ Making release
 
 * Update CHANGES.txt
 * Update version in configure.in
+* autoreconf
 * make release
 
 ---- 

@@ -1,3 +1,12 @@
+0.6.1  -  11 Feb 2014
+
+    * fix type of set_seekfunction
+    * fix handling of exceptions from callbacks (break the transfer)
+    + CURLINFO_CONDITION_UNMET TIMECOND_NONE TIMECOND_LASTMOD
+    * fix build on windows
+    * expose Curl.t underlying Curl.handle object
+    * implement Curl.handle#get_redirecturl
+
 0.6.0  -  29 Aug 2013
 
     * introduce bindings to asynchronous multi interface
