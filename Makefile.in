@@ -2,7 +2,7 @@
 ###	@configure_input@
 ###
 
-.PHONY:		all targets examples install clean distclean depend release
+.PHONY:		all targets examples install clean distclean depend release doc
 
 .SUFFIXES:	.ml .mli .cmx .cmi .cmo .cmxa .cma .c .o
 
@@ -36,6 +36,10 @@ endif
 all:
 		@$(MAKE) depend
 		@$(MAKE) targets
+
+doc:
+		mkdir -p doc
+		ocamldoc -html -d doc curl.mli
 
 targets:	$(TARGETS) examples
 
