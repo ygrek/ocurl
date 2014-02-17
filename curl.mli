@@ -7,6 +7,8 @@
 
 (** libcurl wrapper *)
 
+(** {2 Types} *)
+
 type t
 
 type curlCode =
@@ -465,6 +467,8 @@ type version_info = {
 
 type pauseOption = PAUSE_SEND | PAUSE_RECV | PAUSE_ALL
 
+(** {2 curl_easy API} *)
+
 val global_init : initOption -> unit
 val global_cleanup : unit -> unit
 val init : unit -> t
@@ -484,10 +488,12 @@ val errno : curlCode -> int
 val version_info : unit -> version_info
 val pause : t -> pauseOption list -> unit
 
-(** NB
+(** {2 Set transfer options}
+
   All callback functions shouldn't raise exceptions.
   Any exception raised in callback function will be silently caught and discared,
   and transfer will be aborted. *)
+
 val set_writefunction : t -> (string -> int) -> unit
 val set_readfunction : t -> (int -> string) -> unit
 val set_infilesize : t -> int -> unit
@@ -627,6 +633,8 @@ val set_redirprotocols : t -> curlProto list -> unit
 val set_resolve : t -> (string * int * string) list -> (string * int) list -> unit
 val set_dns_servers : t -> string list -> unit
 
+(** {2 Get transfer properties} *)
+
 val get_effectiveurl : t -> string
 val get_redirecturl : t -> string
 val get_httpcode : t -> int
@@ -666,6 +674,8 @@ val get_localport : t -> int
 (** @since 0.5.5 (libcurl 7.21.0) *)
 val get_conditionunmet : t -> bool
 (** @since 0.6.1 (libcurl 7.19.4) *)
+
+(** {2 Object interface} *)
 
 class handle :
   object ('a)
@@ -845,6 +855,8 @@ class handle :
     method get_conditionunmet : bool
   end
 
+(** {2 curl_multi API} *)
+
 (** Curl multi stack. Functions may raise [Failure] on critical errors *)
 module Multi : sig
 
@@ -925,4 +937,3 @@ module Multi : sig
   external timeout : mt -> int = "caml_curl_multi_timeout"
 
 end
-
