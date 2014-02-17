@@ -1624,12 +1624,16 @@ static size_t readFunction_nolock(void *ptr, size_t size, size_t nmemb, void *da
 
     length = string_length(result);
 
-    if (length >= size*nmemb)
-        length = size*nmemb;
+    if (length <= size*nmemb)
+    {
+      memcpy(ptr, String_val(result), length);
 
-    memcpy(ptr, String_val(result), length);
-
-    CAMLreturnT(size_t,length);
+      CAMLreturnT(size_t,length);
+    }
+    else
+    {
+      CAMLreturnT(size_t,CURL_READFUNC_ABORT);
+    }
 }
 
 WRAP_DATA_CALLBACK(readFunction)
