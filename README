@@ -40,7 +40,8 @@ Making release
 * Update CHANGES.txt
 * Update version in configure.in
 * autoreconf
-* make release
+* commit
+* ./configure && make release
 
 ---- 
  ygrek at autistici dot org

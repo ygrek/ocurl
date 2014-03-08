@@ -1,3 +1,11 @@
+0.7.0  -  8 Mar 2014
+
+    * Curl_lwt: basic Lwt interface
+    * make Curl.t a custom value (with compare and hash)
+    * set_readfunction: assert correct length, do not silently truncate data
+    * generate ocamldoc html with `make doc`
+    * fix build: set CFLAGS for feature tests
+
 0.6.1  -  11 Feb 2014
 
     * fix type of set_seekfunction
