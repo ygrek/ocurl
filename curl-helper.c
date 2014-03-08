@@ -55,7 +55,7 @@ static value Val_cons(value list, value v) { return Val_pair(v,list); }
 typedef struct Connection Connection;
 typedef struct ConnectionList ConnectionList;
 
-#define Connection_val(v) ((Connection *)Field(v, 0))
+#define Connection_val(v) (*(Connection**)Data_custom_val(v))
 
 enum OcamlValues
 {
@@ -122,6 +122,8 @@ struct Connection
     Connection *prev;
 
     value ocamlValues;
+
+    size_t refcount; /* number of OCaml heap values referencing this structure */
 
     char *url;
     char *proxy;
@@ -1183,9 +1185,11 @@ static Connection *newConnection(void)
         connectionList.head = connection;
     }
 
-    connection->ocamlValues = alloc(OcamlValuesSize, 0);
+    connection->ocamlValues = caml_alloc(OcamlValuesSize, 0);
     resetOcamlValues(connection);
     register_global_root(&connection->ocamlValues);
+
+    connection->refcount = 0;
 
     connection->url = NULL;
     connection->proxy = NULL;
@@ -1291,6 +1295,8 @@ static Connection *duplicateConnection(Connection *original)
 		Field(original->ocamlValues, OcamlIOCTLCallback));
     Store_field(connection->ocamlValues, OcamlSeekFunctionCallback,
 		Field(original->ocamlValues, OcamlSeekFunctionCallback));
+
+    connection->refcount = 0;
 
     connection->url = NULL;
     connection->proxy = NULL;
@@ -1467,11 +1473,32 @@ static Connection *duplicateConnection(Connection *original)
 
 static void free_if(void* p) { if (NULL != p) free(p); }
 
-static void removeConnection(Connection *connection)
+static void removeConnection(Connection *connection, int finalization)
 {
-    enter_blocking_section();
-    curl_easy_cleanup(connection->connection);
-    leave_blocking_section();
+    const char* fin_url = NULL;
+
+    if (!connection->connection)
+    {
+      return; /* already cleaned up */
+    }
+
+    if (finalization)
+    {
+      /* cannot engage OCaml runtime at finalization, just report leak */
+      if (CURLE_OK != curl_easy_getinfo(connection->connection, CURLINFO_EFFECTIVE_URL, &fin_url) || NULL == fin_url)
+      {
+        fin_url = "unknown";
+      }
+      fprintf(stderr,"Curl: handle %p leaked, conn %p, url %s", connection->connection, connection, fin_url);
+    }
+    else
+    {
+      enter_blocking_section();
+      curl_easy_cleanup(connection->connection);
+      leave_blocking_section();
+    }
+
+    connection->connection = NULL;
 
     if (connectionList.tail == connection)
         connectionList.tail = connectionList.tail->next;
@@ -1529,8 +1556,6 @@ static void removeConnection(Connection *connection)
     free_if(connection->sshPrivateKeyFile);
     free_if(connection->copyPostFields);
     free_if(connection->dns_servers);
-
-    free(connection);
 }
 
 #if 1
@@ -1572,6 +1597,51 @@ static Connection* findConnection(CURL* h)
     }
 
     failwith("Unknown handle");
+}
+
+void op_curl_easy_finalize(value v)
+{
+  Connection* conn = Connection_val(v);
+  /* same connection may be referenced by several different
+     OCaml values, see e.g. caml_curl_multi_remove_finished */
+  conn->refcount--;
+  if (0 == conn->refcount)
+  {
+    removeConnection(conn, 1);
+    free(conn);
+  }
+}
+
+int op_curl_easy_compare(value v1, value v2)
+{
+  size_t p1 = (size_t)Connection_val(v1);
+  size_t p2 = (size_t)Connection_val(v2);
+  return (p1 == p2 ? 0 : (p1 > p2 ? 1 : -1)); /* compare addresses */
+}
+
+intnat op_curl_easy_hash(value v)
+{
+  return (size_t)Connection_val(v); /* address */
+}
+
+static struct custom_operations curl_easy_ops = {
+  "ygrek.curl_easy",
+  op_curl_easy_finalize,
+  op_curl_easy_compare,
+  op_curl_easy_hash,
+  custom_serialize_default,
+  custom_deserialize_default,
+#if defined(custom_compare_ext_default)
+  custom_compare_ext_default,
+#endif
+};
+
+value caml_curl_alloc(Connection* conn)
+{
+  value v = caml_alloc_custom(&curl_easy_ops, sizeof(Connection*), 0, 1);
+  Connection_val(v) = conn;
+  conn->refcount++;
+  return v;
 }
 
 #define WRAP_DATA_CALLBACK(f) \
@@ -1757,8 +1827,7 @@ static curlioerr ioctlFunction_nolock(CURL *ioctl,
     else
         failwith("Invalid IOCTL Cmd!");
 
-    camlConnection = caml_alloc(1, Abstract_tag);
-    Field(camlConnection, 0) = (value)conn;
+    camlConnection = caml_curl_alloc(conn);
 
     camlResult = callback2_exn(Field(conn->ocamlValues, OcamlIOCTLCallback),
                            camlConnection,
@@ -1946,16 +2015,12 @@ CAMLprim value helper_curl_global_cleanup(void)
 /**
  ** curl_easy_init helper function
  **/
-
 CAMLprim value helper_curl_easy_init(void)
 {
     CAMLparam0();
     CAMLlocal1(result);
 
-    Connection *conn = newConnection();
-
-    result = caml_alloc(1, Abstract_tag);
-    Field(result, 0) = (value)conn;
+    result = caml_curl_alloc(newConnection());
 
     CAMLreturn(result);
 }
@@ -5579,7 +5644,7 @@ CAMLprim value helper_curl_easy_cleanup(value conn)
 
     checkConnection(connection);
 
-    removeConnection(connection);
+    removeConnection(connection, 0);
 
     CAMLreturn(Val_unit);
 }
@@ -5596,8 +5661,7 @@ CAMLprim value helper_curl_easy_duphandle(value conn)
 
     checkConnection(connection);
 
-    result = caml_alloc(1, Abstract_tag);
-    Field(result, 0) = (value)duplicateConnection(connection);
+    result = caml_curl_alloc(duplicateConnection(connection));
 
     CAMLreturn(result);
 }
@@ -6358,9 +6422,8 @@ CAMLprim value caml_curlm_remove_finished(value v_multi)
   }
   else
   {
-    /* not good: same handle, but different block */
-    v_easy = caml_alloc(1, Abstract_tag);
-    Field(v_easy, 0) = (value)findConnection(handle);
+    /* NB: same handle, but different block */
+    v_easy = caml_curl_alloc(findConnection(handle));
     v_tuple = caml_alloc(2, 0);
     Store_field(v_tuple,0,v_easy);
     Store_field(v_tuple,1,Val_int(result)); /* CURLcode */
