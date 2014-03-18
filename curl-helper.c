@@ -6409,6 +6409,7 @@ CAMLprim value caml_curlm_remove_finished(value v_multi)
   CURL* handle;
   CURLM* multi_handle;
   CURLcode result;
+  Connection* conn = NULL;
 
   multi_handle = CURLM_val(v_multi);
 
@@ -6422,8 +6423,13 @@ CAMLprim value caml_curlm_remove_finished(value v_multi)
   }
   else
   {
+    conn = findConnection(handle);
+    if (conn->errorBuffer != NULL)
+    {
+        Store_field(Field(conn->ocamlValues, OcamlErrorBuffer), 0, caml_copy_string(conn->errorBuffer));
+    }
     /* NB: same handle, but different block */
-    v_easy = caml_curl_alloc(findConnection(handle));
+    v_easy = caml_curl_alloc(conn);
     v_tuple = caml_alloc(2, 0);
     Store_field(v_tuple,0,v_easy);
     Store_field(v_tuple,1,Val_int(result)); /* CURLcode */

@@ -18,22 +18,22 @@ OCURLOPTLIB	= curl.cmxa unix.cmxa threads.cmxa
 
 TARGETS = ocurl oput ominimal ossl ocurl_test_threads opar test_cb_exn
 ifneq (@OCAML_PKG_lwt@,no)
-TARGETS += test_lwt
+TARGETS += test_lwt test_lwt_unit
 endif
 
 ifeq (@OCAMLBEST@,opt)
 TARGETS	+= ocurl.opt oput.opt ominimal.opt ossl.opt ocurl_test_threads.opt opar.opt test_cb_exn.opt
 ifneq (@OCAML_PKG_lwt@,no)
-TARGETS += test_lwt.opt
+TARGETS += test_lwt.opt test_lwt_unit.opt
 endif
 endif
 
 all:	$(TARGETS)
 
-test_lwt: test_lwt.ml
+test_lwt%: test_lwt%.ml
 	$(FINDLIB) c -custom -linkpkg -package lwt.unix $(LFLAGS) curl.cma curl_lwt.cmo $< -o $@
 
-test_lwt.opt: test_lwt.ml
+test_lwt%.opt: test_lwt%.ml
 	$(FINDLIB) opt -linkpkg -package lwt.unix $(LFLAGS) curl.cmxa curl_lwt.cmx $< -o $@
 
 %: %.cmo
