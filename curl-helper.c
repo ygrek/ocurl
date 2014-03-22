@@ -1160,15 +1160,15 @@ static void resetOcamlValues(Connection* connection)
         Store_field(connection->ocamlValues, i, Val_unit);
 }
 
-static Connection *newConnection(void)
+static Connection* allocConnection(CURL* h)
 {
-    Connection *connection;
+    Connection* connection = (Connection *)malloc(sizeof(Connection));
 
-    connection = (Connection *)malloc(sizeof(Connection));
+    connection->ocamlValues = caml_alloc(OcamlValuesSize, 0);
+    resetOcamlValues(connection);
+    register_global_root(&connection->ocamlValues);
 
-    enter_blocking_section();
-    connection->connection = curl_easy_init();
-    leave_blocking_section();
+    connection->connection = h;
 
     connection->next = NULL;
     connection->prev = NULL;
@@ -1184,10 +1184,6 @@ static Connection *newConnection(void)
         connectionList.head->next = connection;
         connectionList.head = connection;
     }
-
-    connection->ocamlValues = caml_alloc(OcamlValuesSize, 0);
-    resetOcamlValues(connection);
-    register_global_root(&connection->ocamlValues);
 
     connection->refcount = 0;
 
@@ -1240,34 +1236,27 @@ static Connection *newConnection(void)
     return connection;
 }
 
+static Connection *newConnection(void)
+{
+    CURL* h;
+
+    caml_enter_blocking_section();
+    h = curl_easy_init();
+    caml_leave_blocking_section();
+
+    return allocConnection(h);
+}
+
 static Connection *duplicateConnection(Connection *original)
 {
     Connection *connection;
+    CURL* h;
 
-    connection = (Connection *)malloc(sizeof(Connection));
+    caml_enter_blocking_section();
+    h  = curl_easy_duphandle(original->connection);
+    caml_leave_blocking_section();
 
-    enter_blocking_section();
-    connection->connection = curl_easy_duphandle(original->connection);
-    leave_blocking_section();
-
-    connection->next = NULL;
-    connection->prev = NULL;
-
-    if (connectionList.tail == NULL)
-    {
-        connectionList.tail = connection;
-        connectionList.head = connection;
-    }
-    else
-    {
-        connection->prev = connectionList.head;
-        connectionList.head->next = connection;
-        connectionList.head = connection;
-    }
-
-    connection->ocamlValues = alloc(OcamlValuesSize, 0);
-    resetOcamlValues(connection);
-    register_global_root(&connection->ocamlValues);
+    connection = allocConnection(h);
 
     Store_field(connection->ocamlValues, OcamlWriteCallback,
 		Field(original->ocamlValues, OcamlWriteCallback));
@@ -1295,53 +1284,6 @@ static Connection *duplicateConnection(Connection *original)
 		Field(original->ocamlValues, OcamlIOCTLCallback));
     Store_field(connection->ocamlValues, OcamlSeekFunctionCallback,
 		Field(original->ocamlValues, OcamlSeekFunctionCallback));
-
-    connection->refcount = 0;
-
-    connection->url = NULL;
-    connection->proxy = NULL;
-    connection->userPwd = NULL;
-    connection->proxyUserPwd = NULL;
-    connection->range = NULL;
-    connection->errorBuffer = NULL;
-    connection->postFields = NULL;
-    connection->postFieldSize = -1;
-    connection->referer = NULL;
-    connection->userAgent = NULL;
-    connection->ftpPort = NULL;
-    connection->cookie = NULL;
-    connection->httpHeader = NULL;
-    connection->httpPostFirst = NULL;
-    connection->httpPostLast = NULL;
-    connection->httpPostStrings = NULL;
-    connection->sslCert = NULL;
-    connection->sslCertType = NULL;
-    connection->sslCertPasswd = NULL;
-    connection->sslKey = NULL;
-    connection->sslKeyType = NULL;
-    connection->sslKeyPasswd = NULL;
-    connection->sslEngine = NULL;
-    connection->quote = NULL;
-    connection->postQuote = NULL;
-    connection->cookieFile = NULL;
-    connection->customRequest = NULL;
-    connection->interface_ = NULL;
-    connection->caInfo = NULL;
-    connection->caPath = NULL;
-    connection->randomFile = NULL;
-    connection->egdSocket = NULL;
-    connection->cookieJar = NULL;
-    connection->sslCipherList = NULL;
-    connection->private = NULL;
-    connection->http200Aliases = NULL;
-    connection->netrcFile = NULL;
-    connection->ftpaccount = NULL;
-    connection->cookielist = NULL;
-    connection->sshPublicKeyFile = NULL;
-    connection->sshPrivateKeyFile = NULL;
-    connection->copyPostFields = NULL;
-    connection->resolve = NULL;
-    connection->dns_servers = NULL;
 
     if (Field(original->ocamlValues, OcamlURL) != Val_unit)
         handleURL(connection, Field(original->ocamlValues,
