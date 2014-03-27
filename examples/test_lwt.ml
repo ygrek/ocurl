@@ -5,6 +5,8 @@ open Printf
 let (@@) f x = f x
 let (|>) x f = f x
 
+let printfn fmt = ksprintf print_endline fmt
+
 let curl_setup_simple h =
   let open Curl in
   set_useragent h "Curl_lwt";
@@ -18,7 +20,7 @@ let curl_setup_simple h =
 let log_curl h code =
   let open Curl in
   let url = get_effectiveurl h in
-  print_endline @@ sprintf "%3d %.2f %g URL: %s (%s)%s"
+  printfn "%3d %.2f %g URL: %s (%s)%s"
     (get_httpcode h)
     (get_totaltime h)
     (get_sizedownload h)
@@ -35,14 +37,19 @@ let get url =
   let h = Curl.init () in
   Curl.set_url h url;
   curl_setup_simple h;
-(*   lwt (code,body) = download h in *)
-  Lwt.bind (download h) @@ fun (code,_body) ->
-  log_curl h code;
-  (* do something with body *)
-  Curl.cleanup h;
-  Lwt.return ()
+  try_lwt (* e.g. Canceled *)
+    lwt (code,_body) = download h in
+    log_curl h code;
+    Lwt.return ()
+    (* do something with body *)
+  with exn ->
+    printfn "EXN %s URL: %s" (Printexc.to_string exn) url;
+    Lwt.fail exn
+  finally
+    Curl.cleanup h;
+    Lwt.return ()
 
-let run () =
+let urls =
   [
     "www.google.com";
     "ya.ru";
@@ -51,8 +58,11 @@ let run () =
     "www.mozart-oz.org";
     "forge.ocamlcore.org";
   ]
-  |> List.map get
-  |> Lwt.join
 
 let () =
-  Lwt_main.run @@ run ()
+  printfn "Launch %d transfers" (List.length urls);
+  let tasks = List.map get urls in
+  Lwt_main.run @@ Lwt.pick [
+    Lwt_unix.sleep 0.75 >> Lwt.choose tasks >> Lwt.return (print_endline "Cancel remaining transfers");
+    Lwt.join tasks
+  ]

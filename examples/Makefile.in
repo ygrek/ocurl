@@ -30,17 +30,19 @@ endif
 
 all:	$(TARGETS)
 
+FINDLIB_LWT_FLAGS=-linkpkg -syntax camlp4o -package lwt.unix,lwt.syntax
+
 test_lwt: ../curl.cma ../curl_lwt.cmo test_lwt.ml
-	$(FINDLIB) c -custom -linkpkg -package lwt.unix $(LFLAGS) $^ -o $@
+	$(FINDLIB) c -custom $(FINDLIB_LWT_FLAGS) $(LFLAGS) $^ -o $@
 
 test_lwt.opt: ../curl.cmxa ../curl_lwt.cmx test_lwt.ml
-	$(FINDLIB) opt -linkpkg -package lwt.unix $(LFLAGS) $^ -o $@
+	$(FINDLIB) opt $(FINDLIB_LWT_FLAGS) $(LFLAGS) $^ -o $@
 
 test_lwt_unit: ../curl.cma ../curl_lwt.cmo test_lwt_unit.ml
-	$(FINDLIB) c -custom -linkpkg -package lwt.unix $(LFLAGS) $^ -o $@
+	$(FINDLIB) c -custom $(FINDLIB_LWT_FLAGS) $(LFLAGS) $^ -o $@
 
 test_lwt_unit.opt: ../curl.cmxa ../curl_lwt.cmx test_lwt_unit.ml
-	$(FINDLIB) opt -linkpkg -package lwt.unix $(LFLAGS) $^ -o $@
+	$(FINDLIB) opt $(FINDLIB_LWT_FLAGS) $(LFLAGS) $^ -o $@
 
 %: %.cmo ../curl.cma
 		$(OCBYTE) -custom $(LFLAGS) $(OCURLLIB) $< -o $@
