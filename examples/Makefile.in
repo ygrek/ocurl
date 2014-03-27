@@ -30,22 +30,22 @@ endif
 
 all:	$(TARGETS)
 
-test_lwt: test_lwt.ml
-	$(FINDLIB) c -custom -linkpkg -package lwt.unix $(LFLAGS) curl.cma curl_lwt.cmo $< -o $@
+test_lwt: ../curl.cma ../curl_lwt.cmo test_lwt.ml
+	$(FINDLIB) c -custom -linkpkg -package lwt.unix $(LFLAGS) $^ -o $@
 
-test_lwt.opt: test_lwt.ml
-	$(FINDLIB) opt -linkpkg -package lwt.unix $(LFLAGS) curl.cmxa curl_lwt.cmx $< -o $@
+test_lwt.opt: ../curl.cmxa ../curl_lwt.cmx test_lwt.ml
+	$(FINDLIB) opt -linkpkg -package lwt.unix $(LFLAGS) $^ -o $@
 
-test_lwt_unit: test_lwt_unit.ml
-	$(FINDLIB) c -custom -linkpkg -package lwt.unix $(LFLAGS) curl.cma curl_lwt.cmo $< -o $@
+test_lwt_unit: ../curl.cma ../curl_lwt.cmo test_lwt_unit.ml
+	$(FINDLIB) c -custom -linkpkg -package lwt.unix $(LFLAGS) $^ -o $@
 
-test_lwt_unit.opt: test_lwt_unit.ml
-	$(FINDLIB) opt -linkpkg -package lwt.unix $(LFLAGS) curl.cmxa curl_lwt.cmx $< -o $@
+test_lwt_unit.opt: ../curl.cmxa ../curl_lwt.cmx test_lwt_unit.ml
+	$(FINDLIB) opt -linkpkg -package lwt.unix $(LFLAGS) $^ -o $@
 
-%: %.cmo
+%: %.cmo ../curl.cma
 		$(OCBYTE) -custom $(LFLAGS) $(OCURLLIB) $< -o $@
 
-%.opt: %.cmx
+%.opt: %.cmx ../curl.cmxa
 		$(OCOPT) $(LFLAGS) $(OCURLOPTLIB) $< -o $@
 
 .ml.cmx:
