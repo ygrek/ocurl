@@ -91,6 +91,11 @@ let global = lazy (create ())
 let perform h =
   let t = Lazy.force global in
   let (waiter,wakener) = Lwt.wait () in
-  M.add t.mt h;
+  let waiter = Lwt.protected waiter in
+  Lwt.on_cancel waiter (fun () ->
+    Curl.Multi.remove t.mt h;
+    Hashtbl.remove t.wakeners h;
+  );
   Hashtbl.add t.wakeners h wakener;
+  M.add t.mt h;
   waiter
