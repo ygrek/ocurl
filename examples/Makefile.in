@@ -30,10 +30,16 @@ endif
 
 all:	$(TARGETS)
 
-test_lwt%: test_lwt%.ml
+test_lwt: test_lwt.ml
 	$(FINDLIB) c -custom -linkpkg -package lwt.unix $(LFLAGS) curl.cma curl_lwt.cmo $< -o $@
 
-test_lwt%.opt: test_lwt%.ml
+test_lwt.opt: test_lwt.ml
+	$(FINDLIB) opt -linkpkg -package lwt.unix $(LFLAGS) curl.cmxa curl_lwt.cmx $< -o $@
+
+test_lwt_unit: test_lwt_unit.ml
+	$(FINDLIB) c -custom -linkpkg -package lwt.unix $(LFLAGS) curl.cma curl_lwt.cmo $< -o $@
+
+test_lwt_unit.opt: test_lwt_unit.ml
 	$(FINDLIB) opt -linkpkg -package lwt.unix $(LFLAGS) curl.cmxa curl_lwt.cmx $< -o $@
 
 %: %.cmo
