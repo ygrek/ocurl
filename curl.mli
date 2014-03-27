@@ -874,6 +874,9 @@ module Multi : sig
   (** add handle to multi stack *)
   val add : mt -> t -> unit
 
+  (** remove handle from multi stack (effectively halting the transfer) *)
+  val remove : mt -> t -> unit
+
   (** perform pending data transfers (if any) on all handles currently in multi stack
       @return the number of handles that still transfer data *)
   val perform : mt -> int

@@ -6439,6 +6439,24 @@ CAMLprim value caml_curl_multi_add_handle(value v_multi, value v_easy)
   CAMLreturn(Val_unit);
 }
 
+CAMLprim value caml_curl_multi_remove_handle(value v_multi, value v_easy)
+{
+  CAMLparam2(v_multi,v_easy);
+  CURLM* multi = CURLM_val(v_multi);
+  CURL* easy = Connection_val(v_easy)->connection;
+
+  /* may invoke callbacks so need to be consistent with locks */
+  caml_enter_blocking_section();
+  if (CURLM_OK != curl_multi_remove_handle(multi, easy))
+  {
+    caml_leave_blocking_section();
+    failwith("caml_curl_multi_remove_handle");
+  }
+  caml_leave_blocking_section();
+
+  CAMLreturn(Val_unit);
+}
+
 CAMLprim value caml_curl_multi_perform_all(value v_multi)
 {
   CAMLparam1(v_multi);
