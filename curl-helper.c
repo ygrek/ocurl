@@ -17,6 +17,7 @@
 #include <caml/mlvalues.h>
 #include <caml/callback.h>
 #include <caml/fail.h>
+#include <caml/unixsupport.h>
 #include <caml/custom.h>
 
 #ifdef HAVE_CONFIG_H
@@ -6481,9 +6482,21 @@ CAMLprim value helper_curl_easy_strerror(value v_code)
  * Based on curl hiperfifo.c example
  */
 
-/* FIXME win32unix */
-#define Socket_val(v) Int_val(v)
+#ifdef _WIN32
+#ifndef Val_socket
+#define Val_socket(v) win_alloc_socket(v)
+#endif
+#ifndef Socket_val
+#error Socket_val not defined in unixsupport.h
+#endif
+#else /* _WIN32 */
+#ifndef Socket_val
+#define Socket_val(v) Long_val(v)
+#endif
+#ifndef Val_socket
 #define Val_socket(v) Val_int(v)
+#endif
+#endif  /* _WIN32 */
 
 static void raise_error(char const* msg)
 {
@@ -6523,8 +6536,19 @@ CAMLprim value caml_curl_multi_socket_action(value v_multi, value v_fd, value v_
   CURLM* h = CURLM_val(v_multi);
   int still_running = 0;
   CURLMcode rc = CURLM_OK;
-  int socket = Socket_val(v_fd);
+  curl_socket_t socket ;
   int kind = 0;
+
+#ifdef _WIN32
+  if ( !Is_block(v_fd) ){
+    socket = CURL_SOCKET_TIMEOUT;
+  }
+  else {
+    socket = Socket_val(v_fd);
+  }
+#else
+    socket = Socket_val(v_fd);
+#endif
 
   switch (Int_val(v_kind))
   {
@@ -6570,7 +6594,7 @@ CAMLprim value caml_curl_multi_socket_all(value v_multi)
 static int curlm_sock_cb_nolock(CURL *e, curl_socket_t sock, int what, ml_multi_handle* multi, void *sockp)
 {
   CAMLparam0();
-  CAMLlocal1(v_what);
+  CAMLlocal2(v_what,csock);
   (void)e;
   (void)sockp; /* not used */
 
@@ -6587,9 +6611,9 @@ static int curlm_sock_cb_nolock(CURL *e, curl_socket_t sock, int what, ml_multi_
       fflush(stderr);
       raise_error("curlm_sock_cb"); /* FIXME exception from callback */
   }
-
+  csock=Val_socket(sock);
   caml_callback2(Field(multi->values,curlmopt_socket_function),
-                 Val_socket(sock), v_what);
+                 csock, v_what);
 
   CAMLreturn(0);
 }
