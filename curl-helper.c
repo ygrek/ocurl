@@ -6536,19 +6536,17 @@ CAMLprim value caml_curl_multi_socket_action(value v_multi, value v_fd, value v_
   CURLM* h = CURLM_val(v_multi);
   int still_running = 0;
   CURLMcode rc = CURLM_OK;
-  curl_socket_t socket ;
+  curl_socket_t socket;
   int kind = 0;
 
-#ifdef _WIN32
-  if ( !Is_block(v_fd) ){
+  if (Val_none == v_fd)
+  {
     socket = CURL_SOCKET_TIMEOUT;
   }
-  else {
-    socket = Socket_val(v_fd);
+  else
+  {
+    socket = Socket_val(Field(v_fd, 0));
   }
-#else
-    socket = Socket_val(v_fd);
-#endif
 
   switch (Int_val(v_kind))
   {
@@ -6560,7 +6558,7 @@ CAMLprim value caml_curl_multi_socket_action(value v_multi, value v_fd, value v_
       raise_error("caml_curl_multi_socket_action");
   }
 
-/*  fprintf(stdout,"fd %u kind %u\n",Socket_val(v_fd), kind); fflush(stdout); */
+/*  fprintf(stdout,"fd %u kind %u\n",socket, kind); fflush(stdout); */
 
   caml_enter_blocking_section();
   do {

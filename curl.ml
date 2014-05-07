@@ -1311,12 +1311,10 @@ module Multi = struct
   external set_socket_function : mt -> (Unix.file_descr -> poll -> unit) -> unit = "caml_curl_multi_socketfunction"
   external set_timer_function : mt -> (int -> unit) -> unit = "caml_curl_multi_timerfunction"
   external action_all : mt -> int = "caml_curl_multi_socket_all"
-  external action : mt -> Unix.file_descr -> fd_status -> int = "caml_curl_multi_socket_action"
+  external socket_action : mt -> Unix.file_descr option -> fd_status -> int = "caml_curl_multi_socket_action"
 
-  let action_timeout mt =
-    (* FIXME win32unix *)
-    let curl_socket_timeout = (Obj.magic (-1) : Unix.file_descr) in
-    ignore (action mt curl_socket_timeout EV_AUTO)
+  let action_timeout mt = ignore (socket_action mt None EV_AUTO)
+  let action mt fd status = socket_action mt (Some fd) status
 
   external timeout : mt -> int = "caml_curl_multi_timeout"
 
