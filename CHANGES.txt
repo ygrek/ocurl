@@ -1,3 +1,10 @@
+0.7.1  -  12 May 2014
+
+    * Multi: win32 support (arirux)
+    + Multi.remove
+    * lwt: handle Lwt.cancel
+    * lwt: fix set_errorbuffer
+
 0.7.0  -  8 Mar 2014
 
     * Curl_lwt: basic Lwt interface
