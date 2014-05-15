@@ -10,8 +10,8 @@ OCBYTE		= @OCAMLC@ -thread
 OCOPT		= @OCAMLOPT@ -thread
 FINDLIB = @OCAMLFIND@
 
-FLAGS		= -I .. 
-LFLAGS		= -I .. -ccopt -L..
+FLAGS		= -g -I ..
+LFLAGS		= -g -I .. -ccopt -L..
 
 OCURLLIB	= curl.cma unix.cma threads.cma
 OCURLOPTLIB	= curl.cmxa unix.cmxa threads.cmxa

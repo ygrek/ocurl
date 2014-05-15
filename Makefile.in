@@ -16,7 +16,7 @@ OCAMLOPT = @OCAMLOPT@
 OCAMLDEP = @OCAMLDEP@
 OCAMLMKLIB = @OCAMLMKLIB@
 
-FLAGS		=
+FLAGS		= -g
 LIBS		=
 
 CFLAGS		= @CFLAGS@ @DEFS@ -Wall
@@ -67,13 +67,13 @@ curl.cmxa:	$(CURLOBJS) dllcurl-helper.so
 		$(OCAMLMKLIB) -o curl $(CURLOBJS) -oc curl-helper $(CLIBS)
 
 curl_lwt.cmo: curl_lwt.ml
-	$(FINDLIB) c -package lwt.unix -c $< -o $@
+	$(FINDLIB) c -package lwt.unix -c $(FLAGS) $< -o $@
 
 curl_lwt.cmx: curl_lwt.ml
-	$(FINDLIB) opt -package lwt.unix -c $< -o $@
+	$(FINDLIB) opt -package lwt.unix -c $(FLAGS) $< -o $@
 
 curl_lwt.cmi: curl_lwt.mli
-	$(FINDLIB) c -package lwt -c $< -o $@
+	$(FINDLIB) c -package lwt -c $(FLAGS) $< -o $@
 
 .ml.cmx:
 		$(OCAMLOPT) -c $(FLAGS) $< -o $@
