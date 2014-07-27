@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <unistd.h>
+/* suppress false gcc warning on seekFunction */
+#define CURL_DISABLE_TYPECHECK
 #include <curl/curl.h>
 
 #include <caml/alloc.h>
