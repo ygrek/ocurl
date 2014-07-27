@@ -124,7 +124,7 @@ struct Connection
 
     value ocamlValues;
 
-    size_t refcount; /* number of OCaml heap values referencing this structure */
+    size_t refcount; /* number of references to this structure */
 
     char *url;
     char *proxy;
@@ -1432,7 +1432,8 @@ static void removeConnection(Connection *connection, int finalization)
       {
         fin_url = "unknown";
       }
-      fprintf(stderr,"Curl: handle %p leaked, conn %p, url %s", connection->connection, connection, fin_url);
+      fprintf(stderr,"Curl: handle %p leaked, conn %p, url %s\n", connection->connection, connection, fin_url);
+      fflush(stderr);
     }
     else
     {
@@ -6371,6 +6372,7 @@ CAMLprim value caml_curlm_remove_finished(value v_multi)
     {
         Store_field(Field(conn->ocamlValues, OcamlErrorBuffer), 0, caml_copy_string(conn->errorBuffer));
     }
+    conn->refcount--;
     /* NB: same handle, but different block */
     v_easy = caml_curl_alloc(conn);
     v_tuple = caml_alloc(2, 0);
@@ -6426,12 +6428,17 @@ CAMLprim value caml_curl_multi_add_handle(value v_multi, value v_easy)
 {
   CAMLparam2(v_multi,v_easy);
   CURLM* multi = CURLM_val(v_multi);
-  CURL* easy = Connection_val(v_easy)->connection;
+  Connection* conn = Connection_val(v_easy);
+
+  /* prevent collection of OCaml value while the easy handle is used
+   and may invoke callbacks registered on OCaml side */
+  conn->refcount++;
 
   /* may invoke callbacks so need to be consistent with locks */
   caml_enter_blocking_section();
-  if (CURLM_OK != curl_multi_add_handle(multi, easy))
+  if (CURLM_OK != curl_multi_add_handle(multi, conn->connection))
   {
+    conn->refcount--; /* not added, revert */
     caml_leave_blocking_section();
     failwith("caml_curl_multi_add_handle");
   }
@@ -6444,15 +6451,16 @@ CAMLprim value caml_curl_multi_remove_handle(value v_multi, value v_easy)
 {
   CAMLparam2(v_multi,v_easy);
   CURLM* multi = CURLM_val(v_multi);
-  CURL* easy = Connection_val(v_easy)->connection;
+  Connection* conn = Connection_val(v_easy);
 
   /* may invoke callbacks so need to be consistent with locks */
   caml_enter_blocking_section();
-  if (CURLM_OK != curl_multi_remove_handle(multi, easy))
+  if (CURLM_OK != curl_multi_remove_handle(multi, conn->connection))
   {
     caml_leave_blocking_section();
     failwith("caml_curl_multi_remove_handle");
   }
+  conn->refcount--;
   caml_leave_blocking_section();
 
   CAMLreturn(Val_unit);

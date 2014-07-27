@@ -1,3 +1,7 @@
+?
+
+    * Multi: keep Curl.t alive
+
 0.7.1  -  12 May 2014
 
     * Multi: win32 support (arirux)
