@@ -114,6 +114,8 @@ enum OcamlValues
     OcamlSSHHostPublicKeyMD5,
     OcamlCopyPostFields,
 
+    OcamlDNSServers,
+
     /* Not used, last for size */
     OcamlValuesSize
 };
@@ -1412,6 +1414,10 @@ static Connection *duplicateConnection(Connection *original)
         handleCopyPostFields(connection,
                              Field(original->ocamlValues,
                                    OcamlCopyPostFields));
+    if (Field(original->ocamlValues, OcamlDNSServers) != Val_unit)
+        handleDnsServers(connection,
+                         Field(original->ocamlValues,
+                               OcamlDNSServers));
 
     return connection;
 }
@@ -5494,6 +5500,8 @@ static void handleResolve(Connection *conn, value option)
 static void handleDnsServers(Connection *conn, value option)
 {
   CAMLparam1(option);
+
+  Store_field(conn->ocamlValues, OcamlDNSServers, option);
 
   CURLcode result = CURLE_OK;
   free_if(conn->dns_servers);
