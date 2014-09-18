@@ -47,8 +47,9 @@ let create () =
     let (_:int) = M.action mt fd M.EV_OUT in
     finished "on_writable";
   in
-  let on_timer _ =
+  let on_timer event =
     if !debug then log "on_timer";
+    Lwt_engine.stop_event event;
     M.action_timeout mt;
     finished "on_timer"
   in
