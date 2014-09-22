@@ -1,5 +1,7 @@
-?
+0.7.2  -  23 Sep 2014
 
+    * fix Curl.duphandle wrt CURLOPT_DNS_SERVERS
+    * lwt: fix memory leak
     * Multi: keep Curl.t alive
 
 0.7.1  -  12 May 2014
