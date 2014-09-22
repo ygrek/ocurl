@@ -17,6 +17,7 @@ type multi = {
 
 let create () =
   let mt = M.create () in
+  let timer_event = ref Lwt_engine.fake_event in
   let all_events = Hashtbl.create 32 in
   let wakeners = Hashtbl.create 32 in
   let finished s =
@@ -47,16 +48,16 @@ let create () =
     let (_:int) = M.action mt fd M.EV_OUT in
     finished "on_writable";
   in
-  let on_timer event =
+  let on_timer _ =
     if !debug then log "on_timer";
-    Lwt_engine.stop_event event;
+    Lwt_engine.stop_event !timer_event;
     M.action_timeout mt;
     finished "on_timer"
   in
   M.set_timer_function mt begin fun timeout ->
     if !debug then log "set timeout %d" timeout;
-    let (_:Lwt_engine.event) = Lwt_engine.on_timer (float_of_int timeout /. 1000.) false on_timer in
-    ()
+    Lwt_engine.stop_event !timer_event; (* duplicate stop_event is ok *)
+    timer_event := Lwt_engine.on_timer (float_of_int timeout /. 1000.) false on_timer
   end;
   M.set_socket_function mt begin fun fd what ->
     if !debug then log "set socket fd %d %s" (int_of_fd fd)
