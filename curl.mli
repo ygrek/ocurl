@@ -399,6 +399,8 @@ type curlOption =
   | CURLOPT_REDIR_PROTOCOLS of curlProto list
   | CURLOPT_RESOLVE of string list
   | CURLOPT_DNS_SERVERS of string
+  | CURLOPT_MAIL_FROM of string
+  | CURLOPT_MAIL_RCPT of string list
 
 type initOption =
   | CURLINIT_GLOBALALL

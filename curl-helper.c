@@ -115,6 +115,9 @@ enum OcamlValues
     OcamlCopyPostFields,
 
     OcamlDNSServers,
+    
+    OcamlMailFrom,
+    OcamlMailRcpt,
 
     /* Not used, last for size */
     OcamlValuesSize
@@ -176,6 +179,8 @@ struct Connection
     char *sshHostPublicKeyMD5;
     char *copyPostFields;
     char *dns_servers;
+    char *mailFrom;
+    struct curl_slist *mailRcpt;
 };
 
 struct ConnectionList
@@ -747,6 +752,8 @@ static void handleProtocols(Connection *, value);
 static void handleRedirProtocols(Connection *, value);
 static void handleResolve(Connection *, value);
 static void handleDnsServers(Connection *, value);
+static void handleMailFrom(Connection *, value);
+static void handleMailRcpt(Connection *, value);
 
 CURLOptionMapping implementedOptionMap[] =
 {
@@ -1102,6 +1109,16 @@ CURLOptionMapping implementedOptionMap[] =
 #else
     {handleDnsServers, "CURLOPT_DNS_SERVERS", 0},
 #endif
+#if HAVE_DECL_CURLOPT_MAIL_FROM
+    {handleMailFrom, "CURLOPT_MAIL_FROM", CURLOPT_MAIL_FROM},
+#else
+    {handleMailFrom, "CURLOPT_MAIL_FROM", 0},
+#endif
+#if HAVE_DECL_CURLOPT_MAIL_RCPT
+    {handleMailRcpt, "CURLOPT_MAIL_RCPT", CURLOPT_MAIL_RCPT},
+#else
+    {handleMailRcpt, "CURLOPT_MAIL_RCPT", 0},
+#endif
 };
 
 static char *findOption(CURLOptionMapping optionMap[],
@@ -1237,6 +1254,8 @@ static Connection* allocConnection(CURL* h)
     connection->copyPostFields = NULL;
     connection->resolve = NULL;
     connection->dns_servers = NULL;
+    connection->mailFrom = NULL;
+    connection->mailRcpt = NULL;
 
     return connection;
 }
@@ -1418,7 +1437,15 @@ static Connection *duplicateConnection(Connection *original)
         handleDnsServers(connection,
                          Field(original->ocamlValues,
                                OcamlDNSServers));
-
+    if (Field(original->ocamlValues, OcamlMailFrom) != Val_unit)
+        handleMailFrom(connection,
+                       Field(original->ocamlValues,
+                             OcamlMailFrom));
+    if (Field(original->ocamlValues, OcamlMailRcpt) != Val_unit)
+        handleMailRcpt(connection,
+                       Field(original->ocamlValues,
+                             OcamlMailRcpt));
+    
     return connection;
 }
 
@@ -1508,6 +1535,8 @@ static void removeConnection(Connection *connection, int finalization)
     free_if(connection->sshPrivateKeyFile);
     free_if(connection->copyPostFields);
     free_if(connection->dns_servers);
+    free_if(connection->mailFrom);
+    free_curl_slist(connection->mailRcpt);
 }
 
 #if 1
@@ -5522,6 +5551,74 @@ static void handleDnsServers(Connection *conn, value option)
 static void handleDnsServers(Connection *conn, value option)
 {
   failwith("libcurl does not implement CURLOPT_DNS_SERVERS");
+}
+#endif
+
+#if HAVE_DECL_CURLOPT_MAIL_FROM
+static void handleMailFrom(Connection *conn, value option)
+{
+    CAMLparam1(option);
+    CURLcode result = CURLE_OK;
+
+    Store_field(conn->ocamlValues, OcamlMailFrom, option);
+
+    if (conn->mailFrom != NULL)
+        free(conn->mailFrom);
+
+    conn->mailFrom = strdup(String_val(option));
+
+    result = curl_easy_setopt(conn->connection,
+                              CURLOPT_MAIL_FROM,
+                              conn->mailFrom);
+
+    if (result != CURLE_OK)
+        raiseError(conn, result);
+
+    CAMLreturn0;
+}
+#else
+#pragma message("libcurl does not implement CURLOPT_MAIL_FROM")
+static void handleMailFrom(Connection *conn, value option)
+{
+    failwith("libcurl does not implement CURLOPT_MAIL_FROM");
+}
+#endif
+
+#if HAVE_DECL_CURLOPT_MAIL_RCPT
+static void handleMailRcpt(Connection *conn, value option)
+{
+    CAMLparam1(option);
+    CAMLlocal1(listIter);
+    CURLcode result = CURLE_OK;
+
+    Store_field(conn->ocamlValues, OcamlMailRcpt, option);
+
+    free_curl_slist(conn->mailRcpt);
+    conn->mailRcpt = NULL;
+
+    listIter = option;
+
+    while (!Is_long(listIter))
+    {
+        conn->mailRcpt = curl_slist_append(conn->mailRcpt, String_val(Field(listIter, 0)));
+
+        listIter = Field(listIter, 1);
+    }
+
+    result = curl_easy_setopt(conn->connection,
+                              CURLOPT_MAIL_RCPT,
+                              conn->mailRcpt);
+
+    if (result != CURLE_OK)
+        raiseError(conn, result);
+
+    CAMLreturn0;
+}
+#else
+#pragma message("libcurl does not implement CURLOPT_MAIL_RCPT")
+static void handleMailRcpt(Connection *conn, value option)
+{
+    failwith("libcurl does not implement CURLOPT_MAIL_RCPT");
 }
 #endif
 
