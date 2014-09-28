@@ -395,6 +395,8 @@ type curlOption =
   | CURLOPT_REDIR_PROTOCOLS of curlProto list
   | CURLOPT_RESOLVE of string list
   | CURLOPT_DNS_SERVERS of string
+  | CURLOPT_MAIL_FROM of string
+  | CURLOPT_MAIL_RCPT of string list
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -918,6 +920,12 @@ let set_resolve conn l_add l_del =
 
 let set_dns_servers conn l =
   setopt conn (CURLOPT_DNS_SERVERS (String.concat "," l))
+
+let set_mailfrom conn l =
+  setopt conn (CURLOPT_MAIL_FROM l)
+
+let set_mailrcpt conn l =
+  setopt conn (CURLOPT_MAIL_RCPT l)
 
 let get_effectiveurl conn =
   match (getinfo conn CURLINFO_EFFECTIVE_URL) with
