@@ -475,6 +475,10 @@ val init : unit -> t
 val reset : t -> unit
 (** Reset [t] to the default state *)
 val duphandle : t -> t
+(** Create the new handle, copying all the options from the supplied [t].
+Note that it will also copy [set_writefunction] options and alike, as such both
+handles (original and new one) will be referencing the same closures, potentially
+sharing some state, which may lead to surprising results. *)
 val setopt : t -> curlOption -> unit
 val perform : t -> unit
 val cleanup : t -> unit
