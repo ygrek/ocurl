@@ -636,6 +636,8 @@ val set_redirprotocols : t -> curlProto list -> unit
 *)
 val set_resolve : t -> (string * int * string) list -> (string * int) list -> unit
 val set_dns_servers : t -> string list -> unit
+val set_mailfrom : t -> string -> unit
+val set_mailrcpt : t -> string list -> unit
 
 (** {2 Get transfer properties} *)
 

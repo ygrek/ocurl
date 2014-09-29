@@ -921,6 +921,12 @@ let set_resolve conn l_add l_del =
 let set_dns_servers conn l =
   setopt conn (CURLOPT_DNS_SERVERS (String.concat "," l))
 
+let set_mailfrom conn l =
+  setopt conn (CURLOPT_MAIL_FROM l)
+
+let set_mailrcpt conn l =
+  setopt conn (CURLOPT_MAIL_RCPT l)
+
 let get_effectiveurl conn =
   match (getinfo conn CURLINFO_EFFECTIVE_URL) with
   | CURLINFO_String s -> s

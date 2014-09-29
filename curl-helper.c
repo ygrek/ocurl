@@ -5598,7 +5598,7 @@ static void handleMailRcpt(Connection *conn, value option)
 
     listIter = option;
 
-    while (!Is_long(listIter))
+    while (Val_emptylist != listIter)
     {
         conn->mailRcpt = curl_slist_append(conn->mailRcpt, String_val(Field(listIter, 0)));
 
