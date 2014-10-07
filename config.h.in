@@ -463,6 +463,22 @@
    if you don't. */
 #undef HAVE_DECL_CURLINFO_TOTAL_TIME
 
+/* Define to 1 if you have the declaration of `CURLMOPT_SOCKETDATA', and to 0
+   if you don't. */
+#undef HAVE_DECL_CURLMOPT_SOCKETDATA
+
+/* Define to 1 if you have the declaration of `CURLMOPT_SOCKETFUNCTION', and
+   to 0 if you don't. */
+#undef HAVE_DECL_CURLMOPT_SOCKETFUNCTION
+
+/* Define to 1 if you have the declaration of `CURLMOPT_TIMERDATA', and to 0
+   if you don't. */
+#undef HAVE_DECL_CURLMOPT_TIMERDATA
+
+/* Define to 1 if you have the declaration of `CURLMOPT_TIMERFUNCTION', and to
+   0 if you don't. */
+#undef HAVE_DECL_CURLMOPT_TIMERFUNCTION
+
 /* Define to 1 if you have the declaration of `CURLOPT_AUTOREFERER', and to 0
    if you don't. */
 #undef HAVE_DECL_CURLOPT_AUTOREFERER
