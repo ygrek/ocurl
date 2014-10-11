@@ -317,7 +317,6 @@ type curlOption =
   | CURLOPT_TIMECONDITION of curlTimeCondition
   | CURLOPT_TIMEVALUE of int32
   | CURLOPT_CUSTOMREQUEST of string
-  | CURLOPT_STDERR (* UNIMPLEMENTED *)
   | CURLOPT_INTERFACE of string
   | CURLOPT_KRB4LEVEL of curlKRB4Level
   | CURLOPT_PROGRESSFUNCTION of (float -> float -> float -> float -> bool)

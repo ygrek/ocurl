@@ -614,12 +614,6 @@ struct CURLOptionMapping
     CURLoption option;
 };
 
-CURLOptionMapping unimplementedOptionMap[] =
-{
-    {NULL, "CURLOPT_STDERR", CURLOPT_STDERR},
-    {NULL, NULL, 0}
-};
-
 static void handleWriteFunction(Connection *, value);
 static void handleReadFunction(Connection *, value);
 static void handleInFileSize(Connection *, value);
@@ -1120,12 +1114,6 @@ CURLOptionMapping implementedOptionMap[] =
     {handleMailRcpt, "CURLOPT_MAIL_RCPT", 0},
 #endif
 };
-
-static char *findOption(CURLOptionMapping optionMap[],
-                        CURLoption option)
-{
-    return optionMap[option].name;
-}
 
 static void free_curl_slist(struct curl_slist *slist)
 {
@@ -5633,17 +5621,6 @@ CAMLprim value helper_curl_easy_setopt(value conn, value option)
     Connection *connection = Connection_val(conn);
 
     checkConnection(connection);
-
-    if (Is_long(option))
-    {
-        char error[128];
-
-        sprintf(error, "Unimplemented Option: %s",
-                findOption(unimplementedOptionMap,
-                           (CURLoption)(Long_val(option))));
-
-        failwith(error);
-    }
 
     if (!Is_block(option))
         failwith("Not a block");
