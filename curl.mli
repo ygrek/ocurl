@@ -97,6 +97,10 @@ type curlCode =
 
 exception CurlException of (curlCode * int * string)
 
+(** exception raised when trying to use options missing from libcurl headers,
+    argument is the option name *)
+exception NotImplemented of string
+
 type curlNETRCOption =
   | CURL_NETRC_OPTIONAL
   | CURL_NETRC_IGNORED
@@ -481,6 +485,7 @@ Note that it will also copy [set_writefunction] options and alike, as such both
 handles (original and new one) will be referencing the same closures, potentially
 sharing some state, which may lead to surprising results. *)
 val setopt : t -> curlOption -> unit
+(** @raise NotImplemented for not implemented option *)
 val perform : t -> unit
 val cleanup : t -> unit
 val getinfo : t -> curlInfo -> curlInfoResult

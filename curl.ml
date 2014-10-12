@@ -447,6 +447,10 @@ type curlInfoResult =
   | CURLINFO_Double of float
   | CURLINFO_StringList of string list
 
+exception NotImplemented of string
+
+let () = Callback.register_exception "Curl.NotImplemented" (NotImplemented "")
+
 external helper_global_init : initOption -> unit = "helper_curl_global_init"
 external helper_global_cleanup : unit -> unit = "helper_curl_global_cleanup"
 external helper_init : unit -> t = "helper_curl_easy_init"

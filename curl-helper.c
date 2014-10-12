@@ -5434,6 +5434,7 @@ CAMLprim value helper_curl_easy_setopt(value conn, value option)
     CAMLlocal1(data);
     Connection *connection = Connection_val(conn);
     CURLOptionMapping* thisOption = NULL;
+    static value* exception = NULL;
 
     checkConnection(connection);
 
@@ -5451,7 +5452,15 @@ CAMLprim value helper_curl_easy_setopt(value conn, value option)
       if (thisOption->optionHandler)
         thisOption->optionHandler(connection, data);
       else
-        failwith(thisOption->name);
+      {
+        if (NULL == exception)
+        {
+          exception = caml_named_value("Curl.NotImplemented");
+          if (NULL == exception) caml_invalid_argument("Curl.NotImplemented");
+        }
+
+        caml_raise_with_string(*exception, thisOption->name);
+      }
     }
     else
       failwith("Invalid CURLOPT Option");
@@ -6410,7 +6419,7 @@ CAMLprim value helper_curl_easy_strerror(value v_code)
 #endif
 #endif  /* _WIN32 */
 
-static void raise_error(char const* msg)
+static void raise_multi_error(char const* msg)
 {
   static value* exception = NULL;
 
@@ -6439,7 +6448,7 @@ static void check_mcode(CURLMcode code)
     case CURLM_BAD_SOCKET          : s="CURLM_BAD_SOCKET";         break;
     default                        : s="CURLM_unknown";            break;
   }
-  raise_error(s);
+  raise_multi_error(s);
 }
 
 CAMLprim value caml_curl_multi_socket_action(value v_multi, value v_fd, value v_kind)
@@ -6467,7 +6476,7 @@ CAMLprim value caml_curl_multi_socket_action(value v_multi, value v_fd, value v_
     case 2 : kind |= CURL_CSELECT_OUT; break;
     case 3 : kind |= CURL_CSELECT_IN | CURL_CSELECT_OUT; break;
     default:
-      raise_error("caml_curl_multi_socket_action");
+      raise_multi_error("caml_curl_multi_socket_action");
   }
 
 /*  fprintf(stdout,"fd %u kind %u\n",socket, kind); fflush(stdout); */
@@ -6519,7 +6528,7 @@ static int curlm_sock_cb_nolock(CURL *e, curl_socket_t sock, int what, ml_multi_
     default:
       fprintf(stderr, "curlm_sock_cb sock=%d what=%d\n", sock, what);
       fflush(stderr);
-      raise_error("curlm_sock_cb"); /* FIXME exception from callback */
+      raise_multi_error("curlm_sock_cb"); /* FIXME exception from callback */
   }
   csock=Val_socket(sock);
   caml_callback2(Field(multi->values,curlmopt_socket_function),
