@@ -613,507 +613,6 @@ struct CURLOptionMapping
     char *name;
 };
 
-static void handleWriteFunction(Connection *, value);
-static void handleReadFunction(Connection *, value);
-static void handleInFileSize(Connection *, value);
-static void handleURL(Connection *, value);
-static void handleProxy(Connection *, value);
-static void handleProxyPort(Connection *, value);
-static void handleHTTPProxyTunnel(Connection *, value);
-static void handleVerbose(Connection *, value);
-static void handleHeader(Connection *, value);
-static void handleNoProgress(Connection *, value);
-static void handleNoSignal(Connection *, value);
-static void handleNoBody(Connection *, value);
-static void handleFailOnError(Connection *, value);
-static void handleUpload(Connection *, value);
-static void handlePost(Connection *, value);
-static void handleFTPListOnly(Connection *, value);
-static void handleFTPAppend(Connection *, value);
-static void handleNETRC(Connection *, value);
-static void handleEncoding(Connection *, value);
-static void handleFollowLocation(Connection *, value);
-static void handleTransferText(Connection *, value);
-static void handlePut(Connection *, value);
-static void handleUserPwd(Connection *, value);
-static void handleProxyUserPwd(Connection *, value);
-static void handleRange(Connection *, value);
-static void handleErrorBuffer(Connection *, value);
-static void handleTimeout(Connection *, value);
-static void handlePostFields(Connection *, value);
-static void handlePostFieldSize(Connection *, value);
-static void handleReferer(Connection *, value);
-static void handleUserAgent(Connection *, value);
-static void handleFTPPort(Connection *, value);
-static void handleLowSpeedLimit(Connection *, value);
-static void handleLowSpeedTime(Connection *, value);
-static void handleResumeFrom(Connection *, value);
-static void handleCookie(Connection *, value);
-static void handleHTTPHeader(Connection *, value);
-static void handleHTTPPost(Connection *, value);
-static void handleSSLCert(Connection *, value);
-static void handleSSLCertType(Connection *, value);
-static void handleSSLCertPasswd(Connection *, value);
-static void handleSSLKey(Connection *, value);
-static void handleSSLKeyType(Connection *, value);
-static void handleSSLKeyPasswd(Connection *, value);
-static void handleSSLEngine(Connection *, value);
-static void handleSSLEngineDefault(Connection *, value);
-static void handleCRLF(Connection *, value);
-static void handleQuote(Connection *, value);
-static void handlePostQuote(Connection *, value);
-static void handleHeaderFunction(Connection *, value);
-static void handleCookieFile(Connection *, value);
-static void handleSSLVersion(Connection *, value);
-static void handleTimeCondition(Connection *, value);
-static void handleTimeValue(Connection *, value);
-static void handleCustomRequest(Connection *, value);
-static void handleInterface(Connection *, value);
-static void handleKRB4Level(Connection *, value);
-static void handleProgressFunction(Connection *, value);
-static void handleSSLVerifyPeer(Connection *, value);
-static void handleCAInfo(Connection *, value);
-static void handleCAPath(Connection *, value);
-static void handleFileTime(Connection *, value);
-static void handleMaxRedirs(Connection *, value);
-static void handleMaxConnects(Connection *, value);
-static void handleClosePolicy(Connection *, value);
-static void handleFreshConnect(Connection *, value);
-static void handleForbidReuse(Connection *, value);
-static void handleRandomFile(Connection *, value);
-static void handleEGDSocket(Connection *, value);
-static void handleConnectTimeout(Connection *, value);
-static void handleHTTPGet(Connection *, value);
-static void handleSSLVerifyHost(Connection *, value);
-static void handleCookieJar(Connection *, value);
-static void handleSSLCipherList(Connection *, value);
-static void handleHTTPVersion(Connection *, value);
-static void handleFTPUseEPSV(Connection *, value);
-static void handleDNSCacheTimeout(Connection *, value);
-static void handleDNSUseGlobalCache(Connection *, value);
-static void handleDebugFunction(Connection *, value);
-static void handlePrivate(Connection *, value);
-static void handleHTTP200Aliases(Connection *, value);
-static void handleUnrestrictedAuth(Connection *, value);
-static void handleFTPUseEPRT(Connection *, value);
-static void handleHTTPAuth(Connection *, value);
-static void handleFTPCreateMissingDirs(Connection *, value);
-static void handleProxyAuth(Connection *, value);
-static void handleFTPResponseTimeout(Connection *, value);
-static void handleIPResolve(Connection *, value);
-static void handleMaxFileSize(Connection *, value);
-static void handleInFileSizeLarge(Connection *, value);
-static void handleResumeFromLarge(Connection *, value);
-static void handleMaxFileSizeLarge(Connection *, value);
-static void handleNETRCFile(Connection *, value);
-static void handleFTPSSL(Connection *, value);
-static void handlePostFieldSizeLarge(Connection *, value);
-static void handleTCPNoDelay(Connection *, value);
-static void handleFTPSSLAuth(Connection *, value);
-static void handleIOCTLFunction(Connection *, value);
-static void handleFTPAccount(Connection *, value);
-static void handleCookieList(Connection *, value);
-static void handleIgnoreContentLength(Connection *, value);
-static void handleFTPSkipPASVIP(Connection *, value);
-static void handleFTPFileMethod(Connection *, value);
-static void handleLocalPort(Connection *, value);
-static void handleLocalPortRange(Connection *, value);
-static void handleConnectOnly(Connection *, value);
-static void handleMaxSendSpeedLarge(Connection *, value);
-static void handleMaxRecvSpeedLarge(Connection *, value);
-static void handleFTPAlternativeToUser(Connection *, value);
-static void handleSSLSessionIdCache(Connection *, value);
-static void handleSSHAuthTypes(Connection *, value);
-static void handleSSHPublicKeyFile(Connection *, value);
-static void handleSSHPrivateKeyFile(Connection *, value);
-static void handleFTPSSLCCC(Connection *, value);
-static void handleTimeoutMS(Connection *, value);
-static void handleConnectTimeoutMS(Connection *, value);
-static void handleHTTPTransferDecoding(Connection *, value);
-static void handleHTTPContentDecoding(Connection *, value);
-static void handleNewFilePerms(Connection *, value);
-static void handleNewDirectoryPerms(Connection *, value);
-static void handlePost301(Connection *, value);
-static void handleSSHHostPublicKeyMD5(Connection *, value);
-static void handleCopyPostFields(Connection *, value);
-static void handleProxyTransferMode(Connection *, value);
-static void handleSeekFunction(Connection *, value);
-static void handleAutoReferer(Connection *, value);
-static void handleOpenSocketFunction(Connection *, value);
-static void handleProxyType(Connection *, value);
-static void handleProtocols(Connection *, value);
-static void handleRedirProtocols(Connection *, value);
-static void handleResolve(Connection *, value);
-static void handleDnsServers(Connection *, value);
-static void handleMailFrom(Connection *, value);
-static void handleMailRcpt(Connection *, value);
-
-CURLOptionMapping implementedOptionMap[] =
-{
-    {handleWriteFunction, "CURLOPT_WRITEFUNCTION"},
-    {handleReadFunction, "CURLOPT_READFUNCTION"},
-    {handleInFileSize, "CURLOPT_INFILESIZE"},
-    {handleURL, "CURLOPT_URL"},
-    {handleProxy, "CURLOPT_PROXY"},
-    {handleProxyPort, "CURLOPT_PROXYPORT"},
-    {handleHTTPProxyTunnel, "CURLOPT_HTTPPROXYTUNNEL"},
-    {handleVerbose, "CURLOPT_VERBOSE"},
-    {handleHeader, "CURLOPT_HEADER"},
-    {handleNoProgress, "CURLOPT_NOPROGRESS"},
-#if HAVE_DECL_CURLOPT_NOSIGNAL
-    {handleNoSignal, "CURLOPT_NOSIGNAL"},
-#else
-    {NULL, "CURLOPT_NOSIGNAL"},
-#endif
-    {handleNoBody, "CURLOPT_NOBODY"},
-    {handleFailOnError, "CURLOPT_FAILONERROR"},
-    {handleUpload, "CURLOPT_UPLOAD"},
-    {handlePost, "CURLOPT_POST"},
-    {handleFTPListOnly, "CURLOPT_FTPLISTONLY"},
-    {handleFTPAppend, "CURLOPT_FTPAPPEND"},
-    {handleNETRC, "CURLOPT_NETRC"},
-#if HAVE_DECL_CURLOPT_ENCODING
-    {handleEncoding, "CURLOPT_ENCODING"},
-#else
-    {NULL, "CURLOPT_ENCODING"},
-#endif
-    {handleFollowLocation, "CURLOPT_FOLLOWLOCATION"},
-    {handleTransferText, "CURLOPT_TRANSFERTEXT"},
-    {handlePut, "CURLOPT_PUT"},
-    {handleUserPwd, "CURLOPT_USERPWD"},
-    {handleProxyUserPwd, "CURLOPT_PROXYUSERPWD"},
-    {handleRange, "CURLOPT_RANGE"},
-    {handleErrorBuffer, "CURLOPT_ERRORBUFFER"},
-    {handleTimeout, "CURLOPT_TIMEOUT"},
-    {handlePostFields, "CURLOPT_POSTFIELDS"},
-    {handlePostFieldSize, "CURLOPT_POSTFIELDSIZE"},
-    {handleReferer, "CURLOPT_REFERER"},
-    {handleUserAgent, "CURLOPT_USERAGENT"},
-    {handleFTPPort, "CURLOPT_FTPPORT"},
-    {handleLowSpeedLimit, "CURLOPT_LOW_SPEED_LIMIT"},
-    {handleLowSpeedTime, "CURLOPT_LOW_SPEED_TIME"},
-    {handleResumeFrom, "CURLOPT_RESUME_FROM"},
-    {handleCookie, "CURLOPT_COOKIE"},
-    {handleHTTPHeader, "CURLOPT_HTTPHEADER"},
-    {handleHTTPPost, "CURLOPT_HTTPPOST"},
-    {handleSSLCert, "CURLOPT_SSLCERT"},
-    {handleSSLCertType, "CURLOPT_SSLCERTTYPE"},
-    {handleSSLCertPasswd, "CURLOPT_SSLCERTPASSWD"},
-    {handleSSLKey, "CURLOPT_SSLKEY"},
-    {handleSSLKeyType, "CURLOPT_SSLKEYTYPE"},
-    {handleSSLKeyPasswd, "CURLOPT_SSLKEYPASSWD"},
-    {handleSSLEngine, "CURLOPT_SSLENGINE"},
-    {handleSSLEngineDefault, "CURLOPT_SSLENGINE_DEFAULT"},
-    {handleCRLF, "CURLOPT_CRLF"},
-    {handleQuote, "CURLOPT_QUOTE"},
-    {handlePostQuote, "CURLOPT_POSTQUOTE"},
-    {handleHeaderFunction, "CURLOPT_HEADERFUNCTION"},
-    {handleCookieFile, "CURLOPT_COOKIEFILE"},
-    {handleSSLVersion, "CURLOPT_SSLVERSION"},
-    {handleTimeCondition, "CURLOPT_TIMECONDITION"},
-    {handleTimeValue, "CURLOPT_TIMEVALUE"},
-    {handleCustomRequest, "CURLOPT_CUSTOMREQUEST"},
-    {handleInterface, "CURLOPT_INTERFACE"},
-    {handleKRB4Level, "CURLOPT_KRB4LEVEL"},
-    {handleProgressFunction, "CURLOPT_PROGRESSFUNCTION"},
-    {handleSSLVerifyPeer, "CURLOPT_SSLVERIFYPEER"},
-    {handleCAInfo, "CURLOPT_CAINFO"},
-    {handleCAPath, "CURLOPT_CAPATH"},
-    {handleFileTime, "CURLOPT_FILETIME"},
-    {handleMaxRedirs, "CURLOPT_MAXREDIRS"},
-    {handleMaxConnects, "CURLOPT_MAXCONNECTS"},
-    {handleClosePolicy, "CURLOPT_CLOSEPOLICY"},
-    {handleFreshConnect, "CURLOPT_FRESH_CONNECT"},
-    {handleForbidReuse, "CURLOPT_FORBID_REUSE"},
-    {handleRandomFile, "CURLOPT_RANDOM_FILE"},
-    {handleEGDSocket, "CURLOPT_EGDSOCKET"},
-    {handleConnectTimeout, "CURLOPT_CONNECTTIMEOUT"},
-    {handleHTTPGet, "CURLOPT_HTTPGET"},
-    {handleSSLVerifyHost, "CURLOPT_SSL_VERIFYHOST"},
-    {handleCookieJar, "CURLOPT_COOKIEJAR"},
-    {handleSSLCipherList, "CURLOPT_SSL_CIPHERLIST"},
-    {handleHTTPVersion, "CURLOPT_HTTP_VERSION"},
-    {handleFTPUseEPSV, "CURLOPT_FTP_USE_EPSV"},
-    {handleDNSCacheTimeout, "CURLOPT_DNS_CACHE_TIMEOUT"},
-    {handleDNSUseGlobalCache, "CURLOPT_DNS_USE_GLOBAL_CACHE"},
-    {handleDebugFunction, "CURLOPT_DEBUGFUNCTION"},
-#if HAVE_DECL_CURLOPT_PRIVATE
-    {handlePrivate, "CURLOPT_PRIVATE"},
-#else
-    {NULL, "CURLOPT_PRIVATE"},
-#endif
-#if HAVE_DECL_CURLOPT_HTTP200ALIASES
-    {handleHTTP200Aliases, "CURLOPT_HTTP200ALIASES"},
-#else
-    {NULL, "CURLOPT_HTTP200ALIASES"},
-#endif
-#if HAVE_DECL_CURLOPT_UNRESTRICTED_AUTH
-    {handleUnrestrictedAuth, "CURLOPT_UNRESTRICTED_AUTH"},
-#else
-    {NULL, "CURLOPT_UNRESTRICTED_AUTH"},
-#endif
-#if HAVE_DECL_CURLOPT_FTP_USE_EPRT
-    {handleFTPUseEPRT, "CURLOPT_FTP_USE_EPRT"},
-#else
-    {NULL, "CURLOPT_FTP_USE_EPRT"},
-#endif
-#if HAVE_DECL_CURLOPT_HTTPAUTH
-    {handleHTTPAuth, "CURLOPT_HTTPAUTH"},
-#else
-    {NULL, "CURLOPT_HTTPAUTH"},
-#endif
-#if HAVE_DECL_CURLOPT_FTP_CREATE_MISSING_DIRS
-    {handleFTPCreateMissingDirs, "CURLOPT_FTP_CREATE_MISSING_DIRS"},
-#else
-    {NULL, "CURLOPT_FTP_CREATE_MISSING_DIRS"},
-#endif
-#if HAVE_DECL_CURLOPT_PROXYAUTH
-    {handleProxyAuth, "CURLOPT_PROXYAUTH"},
-#else
-    {NULL, "CURLOPT_PROXYAUTH"},
-#endif
-#if HAVE_DECL_CURLOPT_FTP_RESPONSE_TIMEOUT
-    {handleFTPResponseTimeout, "CURLOPT_FTP_RESPONSE_TIMEOUT"},
-#else
-    {NULL, "CURLOPT_FTP_RESPONSE_TIMEOUT"},
-#endif
-#if HAVE_DECL_CURLOPT_IPRESOLVE
-    {handleIPResolve, "CURLOPT_IPRESOLVE"},
-#else
-    {NULL, "CURLOPT_IPRESOLVE"},
-#endif
-#if HAVE_DECL_CURLOPT_MAXFILESIZE
-    {handleMaxFileSize, "CURLOPT_MAXFILESIZE"},
-#else
-    {NULL, "CURLOPT_MAXFILESIZE"},
-#endif
-#if HAVE_DECL_CURLOPT_INFILESIZE_LARGE
-    {handleInFileSizeLarge, "CURLOPT_INFILESIZE_LARGE"},
-#else
-    {NULL, "CURLOPT_INFILESIZE_LARGE"},
-#endif
-#if HAVE_DECL_CURLOPT_RESUME_FROM_LARGE
-    {handleResumeFromLarge, "CURLOPT_RESUME_FROM_LARGE"},
-#else
-    {NULL, "CURLOPT_RESUME_FROM_LARGE"},
-#endif
-#if HAVE_DECL_CURLOPT_MAXFILESIZE_LARGE
-    {handleMaxFileSizeLarge, "CURLOPT_MAXFILESIZE_LARGE"},
-#else
-    {NULL, "CURLOPT_MAXFILESIZE_LARGE"},
-#endif
-#if HAVE_DECL_CURLOPT_NETRC_FILE
-    {handleNETRCFile, "CURLOPT_NETRC_FILE"},
-#else
-    {NULL, "CURLOPT_NETRC_FILE"},
-#endif
-#if HAVE_DECL_CURLOPT_FTP_SSL
-    {handleFTPSSL, "CURLOPT_FTP_SSL"},
-#else
-    {NULL, "CURLOPT_FTP_SSL"},
-#endif
-#if HAVE_DECL_CURLOPT_POSTFIELDSIZE_LARGE
-    {handlePostFieldSizeLarge, "CURLOPT_POSTFIELDSIZE_LARGE"},
-#else
-    {NULL, "CURLOPT_POSTFIELDSIZE_LARGE"},
-#endif
-#if HAVE_DECL_CURLOPT_TCP_NODELAY
-    {handleTCPNoDelay, "CURLOPT_TCP_NODELAY"},
-#else
-    {NULL, "CURLOPT_TCP_NODELAY"},
-#endif
-#if HAVE_DECL_CURLOPT_FTPSSLAUTH
-    {handleFTPSSLAuth, "CURLOPT_FTPSSLAUTH"},
-#else
-    {NULL, "CURLOPT_FTPSSLAUTH"},
-#endif
-#if HAVE_DECL_CURLOPT_IOCTLFUNCTION
-    {handleIOCTLFunction, "CURLOPT_IOCTLFUNCTION"},
-#else
-    {NULL, "CURLOPT_IOCTLFUNCTION"},
-#endif
-#if HAVE_DECL_CURLOPT_FTP_ACCOUNT
-    {handleFTPAccount, "CURLOPT_FTP_ACCOUNT"},
-#else
-    {NULL, "CURLOPT_FTP_ACCOUNT"},
-#endif
-#if HAVE_DECL_CURLOPT_COOKIELIST
-    {handleCookieList, "CURLOPT_COOKIELIST"},
-#else
-    {NULL, "CURLOPT_COOKIELIST"},
-#endif
-#if HAVE_DECL_CURLOPT_IGNORE_CONTENT_LENGTH
-    {handleIgnoreContentLength, "CURLOPT_IGNORE_CONTENT_LENGTH"},
-#else
-    {NULL, "CURLOPT_IGNORE_CONTENT_LENGTH"},
-#endif
-#if HAVE_DECL_CURLOPT_FTP_SKIP_PASV_IP
-    {handleFTPSkipPASVIP, "CURLOPT_FTP_SKIP_PASV_IP"},
-#else
-    {NULL, "CURLOPT_FTP_SKIP_PASV_IP"},
-#endif
-#if HAVE_DECL_CURLOPT_FTP_FILEMETHOD
-    {handleFTPFileMethod, "CURLOPT_FTP_FILEMETHOD"},
-#else
-    {NULL, "CURLOPT_FTP_FILEMETHOD"},
-#endif
-#if HAVE_DECL_CURLOPT_LOCALPORT
-    {handleLocalPort, "CURLOPT_LOCALPORT"},
-#else
-    {NULL, "CURLOPT_LOCALPORT"},
-#endif
-#if HAVE_DECL_CURLOPT_LOCALPORTRANGE
-    {handleLocalPortRange, "CURLOPT_LOCALPORTRANGE"},
-#else
-    {NULL, "CURLOPT_LOCALPORTRANGE"},
-#endif
-#if HAVE_DECL_CURLOPT_CONNECT_ONLY
-    {handleConnectOnly, "CURLOPT_CONNECT_ONLY"},
-#else
-    {NULL, "CURLOPT_CONNECT_ONLY"},
-#endif
-#if HAVE_DECL_CURLOPT_MAX_SEND_SPEED_LARGE
-    {handleMaxSendSpeedLarge, "CURLOPT_MAX_SEND_SPEED_LARGE"},
-#else
-    {NULL, "CURLOPT_MAX_SEND_SPEED_LARGE"},
-#endif
-#if HAVE_DECL_CURLOPT_MAX_RECV_SPEED_LARGE
-    {handleMaxRecvSpeedLarge, "CURLOPT_MAX_RECV_SPEED_LARGE"},
-#else
-    {NULL, "CURLOPT_MAX_RECV_SPEED_LARGE"},
-#endif
-#if HAVE_DECL_CURLOPT_FTP_ALTERNATIVE_TO_USER
-    {handleFTPAlternativeToUser, "CURLOPT_FTP_ALTERNATIVE_TO_USER"},
-#else
-    {NULL, "CURLOPT_FTP_ALTERMATIVE_TO_USER"},
-#endif
-#if HAVE_DECL_CURLOPT_SSL_SESSIONID_CACHE
-    {handleSSLSessionIdCache, "CURLOPT_SSL_SESSIONID_CACHE"},
-#else
-    {NULL, "CURLOPT_SSL_SESSIONID_CACHE"},
-#endif
-#if HAVE_DECL_CURLOPT_SSH_AUTH_TYPES
-    {handleSSHAuthTypes, "CURLOPT_SSH_AUTH_TYPES"},
-#else
-    {NULL, "CURLOPT_SSH_AUTH_TYPES"},
-#endif
-#if HAVE_DECL_CURLOPT_SSH_PUBLIC_KEYFILE
-    {handleSSHPublicKeyFile, "CURLOPT_SSH_PUBLIC_KEYFILE"},
-#else
-    {NULL, "CURLOPT_SSH_PUBLIC_KEYFILE"},
-#endif
-#if HAVE_DECL_CURLOPT_SSH_PRIVATE_KEYFILE
-    {handleSSHPrivateKeyFile, "CURLOPT_SSH_PRIVATE_KEYFILE"},
-#else
-    {NULL, "CURLOPT_SSH_PRIVATE_KEYFILE"},
-#endif
-#if HAVE_DECL_CURLOPT_FTP_SSL_CCC
-    {handleFTPSSLCCC, "CURLOPT_FTP_SSL_CCC"},
-#else
-    {NULL, "CURLOPT_FTP_SSL_CCC"},
-#endif
-#if HAVE_DECL_CURLOPT_TIMEOUT_MS
-    {handleTimeoutMS, "CURLOPT_TIMEOUT_MS"},
-#else
-    {NULL, "CURLOPT_TIMEOUT_MS"},
-#endif
-#if HAVE_DECL_CURLOPT_CONNECTTIMEOUT_MS
-    {handleConnectTimeoutMS, "CURLOPT_CONNECTTIMEOUT_MS"},
-#else
-    {NULL, "CURLOPT_CONNECTTIMEOUT_MS"},
-#endif
-#if HAVE_DECL_CURLOPT_HTTP_TRANSFER_DECODING
-    {handleHTTPTransferDecoding, "CURLOPT_HTTP_TRANSFER_DECODING"},
-#else
-    {NULL, "CURLOPT_HTTP_TRANSFER_DECODING"},
-#endif
-#if HAVE_DECL_CURLOPT_HTTP_CONTENT_DECODING
-    {handleHTTPContentDecoding, "CURLOPT_HTTP_CONTENT_DECODING"},
-#else
-    {NULL, "CURLOPT_HTTP_CONTENT_DECODING"},
-#endif
-#if HAVE_DECL_CURLOPT_NEW_FILE_PERMS
-    {handleNewFilePerms, "CURLOPT_NEW_FILE_PERMS"},
-#else
-    {NULL, "CURLOPT_NEW_FILE_PERMS"},
-#endif
-#if HAVE_DECL_CURLOPT_NEW_DIRECTORY_PERMS
-    {handleNewDirectoryPerms, "CURLOPT_NEW_DIRECTORY_PERMS"},
-#else
-    {NULL, "CURLOPT_NEW_DIRECTORY_PERMS"},
-#endif
-#if HAVE_DECL_CURLOPT_POST301
-    {handlePost301, "CURLOPT_POST301"},
-#else
-    {NULL, "CURLOPT_POST301"},
-#endif
-#if HAVE_DECL_CURLOPT_SSH_HOST_PUBLIC_KEY_MD5
-    {handleSSHHostPublicKeyMD5, "CURLOPT_SSH_HOST_PUBLIC_KEY_MD5"},
-#else
-    {NULL, "CURLOPT_SSH_HOST_PUBLIC_KEY_MD5"},
-#endif
-#if HAVE_DECL_CURLOPT_COPYPOSTFIELDS
-    {handleCopyPostFields, "CURLOPT_COPYPOSTFIELDS"},
-#else
-    {NULL, "CURLOPT_COPYPOSTFIELDS"},
-#endif
-#if HAVE_DECL_CURLOPT_PROXY_TRANSFER_MODE
-    {handleProxyTransferMode, "CURLOPT_PROXY_TRANSFER_MODE"},
-#else
-    {NULL, "CURLOPT_PROXY_TRANSFER_MODE"},
-#endif
-#if HAVE_DECL_CURLOPT_SEEKFUNCTION
-    {handleSeekFunction, "CURLOPT_SEEKFUNCTION"},
-#else
-    {NULL, "CURLOPT_SEEKFUNCTION"},
-#endif
-#if HAVE_DECL_CURLOPT_AUTOREFERER
-    {handleAutoReferer, "CURLOPT_AUTOREFERER"},
-#else
-    {NULL, "CURLOPT_AUTOREFERER"},
-#endif
-#if HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
-    {handleOpenSocketFunction, "CURLOPT_OPENSOCKETFUNCTION"},
-#else
-    {NULL, "CURLOPT_OPENSOCKETFUNCTION"},
-#endif
-#if HAVE_DECL_CURLOPT_PROXYTYPE
-    {handleProxyType, "CURLOPT_PROXYTYPE"},
-#else
-    {NULL, "CURLOPT_PROXYTYPE"},
-#endif
-#if HAVE_DECL_CURLOPT_PROTOCOLS
-    {handleProtocols, "CURLOPT_PROTOCOLS"},
-#else
-    {NULL, "CURLOPT_PROTOCOLS"},
-#endif
-#if HAVE_DECL_CURLOPT_REDIR_PROTOCOLS
-    {handleRedirProtocols, "CURLOPT_REDIR_PROTOCOLS"},
-#else
-    {NULL, "CURLOPT_REDIR_PROTOCOLS"},
-#endif
-#if HAVE_DECL_CURLOPT_RESOLVE
-    {handleResolve, "CURLOPT_RESOLVE"},
-#else
-    {NULL, "CURLOPT_RESOLVE"},
-#endif
-#if HAVE_DECL_CURLOPT_DNS_SERVERS
-    {handleDnsServers, "CURLOPT_DNS_SERVERS"},
-#else
-    {NULL, "CURLOPT_DNS_SERVERS"},
-#endif
-#if HAVE_DECL_CURLOPT_MAIL_FROM
-    {handleMailFrom, "CURLOPT_MAIL_FROM"},
-#else
-    {NULL, "CURLOPT_MAIL_FROM"},
-#endif
-#if HAVE_DECL_CURLOPT_MAIL_RCPT
-    {handleMailRcpt, "CURLOPT_MAIL_RCPT"},
-#else
-    {NULL, "CURLOPT_MAIL_RCPT"},
-#endif
-};
-
 static void free_curl_slist(struct curl_slist *slist)
 {
     if (NULL == slist)
@@ -1256,184 +755,6 @@ static Connection *newConnection(void)
     caml_leave_blocking_section();
 
     return allocConnection(h);
-}
-
-static Connection *duplicateConnection(Connection *original)
-{
-    Connection *connection;
-    CURL* h;
-
-    caml_enter_blocking_section();
-    h  = curl_easy_duphandle(original->connection);
-    caml_leave_blocking_section();
-
-    connection = allocConnection(h);
-
-    Store_field(connection->ocamlValues, OcamlWriteCallback,
-		Field(original->ocamlValues, OcamlWriteCallback));
-    Store_field(connection->ocamlValues, OcamlReadCallback,
-		Field(original->ocamlValues, OcamlReadCallback));
-    Store_field(connection->ocamlValues, OcamlErrorBuffer,
-		Field(original->ocamlValues, OcamlErrorBuffer));
-    Store_field(connection->ocamlValues, OcamlPostFields,
-		Field(original->ocamlValues, OcamlPostFields));
-    Store_field(connection->ocamlValues, OcamlHTTPHeader,
-		Field(original->ocamlValues, OcamlHTTPHeader));
-    Store_field(connection->ocamlValues, OcamlQuote,
-		Field(original->ocamlValues, OcamlQuote));
-    Store_field(connection->ocamlValues, OcamlPostQuote,
-		Field(original->ocamlValues, OcamlPostQuote));
-    Store_field(connection->ocamlValues, OcamlHeaderCallback,
-		Field(original->ocamlValues, OcamlHeaderCallback));
-    Store_field(connection->ocamlValues, OcamlProgressCallback,
-		Field(original->ocamlValues, OcamlProgressCallback));
-    Store_field(connection->ocamlValues, OcamlDebugCallback,
-		Field(original->ocamlValues, OcamlDebugCallback));
-    Store_field(connection->ocamlValues, OcamlHTTP200Aliases,
-		Field(original->ocamlValues, OcamlHTTP200Aliases));
-    Store_field(connection->ocamlValues, OcamlIOCTLCallback,
-		Field(original->ocamlValues, OcamlIOCTLCallback));
-    Store_field(connection->ocamlValues, OcamlSeekFunctionCallback,
-		Field(original->ocamlValues, OcamlSeekFunctionCallback));
-
-    if (Field(original->ocamlValues, OcamlURL) != Val_unit)
-        handleURL(connection, Field(original->ocamlValues,
-                                    OcamlURL));
-    if (Field(original->ocamlValues, OcamlProxy) != Val_unit)
-        handleProxy(connection, Field(original->ocamlValues,
-                                      OcamlProxy));
-    if (Field(original->ocamlValues, OcamlUserPWD) != Val_unit)
-        handleUserPwd(connection, Field(original->ocamlValues,
-                                        OcamlUserPWD));
-    if (Field(original->ocamlValues, OcamlProxyUserPWD) != Val_unit)
-        handleProxyUserPwd(connection, Field(original->ocamlValues,
-                                             OcamlProxyUserPWD));
-    if (Field(original->ocamlValues, OcamlRange) != Val_unit)
-        handleRange(connection, Field(original->ocamlValues,
-                                      OcamlRange));
-    if (Field(original->ocamlValues, OcamlErrorBuffer) != Val_unit)
-        handleErrorBuffer(connection, Field(original->ocamlValues,
-                                            OcamlErrorBuffer));
-    if (Field(original->ocamlValues, OcamlPostFields) != Val_unit)
-        handlePostFields(connection, Field(original->ocamlValues,
-                                           OcamlPostFields));
-    if (Field(original->ocamlValues, OcamlReferer) != Val_unit)
-        handleReferer(connection, Field(original->ocamlValues,
-                                        OcamlReferer));
-    if (Field(original->ocamlValues, OcamlUserAgent) != Val_unit)
-        handleUserAgent(connection, Field(original->ocamlValues,
-                                          OcamlUserAgent));
-    if (Field(original->ocamlValues, OcamlFTPPort) != Val_unit)
-        handleFTPPort(connection, Field(original->ocamlValues,
-                                        OcamlFTPPort));
-    if (Field(original->ocamlValues, OcamlCookie) != Val_unit)
-        handleCookie(connection, Field(original->ocamlValues,
-                                       OcamlCookie));
-    if (Field(original->ocamlValues, OcamlHTTPHeader) != Val_unit)
-        handleHTTPHeader(connection, Field(original->ocamlValues,
-                                           OcamlHTTPHeader));
-    if (Field(original->ocamlValues, OcamlHTTPPost) != Val_unit)
-        handleHTTPPost(connection, Field(original->ocamlValues,
-                                         OcamlHTTPPost));
-    if (Field(original->ocamlValues, OcamlSSLCert) != Val_unit)
-        handleSSLCert(connection, Field(original->ocamlValues,
-                                        OcamlSSLCert));
-    if (Field(original->ocamlValues, OcamlSSLCertType) != Val_unit)
-        handleSSLCertType(connection, Field(original->ocamlValues,
-                                            OcamlSSLCertType));
-    if (Field(original->ocamlValues, OcamlSSLCertPasswd) != Val_unit)
-        handleSSLCertPasswd(connection, Field(original->ocamlValues,
-                                              OcamlSSLCertPasswd));
-    if (Field(original->ocamlValues, OcamlSSLKey) != Val_unit)
-        handleSSLKey(connection, Field(original->ocamlValues,
-                                       OcamlSSLKey));
-    if (Field(original->ocamlValues, OcamlSSLKeyType) != Val_unit)
-        handleSSLKeyType(connection, Field(original->ocamlValues,
-                                           OcamlSSLKeyType));
-    if (Field(original->ocamlValues, OcamlSSLKeyPasswd) != Val_unit)
-        handleSSLKeyPasswd(connection, Field(original->ocamlValues,
-                                             OcamlSSLKeyPasswd));
-    if (Field(original->ocamlValues, OcamlSSLEngine) != Val_unit)
-        handleSSLEngine(connection, Field(original->ocamlValues,
-                                          OcamlSSLEngine));
-    if (Field(original->ocamlValues, OcamlQuote) != Val_unit)
-        handleQuote(connection, Field(original->ocamlValues,
-                                      OcamlQuote));
-    if (Field(original->ocamlValues, OcamlPostQuote) != Val_unit)
-        handlePostQuote(connection, Field(original->ocamlValues,
-                                          OcamlPostQuote));
-    if (Field(original->ocamlValues, OcamlCookieFile) != Val_unit)
-        handleCookieFile(connection, Field(original->ocamlValues,
-                                           OcamlCookieFile));
-    if (Field(original->ocamlValues, OcamlCustomRequest) != Val_unit)
-        handleCustomRequest(connection, Field(original->ocamlValues,
-                                              OcamlCustomRequest));
-    if (Field(original->ocamlValues, OcamlInterface) != Val_unit)
-        handleInterface(connection, Field(original->ocamlValues,
-                                          OcamlInterface));
-    if (Field(original->ocamlValues, OcamlCAInfo) != Val_unit)
-        handleCAInfo(connection, Field(original->ocamlValues,
-                                       OcamlCAInfo));
-    if (Field(original->ocamlValues, OcamlCAPath) != Val_unit)
-        handleCAPath(connection, Field(original->ocamlValues,
-                                       OcamlCAPath));
-    if (Field(original->ocamlValues, OcamlRandomFile) != Val_unit)
-        handleRandomFile(connection, Field(original->ocamlValues,
-                                           OcamlRandomFile));
-    if (Field(original->ocamlValues, OcamlEGDSocket) != Val_unit)
-        handleEGDSocket(connection, Field(original->ocamlValues,
-                                          OcamlEGDSocket));
-    if (Field(original->ocamlValues, OcamlCookieJar) != Val_unit)
-        handleCookieJar(connection, Field(original->ocamlValues,
-                                          OcamlCookieJar));
-    if (Field(original->ocamlValues, OcamlSSLCipherList) != Val_unit)
-        handleSSLCipherList(connection, Field(original->ocamlValues,
-                                              OcamlSSLCipherList));
-    if (Field(original->ocamlValues, OcamlPrivate) != Val_unit)
-        handlePrivate(connection, Field(original->ocamlValues,
-                                        OcamlPrivate));
-    if (Field(original->ocamlValues, OcamlHTTP200Aliases) != Val_unit)
-        handleHTTP200Aliases(connection, Field(original->ocamlValues,
-                                               OcamlHTTP200Aliases));
-    if (Field(original->ocamlValues, OcamlNETRCFile) != Val_unit)
-        handleNETRCFile(connection, Field(original->ocamlValues,
-                                          OcamlNETRCFile));
-    if (Field(original->ocamlValues, OcamlFTPAccount) != Val_unit)
-        handleFTPAccount(connection, Field(original->ocamlValues,
-                                           OcamlFTPAccount));
-    if (Field(original->ocamlValues, OcamlCookieList) != Val_unit)
-        handleCookieList(connection, Field(original->ocamlValues,
-                                           OcamlCookieList));
-    if (Field(original->ocamlValues, OcamlFTPAlternativeToUser) != Val_unit)
-        handleFTPAlternativeToUser(connection,
-                                   Field(original->ocamlValues,
-                                         OcamlFTPAlternativeToUser));
-    if (Field(original->ocamlValues, OcamlSSHPublicKeyFile) != Val_unit)
-        handleSSHPublicKeyFile(connection,
-                               Field(original->ocamlValues,
-                                     OcamlSSHPublicKeyFile));
-    if (Field(original->ocamlValues, OcamlSSHPrivateKeyFile) != Val_unit)
-        handleSSHPrivateKeyFile(connection,
-                                Field(original->ocamlValues,
-                                      OcamlSSHPrivateKeyFile));
-    if (Field(original->ocamlValues, OcamlCopyPostFields) != Val_unit)
-        handleCopyPostFields(connection,
-                             Field(original->ocamlValues,
-                                   OcamlCopyPostFields));
-    if (Field(original->ocamlValues, OcamlDNSServers) != Val_unit)
-        handleDnsServers(connection,
-                         Field(original->ocamlValues,
-                               OcamlDNSServers));
-    if (Field(original->ocamlValues, OcamlMailFrom) != Val_unit)
-        handleMailFrom(connection,
-                       Field(original->ocamlValues,
-                             OcamlMailFrom));
-    if (Field(original->ocamlValues, OcamlMailRcpt) != Val_unit)
-        handleMailRcpt(connection,
-                       Field(original->ocamlValues,
-                             OcamlMailRcpt));
-
-    return connection;
 }
 
 static void free_if(void* p) { if (NULL != p) free(p); }
@@ -5424,9 +4745,553 @@ static void handleMailRcpt(Connection *conn, value option)
 }
 #endif
 
+static Connection *duplicateConnection(Connection *original)
+{
+    Connection *connection;
+    CURL* h;
+
+    caml_enter_blocking_section();
+    h  = curl_easy_duphandle(original->connection);
+    caml_leave_blocking_section();
+
+    connection = allocConnection(h);
+
+    Store_field(connection->ocamlValues, OcamlWriteCallback,
+		Field(original->ocamlValues, OcamlWriteCallback));
+    Store_field(connection->ocamlValues, OcamlReadCallback,
+		Field(original->ocamlValues, OcamlReadCallback));
+    Store_field(connection->ocamlValues, OcamlErrorBuffer,
+		Field(original->ocamlValues, OcamlErrorBuffer));
+    Store_field(connection->ocamlValues, OcamlPostFields,
+		Field(original->ocamlValues, OcamlPostFields));
+    Store_field(connection->ocamlValues, OcamlHTTPHeader,
+		Field(original->ocamlValues, OcamlHTTPHeader));
+    Store_field(connection->ocamlValues, OcamlQuote,
+		Field(original->ocamlValues, OcamlQuote));
+    Store_field(connection->ocamlValues, OcamlPostQuote,
+		Field(original->ocamlValues, OcamlPostQuote));
+    Store_field(connection->ocamlValues, OcamlHeaderCallback,
+		Field(original->ocamlValues, OcamlHeaderCallback));
+    Store_field(connection->ocamlValues, OcamlProgressCallback,
+		Field(original->ocamlValues, OcamlProgressCallback));
+    Store_field(connection->ocamlValues, OcamlDebugCallback,
+		Field(original->ocamlValues, OcamlDebugCallback));
+    Store_field(connection->ocamlValues, OcamlHTTP200Aliases,
+		Field(original->ocamlValues, OcamlHTTP200Aliases));
+    Store_field(connection->ocamlValues, OcamlIOCTLCallback,
+		Field(original->ocamlValues, OcamlIOCTLCallback));
+    Store_field(connection->ocamlValues, OcamlSeekFunctionCallback,
+		Field(original->ocamlValues, OcamlSeekFunctionCallback));
+
+    if (Field(original->ocamlValues, OcamlURL) != Val_unit)
+        handleURL(connection, Field(original->ocamlValues,
+                                    OcamlURL));
+    if (Field(original->ocamlValues, OcamlProxy) != Val_unit)
+        handleProxy(connection, Field(original->ocamlValues,
+                                      OcamlProxy));
+    if (Field(original->ocamlValues, OcamlUserPWD) != Val_unit)
+        handleUserPwd(connection, Field(original->ocamlValues,
+                                        OcamlUserPWD));
+    if (Field(original->ocamlValues, OcamlProxyUserPWD) != Val_unit)
+        handleProxyUserPwd(connection, Field(original->ocamlValues,
+                                             OcamlProxyUserPWD));
+    if (Field(original->ocamlValues, OcamlRange) != Val_unit)
+        handleRange(connection, Field(original->ocamlValues,
+                                      OcamlRange));
+    if (Field(original->ocamlValues, OcamlErrorBuffer) != Val_unit)
+        handleErrorBuffer(connection, Field(original->ocamlValues,
+                                            OcamlErrorBuffer));
+    if (Field(original->ocamlValues, OcamlPostFields) != Val_unit)
+        handlePostFields(connection, Field(original->ocamlValues,
+                                           OcamlPostFields));
+    if (Field(original->ocamlValues, OcamlReferer) != Val_unit)
+        handleReferer(connection, Field(original->ocamlValues,
+                                        OcamlReferer));
+    if (Field(original->ocamlValues, OcamlUserAgent) != Val_unit)
+        handleUserAgent(connection, Field(original->ocamlValues,
+                                          OcamlUserAgent));
+    if (Field(original->ocamlValues, OcamlFTPPort) != Val_unit)
+        handleFTPPort(connection, Field(original->ocamlValues,
+                                        OcamlFTPPort));
+    if (Field(original->ocamlValues, OcamlCookie) != Val_unit)
+        handleCookie(connection, Field(original->ocamlValues,
+                                       OcamlCookie));
+    if (Field(original->ocamlValues, OcamlHTTPHeader) != Val_unit)
+        handleHTTPHeader(connection, Field(original->ocamlValues,
+                                           OcamlHTTPHeader));
+    if (Field(original->ocamlValues, OcamlHTTPPost) != Val_unit)
+        handleHTTPPost(connection, Field(original->ocamlValues,
+                                         OcamlHTTPPost));
+    if (Field(original->ocamlValues, OcamlSSLCert) != Val_unit)
+        handleSSLCert(connection, Field(original->ocamlValues,
+                                        OcamlSSLCert));
+    if (Field(original->ocamlValues, OcamlSSLCertType) != Val_unit)
+        handleSSLCertType(connection, Field(original->ocamlValues,
+                                            OcamlSSLCertType));
+    if (Field(original->ocamlValues, OcamlSSLCertPasswd) != Val_unit)
+        handleSSLCertPasswd(connection, Field(original->ocamlValues,
+                                              OcamlSSLCertPasswd));
+    if (Field(original->ocamlValues, OcamlSSLKey) != Val_unit)
+        handleSSLKey(connection, Field(original->ocamlValues,
+                                       OcamlSSLKey));
+    if (Field(original->ocamlValues, OcamlSSLKeyType) != Val_unit)
+        handleSSLKeyType(connection, Field(original->ocamlValues,
+                                           OcamlSSLKeyType));
+    if (Field(original->ocamlValues, OcamlSSLKeyPasswd) != Val_unit)
+        handleSSLKeyPasswd(connection, Field(original->ocamlValues,
+                                             OcamlSSLKeyPasswd));
+    if (Field(original->ocamlValues, OcamlSSLEngine) != Val_unit)
+        handleSSLEngine(connection, Field(original->ocamlValues,
+                                          OcamlSSLEngine));
+    if (Field(original->ocamlValues, OcamlQuote) != Val_unit)
+        handleQuote(connection, Field(original->ocamlValues,
+                                      OcamlQuote));
+    if (Field(original->ocamlValues, OcamlPostQuote) != Val_unit)
+        handlePostQuote(connection, Field(original->ocamlValues,
+                                          OcamlPostQuote));
+    if (Field(original->ocamlValues, OcamlCookieFile) != Val_unit)
+        handleCookieFile(connection, Field(original->ocamlValues,
+                                           OcamlCookieFile));
+    if (Field(original->ocamlValues, OcamlCustomRequest) != Val_unit)
+        handleCustomRequest(connection, Field(original->ocamlValues,
+                                              OcamlCustomRequest));
+    if (Field(original->ocamlValues, OcamlInterface) != Val_unit)
+        handleInterface(connection, Field(original->ocamlValues,
+                                          OcamlInterface));
+    if (Field(original->ocamlValues, OcamlCAInfo) != Val_unit)
+        handleCAInfo(connection, Field(original->ocamlValues,
+                                       OcamlCAInfo));
+    if (Field(original->ocamlValues, OcamlCAPath) != Val_unit)
+        handleCAPath(connection, Field(original->ocamlValues,
+                                       OcamlCAPath));
+    if (Field(original->ocamlValues, OcamlRandomFile) != Val_unit)
+        handleRandomFile(connection, Field(original->ocamlValues,
+                                           OcamlRandomFile));
+    if (Field(original->ocamlValues, OcamlEGDSocket) != Val_unit)
+        handleEGDSocket(connection, Field(original->ocamlValues,
+                                          OcamlEGDSocket));
+    if (Field(original->ocamlValues, OcamlCookieJar) != Val_unit)
+        handleCookieJar(connection, Field(original->ocamlValues,
+                                          OcamlCookieJar));
+    if (Field(original->ocamlValues, OcamlSSLCipherList) != Val_unit)
+        handleSSLCipherList(connection, Field(original->ocamlValues,
+                                              OcamlSSLCipherList));
+    if (Field(original->ocamlValues, OcamlPrivate) != Val_unit)
+        handlePrivate(connection, Field(original->ocamlValues,
+                                        OcamlPrivate));
+    if (Field(original->ocamlValues, OcamlHTTP200Aliases) != Val_unit)
+        handleHTTP200Aliases(connection, Field(original->ocamlValues,
+                                               OcamlHTTP200Aliases));
+    if (Field(original->ocamlValues, OcamlNETRCFile) != Val_unit)
+        handleNETRCFile(connection, Field(original->ocamlValues,
+                                          OcamlNETRCFile));
+    if (Field(original->ocamlValues, OcamlFTPAccount) != Val_unit)
+        handleFTPAccount(connection, Field(original->ocamlValues,
+                                           OcamlFTPAccount));
+    if (Field(original->ocamlValues, OcamlCookieList) != Val_unit)
+        handleCookieList(connection, Field(original->ocamlValues,
+                                           OcamlCookieList));
+    if (Field(original->ocamlValues, OcamlFTPAlternativeToUser) != Val_unit)
+        handleFTPAlternativeToUser(connection,
+                                   Field(original->ocamlValues,
+                                         OcamlFTPAlternativeToUser));
+    if (Field(original->ocamlValues, OcamlSSHPublicKeyFile) != Val_unit)
+        handleSSHPublicKeyFile(connection,
+                               Field(original->ocamlValues,
+                                     OcamlSSHPublicKeyFile));
+    if (Field(original->ocamlValues, OcamlSSHPrivateKeyFile) != Val_unit)
+        handleSSHPrivateKeyFile(connection,
+                                Field(original->ocamlValues,
+                                      OcamlSSHPrivateKeyFile));
+    if (Field(original->ocamlValues, OcamlCopyPostFields) != Val_unit)
+        handleCopyPostFields(connection,
+                             Field(original->ocamlValues,
+                                   OcamlCopyPostFields));
+    if (Field(original->ocamlValues, OcamlDNSServers) != Val_unit)
+        handleDnsServers(connection,
+                         Field(original->ocamlValues,
+                               OcamlDNSServers));
+    if (Field(original->ocamlValues, OcamlMailFrom) != Val_unit)
+        handleMailFrom(connection,
+                       Field(original->ocamlValues,
+                             OcamlMailFrom));
+    if (Field(original->ocamlValues, OcamlMailRcpt) != Val_unit)
+        handleMailRcpt(connection,
+                       Field(original->ocamlValues,
+                             OcamlMailRcpt));
+
+    return connection;
+}
+
 /**
  **  curl_easy_setopt helper function
  **/
+
+CURLOptionMapping implementedOptionMap[] =
+{
+    {handleWriteFunction, "CURLOPT_WRITEFUNCTION"},
+    {handleReadFunction, "CURLOPT_READFUNCTION"},
+    {handleInFileSize, "CURLOPT_INFILESIZE"},
+    {handleURL, "CURLOPT_URL"},
+    {handleProxy, "CURLOPT_PROXY"},
+    {handleProxyPort, "CURLOPT_PROXYPORT"},
+    {handleHTTPProxyTunnel, "CURLOPT_HTTPPROXYTUNNEL"},
+    {handleVerbose, "CURLOPT_VERBOSE"},
+    {handleHeader, "CURLOPT_HEADER"},
+    {handleNoProgress, "CURLOPT_NOPROGRESS"},
+#if HAVE_DECL_CURLOPT_NOSIGNAL
+    {handleNoSignal, "CURLOPT_NOSIGNAL"},
+#else
+    {NULL, "CURLOPT_NOSIGNAL"},
+#endif
+    {handleNoBody, "CURLOPT_NOBODY"},
+    {handleFailOnError, "CURLOPT_FAILONERROR"},
+    {handleUpload, "CURLOPT_UPLOAD"},
+    {handlePost, "CURLOPT_POST"},
+    {handleFTPListOnly, "CURLOPT_FTPLISTONLY"},
+    {handleFTPAppend, "CURLOPT_FTPAPPEND"},
+    {handleNETRC, "CURLOPT_NETRC"},
+#if HAVE_DECL_CURLOPT_ENCODING
+    {handleEncoding, "CURLOPT_ENCODING"},
+#else
+    {NULL, "CURLOPT_ENCODING"},
+#endif
+    {handleFollowLocation, "CURLOPT_FOLLOWLOCATION"},
+    {handleTransferText, "CURLOPT_TRANSFERTEXT"},
+    {handlePut, "CURLOPT_PUT"},
+    {handleUserPwd, "CURLOPT_USERPWD"},
+    {handleProxyUserPwd, "CURLOPT_PROXYUSERPWD"},
+    {handleRange, "CURLOPT_RANGE"},
+    {handleErrorBuffer, "CURLOPT_ERRORBUFFER"},
+    {handleTimeout, "CURLOPT_TIMEOUT"},
+    {handlePostFields, "CURLOPT_POSTFIELDS"},
+    {handlePostFieldSize, "CURLOPT_POSTFIELDSIZE"},
+    {handleReferer, "CURLOPT_REFERER"},
+    {handleUserAgent, "CURLOPT_USERAGENT"},
+    {handleFTPPort, "CURLOPT_FTPPORT"},
+    {handleLowSpeedLimit, "CURLOPT_LOW_SPEED_LIMIT"},
+    {handleLowSpeedTime, "CURLOPT_LOW_SPEED_TIME"},
+    {handleResumeFrom, "CURLOPT_RESUME_FROM"},
+    {handleCookie, "CURLOPT_COOKIE"},
+    {handleHTTPHeader, "CURLOPT_HTTPHEADER"},
+    {handleHTTPPost, "CURLOPT_HTTPPOST"},
+    {handleSSLCert, "CURLOPT_SSLCERT"},
+    {handleSSLCertType, "CURLOPT_SSLCERTTYPE"},
+    {handleSSLCertPasswd, "CURLOPT_SSLCERTPASSWD"},
+    {handleSSLKey, "CURLOPT_SSLKEY"},
+    {handleSSLKeyType, "CURLOPT_SSLKEYTYPE"},
+    {handleSSLKeyPasswd, "CURLOPT_SSLKEYPASSWD"},
+    {handleSSLEngine, "CURLOPT_SSLENGINE"},
+    {handleSSLEngineDefault, "CURLOPT_SSLENGINE_DEFAULT"},
+    {handleCRLF, "CURLOPT_CRLF"},
+    {handleQuote, "CURLOPT_QUOTE"},
+    {handlePostQuote, "CURLOPT_POSTQUOTE"},
+    {handleHeaderFunction, "CURLOPT_HEADERFUNCTION"},
+    {handleCookieFile, "CURLOPT_COOKIEFILE"},
+    {handleSSLVersion, "CURLOPT_SSLVERSION"},
+    {handleTimeCondition, "CURLOPT_TIMECONDITION"},
+    {handleTimeValue, "CURLOPT_TIMEVALUE"},
+    {handleCustomRequest, "CURLOPT_CUSTOMREQUEST"},
+    {handleInterface, "CURLOPT_INTERFACE"},
+    {handleKRB4Level, "CURLOPT_KRB4LEVEL"},
+    {handleProgressFunction, "CURLOPT_PROGRESSFUNCTION"},
+    {handleSSLVerifyPeer, "CURLOPT_SSLVERIFYPEER"},
+    {handleCAInfo, "CURLOPT_CAINFO"},
+    {handleCAPath, "CURLOPT_CAPATH"},
+    {handleFileTime, "CURLOPT_FILETIME"},
+    {handleMaxRedirs, "CURLOPT_MAXREDIRS"},
+    {handleMaxConnects, "CURLOPT_MAXCONNECTS"},
+    {handleClosePolicy, "CURLOPT_CLOSEPOLICY"},
+    {handleFreshConnect, "CURLOPT_FRESH_CONNECT"},
+    {handleForbidReuse, "CURLOPT_FORBID_REUSE"},
+    {handleRandomFile, "CURLOPT_RANDOM_FILE"},
+    {handleEGDSocket, "CURLOPT_EGDSOCKET"},
+    {handleConnectTimeout, "CURLOPT_CONNECTTIMEOUT"},
+    {handleHTTPGet, "CURLOPT_HTTPGET"},
+    {handleSSLVerifyHost, "CURLOPT_SSL_VERIFYHOST"},
+    {handleCookieJar, "CURLOPT_COOKIEJAR"},
+    {handleSSLCipherList, "CURLOPT_SSL_CIPHERLIST"},
+    {handleHTTPVersion, "CURLOPT_HTTP_VERSION"},
+    {handleFTPUseEPSV, "CURLOPT_FTP_USE_EPSV"},
+    {handleDNSCacheTimeout, "CURLOPT_DNS_CACHE_TIMEOUT"},
+    {handleDNSUseGlobalCache, "CURLOPT_DNS_USE_GLOBAL_CACHE"},
+    {handleDebugFunction, "CURLOPT_DEBUGFUNCTION"},
+#if HAVE_DECL_CURLOPT_PRIVATE
+    {handlePrivate, "CURLOPT_PRIVATE"},
+#else
+    {NULL, "CURLOPT_PRIVATE"},
+#endif
+#if HAVE_DECL_CURLOPT_HTTP200ALIASES
+    {handleHTTP200Aliases, "CURLOPT_HTTP200ALIASES"},
+#else
+    {NULL, "CURLOPT_HTTP200ALIASES"},
+#endif
+#if HAVE_DECL_CURLOPT_UNRESTRICTED_AUTH
+    {handleUnrestrictedAuth, "CURLOPT_UNRESTRICTED_AUTH"},
+#else
+    {NULL, "CURLOPT_UNRESTRICTED_AUTH"},
+#endif
+#if HAVE_DECL_CURLOPT_FTP_USE_EPRT
+    {handleFTPUseEPRT, "CURLOPT_FTP_USE_EPRT"},
+#else
+    {NULL, "CURLOPT_FTP_USE_EPRT"},
+#endif
+#if HAVE_DECL_CURLOPT_HTTPAUTH
+    {handleHTTPAuth, "CURLOPT_HTTPAUTH"},
+#else
+    {NULL, "CURLOPT_HTTPAUTH"},
+#endif
+#if HAVE_DECL_CURLOPT_FTP_CREATE_MISSING_DIRS
+    {handleFTPCreateMissingDirs, "CURLOPT_FTP_CREATE_MISSING_DIRS"},
+#else
+    {NULL, "CURLOPT_FTP_CREATE_MISSING_DIRS"},
+#endif
+#if HAVE_DECL_CURLOPT_PROXYAUTH
+    {handleProxyAuth, "CURLOPT_PROXYAUTH"},
+#else
+    {NULL, "CURLOPT_PROXYAUTH"},
+#endif
+#if HAVE_DECL_CURLOPT_FTP_RESPONSE_TIMEOUT
+    {handleFTPResponseTimeout, "CURLOPT_FTP_RESPONSE_TIMEOUT"},
+#else
+    {NULL, "CURLOPT_FTP_RESPONSE_TIMEOUT"},
+#endif
+#if HAVE_DECL_CURLOPT_IPRESOLVE
+    {handleIPResolve, "CURLOPT_IPRESOLVE"},
+#else
+    {NULL, "CURLOPT_IPRESOLVE"},
+#endif
+#if HAVE_DECL_CURLOPT_MAXFILESIZE
+    {handleMaxFileSize, "CURLOPT_MAXFILESIZE"},
+#else
+    {NULL, "CURLOPT_MAXFILESIZE"},
+#endif
+#if HAVE_DECL_CURLOPT_INFILESIZE_LARGE
+    {handleInFileSizeLarge, "CURLOPT_INFILESIZE_LARGE"},
+#else
+    {NULL, "CURLOPT_INFILESIZE_LARGE"},
+#endif
+#if HAVE_DECL_CURLOPT_RESUME_FROM_LARGE
+    {handleResumeFromLarge, "CURLOPT_RESUME_FROM_LARGE"},
+#else
+    {NULL, "CURLOPT_RESUME_FROM_LARGE"},
+#endif
+#if HAVE_DECL_CURLOPT_MAXFILESIZE_LARGE
+    {handleMaxFileSizeLarge, "CURLOPT_MAXFILESIZE_LARGE"},
+#else
+    {NULL, "CURLOPT_MAXFILESIZE_LARGE"},
+#endif
+#if HAVE_DECL_CURLOPT_NETRC_FILE
+    {handleNETRCFile, "CURLOPT_NETRC_FILE"},
+#else
+    {NULL, "CURLOPT_NETRC_FILE"},
+#endif
+#if HAVE_DECL_CURLOPT_FTP_SSL
+    {handleFTPSSL, "CURLOPT_FTP_SSL"},
+#else
+    {NULL, "CURLOPT_FTP_SSL"},
+#endif
+#if HAVE_DECL_CURLOPT_POSTFIELDSIZE_LARGE
+    {handlePostFieldSizeLarge, "CURLOPT_POSTFIELDSIZE_LARGE"},
+#else
+    {NULL, "CURLOPT_POSTFIELDSIZE_LARGE"},
+#endif
+#if HAVE_DECL_CURLOPT_TCP_NODELAY
+    {handleTCPNoDelay, "CURLOPT_TCP_NODELAY"},
+#else
+    {NULL, "CURLOPT_TCP_NODELAY"},
+#endif
+#if HAVE_DECL_CURLOPT_FTPSSLAUTH
+    {handleFTPSSLAuth, "CURLOPT_FTPSSLAUTH"},
+#else
+    {NULL, "CURLOPT_FTPSSLAUTH"},
+#endif
+#if HAVE_DECL_CURLOPT_IOCTLFUNCTION
+    {handleIOCTLFunction, "CURLOPT_IOCTLFUNCTION"},
+#else
+    {NULL, "CURLOPT_IOCTLFUNCTION"},
+#endif
+#if HAVE_DECL_CURLOPT_FTP_ACCOUNT
+    {handleFTPAccount, "CURLOPT_FTP_ACCOUNT"},
+#else
+    {NULL, "CURLOPT_FTP_ACCOUNT"},
+#endif
+#if HAVE_DECL_CURLOPT_COOKIELIST
+    {handleCookieList, "CURLOPT_COOKIELIST"},
+#else
+    {NULL, "CURLOPT_COOKIELIST"},
+#endif
+#if HAVE_DECL_CURLOPT_IGNORE_CONTENT_LENGTH
+    {handleIgnoreContentLength, "CURLOPT_IGNORE_CONTENT_LENGTH"},
+#else
+    {NULL, "CURLOPT_IGNORE_CONTENT_LENGTH"},
+#endif
+#if HAVE_DECL_CURLOPT_FTP_SKIP_PASV_IP
+    {handleFTPSkipPASVIP, "CURLOPT_FTP_SKIP_PASV_IP"},
+#else
+    {NULL, "CURLOPT_FTP_SKIP_PASV_IP"},
+#endif
+#if HAVE_DECL_CURLOPT_FTP_FILEMETHOD
+    {handleFTPFileMethod, "CURLOPT_FTP_FILEMETHOD"},
+#else
+    {NULL, "CURLOPT_FTP_FILEMETHOD"},
+#endif
+#if HAVE_DECL_CURLOPT_LOCALPORT
+    {handleLocalPort, "CURLOPT_LOCALPORT"},
+#else
+    {NULL, "CURLOPT_LOCALPORT"},
+#endif
+#if HAVE_DECL_CURLOPT_LOCALPORTRANGE
+    {handleLocalPortRange, "CURLOPT_LOCALPORTRANGE"},
+#else
+    {NULL, "CURLOPT_LOCALPORTRANGE"},
+#endif
+#if HAVE_DECL_CURLOPT_CONNECT_ONLY
+    {handleConnectOnly, "CURLOPT_CONNECT_ONLY"},
+#else
+    {NULL, "CURLOPT_CONNECT_ONLY"},
+#endif
+#if HAVE_DECL_CURLOPT_MAX_SEND_SPEED_LARGE
+    {handleMaxSendSpeedLarge, "CURLOPT_MAX_SEND_SPEED_LARGE"},
+#else
+    {NULL, "CURLOPT_MAX_SEND_SPEED_LARGE"},
+#endif
+#if HAVE_DECL_CURLOPT_MAX_RECV_SPEED_LARGE
+    {handleMaxRecvSpeedLarge, "CURLOPT_MAX_RECV_SPEED_LARGE"},
+#else
+    {NULL, "CURLOPT_MAX_RECV_SPEED_LARGE"},
+#endif
+#if HAVE_DECL_CURLOPT_FTP_ALTERNATIVE_TO_USER
+    {handleFTPAlternativeToUser, "CURLOPT_FTP_ALTERNATIVE_TO_USER"},
+#else
+    {NULL, "CURLOPT_FTP_ALTERMATIVE_TO_USER"},
+#endif
+#if HAVE_DECL_CURLOPT_SSL_SESSIONID_CACHE
+    {handleSSLSessionIdCache, "CURLOPT_SSL_SESSIONID_CACHE"},
+#else
+    {NULL, "CURLOPT_SSL_SESSIONID_CACHE"},
+#endif
+#if HAVE_DECL_CURLOPT_SSH_AUTH_TYPES
+    {handleSSHAuthTypes, "CURLOPT_SSH_AUTH_TYPES"},
+#else
+    {NULL, "CURLOPT_SSH_AUTH_TYPES"},
+#endif
+#if HAVE_DECL_CURLOPT_SSH_PUBLIC_KEYFILE
+    {handleSSHPublicKeyFile, "CURLOPT_SSH_PUBLIC_KEYFILE"},
+#else
+    {NULL, "CURLOPT_SSH_PUBLIC_KEYFILE"},
+#endif
+#if HAVE_DECL_CURLOPT_SSH_PRIVATE_KEYFILE
+    {handleSSHPrivateKeyFile, "CURLOPT_SSH_PRIVATE_KEYFILE"},
+#else
+    {NULL, "CURLOPT_SSH_PRIVATE_KEYFILE"},
+#endif
+#if HAVE_DECL_CURLOPT_FTP_SSL_CCC
+    {handleFTPSSLCCC, "CURLOPT_FTP_SSL_CCC"},
+#else
+    {NULL, "CURLOPT_FTP_SSL_CCC"},
+#endif
+#if HAVE_DECL_CURLOPT_TIMEOUT_MS
+    {handleTimeoutMS, "CURLOPT_TIMEOUT_MS"},
+#else
+    {NULL, "CURLOPT_TIMEOUT_MS"},
+#endif
+#if HAVE_DECL_CURLOPT_CONNECTTIMEOUT_MS
+    {handleConnectTimeoutMS, "CURLOPT_CONNECTTIMEOUT_MS"},
+#else
+    {NULL, "CURLOPT_CONNECTTIMEOUT_MS"},
+#endif
+#if HAVE_DECL_CURLOPT_HTTP_TRANSFER_DECODING
+    {handleHTTPTransferDecoding, "CURLOPT_HTTP_TRANSFER_DECODING"},
+#else
+    {NULL, "CURLOPT_HTTP_TRANSFER_DECODING"},
+#endif
+#if HAVE_DECL_CURLOPT_HTTP_CONTENT_DECODING
+    {handleHTTPContentDecoding, "CURLOPT_HTTP_CONTENT_DECODING"},
+#else
+    {NULL, "CURLOPT_HTTP_CONTENT_DECODING"},
+#endif
+#if HAVE_DECL_CURLOPT_NEW_FILE_PERMS
+    {handleNewFilePerms, "CURLOPT_NEW_FILE_PERMS"},
+#else
+    {NULL, "CURLOPT_NEW_FILE_PERMS"},
+#endif
+#if HAVE_DECL_CURLOPT_NEW_DIRECTORY_PERMS
+    {handleNewDirectoryPerms, "CURLOPT_NEW_DIRECTORY_PERMS"},
+#else
+    {NULL, "CURLOPT_NEW_DIRECTORY_PERMS"},
+#endif
+#if HAVE_DECL_CURLOPT_POST301
+    {handlePost301, "CURLOPT_POST301"},
+#else
+    {NULL, "CURLOPT_POST301"},
+#endif
+#if HAVE_DECL_CURLOPT_SSH_HOST_PUBLIC_KEY_MD5
+    {handleSSHHostPublicKeyMD5, "CURLOPT_SSH_HOST_PUBLIC_KEY_MD5"},
+#else
+    {NULL, "CURLOPT_SSH_HOST_PUBLIC_KEY_MD5"},
+#endif
+#if HAVE_DECL_CURLOPT_COPYPOSTFIELDS
+    {handleCopyPostFields, "CURLOPT_COPYPOSTFIELDS"},
+#else
+    {NULL, "CURLOPT_COPYPOSTFIELDS"},
+#endif
+#if HAVE_DECL_CURLOPT_PROXY_TRANSFER_MODE
+    {handleProxyTransferMode, "CURLOPT_PROXY_TRANSFER_MODE"},
+#else
+    {NULL, "CURLOPT_PROXY_TRANSFER_MODE"},
+#endif
+#if HAVE_DECL_CURLOPT_SEEKFUNCTION
+    {handleSeekFunction, "CURLOPT_SEEKFUNCTION"},
+#else
+    {NULL, "CURLOPT_SEEKFUNCTION"},
+#endif
+#if HAVE_DECL_CURLOPT_AUTOREFERER
+    {handleAutoReferer, "CURLOPT_AUTOREFERER"},
+#else
+    {NULL, "CURLOPT_AUTOREFERER"},
+#endif
+#if HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
+    {handleOpenSocketFunction, "CURLOPT_OPENSOCKETFUNCTION"},
+#else
+    {NULL, "CURLOPT_OPENSOCKETFUNCTION"},
+#endif
+#if HAVE_DECL_CURLOPT_PROXYTYPE
+    {handleProxyType, "CURLOPT_PROXYTYPE"},
+#else
+    {NULL, "CURLOPT_PROXYTYPE"},
+#endif
+#if HAVE_DECL_CURLOPT_PROTOCOLS
+    {handleProtocols, "CURLOPT_PROTOCOLS"},
+#else
+    {NULL, "CURLOPT_PROTOCOLS"},
+#endif
+#if HAVE_DECL_CURLOPT_REDIR_PROTOCOLS
+    {handleRedirProtocols, "CURLOPT_REDIR_PROTOCOLS"},
+#else
+    {NULL, "CURLOPT_REDIR_PROTOCOLS"},
+#endif
+#if HAVE_DECL_CURLOPT_RESOLVE
+    {handleResolve, "CURLOPT_RESOLVE"},
+#else
+    {NULL, "CURLOPT_RESOLVE"},
+#endif
+#if HAVE_DECL_CURLOPT_DNS_SERVERS
+    {handleDnsServers, "CURLOPT_DNS_SERVERS"},
+#else
+    {NULL, "CURLOPT_DNS_SERVERS"},
+#endif
+#if HAVE_DECL_CURLOPT_MAIL_FROM
+    {handleMailFrom, "CURLOPT_MAIL_FROM"},
+#else
+    {NULL, "CURLOPT_MAIL_FROM"},
+#endif
+#if HAVE_DECL_CURLOPT_MAIL_RCPT
+    {handleMailRcpt, "CURLOPT_MAIL_RCPT"},
+#else
+    {NULL, "CURLOPT_MAIL_RCPT"},
+#endif
+};
 
 CAMLprim value helper_curl_easy_setopt(value conn, value option)
 {
