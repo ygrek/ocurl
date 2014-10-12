@@ -611,7 +611,6 @@ struct CURLOptionMapping
 {
     void (*optionHandler)(Connection *, value);
     char *name;
-    CURLoption option;
 };
 
 static void handleWriteFunction(Connection *, value);
@@ -751,367 +750,367 @@ static void handleMailRcpt(Connection *, value);
 
 CURLOptionMapping implementedOptionMap[] =
 {
-    {handleWriteFunction, "CURLOPT_WRITEFUNCTION", CURLOPT_WRITEFUNCTION},
-    {handleReadFunction, "CURLOPT_READFUNCTION", CURLOPT_READFUNCTION},
-    {handleInFileSize, "CURLOPT_INFILESIZE", CURLOPT_INFILESIZE},
-    {handleURL, "CURLOPT_URL", CURLOPT_URL},
-    {handleProxy, "CURLOPT_PROXY", CURLOPT_PROXY},
-    {handleProxyPort, "CURLOPT_PROXYPORT", CURLOPT_PROXYPORT},
-    {handleHTTPProxyTunnel, "CURLOPT_HTTPPROXYTUNNEL", CURLOPT_HTTPPROXYTUNNEL},
-    {handleVerbose, "CURLOPT_VERBOSE", CURLOPT_VERBOSE},
-    {handleHeader, "CURLOPT_HEADER", CURLOPT_HEADER},
-    {handleNoProgress, "CURLOPT_NOPROGRESS", CURLOPT_NOPROGRESS},
+    {handleWriteFunction, "CURLOPT_WRITEFUNCTION"},
+    {handleReadFunction, "CURLOPT_READFUNCTION"},
+    {handleInFileSize, "CURLOPT_INFILESIZE"},
+    {handleURL, "CURLOPT_URL"},
+    {handleProxy, "CURLOPT_PROXY"},
+    {handleProxyPort, "CURLOPT_PROXYPORT"},
+    {handleHTTPProxyTunnel, "CURLOPT_HTTPPROXYTUNNEL"},
+    {handleVerbose, "CURLOPT_VERBOSE"},
+    {handleHeader, "CURLOPT_HEADER"},
+    {handleNoProgress, "CURLOPT_NOPROGRESS"},
 #if HAVE_DECL_CURLOPT_NOSIGNAL
-    {handleNoSignal, "CURLOPT_NOSIGNAL", CURLOPT_NOSIGNAL},
+    {handleNoSignal, "CURLOPT_NOSIGNAL"},
 #else
-    {handleNoSignal, "CURLOPT_NOSIGNAL", 0},
+    {NULL, "CURLOPT_NOSIGNAL"},
 #endif
-    {handleNoBody, "CURLOPT_NOBODY", CURLOPT_NOBODY},
-    {handleFailOnError, "CURLOPT_FAILONERROR", CURLOPT_FAILONERROR},
-    {handleUpload, "CURLOPT_UPLOAD", CURLOPT_UPLOAD},
-    {handlePost, "CURLOPT_POST", CURLOPT_POST},
-    {handleFTPListOnly, "CURLOPT_FTPLISTONLY", CURLOPT_FTPLISTONLY},
-    {handleFTPAppend, "CURLOPT_FTPAPPEND", CURLOPT_FTPAPPEND},
-    {handleNETRC, "CURLOPT_NETRC", CURLOPT_NETRC},
+    {handleNoBody, "CURLOPT_NOBODY"},
+    {handleFailOnError, "CURLOPT_FAILONERROR"},
+    {handleUpload, "CURLOPT_UPLOAD"},
+    {handlePost, "CURLOPT_POST"},
+    {handleFTPListOnly, "CURLOPT_FTPLISTONLY"},
+    {handleFTPAppend, "CURLOPT_FTPAPPEND"},
+    {handleNETRC, "CURLOPT_NETRC"},
 #if HAVE_DECL_CURLOPT_ENCODING
-    {handleEncoding, "CURLOPT_ENCODING", CURLOPT_ENCODING},
+    {handleEncoding, "CURLOPT_ENCODING"},
 #else
-    {handleEncoding, "CURLOPT_ENCODING", 0},
+    {NULL, "CURLOPT_ENCODING"},
 #endif
-    {handleFollowLocation, "CURLOPT_FOLLOWLOCATION", CURLOPT_FOLLOWLOCATION},
-    {handleTransferText, "CURLOPT_TRANSFERTEXT", CURLOPT_TRANSFERTEXT},
-    {handlePut, "CURLOPT_PUT", CURLOPT_PUT},
-    {handleUserPwd, "CURLOPT_USERPWD", CURLOPT_USERPWD},
-    {handleProxyUserPwd, "CURLOPT_PROXYUSERPWD", CURLOPT_PROXYUSERPWD},
-    {handleRange, "CURLOPT_RANGE", CURLOPT_RANGE},
-    {handleErrorBuffer, "CURLOPT_ERRORBUFFER", CURLOPT_ERRORBUFFER},
-    {handleTimeout, "CURLOPT_TIMEOUT", CURLOPT_TIMEOUT},
-    {handlePostFields, "CURLOPT_POSTFIELDS", CURLOPT_POSTFIELDS},
-    {handlePostFieldSize, "CURLOPT_POSTFIELDSIZE", CURLOPT_POSTFIELDSIZE},
-    {handleReferer, "CURLOPT_REFERER", CURLOPT_REFERER},
-    {handleUserAgent, "CURLOPT_USERAGENT", CURLOPT_USERAGENT},
-    {handleFTPPort, "CURLOPT_FTPPORT", CURLOPT_FTPPORT},
-    {handleLowSpeedLimit, "CURLOPT_LOW_SPEED_LIMIT", CURLOPT_LOW_SPEED_LIMIT},
-    {handleLowSpeedTime, "CURLOPT_LOW_SPEED_TIME", CURLOPT_LOW_SPEED_TIME},
-    {handleResumeFrom, "CURLOPT_RESUME_FROM", CURLOPT_RESUME_FROM},
-    {handleCookie, "CURLOPT_COOKIE", CURLOPT_COOKIE},
-    {handleHTTPHeader, "CURLOPT_HTTPHEADER", CURLOPT_HTTPHEADER},
-    {handleHTTPPost, "CURLOPT_HTTPPOST", CURLOPT_HTTPPOST},
-    {handleSSLCert, "CURLOPT_SSLCERT", CURLOPT_SSLCERT},
-    {handleSSLCertType, "CURLOPT_SSLCERTTYPE", CURLOPT_SSLCERTTYPE},
-    {handleSSLCertPasswd, "CURLOPT_SSLCERTPASSWD", CURLOPT_SSLCERTPASSWD},
-    {handleSSLKey, "CURLOPT_SSLKEY", CURLOPT_SSLKEY},
-    {handleSSLKeyType, "CURLOPT_SSLKEYTYPE", CURLOPT_SSLKEYTYPE},
-    {handleSSLKeyPasswd, "CURLOPT_SSLKEYPASSWD", CURLOPT_SSLKEYPASSWD},
-    {handleSSLEngine, "CURLOPT_SSLENGINE", CURLOPT_SSLENGINE},
-    {handleSSLEngineDefault, "CURLOPT_SSLENGINE_DEFAULT", CURLOPT_SSLENGINE_DEFAULT},
-    {handleCRLF, "CURLOPT_CRLF", CURLOPT_CRLF},
-    {handleQuote, "CURLOPT_QUOTE", CURLOPT_QUOTE},
-    {handlePostQuote, "CURLOPT_POSTQUOTE", CURLOPT_POSTQUOTE},
-    {handleHeaderFunction, "CURLOPT_HEADERFUNCTION", CURLOPT_HEADERFUNCTION},
-    {handleCookieFile, "CURLOPT_COOKIEFILE", CURLOPT_COOKIEFILE},
-    {handleSSLVersion, "CURLOPT_SSLVERSION", CURLOPT_SSLVERSION},
-    {handleTimeCondition, "CURLOPT_TIMECONDITION", CURLOPT_TIMECONDITION},
-    {handleTimeValue, "CURLOPT_TIMEVALUE", CURLOPT_TIMEVALUE},
-    {handleCustomRequest, "CURLOPT_CUSTOMREQUEST", CURLOPT_CUSTOMREQUEST},
-    {handleInterface, "CURLOPT_INTERFACE", CURLOPT_INTERFACE},
-    {handleKRB4Level, "CURLOPT_KRB4LEVEL", CURLOPT_KRB4LEVEL},
-    {handleProgressFunction, "CURLOPT_PROGRESSFUNCTION", CURLOPT_PROGRESSFUNCTION},
-    {handleSSLVerifyPeer, "CURLOPT_SSLVERIFYPEER", CURLOPT_SSL_VERIFYPEER},
-    {handleCAInfo, "CURLOPT_CAINFO", CURLOPT_CAINFO},
-    {handleCAPath, "CURLOPT_CAPATH", CURLOPT_CAPATH},
-    {handleFileTime, "CURLOPT_FILETIME", CURLOPT_FILETIME},
-    {handleMaxRedirs, "CURLOPT_MAXREDIRS", CURLOPT_MAXREDIRS},
-    {handleMaxConnects, "CURLOPT_MAXCONNECTS", CURLOPT_MAXCONNECTS},
-    {handleClosePolicy, "CURLOPT_CLOSEPOLICY", CURLOPT_CLOSEPOLICY},
-    {handleFreshConnect, "CURLOPT_FRESH_CONNECT", CURLOPT_FRESH_CONNECT},
-    {handleForbidReuse, "CURLOPT_FORBID_REUSE", CURLOPT_FORBID_REUSE},
-    {handleRandomFile, "CURLOPT_RANDOM_FILE", CURLOPT_RANDOM_FILE},
-    {handleEGDSocket, "CURLOPT_EGDSOCKET", CURLOPT_EGDSOCKET},
-    {handleConnectTimeout, "CURLOPT_CONNECTTIMEOUT", CURLOPT_CONNECTTIMEOUT},
-    {handleHTTPGet, "CURLOPT_HTTPGET", CURLOPT_HTTPGET},
-    {handleSSLVerifyHost, "CURLOPT_SSL_VERIFYHOST", CURLOPT_SSL_VERIFYHOST},
-    {handleCookieJar, "CURLOPT_COOKIEJAR", CURLOPT_COOKIEJAR},
-    {handleSSLCipherList, "CURLOPT_SSL_CIPHERLIST", CURLOPT_SSL_CIPHER_LIST},
-    {handleHTTPVersion, "CURLOPT_HTTP_VERSION", CURLOPT_HTTP_VERSION},
-    {handleFTPUseEPSV, "CURLOPT_FTP_USE_EPSV", CURLOPT_FTP_USE_EPSV},
-    {handleDNSCacheTimeout, "CURLOPT_DNS_CACHE_TIMEOUT", CURLOPT_DNS_CACHE_TIMEOUT},
-    {handleDNSUseGlobalCache, "CURLOPT_DNS_USE_GLOBAL_CACHE", CURLOPT_DNS_USE_GLOBAL_CACHE},
-    {handleDebugFunction, "CURLOPT_DEBUGFUNCTION", CURLOPT_DEBUGFUNCTION},
+    {handleFollowLocation, "CURLOPT_FOLLOWLOCATION"},
+    {handleTransferText, "CURLOPT_TRANSFERTEXT"},
+    {handlePut, "CURLOPT_PUT"},
+    {handleUserPwd, "CURLOPT_USERPWD"},
+    {handleProxyUserPwd, "CURLOPT_PROXYUSERPWD"},
+    {handleRange, "CURLOPT_RANGE"},
+    {handleErrorBuffer, "CURLOPT_ERRORBUFFER"},
+    {handleTimeout, "CURLOPT_TIMEOUT"},
+    {handlePostFields, "CURLOPT_POSTFIELDS"},
+    {handlePostFieldSize, "CURLOPT_POSTFIELDSIZE"},
+    {handleReferer, "CURLOPT_REFERER"},
+    {handleUserAgent, "CURLOPT_USERAGENT"},
+    {handleFTPPort, "CURLOPT_FTPPORT"},
+    {handleLowSpeedLimit, "CURLOPT_LOW_SPEED_LIMIT"},
+    {handleLowSpeedTime, "CURLOPT_LOW_SPEED_TIME"},
+    {handleResumeFrom, "CURLOPT_RESUME_FROM"},
+    {handleCookie, "CURLOPT_COOKIE"},
+    {handleHTTPHeader, "CURLOPT_HTTPHEADER"},
+    {handleHTTPPost, "CURLOPT_HTTPPOST"},
+    {handleSSLCert, "CURLOPT_SSLCERT"},
+    {handleSSLCertType, "CURLOPT_SSLCERTTYPE"},
+    {handleSSLCertPasswd, "CURLOPT_SSLCERTPASSWD"},
+    {handleSSLKey, "CURLOPT_SSLKEY"},
+    {handleSSLKeyType, "CURLOPT_SSLKEYTYPE"},
+    {handleSSLKeyPasswd, "CURLOPT_SSLKEYPASSWD"},
+    {handleSSLEngine, "CURLOPT_SSLENGINE"},
+    {handleSSLEngineDefault, "CURLOPT_SSLENGINE_DEFAULT"},
+    {handleCRLF, "CURLOPT_CRLF"},
+    {handleQuote, "CURLOPT_QUOTE"},
+    {handlePostQuote, "CURLOPT_POSTQUOTE"},
+    {handleHeaderFunction, "CURLOPT_HEADERFUNCTION"},
+    {handleCookieFile, "CURLOPT_COOKIEFILE"},
+    {handleSSLVersion, "CURLOPT_SSLVERSION"},
+    {handleTimeCondition, "CURLOPT_TIMECONDITION"},
+    {handleTimeValue, "CURLOPT_TIMEVALUE"},
+    {handleCustomRequest, "CURLOPT_CUSTOMREQUEST"},
+    {handleInterface, "CURLOPT_INTERFACE"},
+    {handleKRB4Level, "CURLOPT_KRB4LEVEL"},
+    {handleProgressFunction, "CURLOPT_PROGRESSFUNCTION"},
+    {handleSSLVerifyPeer, "CURLOPT_SSLVERIFYPEER"},
+    {handleCAInfo, "CURLOPT_CAINFO"},
+    {handleCAPath, "CURLOPT_CAPATH"},
+    {handleFileTime, "CURLOPT_FILETIME"},
+    {handleMaxRedirs, "CURLOPT_MAXREDIRS"},
+    {handleMaxConnects, "CURLOPT_MAXCONNECTS"},
+    {handleClosePolicy, "CURLOPT_CLOSEPOLICY"},
+    {handleFreshConnect, "CURLOPT_FRESH_CONNECT"},
+    {handleForbidReuse, "CURLOPT_FORBID_REUSE"},
+    {handleRandomFile, "CURLOPT_RANDOM_FILE"},
+    {handleEGDSocket, "CURLOPT_EGDSOCKET"},
+    {handleConnectTimeout, "CURLOPT_CONNECTTIMEOUT"},
+    {handleHTTPGet, "CURLOPT_HTTPGET"},
+    {handleSSLVerifyHost, "CURLOPT_SSL_VERIFYHOST"},
+    {handleCookieJar, "CURLOPT_COOKIEJAR"},
+    {handleSSLCipherList, "CURLOPT_SSL_CIPHERLIST"},
+    {handleHTTPVersion, "CURLOPT_HTTP_VERSION"},
+    {handleFTPUseEPSV, "CURLOPT_FTP_USE_EPSV"},
+    {handleDNSCacheTimeout, "CURLOPT_DNS_CACHE_TIMEOUT"},
+    {handleDNSUseGlobalCache, "CURLOPT_DNS_USE_GLOBAL_CACHE"},
+    {handleDebugFunction, "CURLOPT_DEBUGFUNCTION"},
 #if HAVE_DECL_CURLOPT_PRIVATE
-    {handlePrivate, "CURLOPT_PRIVATE", CURLOPT_PRIVATE},
+    {handlePrivate, "CURLOPT_PRIVATE"},
 #else
-    {handlePrivate, "CURLOPT_PRIVATE", 0},
+    {NULL, "CURLOPT_PRIVATE"},
 #endif
 #if HAVE_DECL_CURLOPT_HTTP200ALIASES
-    {handleHTTP200Aliases, "CURLOPT_HTTP200ALIASES", CURLOPT_HTTP200ALIASES},
+    {handleHTTP200Aliases, "CURLOPT_HTTP200ALIASES"},
 #else
-    {handleHTTP200Aliases, "CURLOPT_HTTP200ALIASES", 0},
+    {NULL, "CURLOPT_HTTP200ALIASES"},
 #endif
 #if HAVE_DECL_CURLOPT_UNRESTRICTED_AUTH
-    {handleUnrestrictedAuth, "CURLOPT_UNRESTRICTED_AUTH", CURLOPT_UNRESTRICTED_AUTH},
+    {handleUnrestrictedAuth, "CURLOPT_UNRESTRICTED_AUTH"},
 #else
-    {handleUnrestrictedAuth, "CURLOPT_UNRESTRICTED_AUTH", 0},
+    {NULL, "CURLOPT_UNRESTRICTED_AUTH"},
 #endif
 #if HAVE_DECL_CURLOPT_FTP_USE_EPRT
-    {handleFTPUseEPRT, "CURLOPT_FTP_USE_EPRT", CURLOPT_FTP_USE_EPRT},
+    {handleFTPUseEPRT, "CURLOPT_FTP_USE_EPRT"},
 #else
-    {handleFTPUseEPRT, "CURLOPT_FTP_USE_EPRT", 0},
+    {NULL, "CURLOPT_FTP_USE_EPRT"},
 #endif
 #if HAVE_DECL_CURLOPT_HTTPAUTH
-    {handleHTTPAuth, "CURLOPT_HTTPAUTH", CURLOPT_HTTPAUTH},
+    {handleHTTPAuth, "CURLOPT_HTTPAUTH"},
 #else
-    {handleHTTPAuth, "CURLOPT_HTTPAUTH", 0},
+    {NULL, "CURLOPT_HTTPAUTH"},
 #endif
 #if HAVE_DECL_CURLOPT_FTP_CREATE_MISSING_DIRS
-    {handleFTPCreateMissingDirs, "CURLOPT_FTP_CREATE_MISSING_DIRS", CURLOPT_FTP_CREATE_MISSING_DIRS},
+    {handleFTPCreateMissingDirs, "CURLOPT_FTP_CREATE_MISSING_DIRS"},
 #else
-    {handleFTPCreateMissingDirs, "CURLOPT_FTP_CREATE_MISSING_DIRS", 0},
+    {NULL, "CURLOPT_FTP_CREATE_MISSING_DIRS"},
 #endif
 #if HAVE_DECL_CURLOPT_PROXYAUTH
-    {handleProxyAuth, "CURLOPT_PROXYAUTH", CURLOPT_PROXYAUTH},
+    {handleProxyAuth, "CURLOPT_PROXYAUTH"},
 #else
-    {handleProxyAuth, "CURLOPT_PROXYAUTH", 0},
+    {NULL, "CURLOPT_PROXYAUTH"},
 #endif
 #if HAVE_DECL_CURLOPT_FTP_RESPONSE_TIMEOUT
-    {handleFTPResponseTimeout, "CURLOPT_FTP_RESPONSE_TIMEOUT", CURLOPT_FTP_RESPONSE_TIMEOUT},
+    {handleFTPResponseTimeout, "CURLOPT_FTP_RESPONSE_TIMEOUT"},
 #else
-    {handleFTPResponseTimeout, "CURLOPT_FTP_RESPONSE_TIMEOUT", 0},
+    {NULL, "CURLOPT_FTP_RESPONSE_TIMEOUT"},
 #endif
 #if HAVE_DECL_CURLOPT_IPRESOLVE
-    {handleIPResolve, "CURLOPT_IPRESOLVE", CURLOPT_IPRESOLVE},
+    {handleIPResolve, "CURLOPT_IPRESOLVE"},
 #else
-    {handleIPResolve, "CURLOPT_IPRESOLVE", 0},
+    {NULL, "CURLOPT_IPRESOLVE"},
 #endif
 #if HAVE_DECL_CURLOPT_MAXFILESIZE
-    {handleMaxFileSize, "CURLOPT_MAXFILESIZE", CURLOPT_MAXFILESIZE},
+    {handleMaxFileSize, "CURLOPT_MAXFILESIZE"},
 #else
-    {handleMaxFileSize, "CURLOPT_MAXFILESIZE", 0},
+    {NULL, "CURLOPT_MAXFILESIZE"},
 #endif
 #if HAVE_DECL_CURLOPT_INFILSIZE_LARGE
-    {handleInFileSizeLarge, "CURLOPT_INFILESIZE_LARGE", CURLOPT_INFILESIZE_LARGE},
+    {handleInFileSizeLarge, "CURLOPT_INFILESIZE_LARGE"},
 #else
-    {handleInFileSizeLarge, "CURLOPT_INFILESIZE_LARGE", 0},
+    {NULL, "CURLOPT_INFILESIZE_LARGE"},
 #endif
 #if HAVE_DECL_CURLOPT_RESUME_FROM_LARGE
-    {handleResumeFromLarge, "CURLOPT_RESUME_FROM_LARGE", CURLOPT_RESUME_FROM_LARGE},
+    {handleResumeFromLarge, "CURLOPT_RESUME_FROM_LARGE"},
 #else
-    {handleResumeFromLarge, "CURLOPT_RESUME_FROM_LARGE", 0},
+    {NULL, "CURLOPT_RESUME_FROM_LARGE"},
 #endif
 #if HAVE_DECL_CURLOPT_MAXFILESIZE_LARGE
-    {handleMaxFileSizeLarge, "CURLOPT_MAXFILESIZE_LARGE", CURLOPT_MAXFILESIZE_LARGE},
+    {handleMaxFileSizeLarge, "CURLOPT_MAXFILESIZE_LARGE"},
 #else
-    {handleMaxFileSizeLarge, "CURLOPT_MAXFILESIZE_LARGE", 0},
+    {NULL, "CURLOPT_MAXFILESIZE_LARGE"},
 #endif
 #if HAVE_DECL_CURLOPT_NETRC_FILE
-    {handleNETRCFile, "CURLOPT_NETRC_FILE", CURLOPT_NETRC_FILE},
+    {handleNETRCFile, "CURLOPT_NETRC_FILE"},
 #else
-    {handleNETRCFile, "CURLOPT_NETRC_FILE", 0},
+    {NULL, "CURLOPT_NETRC_FILE"},
 #endif
 #if HAVE_DECL_CURLOPT_FTP_SSL
-    {handleFTPSSL, "CURLOPT_FTP_SSL", CURLOPT_FTP_SSL},
+    {handleFTPSSL, "CURLOPT_FTP_SSL"},
 #else
-    {handleFTPSSL, "CURLOPT_FTP_SSL", 0},
+    {NULL, "CURLOPT_FTP_SSL"},
 #endif
 #if HAVE_DECL_CURLOPT_POSTFIELDSIZE_LARGE
-    {handlePostFieldSizeLarge, "CURLOPT_POSTFIELDSIZE_LARGE", CURLOPT_POSTFIELDSIZE_LARGE},
+    {handlePostFieldSizeLarge, "CURLOPT_POSTFIELDSIZE_LARGE"},
 #else
-    {handlePostFieldSizeLarge, "CURLOPT_POSTFIELDSIZE_LARGE", 0},
+    {NULL, "CURLOPT_POSTFIELDSIZE_LARGE"},
 #endif
 #if HAVE_DECL_CURLOPT_TCP_NODELAY
-    {handleTCPNoDelay, "CURLOPT_TCP_NODELAY", CURLOPT_TCP_NODELAY},
+    {handleTCPNoDelay, "CURLOPT_TCP_NODELAY"},
 #else
-    {handleTCPNoDelay, "CURLOPT_TCP_NODELAY", 0},
+    {NULL, "CURLOPT_TCP_NODELAY"},
 #endif
 #if HAVE_DECL_CURLOPT_FTPSSLAUTH
-    {handleFTPSSLAuth, "CURLOPT_FTPSSLAUTH", CURLOPT_FTPSSLAUTH},
+    {handleFTPSSLAuth, "CURLOPT_FTPSSLAUTH"},
 #else
-    {handleFTPSSLAuth, "CURLOPT_FTPSSLAUTH", 0},
+    {NULL, "CURLOPT_FTPSSLAUTH"},
 #endif
 #if HAVE_DECL_CURLOPT_IOCTLFUNCTION
-    {handleIOCTLFunction, "CURLOPT_IOCTLFUNCTION", CURLOPT_IOCTLFUNCTION},
+    {handleIOCTLFunction, "CURLOPT_IOCTLFUNCTION"},
 #else
-    {handleIOCTLFunction, "CURLOPT_IOCTLFUNCTION", 0},
+    {NULL, "CURLOPT_IOCTLFUNCTION"},
 #endif
 #if HAVE_DECL_CURLOPT_FTP_ACCOUNT
-    {handleFTPAccount, "CURLOPT_FTP_ACCOUNT", CURLOPT_FTP_ACCOUNT},
+    {handleFTPAccount, "CURLOPT_FTP_ACCOUNT"},
 #else
-    {handleFTPAccount, "CURLOPT_FTP_ACCOUNT", 0},
+    {NULL, "CURLOPT_FTP_ACCOUNT"},
 #endif
 #if HAVE_DECL_CURLOPT_COOKIELIST
-    {handleCookieList, "CURLOPT_COOKIELIST", CURLOPT_COOKIELIST},
+    {handleCookieList, "CURLOPT_COOKIELIST"},
 #else
-    {handleCookieList, "CURLOPT_COOKIELIST", 0},
+    {NULL, "CURLOPT_COOKIELIST"},
 #endif
 #if HAVE_DECL_CURLOPT_IGNORE_CONTENT_LENGTH
-    {handleIgnoreContentLength, "CURLOPT_IGNORE_CONTENT_LENGTH", CURLOPT_IGNORE_CONTENT_LENGTH},
+    {handleIgnoreContentLength, "CURLOPT_IGNORE_CONTENT_LENGTH"},
 #else
-    {handleIgnoreContentLength, "CURLOPT_IGNORE_CONTENT_LENGTH", 0},
+    {NULL, "CURLOPT_IGNORE_CONTENT_LENGTH"},
 #endif
 #if HAVE_DECL_CURLOPT_FTP_SKIP_PASV_IP
-    {handleFTPSkipPASVIP, "CURLOPT_FTP_SKIP_PASV_IP", CURLOPT_FTP_SKIP_PASV_IP},
+    {handleFTPSkipPASVIP, "CURLOPT_FTP_SKIP_PASV_IP"},
 #else
-    {handleFTPSkipPASVIP, "CURLOPT_FTP_SKIP_PASV_IP", 0},
+    {NULL, "CURLOPT_FTP_SKIP_PASV_IP"},
 #endif
 #if HAVE_DECL_CURLOPT_FTP_FILEMETHOD
-    {handleFTPFileMethod, "CURLOPT_FTP_FILEMETHOD", CURLOPT_FTP_FILEMETHOD},
+    {handleFTPFileMethod, "CURLOPT_FTP_FILEMETHOD"},
 #else
-    {handleFTPFileMethod, "CURLOPT_FTP_FILEMETHOD", 0},
+    {NULL, "CURLOPT_FTP_FILEMETHOD"},
 #endif
 #if HAVE_DECL_CURLOPT_LOCALPORT
-    {handleLocalPort, "CURLOPT_LOCALPORT", CURLOPT_LOCALPORT},
+    {handleLocalPort, "CURLOPT_LOCALPORT"},
 #else
-    {handleLocalPort, "CURLOPT_LOCALPORT", 0},
+    {NULL, "CURLOPT_LOCALPORT"},
 #endif
 #if HAVE_DECL_CURLOPT_LOCALPORTRANGE
-    {handleLocalPortRange, "CURLOPT_LOCALPORTRANGE", CURLOPT_LOCALPORTRANGE},
+    {handleLocalPortRange, "CURLOPT_LOCALPORTRANGE"},
 #else
-    {handleLocalPortRange, "CURLOPT_LOCALPORTRANGE", 0},
+    {NULL, "CURLOPT_LOCALPORTRANGE"},
 #endif
 #if HAVE_DECL_CURLOPT_CONNECT_ONLY
-    {handleConnectOnly, "CURLOPT_CONNECT_ONLY", CURLOPT_CONNECT_ONLY},
+    {handleConnectOnly, "CURLOPT_CONNECT_ONLY"},
 #else
-    {handleConnectOnly, "CURLOPT_CONNECT_ONLY", 0},
+    {NULL, "CURLOPT_CONNECT_ONLY"},
 #endif
 #if HAVE_DECL_CURLOPT_MAX_SEND_SPEED_LARGE
-    {handleMaxSendSpeedLarge, "CURLOPT_MAX_SEND_SPEED_LARGE", CURLOPT_MAX_SEND_SPEED_LARGE},
+    {handleMaxSendSpeedLarge, "CURLOPT_MAX_SEND_SPEED_LARGE"},
 #else
-    {handleMaxSendSpeedLarge, "CURLOPT_MAX_SEND_SPEED_LARGE", 0},
+    {NULL, "CURLOPT_MAX_SEND_SPEED_LARGE"},
 #endif
 #if HAVE_DECL_CURLOPT_MAX_RECV_SPEED_LARGE
-    {handleMaxRecvSpeedLarge, "CURLOPT_MAX_RECV_SPEED_LARGE", CURLOPT_MAX_RECV_SPEED_LARGE},
+    {handleMaxRecvSpeedLarge, "CURLOPT_MAX_RECV_SPEED_LARGE"},
 #else
-    {handleMaxRecvSpeedLarge, "CURLOPT_MAX_RECV_SPEED_LARGE", 0},
+    {NULL, "CURLOPT_MAX_RECV_SPEED_LARGE"},
 #endif
 #if HAVE_DECL_CURLOPT_FTP_ALTERNATIVE_TO_USER
-    {handleFTPAlternativeToUser, "CURLOPT_FTP_ALTERNATIVE_TO_USER", CURLOPT_FTP_ALTERNATIVE_TO_USER},
+    {handleFTPAlternativeToUser, "CURLOPT_FTP_ALTERNATIVE_TO_USER"},
 #else
-    {handleFTPAlternativeToUser, "CURLOPT_FTP_ALTERMATIVE_TO_USER", 0},
+    {NULL, "CURLOPT_FTP_ALTERMATIVE_TO_USER"},
 #endif
 #if HAVE_DECL_CURLOPT_SSL_SESSIONID_CACHE
-    {handleSSLSessionIdCache, "CURLOPT_SSL_SESSIONID_CACHE", CURLOPT_SSL_SESSIONID_CACHE},
+    {handleSSLSessionIdCache, "CURLOPT_SSL_SESSIONID_CACHE"},
 #else
-    {handleSSLSessionIdCache, "CURLOPT_SSL_SESSIONID_CACHE", 0},
+    {NULL, "CURLOPT_SSL_SESSIONID_CACHE"},
 #endif
 #if HAVE_DECL_CURLOPT_SSH_AUTH_TYPES
-    {handleSSHAuthTypes, "CURLOPT_SSH_AUTH_TYPES", CURLOPT_SSH_AUTH_TYPES},
+    {handleSSHAuthTypes, "CURLOPT_SSH_AUTH_TYPES"},
 #else
-    {handleSSHAuthTypes, "CURLOPT_SSH_AUTH_TYPES", 0},
+    {NULL, "CURLOPT_SSH_AUTH_TYPES"},
 #endif
 #if HAVE_DECL_CURLOPT_SSH_PUBLIC_KEYFILE
-    {handleSSHPublicKeyFile, "CURLOPT_SSH_PUBLIC_KEYFILE", CURLOPT_SSH_PUBLIC_KEYFILE},
+    {handleSSHPublicKeyFile, "CURLOPT_SSH_PUBLIC_KEYFILE"},
 #else
-    {handleSSHPublicKeyFile, "CURLOPT_SSH_PUBLIC_KEYFILE", 0},
+    {NULL, "CURLOPT_SSH_PUBLIC_KEYFILE"},
 #endif
 #if HAVE_DECL_CURLOPT_SSH_PRIVATE_KEYFILE
-    {handleSSHPrivateKeyFile, "CURLOPT_SSH_PRIVATE_KEYFILE", CURLOPT_SSH_PRIVATE_KEYFILE},
+    {handleSSHPrivateKeyFile, "CURLOPT_SSH_PRIVATE_KEYFILE"},
 #else
-    {handleSSHPrivateKeyFile, "CURLOPT_SSH_PRIVATE_KEYFILE", 0},
+    {NULL, "CURLOPT_SSH_PRIVATE_KEYFILE"},
 #endif
 #if HAVE_DECL_CURLOPT_FTP_SSL_CCC
-    {handleFTPSSLCCC, "CURLOPT_FTP_SSL_CCC", CURLOPT_FTP_SSL_CCC},
+    {handleFTPSSLCCC, "CURLOPT_FTP_SSL_CCC"},
 #else
-    {handleFTPSSLCCC, "CURLOPT_FTP_SSL_CCC", 0},
+    {NULL, "CURLOPT_FTP_SSL_CCC"},
 #endif
 #if HAVE_DECL_CURLOPT_TIMEOUT_MS
-    {handleTimeoutMS, "CURLOPT_TIMEOUT_MS", CURLOPT_TIMEOUT_MS},
+    {handleTimeoutMS, "CURLOPT_TIMEOUT_MS"},
 #else
-    {handleTimeoutMS, "CURLOPT_TIMEOUT_MS", 0},
+    {NULL, "CURLOPT_TIMEOUT_MS"},
 #endif
 #if HAVE_DECL_CURLOPT_CONNECTTIMEOUT_MS
-    {handleConnectTimeoutMS, "CURLOPT_CONNECTTIMEOUT_MS", CURLOPT_CONNECTTIMEOUT_MS},
+    {handleConnectTimeoutMS, "CURLOPT_CONNECTTIMEOUT_MS"},
 #else
-    {handleConnectTimeoutMS, "CURLOPT_CONNECTTIMEOUT_MS", 0},
+    {NULL, "CURLOPT_CONNECTTIMEOUT_MS"},
 #endif
 #if HAVE_DECL_CURLOPT_HTTP_TRANSFER_DECODING
-    {handleHTTPTransferDecoding, "CURLOPT_HTTP_TRANSFER_DECODING", CURLOPT_HTTP_TRANSFER_DECODING},
+    {handleHTTPTransferDecoding, "CURLOPT_HTTP_TRANSFER_DECODING"},
 #else
-    {handleHTTPTransferDecoding, "CURLOPT_HTTP_TRANSFER_DECODING", 0},
+    {NULL, "CURLOPT_HTTP_TRANSFER_DECODING"},
 #endif
 #if HAVE_DECL_CURLOPT_HTTP_CONTENT_DECODING
-    {handleHTTPContentDecoding, "CURLOPT_HTTP_CONTENT_DECODING", CURLOPT_HTTP_CONTENT_DECODING},
+    {handleHTTPContentDecoding, "CURLOPT_HTTP_CONTENT_DECODING"},
 #else
-    {handleHTTPContentDecoding, "CURLOPT_HTTP_CONTENT_DECODING", 0},
+    {NULL, "CURLOPT_HTTP_CONTENT_DECODING"},
 #endif
 #if HAVE_DECL_CURLOPT_NEW_FILE_PERMS
-    {handleNewFilePerms, "CURLOPT_NEW_FILE_PERMS", CURLOPT_NEW_FILE_PERMS},
+    {handleNewFilePerms, "CURLOPT_NEW_FILE_PERMS"},
 #else
-    {handleNewFilePerms, "CURLOPT_NEW_FILE_PERMS", 0},
+    {NULL, "CURLOPT_NEW_FILE_PERMS"},
 #endif
 #if HAVE_DECL_CURLOPT_NEW_DIRECTORY_PERMS
-    {handleNewDirectoryPerms, "CURLOPT_NEW_DIRECTORY_PERMS", CURLOPT_NEW_DIRECTORY_PERMS},
+    {handleNewDirectoryPerms, "CURLOPT_NEW_DIRECTORY_PERMS"},
 #else
-    {handleNewDirectoryPerms, "CURLOPT_NEW_DIRECTORY_PERMS", 0},
+    {NULL, "CURLOPT_NEW_DIRECTORY_PERMS"},
 #endif
 #if HAVE_DECL_CURLOPT_POST301
-    {handlePost301, "CURLOPT_POST301", CURLOPT_POST301},
+    {handlePost301, "CURLOPT_POST301"},
 #else
-    {handlePost301, "CURLOPT_POST301", 0},
+    {NULL, "CURLOPT_POST301"},
 #endif
 #if HAVE_DECL_CURLOPT_SSH_PUBLIC_KEY_MD5
-    {handleSSHHostPublicKeyMD5, "CURLOPT_SSH_HOST_PUBLIC_KEY_MD5", CURLOPT_SSH_HOST_PUBLIC_KEY_MD5},
+    {handleSSHHostPublicKeyMD5, "CURLOPT_SSH_HOST_PUBLIC_KEY_MD5"},
 #else
-    {handleSSHHostPublicKeyMD5, "CURLOPT_SSH_HOST_PUBLIC_KEY_MD5", 0},
+    {NULL, "CURLOPT_SSH_HOST_PUBLIC_KEY_MD5"},
 #endif
 #if HAVE_DECL_CURLOPT_COPYPOSTFIELDS
-    {handleCopyPostFields, "CURLOPT_COPYPOSTFIELDS", CURLOPT_COPYPOSTFIELDS},
+    {handleCopyPostFields, "CURLOPT_COPYPOSTFIELDS"},
 #else
-    {handleCopyPostFields, "CURLOPT_COPYPOSTFIELDS", 0},
+    {NULL, "CURLOPT_COPYPOSTFIELDS"},
 #endif
 #if HAVE_DECL_CURLOPT_PROXY_TRANSFER_MODE
-    {handleProxyTransferMode, "CURLOPT_PROXY_TRANSFER_MODE", CURLOPT_PROXY_TRANSFER_MODE},
+    {handleProxyTransferMode, "CURLOPT_PROXY_TRANSFER_MODE"},
 #else
-    {handleProxyTransferMode, "CURLOPT_PROXY_TRANSFER_MODE", 0},
+    {NULL, "CURLOPT_PROXY_TRANSFER_MODE"},
 #endif
 #if HAVE_DECL_CURLOPT_SEEKFUNCTION
-    {handleSeekFunction, "CURLOPT_SEEKFUNCTION", CURLOPT_SEEKFUNCTION},
+    {handleSeekFunction, "CURLOPT_SEEKFUNCTION"},
 #else
-    {handleSeekFunction, "CURLOPT_SEEKFUNCTION", 0},
+    {NULL, "CURLOPT_SEEKFUNCTION"},
 #endif
 #if HAVE_DECL_CURLOPT_AUTOREFERER
-    {handleAutoReferer, "CURLOPT_AUTOREFERER", CURLOPT_AUTOREFERER},
+    {handleAutoReferer, "CURLOPT_AUTOREFERER"},
 #else
-    {handleAutoReferer, "CURLOPT_AUTOREFERER", 0},
+    {NULL, "CURLOPT_AUTOREFERER"},
 #endif
 #if HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
-    {handleOpenSocketFunction, "CURLOPT_OPENSOCKETFUNCTION", CURLOPT_OPENSOCKETFUNCTION},
+    {handleOpenSocketFunction, "CURLOPT_OPENSOCKETFUNCTION"},
 #else
-    {handleOpenSocketFunction, "CURLOPT_OPENSOCKETFUNCTION", 0},
+    {NULL, "CURLOPT_OPENSOCKETFUNCTION"},
 #endif
 #if HAVE_DECL_CURLOPT_PROXYTYPE
-    {handleProxyType, "CURLOPT_PROXYTYPE", CURLOPT_PROXYTYPE},
+    {handleProxyType, "CURLOPT_PROXYTYPE"},
 #else
-    {handleProxyType, "CURLOPT_PROXYTYPE", 0},
+    {NULL, "CURLOPT_PROXYTYPE"},
 #endif
 #if HAVE_DECL_CURLOPT_PROTOCOLS
-    {handleProtocols, "CURLOPT_PROTOCOLS", CURLOPT_PROTOCOLS},
+    {handleProtocols, "CURLOPT_PROTOCOLS"},
 #else
-    {handleProtocols, "CURLOPT_PROTOCOLS", 0},
+    {NULL, "CURLOPT_PROTOCOLS"},
 #endif
 #if HAVE_DECL_CURLOPT_REDIR_PROTOCOLS
-    {handleRedirProtocols, "CURLOPT_REDIR_PROTOCOLS", CURLOPT_REDIR_PROTOCOLS},
+    {handleRedirProtocols, "CURLOPT_REDIR_PROTOCOLS"},
 #else
-    {handleRedirProtocols, "CURLOPT_REDIR_PROTOCOLS", 0},
+    {NULL, "CURLOPT_REDIR_PROTOCOLS"},
 #endif
 #if HAVE_DECL_CURLOPT_RESOLVE
-    {handleResolve, "CURLOPT_RESOLVE", CURLOPT_RESOLVE},
+    {handleResolve, "CURLOPT_RESOLVE"},
 #else
-    {handleResolve, "CURLOPT_RESOLVE", 0},
+    {NULL, "CURLOPT_RESOLVE"},
 #endif
 #if HAVE_DECL_CURLOPT_DNS_SERVERS
-    {handleDnsServers, "CURLOPT_DNS_SERVERS", CURLOPT_DNS_SERVERS},
+    {handleDnsServers, "CURLOPT_DNS_SERVERS"},
 #else
-    {handleDnsServers, "CURLOPT_DNS_SERVERS", 0},
+    {NULL, "CURLOPT_DNS_SERVERS"},
 #endif
 #if HAVE_DECL_CURLOPT_MAIL_FROM
-    {handleMailFrom, "CURLOPT_MAIL_FROM", CURLOPT_MAIL_FROM},
+    {handleMailFrom, "CURLOPT_MAIL_FROM"},
 #else
-    {handleMailFrom, "CURLOPT_MAIL_FROM", 0},
+    {NULL, "CURLOPT_MAIL_FROM"},
 #endif
 #if HAVE_DECL_CURLOPT_MAIL_RCPT
-    {handleMailRcpt, "CURLOPT_MAIL_RCPT", CURLOPT_MAIL_RCPT},
+    {handleMailRcpt, "CURLOPT_MAIL_RCPT"},
 #else
-    {handleMailRcpt, "CURLOPT_MAIL_RCPT", 0},
+    {NULL, "CURLOPT_MAIL_RCPT"},
 #endif
 };
 
@@ -5619,6 +5618,7 @@ CAMLprim value helper_curl_easy_setopt(value conn, value option)
     CAMLparam2(conn, option);
     CAMLlocal1(data);
     Connection *connection = Connection_val(conn);
+    CURLOptionMapping* thisOption = NULL;
 
     checkConnection(connection);
 
@@ -5631,10 +5631,15 @@ CAMLprim value helper_curl_easy_setopt(value conn, value option)
     data = Field(option, 0);
 
     if (Tag_val(option) < sizeof(implementedOptionMap)/sizeof(CURLOptionMapping))
-        (*implementedOptionMap[Tag_val(option)].optionHandler)(connection,
-                                                               data);
+    {
+      thisOption = &implementedOptionMap[Tag_val(option)];
+      if (thisOption->optionHandler)
+        thisOption->optionHandler(connection, data);
+      else
+        failwith(thisOption->name);
+    }
     else
-        failwith("Invalid CURLOPT Option");
+      failwith("Invalid CURLOPT Option");
 
     CAMLreturn(Val_unit);
 }
