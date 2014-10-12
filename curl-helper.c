@@ -611,6 +611,7 @@ struct CURLOptionMapping
 {
     void (*optionHandler)(Connection *, value);
     char *name;
+/*    CURLoption option; */
 };
 
 static void free_curl_slist(struct curl_slist *slist)
@@ -1330,7 +1331,7 @@ CAMLprim value helper_curl_easy_reset(value conn)
  **  curl_easy_setopt helper utility functions
  **/
 
-static void handleWriteFunction(Connection *conn, value option)
+static void handle_WRITEFUNCTION(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1357,7 +1358,7 @@ static void handleWriteFunction(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleReadFunction(Connection *conn, value option)
+static void handle_READFUNCTION(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1384,7 +1385,7 @@ static void handleReadFunction(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleURL(Connection *conn, value option)
+static void handle_URL(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1406,7 +1407,7 @@ static void handleURL(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleInFileSize(Connection *conn, value option)
+static void handle_INFILESIZE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1421,7 +1422,7 @@ static void handleInFileSize(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleProxy(Connection *conn, value option)
+static void handle_PROXY(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1443,7 +1444,7 @@ static void handleProxy(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleProxyPort(Connection *conn, value option)
+static void handle_PROXYPORT(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1458,7 +1459,7 @@ static void handleProxyPort(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleHTTPProxyTunnel(Connection *conn, value option)
+static void handle_HTTPPROXYTUNNEL(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1473,7 +1474,7 @@ static void handleHTTPProxyTunnel(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleVerbose(Connection *conn, value option)
+static void handle_VERBOSE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1488,7 +1489,7 @@ static void handleVerbose(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleHeader(Connection *conn, value option)
+static void handle_HEADER(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1503,7 +1504,7 @@ static void handleHeader(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleNoProgress(Connection *conn, value option)
+static void handle_NOPROGRESS(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1519,7 +1520,7 @@ static void handleNoProgress(Connection *conn, value option)
 }
 
 #if HAVE_DECL_CURLOPT_NOSIGNAL
-static void handleNoSignal(Connection *conn, value option)
+static void handle_NOSIGNAL(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1535,7 +1536,7 @@ static void handleNoSignal(Connection *conn, value option)
 }
 #endif
 
-static void handleNoBody(Connection *conn, value option)
+static void handle_NOBODY(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1550,7 +1551,7 @@ static void handleNoBody(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleFailOnError(Connection *conn, value option)
+static void handle_FAILONERROR(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1565,7 +1566,7 @@ static void handleFailOnError(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleUpload(Connection *conn, value option)
+static void handle_UPLOAD(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1580,7 +1581,7 @@ static void handleUpload(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handlePost(Connection *conn, value option)
+static void handle_POST(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1595,7 +1596,7 @@ static void handlePost(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleFTPListOnly(Connection *conn, value option)
+static void handle_FTPLISTONLY(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1610,7 +1611,7 @@ static void handleFTPListOnly(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleFTPAppend(Connection *conn, value option)
+static void handle_FTPAPPEND(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1625,7 +1626,7 @@ static void handleFTPAppend(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleNETRC(Connection *conn, value option)
+static void handle_NETRC(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1661,7 +1662,7 @@ static void handleNETRC(Connection *conn, value option)
 }
 
 #if HAVE_DECL_CURLOPT_ENCODING
-static void handleEncoding(Connection *conn, value option)
+static void handle_ENCODING(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1704,7 +1705,7 @@ static void handleEncoding(Connection *conn, value option)
 }
 #endif
 
-static void handleFollowLocation(Connection *conn, value option)
+static void handle_FOLLOWLOCATION(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1719,7 +1720,7 @@ static void handleFollowLocation(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleTransferText(Connection *conn, value option)
+static void handle_TRANSFERTEXT(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1734,7 +1735,7 @@ static void handleTransferText(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handlePut(Connection *conn, value option)
+static void handle_PUT(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1749,7 +1750,7 @@ static void handlePut(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleUserPwd(Connection *conn, value option)
+static void handle_USERPWD(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1771,7 +1772,7 @@ static void handleUserPwd(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleProxyUserPwd(Connection *conn, value option)
+static void handle_PROXYUSERPWD(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1793,7 +1794,7 @@ static void handleProxyUserPwd(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleRange(Connection *conn, value option)
+static void handle_RANGE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1815,7 +1816,7 @@ static void handleRange(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleErrorBuffer(Connection *conn, value option)
+static void handle_ERRORBUFFER(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1837,7 +1838,7 @@ static void handleErrorBuffer(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleTimeout(Connection *conn, value option)
+static void handle_TIMEOUT(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1852,7 +1853,7 @@ static void handleTimeout(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handlePostFields(Connection *conn, value option)
+static void handle_POSTFIELDS(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1875,7 +1876,7 @@ static void handlePostFields(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handlePostFieldSize(Connection *conn, value option)
+static void handle_POSTFIELDSIZE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1890,7 +1891,7 @@ static void handlePostFieldSize(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleReferer(Connection *conn, value option)
+static void handle_REFERER(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1912,7 +1913,7 @@ static void handleReferer(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleUserAgent(Connection *conn, value option)
+static void handle_USERAGENT(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1934,7 +1935,7 @@ static void handleUserAgent(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleFTPPort(Connection *conn, value option)
+static void handle_FTPPORT(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1956,7 +1957,7 @@ static void handleFTPPort(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleLowSpeedLimit(Connection *conn, value option)
+static void handle_LOW_SPEED_LIMIT(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1971,7 +1972,7 @@ static void handleLowSpeedLimit(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleLowSpeedTime(Connection *conn, value option)
+static void handle_LOW_SPEED_TIME(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -1986,7 +1987,7 @@ static void handleLowSpeedTime(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleResumeFrom(Connection *conn, value option)
+static void handle_RESUME_FROM(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -2001,7 +2002,7 @@ static void handleResumeFrom(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleCookie(Connection *conn, value option)
+static void handle_COOKIE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -2023,7 +2024,7 @@ static void handleCookie(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleHTTPHeader(Connection *conn, value option)
+static void handle_HTTPHEADER(Connection *conn, value option)
 {
     CAMLparam1(option);
     CAMLlocal1(listIter);
@@ -2053,7 +2054,7 @@ static void handleHTTPHeader(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleHTTPPost(Connection *conn, value option)
+static void handle_HTTPPOST(Connection *conn, value option)
 {
     CAMLparam1(option);
     CAMLlocal3(listIter, formItem, contentType);
@@ -2445,7 +2446,7 @@ static void handleHTTPPost(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleSSLCert(Connection *conn, value option)
+static void handle_SSLCERT(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -2467,7 +2468,7 @@ static void handleSSLCert(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleSSLCertType(Connection *conn, value option)
+static void handle_SSLCERTTYPE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -2489,7 +2490,7 @@ static void handleSSLCertType(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleSSLCertPasswd(Connection *conn, value option)
+static void handle_SSLCERTPASSWD(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -2511,7 +2512,7 @@ static void handleSSLCertPasswd(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleSSLKey(Connection *conn, value option)
+static void handle_SSLKEY(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -2533,7 +2534,7 @@ static void handleSSLKey(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleSSLKeyType(Connection *conn, value option)
+static void handle_SSLKEYTYPE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -2555,7 +2556,7 @@ static void handleSSLKeyType(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleSSLKeyPasswd(Connection *conn, value option)
+static void handle_SSLKEYPASSWD(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -2577,7 +2578,7 @@ static void handleSSLKeyPasswd(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleSSLEngine(Connection *conn, value option)
+static void handle_SSLENGINE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -2599,7 +2600,7 @@ static void handleSSLEngine(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleSSLEngineDefault(Connection *conn, value option)
+static void handle_SSLENGINE_DEFAULT(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -2614,7 +2615,7 @@ static void handleSSLEngineDefault(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleCRLF(Connection *conn, value option)
+static void handle_CRLF(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -2629,7 +2630,7 @@ static void handleCRLF(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleQuote(Connection *conn, value option)
+static void handle_QUOTE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CAMLlocal1(listIter);
@@ -2659,7 +2660,7 @@ static void handleQuote(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handlePostQuote(Connection *conn, value option)
+static void handle_POSTQUOTE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CAMLlocal1(listIter);
@@ -2689,7 +2690,7 @@ static void handlePostQuote(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleHeaderFunction(Connection *conn, value option)
+static void handle_HEADERFUNCTION(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -2716,7 +2717,7 @@ static void handleHeaderFunction(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleCookieFile(Connection *conn, value option)
+static void handle_COOKIEFILE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -2738,7 +2739,7 @@ static void handleCookieFile(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleSSLVersion(Connection *conn, value option)
+static void handle_SSLVERSION(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -2753,7 +2754,7 @@ static void handleSSLVersion(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleTimeCondition(Connection *conn, value option)
+static void handle_TIMECONDITION(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -2778,7 +2779,7 @@ static void handleTimeCondition(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleTimeValue(Connection *conn, value option)
+static void handle_TIMEVALUE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -2793,7 +2794,7 @@ static void handleTimeValue(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleCustomRequest(Connection *conn, value option)
+static void handle_CUSTOMREQUEST(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -2815,7 +2816,7 @@ static void handleCustomRequest(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleInterface(Connection *conn, value option)
+static void handle_INTERFACE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -2837,7 +2838,7 @@ static void handleInterface(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleKRB4Level(Connection *conn, value option)
+static void handle_KRB4LEVEL(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -2885,7 +2886,7 @@ static void handleKRB4Level(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleProgressFunction(Connection *conn, value option)
+static void handle_PROGRESSFUNCTION(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -2911,7 +2912,7 @@ static void handleProgressFunction(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleSSLVerifyPeer(Connection *conn, value option)
+static void handle_SSL_VERIFYPEER(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -2926,7 +2927,7 @@ static void handleSSLVerifyPeer(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleCAInfo(Connection *conn, value option)
+static void handle_CAINFO(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -2948,7 +2949,7 @@ static void handleCAInfo(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleCAPath(Connection *conn, value option)
+static void handle_CAPATH(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -2970,7 +2971,7 @@ static void handleCAPath(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleFileTime(Connection *conn, value option)
+static void handle_FILETIME(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -2985,7 +2986,7 @@ static void handleFileTime(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleMaxRedirs(Connection *conn, value option)
+static void handle_MAXREDIRS(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3000,7 +3001,7 @@ static void handleMaxRedirs(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleMaxConnects(Connection *conn, value option)
+static void handle_MAXCONNECTS(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3015,7 +3016,7 @@ static void handleMaxConnects(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleClosePolicy(Connection *conn, value option)
+static void handle_CLOSEPOLICY(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3045,7 +3046,7 @@ static void handleClosePolicy(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleFreshConnect(Connection *conn, value option)
+static void handle_FRESH_CONNECT(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3060,7 +3061,7 @@ static void handleFreshConnect(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleForbidReuse(Connection *conn, value option)
+static void handle_FORBID_REUSE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3075,7 +3076,7 @@ static void handleForbidReuse(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleRandomFile(Connection *conn, value option)
+static void handle_RANDOM_FILE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3097,7 +3098,7 @@ static void handleRandomFile(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleEGDSocket(Connection *conn, value option)
+static void handle_EGDSOCKET(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3119,7 +3120,7 @@ static void handleEGDSocket(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleConnectTimeout(Connection *conn, value option)
+static void handle_CONNECTTIMEOUT(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3134,7 +3135,7 @@ static void handleConnectTimeout(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleHTTPGet(Connection *conn, value option)
+static void handle_HTTPGET(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3149,7 +3150,7 @@ static void handleHTTPGet(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleSSLVerifyHost(Connection *conn, value option)
+static void handle_SSL_VERIFYHOST(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3176,7 +3177,7 @@ static void handleSSLVerifyHost(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleCookieJar(Connection *conn, value option)
+static void handle_COOKIEJAR(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3198,7 +3199,7 @@ static void handleCookieJar(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleSSLCipherList(Connection *conn, value option)
+static void handle_SSL_CIPHER_LIST(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3220,7 +3221,7 @@ static void handleSSLCipherList(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleHTTPVersion(Connection *conn, value option)
+static void handle_HTTP_VERSION(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3256,7 +3257,7 @@ static void handleHTTPVersion(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleFTPUseEPSV(Connection *conn, value option)
+static void handle_FTP_USE_EPSV(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3271,7 +3272,7 @@ static void handleFTPUseEPSV(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleDNSCacheTimeout(Connection *conn, value option)
+static void handle_DNS_CACHE_TIMEOUT(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3286,7 +3287,7 @@ static void handleDNSCacheTimeout(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleDNSUseGlobalCache(Connection *conn, value option)
+static void handle_DNS_USE_GLOBAL_CACHE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3301,7 +3302,7 @@ static void handleDNSUseGlobalCache(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handleDebugFunction(Connection *conn, value option)
+static void handle_DEBUGFUNCTION(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3328,7 +3329,7 @@ static void handleDebugFunction(Connection *conn, value option)
 }
 
 #if HAVE_DECL_CURLOPT_PRIVATE
-static void handlePrivate(Connection *conn, value option)
+static void handle_PRIVATE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3352,7 +3353,7 @@ static void handlePrivate(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_HTTP200ALIASES
-static void handleHTTP200Aliases(Connection *conn, value option)
+static void handle_HTTP200ALIASES(Connection *conn, value option)
 {
     CAMLparam1(option);
     CAMLlocal1(listIter);
@@ -3384,7 +3385,7 @@ static void handleHTTP200Aliases(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_UNRESTRICTED_AUTH
-static void handleUnrestrictedAuth(Connection *conn, value option)
+static void handle_UNRESTRICTED_AUTH(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3401,7 +3402,7 @@ static void handleUnrestrictedAuth(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_FTP_USE_EPRT
-static void handleFTPUseEPRT(Connection *conn, value option)
+static void handle_FTP_USE_EPRT(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3418,7 +3419,7 @@ static void handleFTPUseEPRT(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_HTTPAUTH
-static void handleHTTPAuth(Connection *conn, value option)
+static void handle_HTTPAUTH(Connection *conn, value option)
 {
     CAMLparam1(option);
     CAMLlocal1(listIter);
@@ -3475,7 +3476,7 @@ static void handleHTTPAuth(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_FTP_CREATE_MISSING_DIRS
-static void handleFTPCreateMissingDirs(Connection *conn, value option)
+static void handle_FTP_CREATE_MISSING_DIRS(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3492,7 +3493,7 @@ static void handleFTPCreateMissingDirs(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_PROXYAUTH
-static void handleProxyAuth(Connection *conn, value option)
+static void handle_PROXYAUTH(Connection *conn, value option)
 {
     CAMLparam1(option);
     CAMLlocal1(listIter);
@@ -3549,7 +3550,7 @@ static void handleProxyAuth(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_FTP_RESPONSE_TIMEOUT
-static void handleFTPResponseTimeout(Connection *conn, value option)
+static void handle_FTP_RESPONSE_TIMEOUT(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3566,7 +3567,7 @@ static void handleFTPResponseTimeout(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_IPRESOLVE
-static void handleIPResolve(Connection *conn, value option)
+static void handle_IPRESOLVE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3604,7 +3605,7 @@ static void handleIPResolve(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_MAXFILESIZE
-static void handleMaxFileSize(Connection *conn, value option)
+static void handle_MAXFILESIZE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3621,7 +3622,7 @@ static void handleMaxFileSize(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_INFILESIZE_LARGE
-static void handleInFileSizeLarge(Connection *conn, value option)
+static void handle_INFILESIZE_LARGE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3638,7 +3639,7 @@ static void handleInFileSizeLarge(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_RESUME_FROM_LARGE
-static void handleResumeFromLarge(Connection *conn, value option)
+static void handle_RESUME_FROM_LARGE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3655,7 +3656,7 @@ static void handleResumeFromLarge(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_MAXFILESIZE_LARGE
-static void handleMaxFileSizeLarge(Connection *conn, value option)
+static void handle_MAXFILESIZE_LARGE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3672,7 +3673,7 @@ static void handleMaxFileSizeLarge(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_NETRC_FILE
-static void handleNETRCFile(Connection *conn, value option)
+static void handle_NETRC_FILE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3696,7 +3697,7 @@ static void handleNETRCFile(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_FTP_SSL
-static void handleFTPSSL(Connection *conn, value option)
+static void handle_FTP_SSL(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3740,7 +3741,7 @@ static void handleFTPSSL(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_POSTFIELDSIZE_LARGE
-static void handlePostFieldSizeLarge(Connection *conn, value option)
+static void handle_POSTFIELDSIZE_LARGE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3757,7 +3758,7 @@ static void handlePostFieldSizeLarge(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_TCP_NODELAY
-static void handleTCPNoDelay(Connection *conn, value option)
+static void handle_TCP_NODELAY(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3774,7 +3775,7 @@ static void handleTCPNoDelay(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_FTPSSLAUTH
-static void handleFTPSSLAuth(Connection *conn, value option)
+static void handle_FTPSSLAUTH(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3812,7 +3813,7 @@ static void handleFTPSSLAuth(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_IOCTLFUNCTION
-static void handleIOCTLFunction(Connection *conn, value option)
+static void handle_IOCTLFUNCTION(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3840,7 +3841,7 @@ static void handleIOCTLFunction(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_FTP_ACCOUNT
-static void handleFTPAccount(Connection *conn, value option)
+static void handle_FTP_ACCOUNT(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3864,7 +3865,7 @@ static void handleFTPAccount(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_COOKIELIST
-static void handleCookieList(Connection *conn, value option)
+static void handle_COOKIELIST(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3888,7 +3889,7 @@ static void handleCookieList(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_IGNORE_CONTENT_LENGTH
-static void handleIgnoreContentLength(Connection *conn, value option)
+static void handle_IGNORE_CONTENT_LENGTH(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3905,7 +3906,7 @@ static void handleIgnoreContentLength(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_FTP_SKIP_PASV_IP
-static void handleFTPSkipPASVIP(Connection *conn, value option)
+static void handle_FTP_SKIP_PASV_IP(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3922,7 +3923,7 @@ static void handleFTPSkipPASVIP(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_FTP_FILEMETHOD
-static void handleFTPFileMethod(Connection *conn, value option)
+static void handle_FTP_FILEMETHOD(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3965,7 +3966,7 @@ static void handleFTPFileMethod(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_LOCALPORT
-static void handleLocalPort(Connection *conn, value option)
+static void handle_LOCALPORT(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3982,7 +3983,7 @@ static void handleLocalPort(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_LOCALPORTRANGE
-static void handleLocalPortRange(Connection *conn, value option)
+static void handle_LOCALPORTRANGE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -3999,7 +4000,7 @@ static void handleLocalPortRange(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_CONNECT_ONLY
-static void handleConnectOnly(Connection *conn, value option)
+static void handle_CONNECT_ONLY(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -4016,7 +4017,7 @@ static void handleConnectOnly(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_MAX_SEND_SPEED_LARGE
-static void handleMaxSendSpeedLarge(Connection *conn, value option)
+static void handle_MAX_SEND_SPEED_LARGE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -4033,7 +4034,7 @@ static void handleMaxSendSpeedLarge(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_MAX_RECV_SPEED_LARGE
-static void handleMaxRecvSpeedLarge(Connection *conn, value option)
+static void handle_MAX_RECV_SPEED_LARGE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -4050,7 +4051,7 @@ static void handleMaxRecvSpeedLarge(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_FTP_ALTERNATIVE_TO_USER
-static void handleFTPAlternativeToUser(Connection *conn, value option)
+static void handle_FTP_ALTERNATIVE_TO_USER(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -4074,7 +4075,7 @@ static void handleFTPAlternativeToUser(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_SSL_SESSIONID_CACHE
-static void handleSSLSessionIdCache(Connection *conn, value option)
+static void handle_SSL_SESSIONID_CACHE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -4091,7 +4092,7 @@ static void handleSSLSessionIdCache(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_SSH_AUTH_TYPES
-static void handleSSHAuthTypes(Connection *conn, value option)
+static void handle_SSH_AUTH_TYPES(Connection *conn, value option)
 {
     CAMLparam1(option);
     CAMLlocal1(listIter);
@@ -4144,7 +4145,7 @@ static void handleSSHAuthTypes(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_SSH_PUBLIC_KEYFILE
-static void handleSSHPublicKeyFile(Connection *conn, value option)
+static void handle_SSH_PUBLIC_KEYFILE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -4168,7 +4169,7 @@ static void handleSSHPublicKeyFile(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_SSH_PRIVATE_KEYFILE
-static void handleSSHPrivateKeyFile(Connection *conn, value option)
+static void handle_SSH_PRIVATE_KEYFILE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -4192,7 +4193,7 @@ static void handleSSHPrivateKeyFile(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_FTP_SSL_CCC
-static void handleFTPSSLCCC(Connection *conn, value option)
+static void handle_FTP_SSL_CCC(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -4230,7 +4231,7 @@ static void handleFTPSSLCCC(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_TIMEOUT_MS
-static void handleTimeoutMS(Connection *conn, value option)
+static void handle_TIMEOUT_MS(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -4247,7 +4248,7 @@ static void handleTimeoutMS(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_CONNECTTIMEOUT_MS
-static void handleConnectTimeoutMS(Connection *conn, value option)
+static void handle_CONNECTTIMEOUT_MS(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -4264,7 +4265,7 @@ static void handleConnectTimeoutMS(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_HTTP_TRANSFER_DECODING
-static void handleHTTPTransferDecoding(Connection *conn, value option)
+static void handle_HTTP_TRANSFER_DECODING(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -4281,7 +4282,7 @@ static void handleHTTPTransferDecoding(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_HTTP_CONTENT_DECODING
-static void handleHTTPContentDecoding(Connection *conn, value option)
+static void handle_HTTP_CONTENT_DECODING(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -4298,7 +4299,7 @@ static void handleHTTPContentDecoding(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_NEW_FILE_PERMS
-static void handleNewFilePerms(Connection *conn, value option)
+static void handle_NEW_FILE_PERMS(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -4315,7 +4316,7 @@ static void handleNewFilePerms(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_NEW_DIRECTORY_PERMS
-static void handleNewDirectoryPerms(Connection *conn, value option)
+static void handle_NEW_DIRECTORY_PERMS(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -4332,7 +4333,7 @@ static void handleNewDirectoryPerms(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_POST301
-static void handlePost301(Connection *conn, value option)
+static void handle_POST301(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -4349,7 +4350,7 @@ static void handlePost301(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_SSH_HOST_PUBLIC_KEY_MD5
-static void handleSSHHostPublicKeyMD5(Connection *conn, value option)
+static void handle_SSH_HOST_PUBLIC_KEY_MD5(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -4373,7 +4374,7 @@ static void handleSSHHostPublicKeyMD5(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_COPYPOSTFIELDS
-static void handleCopyPostFields(Connection *conn, value option)
+static void handle_COPYPOSTFIELDS(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -4397,7 +4398,7 @@ static void handleCopyPostFields(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_PROXY_TRANSFER_MODE
-static void handleProxyTransferMode(Connection *conn, value option)
+static void handle_PROXY_TRANSFER_MODE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -4414,7 +4415,7 @@ static void handleProxyTransferMode(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_SEEKFUNCTION
-static void handleSeekFunction(Connection *conn, value option)
+static void handle_SEEKFUNCTION(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -4443,7 +4444,7 @@ static void handleSeekFunction(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_AUTOREFERER
-static void handleAutoReferer(Connection *conn, value option)
+static void handle_AUTOREFERER(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = curl_easy_setopt(conn->connection,
@@ -4458,7 +4459,7 @@ static void handleAutoReferer(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
-static void handleOpenSocketFunction(Connection *conn, value option)
+static void handle_OPENSOCKETFUNCTION(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -4484,7 +4485,7 @@ static void handleOpenSocketFunction(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_PROXYTYPE
-static void handleProxyType(Connection *conn, value option)
+static void handle_PROXYTYPE(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -4593,7 +4594,7 @@ long protoMap[] =
 #endif
 };
 
-static void handleProtocolsOption(CURLoption curlopt, Connection *conn, value option)
+static void handle_PROTOCOLSOPTION(CURLoption curlopt, Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -4623,21 +4624,21 @@ static void handleProtocolsOption(CURLoption curlopt, Connection *conn, value op
 #endif
 
 #if HAVE_DECL_CURLOPT_PROTOCOLS
-static void handleProtocols(Connection *conn, value option)
+static void handle_PROTOCOLS(Connection *conn, value option)
 {
-  handleProtocolsOption(CURLOPT_PROTOCOLS, conn, option);
+  handle_PROTOCOLSOPTION(CURLOPT_PROTOCOLS, conn, option);
 }
 #endif
 
-#if HAVE_DECL_CURLOPT_PROTOCOLS
-static void handleRedirProtocols(Connection *conn, value option)
+#if HAVE_DECL_CURLOPT_REDIR_PROTOCOLS
+static void handle_REDIR_PROTOCOLS(Connection *conn, value option)
 {
-  handleProtocolsOption(CURLOPT_REDIR_PROTOCOLS, conn, option);
+  handle_PROTOCOLSOPTION(CURLOPT_REDIR_PROTOCOLS, conn, option);
 }
 #endif
 
 #if HAVE_DECL_CURLOPT_RESOLVE
-static void handleResolve(Connection *conn, value option)
+static void handle_RESOLVE(Connection *conn, value option)
 {
   CAMLparam1(option);
   CAMLlocal1(head);
@@ -4667,7 +4668,7 @@ static void handleResolve(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_DNS_SERVERS
-static void handleDnsServers(Connection *conn, value option)
+static void handle_DNS_SERVERS(Connection *conn, value option)
 {
   CAMLparam1(option);
 
@@ -4690,7 +4691,7 @@ static void handleDnsServers(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_MAIL_FROM
-static void handleMailFrom(Connection *conn, value option)
+static void handle_MAIL_FROM(Connection *conn, value option)
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
@@ -4714,7 +4715,7 @@ static void handleMailFrom(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_MAIL_RCPT
-static void handleMailRcpt(Connection *conn, value option)
+static void handle_MAIL_RCPT(Connection *conn, value option)
 {
     CAMLparam1(option);
     CAMLlocal1(listIter);
@@ -4784,139 +4785,139 @@ static Connection *duplicateConnection(Connection *original)
 		Field(original->ocamlValues, OcamlSeekFunctionCallback));
 
     if (Field(original->ocamlValues, OcamlURL) != Val_unit)
-        handleURL(connection, Field(original->ocamlValues,
+        handle_URL(connection, Field(original->ocamlValues,
                                     OcamlURL));
     if (Field(original->ocamlValues, OcamlProxy) != Val_unit)
-        handleProxy(connection, Field(original->ocamlValues,
+        handle_PROXY(connection, Field(original->ocamlValues,
                                       OcamlProxy));
     if (Field(original->ocamlValues, OcamlUserPWD) != Val_unit)
-        handleUserPwd(connection, Field(original->ocamlValues,
+        handle_USERPWD(connection, Field(original->ocamlValues,
                                         OcamlUserPWD));
     if (Field(original->ocamlValues, OcamlProxyUserPWD) != Val_unit)
-        handleProxyUserPwd(connection, Field(original->ocamlValues,
+        handle_PROXYUSERPWD(connection, Field(original->ocamlValues,
                                              OcamlProxyUserPWD));
     if (Field(original->ocamlValues, OcamlRange) != Val_unit)
-        handleRange(connection, Field(original->ocamlValues,
+        handle_RANGE(connection, Field(original->ocamlValues,
                                       OcamlRange));
     if (Field(original->ocamlValues, OcamlErrorBuffer) != Val_unit)
-        handleErrorBuffer(connection, Field(original->ocamlValues,
+        handle_ERRORBUFFER(connection, Field(original->ocamlValues,
                                             OcamlErrorBuffer));
     if (Field(original->ocamlValues, OcamlPostFields) != Val_unit)
-        handlePostFields(connection, Field(original->ocamlValues,
+        handle_POSTFIELDS(connection, Field(original->ocamlValues,
                                            OcamlPostFields));
     if (Field(original->ocamlValues, OcamlReferer) != Val_unit)
-        handleReferer(connection, Field(original->ocamlValues,
+        handle_REFERER(connection, Field(original->ocamlValues,
                                         OcamlReferer));
     if (Field(original->ocamlValues, OcamlUserAgent) != Val_unit)
-        handleUserAgent(connection, Field(original->ocamlValues,
+        handle_USERAGENT(connection, Field(original->ocamlValues,
                                           OcamlUserAgent));
     if (Field(original->ocamlValues, OcamlFTPPort) != Val_unit)
-        handleFTPPort(connection, Field(original->ocamlValues,
+        handle_FTPPORT(connection, Field(original->ocamlValues,
                                         OcamlFTPPort));
     if (Field(original->ocamlValues, OcamlCookie) != Val_unit)
-        handleCookie(connection, Field(original->ocamlValues,
+        handle_COOKIE(connection, Field(original->ocamlValues,
                                        OcamlCookie));
     if (Field(original->ocamlValues, OcamlHTTPHeader) != Val_unit)
-        handleHTTPHeader(connection, Field(original->ocamlValues,
+        handle_HTTPHEADER(connection, Field(original->ocamlValues,
                                            OcamlHTTPHeader));
     if (Field(original->ocamlValues, OcamlHTTPPost) != Val_unit)
-        handleHTTPPost(connection, Field(original->ocamlValues,
+        handle_HTTPPOST(connection, Field(original->ocamlValues,
                                          OcamlHTTPPost));
     if (Field(original->ocamlValues, OcamlSSLCert) != Val_unit)
-        handleSSLCert(connection, Field(original->ocamlValues,
+        handle_SSLCERT(connection, Field(original->ocamlValues,
                                         OcamlSSLCert));
     if (Field(original->ocamlValues, OcamlSSLCertType) != Val_unit)
-        handleSSLCertType(connection, Field(original->ocamlValues,
+        handle_SSLCERTTYPE(connection, Field(original->ocamlValues,
                                             OcamlSSLCertType));
     if (Field(original->ocamlValues, OcamlSSLCertPasswd) != Val_unit)
-        handleSSLCertPasswd(connection, Field(original->ocamlValues,
+        handle_SSLCERTPASSWD(connection, Field(original->ocamlValues,
                                               OcamlSSLCertPasswd));
     if (Field(original->ocamlValues, OcamlSSLKey) != Val_unit)
-        handleSSLKey(connection, Field(original->ocamlValues,
+        handle_SSLKEY(connection, Field(original->ocamlValues,
                                        OcamlSSLKey));
     if (Field(original->ocamlValues, OcamlSSLKeyType) != Val_unit)
-        handleSSLKeyType(connection, Field(original->ocamlValues,
+        handle_SSLKEYTYPE(connection, Field(original->ocamlValues,
                                            OcamlSSLKeyType));
     if (Field(original->ocamlValues, OcamlSSLKeyPasswd) != Val_unit)
-        handleSSLKeyPasswd(connection, Field(original->ocamlValues,
+        handle_SSLKEYPASSWD(connection, Field(original->ocamlValues,
                                              OcamlSSLKeyPasswd));
     if (Field(original->ocamlValues, OcamlSSLEngine) != Val_unit)
-        handleSSLEngine(connection, Field(original->ocamlValues,
+        handle_SSLENGINE(connection, Field(original->ocamlValues,
                                           OcamlSSLEngine));
     if (Field(original->ocamlValues, OcamlQuote) != Val_unit)
-        handleQuote(connection, Field(original->ocamlValues,
+        handle_QUOTE(connection, Field(original->ocamlValues,
                                       OcamlQuote));
     if (Field(original->ocamlValues, OcamlPostQuote) != Val_unit)
-        handlePostQuote(connection, Field(original->ocamlValues,
+        handle_POSTQUOTE(connection, Field(original->ocamlValues,
                                           OcamlPostQuote));
     if (Field(original->ocamlValues, OcamlCookieFile) != Val_unit)
-        handleCookieFile(connection, Field(original->ocamlValues,
+        handle_COOKIEFILE(connection, Field(original->ocamlValues,
                                            OcamlCookieFile));
     if (Field(original->ocamlValues, OcamlCustomRequest) != Val_unit)
-        handleCustomRequest(connection, Field(original->ocamlValues,
+        handle_CUSTOMREQUEST(connection, Field(original->ocamlValues,
                                               OcamlCustomRequest));
     if (Field(original->ocamlValues, OcamlInterface) != Val_unit)
-        handleInterface(connection, Field(original->ocamlValues,
+        handle_INTERFACE(connection, Field(original->ocamlValues,
                                           OcamlInterface));
     if (Field(original->ocamlValues, OcamlCAInfo) != Val_unit)
-        handleCAInfo(connection, Field(original->ocamlValues,
+        handle_CAINFO(connection, Field(original->ocamlValues,
                                        OcamlCAInfo));
     if (Field(original->ocamlValues, OcamlCAPath) != Val_unit)
-        handleCAPath(connection, Field(original->ocamlValues,
+        handle_CAPATH(connection, Field(original->ocamlValues,
                                        OcamlCAPath));
     if (Field(original->ocamlValues, OcamlRandomFile) != Val_unit)
-        handleRandomFile(connection, Field(original->ocamlValues,
+        handle_RANDOM_FILE(connection, Field(original->ocamlValues,
                                            OcamlRandomFile));
     if (Field(original->ocamlValues, OcamlEGDSocket) != Val_unit)
-        handleEGDSocket(connection, Field(original->ocamlValues,
+        handle_EGDSOCKET(connection, Field(original->ocamlValues,
                                           OcamlEGDSocket));
     if (Field(original->ocamlValues, OcamlCookieJar) != Val_unit)
-        handleCookieJar(connection, Field(original->ocamlValues,
+        handle_COOKIEJAR(connection, Field(original->ocamlValues,
                                           OcamlCookieJar));
     if (Field(original->ocamlValues, OcamlSSLCipherList) != Val_unit)
-        handleSSLCipherList(connection, Field(original->ocamlValues,
+        handle_SSL_CIPHER_LIST(connection, Field(original->ocamlValues,
                                               OcamlSSLCipherList));
     if (Field(original->ocamlValues, OcamlPrivate) != Val_unit)
-        handlePrivate(connection, Field(original->ocamlValues,
+        handle_PRIVATE(connection, Field(original->ocamlValues,
                                         OcamlPrivate));
     if (Field(original->ocamlValues, OcamlHTTP200Aliases) != Val_unit)
-        handleHTTP200Aliases(connection, Field(original->ocamlValues,
+        handle_HTTP200ALIASES(connection, Field(original->ocamlValues,
                                                OcamlHTTP200Aliases));
     if (Field(original->ocamlValues, OcamlNETRCFile) != Val_unit)
-        handleNETRCFile(connection, Field(original->ocamlValues,
+        handle_NETRC_FILE(connection, Field(original->ocamlValues,
                                           OcamlNETRCFile));
     if (Field(original->ocamlValues, OcamlFTPAccount) != Val_unit)
-        handleFTPAccount(connection, Field(original->ocamlValues,
+        handle_FTP_ACCOUNT(connection, Field(original->ocamlValues,
                                            OcamlFTPAccount));
     if (Field(original->ocamlValues, OcamlCookieList) != Val_unit)
-        handleCookieList(connection, Field(original->ocamlValues,
+        handle_COOKIELIST(connection, Field(original->ocamlValues,
                                            OcamlCookieList));
     if (Field(original->ocamlValues, OcamlFTPAlternativeToUser) != Val_unit)
-        handleFTPAlternativeToUser(connection,
+        handle_FTP_ALTERNATIVE_TO_USER(connection,
                                    Field(original->ocamlValues,
                                          OcamlFTPAlternativeToUser));
     if (Field(original->ocamlValues, OcamlSSHPublicKeyFile) != Val_unit)
-        handleSSHPublicKeyFile(connection,
+        handle_SSH_PUBLIC_KEYFILE(connection,
                                Field(original->ocamlValues,
                                      OcamlSSHPublicKeyFile));
     if (Field(original->ocamlValues, OcamlSSHPrivateKeyFile) != Val_unit)
-        handleSSHPrivateKeyFile(connection,
+        handle_SSH_PRIVATE_KEYFILE(connection,
                                 Field(original->ocamlValues,
                                       OcamlSSHPrivateKeyFile));
     if (Field(original->ocamlValues, OcamlCopyPostFields) != Val_unit)
-        handleCopyPostFields(connection,
+        handle_COPYPOSTFIELDS(connection,
                              Field(original->ocamlValues,
                                    OcamlCopyPostFields));
     if (Field(original->ocamlValues, OcamlDNSServers) != Val_unit)
-        handleDnsServers(connection,
+        handle_DNS_SERVERS(connection,
                          Field(original->ocamlValues,
                                OcamlDNSServers));
     if (Field(original->ocamlValues, OcamlMailFrom) != Val_unit)
-        handleMailFrom(connection,
+        handle_MAIL_FROM(connection,
                        Field(original->ocamlValues,
                              OcamlMailFrom));
     if (Field(original->ocamlValues, OcamlMailRcpt) != Val_unit)
-        handleMailRcpt(connection,
+        handle_MAIL_RCPT(connection,
                        Field(original->ocamlValues,
                              OcamlMailRcpt));
 
@@ -4927,369 +4928,372 @@ static Connection *duplicateConnection(Connection *original)
  **  curl_easy_setopt helper function
  **/
 
+#define MAP(name) { handle_ ## name, "CURLOPT_"#name /*, CURLOPT_##name */ }
+#define MAP_NO(name) { NULL, "CURLOPT_"#name /*, CURLOPT_##name */ }
+
 CURLOptionMapping implementedOptionMap[] =
 {
-    {handleWriteFunction, "CURLOPT_WRITEFUNCTION"},
-    {handleReadFunction, "CURLOPT_READFUNCTION"},
-    {handleInFileSize, "CURLOPT_INFILESIZE"},
-    {handleURL, "CURLOPT_URL"},
-    {handleProxy, "CURLOPT_PROXY"},
-    {handleProxyPort, "CURLOPT_PROXYPORT"},
-    {handleHTTPProxyTunnel, "CURLOPT_HTTPPROXYTUNNEL"},
-    {handleVerbose, "CURLOPT_VERBOSE"},
-    {handleHeader, "CURLOPT_HEADER"},
-    {handleNoProgress, "CURLOPT_NOPROGRESS"},
+  MAP(WRITEFUNCTION),
+  MAP(READFUNCTION),
+  MAP(INFILESIZE),
+  MAP(URL),
+  MAP(PROXY),
+  MAP(PROXYPORT),
+  MAP(HTTPPROXYTUNNEL),
+  MAP(VERBOSE),
+  MAP(HEADER),
+  MAP(NOPROGRESS),
 #if HAVE_DECL_CURLOPT_NOSIGNAL
-    {handleNoSignal, "CURLOPT_NOSIGNAL"},
+  MAP(NOSIGNAL),
 #else
-    {NULL, "CURLOPT_NOSIGNAL"},
+  MAP_NO(NOSIGNAL),
 #endif
-    {handleNoBody, "CURLOPT_NOBODY"},
-    {handleFailOnError, "CURLOPT_FAILONERROR"},
-    {handleUpload, "CURLOPT_UPLOAD"},
-    {handlePost, "CURLOPT_POST"},
-    {handleFTPListOnly, "CURLOPT_FTPLISTONLY"},
-    {handleFTPAppend, "CURLOPT_FTPAPPEND"},
-    {handleNETRC, "CURLOPT_NETRC"},
+  MAP(NOBODY),
+  MAP(FAILONERROR),
+  MAP(UPLOAD),
+  MAP(POST),
+  MAP(FTPLISTONLY),
+  MAP(FTPAPPEND),
+  MAP(NETRC),
 #if HAVE_DECL_CURLOPT_ENCODING
-    {handleEncoding, "CURLOPT_ENCODING"},
+  MAP(ENCODING),
 #else
-    {NULL, "CURLOPT_ENCODING"},
+  MAP_NO(ENCODING),
 #endif
-    {handleFollowLocation, "CURLOPT_FOLLOWLOCATION"},
-    {handleTransferText, "CURLOPT_TRANSFERTEXT"},
-    {handlePut, "CURLOPT_PUT"},
-    {handleUserPwd, "CURLOPT_USERPWD"},
-    {handleProxyUserPwd, "CURLOPT_PROXYUSERPWD"},
-    {handleRange, "CURLOPT_RANGE"},
-    {handleErrorBuffer, "CURLOPT_ERRORBUFFER"},
-    {handleTimeout, "CURLOPT_TIMEOUT"},
-    {handlePostFields, "CURLOPT_POSTFIELDS"},
-    {handlePostFieldSize, "CURLOPT_POSTFIELDSIZE"},
-    {handleReferer, "CURLOPT_REFERER"},
-    {handleUserAgent, "CURLOPT_USERAGENT"},
-    {handleFTPPort, "CURLOPT_FTPPORT"},
-    {handleLowSpeedLimit, "CURLOPT_LOW_SPEED_LIMIT"},
-    {handleLowSpeedTime, "CURLOPT_LOW_SPEED_TIME"},
-    {handleResumeFrom, "CURLOPT_RESUME_FROM"},
-    {handleCookie, "CURLOPT_COOKIE"},
-    {handleHTTPHeader, "CURLOPT_HTTPHEADER"},
-    {handleHTTPPost, "CURLOPT_HTTPPOST"},
-    {handleSSLCert, "CURLOPT_SSLCERT"},
-    {handleSSLCertType, "CURLOPT_SSLCERTTYPE"},
-    {handleSSLCertPasswd, "CURLOPT_SSLCERTPASSWD"},
-    {handleSSLKey, "CURLOPT_SSLKEY"},
-    {handleSSLKeyType, "CURLOPT_SSLKEYTYPE"},
-    {handleSSLKeyPasswd, "CURLOPT_SSLKEYPASSWD"},
-    {handleSSLEngine, "CURLOPT_SSLENGINE"},
-    {handleSSLEngineDefault, "CURLOPT_SSLENGINE_DEFAULT"},
-    {handleCRLF, "CURLOPT_CRLF"},
-    {handleQuote, "CURLOPT_QUOTE"},
-    {handlePostQuote, "CURLOPT_POSTQUOTE"},
-    {handleHeaderFunction, "CURLOPT_HEADERFUNCTION"},
-    {handleCookieFile, "CURLOPT_COOKIEFILE"},
-    {handleSSLVersion, "CURLOPT_SSLVERSION"},
-    {handleTimeCondition, "CURLOPT_TIMECONDITION"},
-    {handleTimeValue, "CURLOPT_TIMEVALUE"},
-    {handleCustomRequest, "CURLOPT_CUSTOMREQUEST"},
-    {handleInterface, "CURLOPT_INTERFACE"},
-    {handleKRB4Level, "CURLOPT_KRB4LEVEL"},
-    {handleProgressFunction, "CURLOPT_PROGRESSFUNCTION"},
-    {handleSSLVerifyPeer, "CURLOPT_SSLVERIFYPEER"},
-    {handleCAInfo, "CURLOPT_CAINFO"},
-    {handleCAPath, "CURLOPT_CAPATH"},
-    {handleFileTime, "CURLOPT_FILETIME"},
-    {handleMaxRedirs, "CURLOPT_MAXREDIRS"},
-    {handleMaxConnects, "CURLOPT_MAXCONNECTS"},
-    {handleClosePolicy, "CURLOPT_CLOSEPOLICY"},
-    {handleFreshConnect, "CURLOPT_FRESH_CONNECT"},
-    {handleForbidReuse, "CURLOPT_FORBID_REUSE"},
-    {handleRandomFile, "CURLOPT_RANDOM_FILE"},
-    {handleEGDSocket, "CURLOPT_EGDSOCKET"},
-    {handleConnectTimeout, "CURLOPT_CONNECTTIMEOUT"},
-    {handleHTTPGet, "CURLOPT_HTTPGET"},
-    {handleSSLVerifyHost, "CURLOPT_SSL_VERIFYHOST"},
-    {handleCookieJar, "CURLOPT_COOKIEJAR"},
-    {handleSSLCipherList, "CURLOPT_SSL_CIPHERLIST"},
-    {handleHTTPVersion, "CURLOPT_HTTP_VERSION"},
-    {handleFTPUseEPSV, "CURLOPT_FTP_USE_EPSV"},
-    {handleDNSCacheTimeout, "CURLOPT_DNS_CACHE_TIMEOUT"},
-    {handleDNSUseGlobalCache, "CURLOPT_DNS_USE_GLOBAL_CACHE"},
-    {handleDebugFunction, "CURLOPT_DEBUGFUNCTION"},
+  MAP(FOLLOWLOCATION),
+  MAP(TRANSFERTEXT),
+  MAP(PUT),
+  MAP(USERPWD),
+  MAP(PROXYUSERPWD),
+  MAP(RANGE),
+  MAP(ERRORBUFFER),
+  MAP(TIMEOUT),
+  MAP(POSTFIELDS),
+  MAP(POSTFIELDSIZE),
+  MAP(REFERER),
+  MAP(USERAGENT),
+  MAP(FTPPORT),
+  MAP(LOW_SPEED_LIMIT),
+  MAP(LOW_SPEED_TIME),
+  MAP(RESUME_FROM),
+  MAP(COOKIE),
+  MAP(HTTPHEADER),
+  MAP(HTTPPOST),
+  MAP(SSLCERT),
+  MAP(SSLCERTTYPE),
+  MAP(SSLCERTPASSWD),
+  MAP(SSLKEY),
+  MAP(SSLKEYTYPE),
+  MAP(SSLKEYPASSWD),
+  MAP(SSLENGINE),
+  MAP(SSLENGINE_DEFAULT),
+  MAP(CRLF),
+  MAP(QUOTE),
+  MAP(POSTQUOTE),
+  MAP(HEADERFUNCTION),
+  MAP(COOKIEFILE),
+  MAP(SSLVERSION),
+  MAP(TIMECONDITION),
+  MAP(TIMEVALUE),
+  MAP(CUSTOMREQUEST),
+  MAP(INTERFACE),
+  MAP(KRB4LEVEL),
+  MAP(PROGRESSFUNCTION),
+  MAP(SSL_VERIFYPEER),
+  MAP(CAINFO),
+  MAP(CAPATH),
+  MAP(FILETIME),
+  MAP(MAXREDIRS),
+  MAP(MAXCONNECTS),
+  MAP(CLOSEPOLICY),
+  MAP(FRESH_CONNECT),
+  MAP(FORBID_REUSE),
+  MAP(RANDOM_FILE),
+  MAP(EGDSOCKET),
+  MAP(CONNECTTIMEOUT),
+  MAP(HTTPGET),
+  MAP(SSL_VERIFYHOST),
+  MAP(COOKIEJAR),
+  MAP(SSL_CIPHER_LIST),
+  MAP(HTTP_VERSION),
+  MAP(FTP_USE_EPSV),
+  MAP(DNS_CACHE_TIMEOUT),
+  MAP(DNS_USE_GLOBAL_CACHE),
+  MAP(DEBUGFUNCTION),
 #if HAVE_DECL_CURLOPT_PRIVATE
-    {handlePrivate, "CURLOPT_PRIVATE"},
+  MAP(PRIVATE),
 #else
-    {NULL, "CURLOPT_PRIVATE"},
+  MAP_NO(PRIVATE),
 #endif
 #if HAVE_DECL_CURLOPT_HTTP200ALIASES
-    {handleHTTP200Aliases, "CURLOPT_HTTP200ALIASES"},
+  MAP(HTTP200ALIASES),
 #else
-    {NULL, "CURLOPT_HTTP200ALIASES"},
+  MAP_NO(HTTP200ALIASES),
 #endif
 #if HAVE_DECL_CURLOPT_UNRESTRICTED_AUTH
-    {handleUnrestrictedAuth, "CURLOPT_UNRESTRICTED_AUTH"},
+  MAP(UNRESTRICTED_AUTH),
 #else
-    {NULL, "CURLOPT_UNRESTRICTED_AUTH"},
+  MAP_NO(UNRESTRICTED_AUTH),
 #endif
 #if HAVE_DECL_CURLOPT_FTP_USE_EPRT
-    {handleFTPUseEPRT, "CURLOPT_FTP_USE_EPRT"},
+  MAP(FTP_USE_EPRT),
 #else
-    {NULL, "CURLOPT_FTP_USE_EPRT"},
+  MAP_NO(FTP_USE_EPRT),
 #endif
 #if HAVE_DECL_CURLOPT_HTTPAUTH
-    {handleHTTPAuth, "CURLOPT_HTTPAUTH"},
+  MAP(HTTPAUTH),
 #else
-    {NULL, "CURLOPT_HTTPAUTH"},
+  MAP_NO(HTTPAUTH),
 #endif
 #if HAVE_DECL_CURLOPT_FTP_CREATE_MISSING_DIRS
-    {handleFTPCreateMissingDirs, "CURLOPT_FTP_CREATE_MISSING_DIRS"},
+  MAP(FTP_CREATE_MISSING_DIRS),
 #else
-    {NULL, "CURLOPT_FTP_CREATE_MISSING_DIRS"},
+  MAP_NO(FTP_CREATE_MISSING_DIRS),
 #endif
 #if HAVE_DECL_CURLOPT_PROXYAUTH
-    {handleProxyAuth, "CURLOPT_PROXYAUTH"},
+  MAP(PROXYAUTH),
 #else
-    {NULL, "CURLOPT_PROXYAUTH"},
+  MAP_NO(PROXYAUTH),
 #endif
 #if HAVE_DECL_CURLOPT_FTP_RESPONSE_TIMEOUT
-    {handleFTPResponseTimeout, "CURLOPT_FTP_RESPONSE_TIMEOUT"},
+  MAP(FTP_RESPONSE_TIMEOUT),
 #else
-    {NULL, "CURLOPT_FTP_RESPONSE_TIMEOUT"},
+  MAP_NO(FTP_RESPONSE_TIMEOUT),
 #endif
 #if HAVE_DECL_CURLOPT_IPRESOLVE
-    {handleIPResolve, "CURLOPT_IPRESOLVE"},
+  MAP(IPRESOLVE),
 #else
-    {NULL, "CURLOPT_IPRESOLVE"},
+  MAP_NO(IPRESOLVE),
 #endif
 #if HAVE_DECL_CURLOPT_MAXFILESIZE
-    {handleMaxFileSize, "CURLOPT_MAXFILESIZE"},
+  MAP(MAXFILESIZE),
 #else
-    {NULL, "CURLOPT_MAXFILESIZE"},
+  MAP_NO(MAXFILESIZE),
 #endif
 #if HAVE_DECL_CURLOPT_INFILESIZE_LARGE
-    {handleInFileSizeLarge, "CURLOPT_INFILESIZE_LARGE"},
+  MAP(INFILESIZE_LARGE),
 #else
-    {NULL, "CURLOPT_INFILESIZE_LARGE"},
+  MAP_NO(INFILESIZE_LARGE),
 #endif
 #if HAVE_DECL_CURLOPT_RESUME_FROM_LARGE
-    {handleResumeFromLarge, "CURLOPT_RESUME_FROM_LARGE"},
+  MAP(RESUME_FROM_LARGE),
 #else
-    {NULL, "CURLOPT_RESUME_FROM_LARGE"},
+  MAP_NO(RESUME_FROM_LARGE),
 #endif
 #if HAVE_DECL_CURLOPT_MAXFILESIZE_LARGE
-    {handleMaxFileSizeLarge, "CURLOPT_MAXFILESIZE_LARGE"},
+  MAP(MAXFILESIZE_LARGE),
 #else
-    {NULL, "CURLOPT_MAXFILESIZE_LARGE"},
+  MAP_NO(MAXFILESIZE_LARGE),
 #endif
 #if HAVE_DECL_CURLOPT_NETRC_FILE
-    {handleNETRCFile, "CURLOPT_NETRC_FILE"},
+  MAP(NETRC_FILE),
 #else
-    {NULL, "CURLOPT_NETRC_FILE"},
+  MAP_NO(NETRC_FILE),
 #endif
 #if HAVE_DECL_CURLOPT_FTP_SSL
-    {handleFTPSSL, "CURLOPT_FTP_SSL"},
+  MAP(FTP_SSL),
 #else
-    {NULL, "CURLOPT_FTP_SSL"},
+  MAP_NO(FTP_SSL),
 #endif
 #if HAVE_DECL_CURLOPT_POSTFIELDSIZE_LARGE
-    {handlePostFieldSizeLarge, "CURLOPT_POSTFIELDSIZE_LARGE"},
+  MAP(POSTFIELDSIZE_LARGE),
 #else
-    {NULL, "CURLOPT_POSTFIELDSIZE_LARGE"},
+  MAP_NO(POSTFIELDSIZE_LARGE),
 #endif
 #if HAVE_DECL_CURLOPT_TCP_NODELAY
-    {handleTCPNoDelay, "CURLOPT_TCP_NODELAY"},
+  MAP(TCP_NODELAY),
 #else
-    {NULL, "CURLOPT_TCP_NODELAY"},
+  MAP_NO(TCP_NODELAY),
 #endif
 #if HAVE_DECL_CURLOPT_FTPSSLAUTH
-    {handleFTPSSLAuth, "CURLOPT_FTPSSLAUTH"},
+  MAP(FTPSSLAUTH),
 #else
-    {NULL, "CURLOPT_FTPSSLAUTH"},
+  MAP_NO(FTPSSLAUTH),
 #endif
 #if HAVE_DECL_CURLOPT_IOCTLFUNCTION
-    {handleIOCTLFunction, "CURLOPT_IOCTLFUNCTION"},
+  MAP(IOCTLFUNCTION),
 #else
-    {NULL, "CURLOPT_IOCTLFUNCTION"},
+  MAP_NO(IOCTLFUNCTION),
 #endif
 #if HAVE_DECL_CURLOPT_FTP_ACCOUNT
-    {handleFTPAccount, "CURLOPT_FTP_ACCOUNT"},
+  MAP(FTP_ACCOUNT),
 #else
-    {NULL, "CURLOPT_FTP_ACCOUNT"},
+  MAP_NO(FTP_ACCOUNT),
 #endif
 #if HAVE_DECL_CURLOPT_COOKIELIST
-    {handleCookieList, "CURLOPT_COOKIELIST"},
+  MAP(COOKIELIST),
 #else
-    {NULL, "CURLOPT_COOKIELIST"},
+  MAP_NO(COOKIELIST),
 #endif
 #if HAVE_DECL_CURLOPT_IGNORE_CONTENT_LENGTH
-    {handleIgnoreContentLength, "CURLOPT_IGNORE_CONTENT_LENGTH"},
+  MAP(IGNORE_CONTENT_LENGTH),
 #else
-    {NULL, "CURLOPT_IGNORE_CONTENT_LENGTH"},
+  MAP_NO(IGNORE_CONTENT_LENGTH),
 #endif
 #if HAVE_DECL_CURLOPT_FTP_SKIP_PASV_IP
-    {handleFTPSkipPASVIP, "CURLOPT_FTP_SKIP_PASV_IP"},
+  MAP(FTP_SKIP_PASV_IP),
 #else
-    {NULL, "CURLOPT_FTP_SKIP_PASV_IP"},
+  MAP_NO(FTP_SKIP_PASV_IP),
 #endif
 #if HAVE_DECL_CURLOPT_FTP_FILEMETHOD
-    {handleFTPFileMethod, "CURLOPT_FTP_FILEMETHOD"},
+  MAP(FTP_FILEMETHOD),
 #else
-    {NULL, "CURLOPT_FTP_FILEMETHOD"},
+  MAP_NO(FTP_FILEMETHOD),
 #endif
 #if HAVE_DECL_CURLOPT_LOCALPORT
-    {handleLocalPort, "CURLOPT_LOCALPORT"},
+  MAP(LOCALPORT),
 #else
-    {NULL, "CURLOPT_LOCALPORT"},
+  MAP_NO(LOCALPORT),
 #endif
 #if HAVE_DECL_CURLOPT_LOCALPORTRANGE
-    {handleLocalPortRange, "CURLOPT_LOCALPORTRANGE"},
+  MAP(LOCALPORTRANGE),
 #else
-    {NULL, "CURLOPT_LOCALPORTRANGE"},
+  MAP_NO(LOCALPORTRANGE),
 #endif
 #if HAVE_DECL_CURLOPT_CONNECT_ONLY
-    {handleConnectOnly, "CURLOPT_CONNECT_ONLY"},
+  MAP(CONNECT_ONLY),
 #else
-    {NULL, "CURLOPT_CONNECT_ONLY"},
+  MAP_NO(CONNECT_ONLY),
 #endif
 #if HAVE_DECL_CURLOPT_MAX_SEND_SPEED_LARGE
-    {handleMaxSendSpeedLarge, "CURLOPT_MAX_SEND_SPEED_LARGE"},
+  MAP(MAX_SEND_SPEED_LARGE),
 #else
-    {NULL, "CURLOPT_MAX_SEND_SPEED_LARGE"},
+  MAP_NO(MAX_SEND_SPEED_LARGE),
 #endif
 #if HAVE_DECL_CURLOPT_MAX_RECV_SPEED_LARGE
-    {handleMaxRecvSpeedLarge, "CURLOPT_MAX_RECV_SPEED_LARGE"},
+  MAP(MAX_RECV_SPEED_LARGE),
 #else
-    {NULL, "CURLOPT_MAX_RECV_SPEED_LARGE"},
+  MAP_NO(MAX_RECV_SPEED_LARGE),
 #endif
 #if HAVE_DECL_CURLOPT_FTP_ALTERNATIVE_TO_USER
-    {handleFTPAlternativeToUser, "CURLOPT_FTP_ALTERNATIVE_TO_USER"},
+  MAP(FTP_ALTERNATIVE_TO_USER),
 #else
-    {NULL, "CURLOPT_FTP_ALTERMATIVE_TO_USER"},
+  MAP_NO(FTP_ALTERNATIVE_TO_USER),
 #endif
 #if HAVE_DECL_CURLOPT_SSL_SESSIONID_CACHE
-    {handleSSLSessionIdCache, "CURLOPT_SSL_SESSIONID_CACHE"},
+  MAP(SSL_SESSIONID_CACHE),
 #else
-    {NULL, "CURLOPT_SSL_SESSIONID_CACHE"},
+  MAP_NO(SSL_SESSIONID_CACHE),
 #endif
 #if HAVE_DECL_CURLOPT_SSH_AUTH_TYPES
-    {handleSSHAuthTypes, "CURLOPT_SSH_AUTH_TYPES"},
+  MAP(SSH_AUTH_TYPES),
 #else
-    {NULL, "CURLOPT_SSH_AUTH_TYPES"},
+  MAP_NO(SSH_AUTH_TYPES),
 #endif
 #if HAVE_DECL_CURLOPT_SSH_PUBLIC_KEYFILE
-    {handleSSHPublicKeyFile, "CURLOPT_SSH_PUBLIC_KEYFILE"},
+  MAP(SSH_PUBLIC_KEYFILE),
 #else
-    {NULL, "CURLOPT_SSH_PUBLIC_KEYFILE"},
+  MAP_NO(SSH_PUBLIC_KEYFILE),
 #endif
 #if HAVE_DECL_CURLOPT_SSH_PRIVATE_KEYFILE
-    {handleSSHPrivateKeyFile, "CURLOPT_SSH_PRIVATE_KEYFILE"},
+  MAP(SSH_PRIVATE_KEYFILE),
 #else
-    {NULL, "CURLOPT_SSH_PRIVATE_KEYFILE"},
+  MAP_NO(SSH_PRIVATE_KEYFILE),
 #endif
 #if HAVE_DECL_CURLOPT_FTP_SSL_CCC
-    {handleFTPSSLCCC, "CURLOPT_FTP_SSL_CCC"},
+  MAP(FTP_SSL_CCC),
 #else
-    {NULL, "CURLOPT_FTP_SSL_CCC"},
+  MAP_NO(FTP_SSL_CCC),
 #endif
 #if HAVE_DECL_CURLOPT_TIMEOUT_MS
-    {handleTimeoutMS, "CURLOPT_TIMEOUT_MS"},
+  MAP(TIMEOUT_MS),
 #else
-    {NULL, "CURLOPT_TIMEOUT_MS"},
+  MAP_NO(TIMEOUT_MS),
 #endif
 #if HAVE_DECL_CURLOPT_CONNECTTIMEOUT_MS
-    {handleConnectTimeoutMS, "CURLOPT_CONNECTTIMEOUT_MS"},
+  MAP(CONNECTTIMEOUT_MS),
 #else
-    {NULL, "CURLOPT_CONNECTTIMEOUT_MS"},
+  MAP_NO(CONNECTTIMEOUT_MS),
 #endif
 #if HAVE_DECL_CURLOPT_HTTP_TRANSFER_DECODING
-    {handleHTTPTransferDecoding, "CURLOPT_HTTP_TRANSFER_DECODING"},
+  MAP(HTTP_TRANSFER_DECODING),
 #else
-    {NULL, "CURLOPT_HTTP_TRANSFER_DECODING"},
+  MAP_NO(HTTP_TRANSFER_DECODING),
 #endif
 #if HAVE_DECL_CURLOPT_HTTP_CONTENT_DECODING
-    {handleHTTPContentDecoding, "CURLOPT_HTTP_CONTENT_DECODING"},
+  MAP(HTTP_CONTENT_DECODING),
 #else
-    {NULL, "CURLOPT_HTTP_CONTENT_DECODING"},
+  MAP_NO(HTTP_CONTENT_DECODING),
 #endif
 #if HAVE_DECL_CURLOPT_NEW_FILE_PERMS
-    {handleNewFilePerms, "CURLOPT_NEW_FILE_PERMS"},
+  MAP(NEW_FILE_PERMS),
 #else
-    {NULL, "CURLOPT_NEW_FILE_PERMS"},
+  MAP_NO(NEW_FILE_PERMS),
 #endif
 #if HAVE_DECL_CURLOPT_NEW_DIRECTORY_PERMS
-    {handleNewDirectoryPerms, "CURLOPT_NEW_DIRECTORY_PERMS"},
+  MAP(NEW_DIRECTORY_PERMS),
 #else
-    {NULL, "CURLOPT_NEW_DIRECTORY_PERMS"},
+  MAP_NO(NEW_DIRECTORY_PERMS),
 #endif
 #if HAVE_DECL_CURLOPT_POST301
-    {handlePost301, "CURLOPT_POST301"},
+  MAP(POST301),
 #else
-    {NULL, "CURLOPT_POST301"},
+  MAP_NO(POST301),
 #endif
 #if HAVE_DECL_CURLOPT_SSH_HOST_PUBLIC_KEY_MD5
-    {handleSSHHostPublicKeyMD5, "CURLOPT_SSH_HOST_PUBLIC_KEY_MD5"},
+  MAP(SSH_HOST_PUBLIC_KEY_MD5),
 #else
-    {NULL, "CURLOPT_SSH_HOST_PUBLIC_KEY_MD5"},
+  MAP_NO(SSH_HOST_PUBLIC_KEY_MD5),
 #endif
 #if HAVE_DECL_CURLOPT_COPYPOSTFIELDS
-    {handleCopyPostFields, "CURLOPT_COPYPOSTFIELDS"},
+  MAP(COPYPOSTFIELDS),
 #else
-    {NULL, "CURLOPT_COPYPOSTFIELDS"},
+  MAP_NO(COPYPOSTFIELDS),
 #endif
 #if HAVE_DECL_CURLOPT_PROXY_TRANSFER_MODE
-    {handleProxyTransferMode, "CURLOPT_PROXY_TRANSFER_MODE"},
+  MAP(PROXY_TRANSFER_MODE),
 #else
-    {NULL, "CURLOPT_PROXY_TRANSFER_MODE"},
+  MAP_NO(PROXY_TRANSFER_MODE),
 #endif
 #if HAVE_DECL_CURLOPT_SEEKFUNCTION
-    {handleSeekFunction, "CURLOPT_SEEKFUNCTION"},
+  MAP(SEEKFUNCTION),
 #else
-    {NULL, "CURLOPT_SEEKFUNCTION"},
+  MAP_NO(SEEKFUNCTION),
 #endif
 #if HAVE_DECL_CURLOPT_AUTOREFERER
-    {handleAutoReferer, "CURLOPT_AUTOREFERER"},
+  MAP(AUTOREFERER),
 #else
-    {NULL, "CURLOPT_AUTOREFERER"},
+  MAP_NO(AUTOREFERER),
 #endif
 #if HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
-    {handleOpenSocketFunction, "CURLOPT_OPENSOCKETFUNCTION"},
+  MAP(OPENSOCKETFUNCTION),
 #else
-    {NULL, "CURLOPT_OPENSOCKETFUNCTION"},
+  MAP_NO(OPENSOCKETFUNCTION),
 #endif
 #if HAVE_DECL_CURLOPT_PROXYTYPE
-    {handleProxyType, "CURLOPT_PROXYTYPE"},
+  MAP(PROXYTYPE),
 #else
-    {NULL, "CURLOPT_PROXYTYPE"},
+  MAP_NO(PROXYTYPE),
 #endif
 #if HAVE_DECL_CURLOPT_PROTOCOLS
-    {handleProtocols, "CURLOPT_PROTOCOLS"},
+  MAP(PROTOCOLS),
 #else
-    {NULL, "CURLOPT_PROTOCOLS"},
+  MAP_NO(PROTOCOLS),
 #endif
 #if HAVE_DECL_CURLOPT_REDIR_PROTOCOLS
-    {handleRedirProtocols, "CURLOPT_REDIR_PROTOCOLS"},
+  MAP(REDIR_PROTOCOLS),
 #else
-    {NULL, "CURLOPT_REDIR_PROTOCOLS"},
+  MAP_NO(REDIR_PROTOCOLS),
 #endif
 #if HAVE_DECL_CURLOPT_RESOLVE
-    {handleResolve, "CURLOPT_RESOLVE"},
+  MAP(RESOLVE),
 #else
-    {NULL, "CURLOPT_RESOLVE"},
+  MAP_NO(RESOLVE),
 #endif
 #if HAVE_DECL_CURLOPT_DNS_SERVERS
-    {handleDnsServers, "CURLOPT_DNS_SERVERS"},
+  MAP(DNS_SERVERS),
 #else
-    {NULL, "CURLOPT_DNS_SERVERS"},
+  MAP_NO(DNS_SERVERS),
 #endif
 #if HAVE_DECL_CURLOPT_MAIL_FROM
-    {handleMailFrom, "CURLOPT_MAIL_FROM"},
+  MAP(MAIL_FROM),
 #else
-    {NULL, "CURLOPT_MAIL_FROM"},
+  MAP_NO(MAIL_FROM),
 #endif
 #if HAVE_DECL_CURLOPT_MAIL_RCPT
-    {handleMailRcpt, "CURLOPT_MAIL_RCPT"},
+  MAP(MAIL_RCPT),
 #else
-    {NULL, "CURLOPT_MAIL_RCPT"},
+  MAP_NO(MAIL_RCPT),
 #endif
 };
 
