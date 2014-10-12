@@ -2197,9 +2197,9 @@ static void handleNoProgress(Connection *conn, value option)
     CAMLreturn0;
 }
 
+#if HAVE_DECL_CURLOPT_NOSIGNAL
 static void handleNoSignal(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_NOSIGNAL
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -2211,11 +2211,8 @@ static void handleNoSignal(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_NOSIGNAL")
-    failwith("libcurl does not implement CURLOPT_NOSIGNAL");
-#endif
 }
+#endif
 
 static void handleNoBody(Connection *conn, value option)
 {
@@ -2342,9 +2339,9 @@ static void handleNETRC(Connection *conn, value option)
     CAMLreturn0;
 }
 
+#if HAVE_DECL_CURLOPT_ENCODING
 static void handleEncoding(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_ENCODING
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -2383,11 +2380,8 @@ static void handleEncoding(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_ENCODING")
-    failwith("libcurl does not implement CURLOPT_ENCODING");
-#endif
 }
+#endif
 
 static void handleFollowLocation(Connection *conn, value option)
 {
@@ -4012,9 +4006,9 @@ static void handleDebugFunction(Connection *conn, value option)
     CAMLreturn0;
 }
 
+#if HAVE_DECL_CURLOPT_PRIVATE
 static void handlePrivate(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_PRIVATE
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4033,15 +4027,12 @@ static void handlePrivate(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_PRIVATE")
-    failwith("libcurl does not implement CURLOPT_PRIVATE");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_HTTP200ALIASES
 static void handleHTTP200Aliases(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_HTTP200ALIASES
     CAMLparam1(option);
     CAMLlocal1(listIter);
     CURLcode result = CURLE_OK;
@@ -4068,15 +4059,12 @@ static void handleHTTP200Aliases(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_HTTP200ALIASES")
-    failwith("libcurl does not implement CURLOPT_HTTP200ALIASES");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_UNRESTRICTED_AUTH
 static void handleUnrestrictedAuth(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_UNRESTRICTED_AUTH
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4088,15 +4076,12 @@ static void handleUnrestrictedAuth(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_UNRESTRICTED_AUTH")
-    failwith("libcurl does not implement CURLOPT_UNRESTRICTED_AUTH");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_FTP_USE_EPRT
 static void handleFTPUseEPRT(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_FTP_USE_EPRT
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4108,15 +4093,12 @@ static void handleFTPUseEPRT(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_FTP_USE_EPRT")
-    failwith("libcurl does not implement CURLOPT_FTP_USE_EPRT");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_HTTPAUTH
 static void handleHTTPAuth(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_HTTPAUTH
     CAMLparam1(option);
     CAMLlocal1(listIter);
     CURLcode result = CURLE_OK;
@@ -4168,15 +4150,12 @@ static void handleHTTPAuth(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_HTTPAUTH")
-    failwith("libcurl does not implement CURLOPT_HTTPAUTH");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_FTP_CREATE_MISSING_DIRS
 static void handleFTPCreateMissingDirs(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_FTP_CREATE_MISSING_DIRS
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4188,15 +4167,12 @@ static void handleFTPCreateMissingDirs(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_FTP_CREATE_MISSING_DIRS")
-    failwith("libcurl does not implement CURLOPT_FTP_CREATE_MISSING_DIRS");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_PROXYAUTH
 static void handleProxyAuth(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_PROXYAUTH
     CAMLparam1(option);
     CAMLlocal1(listIter);
     CURLcode result = CURLE_OK;
@@ -4248,15 +4224,12 @@ static void handleProxyAuth(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_PROXYAUTH")
-    failwith("libcurl does not implement CURLOPT_PROXYAUTH");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_FTP_RESPONSE_TIMEOUT
 static void handleFTPResponseTimeout(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_FTP_RESPONSE_TIMEOUT
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4268,15 +4241,12 @@ static void handleFTPResponseTimeout(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_FTP_RESPONSE_TIMEOUT")
-    failwith("libcurl does not implement CURLOPT_FTP_RESPONSE_TIMEOUT");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_IPRESOLVE
 static void handleIPResolve(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_IPRESOLVE
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4309,15 +4279,12 @@ static void handleIPResolve(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_IPRESOLVE")
-    failwith("libcurl does not implement CURLOPT_IPRESOLVE");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_MAXFILESIZE
 static void handleMaxFileSize(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_MAXFILESIZE
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4329,15 +4296,12 @@ static void handleMaxFileSize(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_MAXFILESIZE")
-    failwith("libcurl does not implement CURLOPT_MAXFILESIZE");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_INFILESIZE_LARGE
 static void handleInFileSizeLarge(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_INFILESIZE_LARGE
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4349,15 +4313,12 @@ static void handleInFileSizeLarge(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_INFILESIZE_LARGE")
-    failwith("libcurl does not implement CURLOPT_INFILESIZE_LARGE");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_RESUME_FROM_LARGE
 static void handleResumeFromLarge(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_RESUME_FROM_LARGE
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4369,15 +4330,12 @@ static void handleResumeFromLarge(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_RESUME_FROM_LARGE")
-    failwith("libcurl does not implement CURLOPT_RESUME_FROM_LARGE");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_MAXFILESIZE_LARGE
 static void handleMaxFileSizeLarge(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_MAXFILESIZE_LARGE
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4389,15 +4347,12 @@ static void handleMaxFileSizeLarge(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_MAXFILESIZE_LARGE")
-    failwith("libcurl does not implement CURLOPT_MAXFILESIZE_LARGE");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_NETRC_FILE
 static void handleNETRCFile(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_NETRC_FILE
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4416,15 +4371,12 @@ static void handleNETRCFile(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_NETRC_FILE")
-    failwith("libcurl does not implement CURLOPT_NETRC_FILE");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_FTP_SSL
 static void handleFTPSSL(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_FTP_SSL
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4463,15 +4415,12 @@ static void handleFTPSSL(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_FTP_SSL")
-    failwith("libcurl does not implement CURLOPT_FTP_SSL");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_POSTFIELDSIZE_LARGE
 static void handlePostFieldSizeLarge(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_POSTFIELDSIZE_LARGE
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4483,15 +4432,12 @@ static void handlePostFieldSizeLarge(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_POSTFIELDSIZE_LARGE")
-    failwith("libcurl does not implement CURLOPT_POSTFIELDSIZE_LARGE");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_TCP_NODELAY
 static void handleTCPNoDelay(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_TCP_NODELAY
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4503,15 +4449,12 @@ static void handleTCPNoDelay(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_TCP_NODELAY")
-    failwith("libcurl does not implement CURLOPT_TCP_NODELAY");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_FTPSSLAUTH
 static void handleFTPSSLAuth(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_FTPSSLAUTH
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4544,15 +4487,12 @@ static void handleFTPSSLAuth(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_FTPSSLAUTH")
-    failwith("libcurl does not implement CURLOPT_FTPSSLAUTH");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_IOCTLFUNCTION
 static void handleIOCTLFunction(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_IOCTLFUNCTION
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4575,15 +4515,12 @@ static void handleIOCTLFunction(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_IOCTLFUNCTION")
-    failwith("libcurl does not implement CURLOPT_IOCTLFUNCTION");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_FTP_ACCOUNT
 static void handleFTPAccount(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_FTP_ACCOUNT
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4602,15 +4539,12 @@ static void handleFTPAccount(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_FTP_ACCOUNT")
-    failwith("libcurl does not implement CURLOPT_FTP_ACCOUNT");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_COOKIELIST
 static void handleCookieList(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_COOKIELIST
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4629,15 +4563,12 @@ static void handleCookieList(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_COOKIELIST")
-    failwith("libcurl does not implement CURLOPT_COOKIELIST");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_IGNORE_CONTENT_LENGTH
 static void handleIgnoreContentLength(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_IGNORE_CONTENT_LENGTH
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4649,15 +4580,12 @@ static void handleIgnoreContentLength(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_IGNORE_CONTENT_LENGTH")
-    failwith("libcurl does not implement CURLOPT_IGNORE_CONTENT_LENGTH");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_FTP_SKIP_PASV_IP
 static void handleFTPSkipPASVIP(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_FTP_SKIP_PASV_IP
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4669,15 +4597,12 @@ static void handleFTPSkipPASVIP(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_FTP_SKIP_PASV_IP")
-    failwith("libcurl does not implement CURLOPT_FTP_SKIP_PASV_IP");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_FTP_FILEMETHOD
 static void handleFTPFileMethod(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_FTP_FILEMETHOD
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4715,15 +4640,12 @@ static void handleFTPFileMethod(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_FTP_FILEMETHOD")
-    failwith("libcurl does not implement CURLOPT_FTP_FILEMETHOD");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_LOCALPORT
 static void handleLocalPort(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_LOCALPORT
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4735,15 +4657,12 @@ static void handleLocalPort(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_LOCALPORT")
-    failwith("libcurl does not implement CURLOPT_LOCALPORT");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_LOCALPORTRANGE
 static void handleLocalPortRange(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_LOCALPORTRANGE
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4755,15 +4674,12 @@ static void handleLocalPortRange(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_LOCALPORTRANGE")
-    failwith("libcurl does not implement CURLOPT_LOCALPORTRANGE");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_CONNECT_ONLY
 static void handleConnectOnly(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_CONNECT_ONLY
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4775,15 +4691,12 @@ static void handleConnectOnly(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_CONNECT_ONLY")
-    failwith("libcurl does not implement CURLOPT_CONNECT_ONLY");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_MAX_SEND_SPEED_LARGE
 static void handleMaxSendSpeedLarge(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_MAX_SEND_SPEED_LARGE
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4795,15 +4708,12 @@ static void handleMaxSendSpeedLarge(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_MAX_SEND_SPEED_LARGE")
-    failwith("libcurl does not implement CURLOPT_MAX_SEND_SPEED_LARGE");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_MAX_RECV_SPEED_LARGE
 static void handleMaxRecvSpeedLarge(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_MAX_RECV_SPEED_LARGE
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4815,15 +4725,12 @@ static void handleMaxRecvSpeedLarge(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_MAX_RECV_SPEED_LARGE")
-    failwith("libcurl does not implement CURLOPT_MAX_RECV_SPEED_LARGE");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_FTP_ALTERNATIVE_TO_USER
 static void handleFTPAlternativeToUser(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_FTP_ALTERNATIVE_TO_USER
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4842,15 +4749,12 @@ static void handleFTPAlternativeToUser(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_FTP_ALTERNATIVE_TO_USER")
-    failwith("libcurl does not implement CURLOPT_FTP_ALTERNATIVE_TO_USER");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_SSL_SESSIONID_CACHE
 static void handleSSLSessionIdCache(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_SSL_SESSIONID_CACHE
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4862,15 +4766,12 @@ static void handleSSLSessionIdCache(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_SSL_SESSIONID_CACHE")
-    failwith("libcurl does not implement CURLOPT_SSL_SESSIONID_CACHE");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_SSH_AUTH_TYPES
 static void handleSSHAuthTypes(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_SSH_AUTH_TYPES
     CAMLparam1(option);
     CAMLlocal1(listIter);
     CURLcode result = CURLE_OK;
@@ -4918,15 +4819,12 @@ static void handleSSHAuthTypes(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_SSH_AUTH_TYPES")
-    failwith("libcurl does not implement CURLOPT_SSH_AUTH_TYPES");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_SSH_PUBLIC_KEYFILE
 static void handleSSHPublicKeyFile(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_SSH_PUBLIC_KEYFILE
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4945,15 +4843,12 @@ static void handleSSHPublicKeyFile(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_SSH_PUBLIC_KEYFILE")
-    failwith("libcurl does not implement CURLOPT_SSH_PUBLIC_KEYFILE");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_SSH_PRIVATE_KEYFILE
 static void handleSSHPrivateKeyFile(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_SSH_PRIVATE_KEYFILE
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -4972,15 +4867,12 @@ static void handleSSHPrivateKeyFile(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_SSH_PRIVATE_KEYFILE")
-    failwith("libcurl does not implement CURLOPT_SSH_PRIVATE_KEYFILE");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_FTP_SSL_CCC
 static void handleFTPSSLCCC(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_FTP_SSL_CCC
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -5013,15 +4905,12 @@ static void handleFTPSSLCCC(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_FTP_SSL_CCC")
-    failwith("libcurl does not implement CURLOPT_FTP_SSL_CCC");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_TIMEOUT_MS
 static void handleTimeoutMS(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_TIMEOUT_MS
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -5033,15 +4922,12 @@ static void handleTimeoutMS(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_TIMEOUT_MS")
-    failwith("libcurl does not implement CURLOPT_TIMEOUT_MS");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_CONNECTTIMEOUT_MS
 static void handleConnectTimeoutMS(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_CONNECTTIMEOUT_MS
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -5053,15 +4939,12 @@ static void handleConnectTimeoutMS(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_CONNECTTIMEOUT_MS")
-    failwith("libcurl does not implement CURLOPT_CONNECTTIMEOUT_MS");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_HTTP_TRANSFER_DECODING
 static void handleHTTPTransferDecoding(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_HTTP_TRANSFER_DECODING
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -5073,15 +4956,12 @@ static void handleHTTPTransferDecoding(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_HTTP_TRANSFER_DECODING")
-    failwith("libcurl does not implement CURLOPT_HTTP_TRANSFER_DECODING");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_HTTP_CONTENT_DECODING
 static void handleHTTPContentDecoding(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_HTTP_CONTENT_DECODING
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -5093,15 +4973,12 @@ static void handleHTTPContentDecoding(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_HTTP_CONTENT_DECODING")
-    failwith("libcurl does not implement CURLOPT_HTTP_CONTENT_DECODING");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_NEW_FILE_PERMS
 static void handleNewFilePerms(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_NEW_FILE_PERMS
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -5113,15 +4990,12 @@ static void handleNewFilePerms(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_NEW_FILE_PERMS")
-    failwith("libcurl does not implement CURLOPT_NEW_FILE_PERMS");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_NEW_DIRECTORY_PERMS
 static void handleNewDirectoryPerms(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_NEW_DIRECTORY_PERMS
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -5133,15 +5007,12 @@ static void handleNewDirectoryPerms(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_NEW_DIRECTORY_PERMS")
-    failwith("libcurl does not implement CURLOPT_NEW_DIRECTORY_PERMS");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_POST301
 static void handlePost301(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_POST301
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -5153,15 +5024,12 @@ static void handlePost301(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_POST301")
-    failwith("libcurl does not implement CURLOPT_POST301");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_SSH_HOST_PUBLIC_KEY_MD5
 static void handleSSHHostPublicKeyMD5(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_SSH_HOST_PUBLIC_KEY_MD5
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -5180,15 +5048,12 @@ static void handleSSHHostPublicKeyMD5(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_SSH_HOST_PUBLIC_KEY_MD5")
-    failwith("libcurl does not implement CURLOPT_SSH_HOST_PUBLIC_KEY_MD5");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_COPYPOSTFIELDS
 static void handleCopyPostFields(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_COPYPOSTFIELDS
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -5207,15 +5072,12 @@ static void handleCopyPostFields(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_COPYPOSTFIELDS")
-    failwith("libcurl does not implement CURLOPT_COPYPOSTFIELDS");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_PROXY_TRANSFER_MODE
 static void handleProxyTransferMode(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_PROXY_TRANSFER_MODE
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -5227,15 +5089,12 @@ static void handleProxyTransferMode(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_PROXY_TRANSFER_MODE")
-    failwith("libcurl does not implement CURLOPT_PROXY_TRANSFER_MODE");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_SEEKFUNCTION
 static void handleSeekFunction(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_SEEKFUNCTION
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -5259,15 +5118,12 @@ static void handleSeekFunction(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_SEEKFUNCTION")
-    failwith("libcurl does not implement CURLOPT_SEEKFUNCTION");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_AUTOREFERER
 static void handleAutoReferer(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_AUTOREFERER
     CAMLparam1(option);
     CURLcode result = curl_easy_setopt(conn->connection,
                               CURLOPT_AUTOREFERER,
@@ -5277,15 +5133,12 @@ static void handleAutoReferer(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_AUTOREFERER")
-    failwith("libcurl does not implement CURLOPT_AUTOREFERER");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
 static void handleOpenSocketFunction(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
@@ -5306,15 +5159,12 @@ static void handleOpenSocketFunction(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_OPENSOCKETFUNCTION")
-    failwith("libcurl does not implement CURLOPT_OPENSOCKETFUNCTION");
-#endif
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_PROXYTYPE
 static void handleProxyType(Connection *conn, value option)
 {
-#if HAVE_DECL_CURLOPT_PROXYTYPE
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
     long proxy_type;
@@ -5339,13 +5189,10 @@ static void handleProxyType(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-#else
-#pragma message("libcurl does not implement CURLOPT_PROXYTYPE")
-    failwith("libcurl does not implement CURLOPT_PROXYTYPE");
-#endif
 }
+#endif
 
-#if HAVE_DECL_CURLOPT_PROTOCOLS && HAVE_DECL_CURLOPT_REDIR_PROTOCOLS
+#if HAVE_DECL_CURLOPT_PROTOCOLS || HAVE_DECL_CURLOPT_REDIR_PROTOCOLS
 
 long protoMap[] =
 {
@@ -5452,26 +5299,19 @@ static void handleProtocolsOption(CURLoption curlopt, Connection *conn, value op
 
     CAMLreturn0;
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_PROTOCOLS
 static void handleProtocols(Connection *conn, value option)
 {
   handleProtocolsOption(CURLOPT_PROTOCOLS, conn, option);
 }
+#endif
 
+#if HAVE_DECL_CURLOPT_PROTOCOLS
 static void handleRedirProtocols(Connection *conn, value option)
 {
   handleProtocolsOption(CURLOPT_REDIR_PROTOCOLS, conn, option);
-}
-
-#else
-#pragma message("libcurl does not implement CURLOPT_PROTOCOLS or CURLOPT_REDIR_PROTOCOLS")
-static void handleProtocols(Connection *conn, value option)
-{
-    failwith("libcurl does not implement CURLOPT_PROTOCOLS");
-}
-static void handleRedirProtocols(Connection *conn, value option)
-{
-    failwith("libcurl does not implement CURLOPT_REDIR_PROTOCOLS");
 }
 #endif
 
@@ -5503,13 +5343,6 @@ static void handleResolve(Connection *conn, value option)
 
   CAMLreturn0;
 }
-
-#else
-#pragma message("libcurl does not implement CURLOPT_RESOLVE")
-static void handleResolve(Connection *conn, value option)
-{
-  failwith("libcurl does not implement CURLOPT_RESOLVE");
-}
 #endif
 
 #if HAVE_DECL_CURLOPT_DNS_SERVERS
@@ -5532,12 +5365,6 @@ static void handleDnsServers(Connection *conn, value option)
     raiseError(conn, result);
 
   CAMLreturn0;
-}
-#else
-#pragma message("libcurl does not implement CURLOPT_DNS_SERVERS")
-static void handleDnsServers(Connection *conn, value option)
-{
-  failwith("libcurl does not implement CURLOPT_DNS_SERVERS");
 }
 #endif
 
@@ -5562,12 +5389,6 @@ static void handleMailFrom(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-}
-#else
-#pragma message("libcurl does not implement CURLOPT_MAIL_FROM")
-static void handleMailFrom(Connection *conn, value option)
-{
-    failwith("libcurl does not implement CURLOPT_MAIL_FROM");
 }
 #endif
 
@@ -5600,12 +5421,6 @@ static void handleMailRcpt(Connection *conn, value option)
         raiseError(conn, result);
 
     CAMLreturn0;
-}
-#else
-#pragma message("libcurl does not implement CURLOPT_MAIL_RCPT")
-static void handleMailRcpt(Connection *conn, value option)
-{
-    failwith("libcurl does not implement CURLOPT_MAIL_RCPT");
 }
 #endif
 
