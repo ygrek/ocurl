@@ -62,62 +62,62 @@ typedef struct ConnectionList ConnectionList;
 
 enum OcamlValues
 {
-    OcamlWriteCallback,
-    OcamlReadCallback,
-    OcamlErrorBuffer,
-    OcamlPostFields,
-    OcamlHTTPHeader,
-    OcamlHTTPPost,
-    OcamlQuote,
-    OcamlPostQuote,
-    OcamlHeaderCallback,
-    OcamlProgressCallback,
-    OcamlDebugCallback,
-    OcamlHTTP200Aliases,
-    OcamlIOCTLCallback,
-    OcamlSeekFunctionCallback,
-    OcamlOpenSocketFunctionCallback,
+    Ocaml_WRITEFUNCTION,
+    Ocaml_READFUNCTION,
+    Ocaml_ERRORBUFFER,
+    Ocaml_POSTFIELDS,
+    Ocaml_HTTPHEADER,
+    Ocaml_HTTPPOST,
+    Ocaml_QUOTE,
+    Ocaml_POSTQUOTE,
+    Ocaml_HEADERFUNCTION,
+    Ocaml_PROGRESSFUNCTION,
+    Ocaml_DEBUGFUNCTION,
+    Ocaml_HTTP200ALIASES,
+    Ocaml_IOCTLFUNCTION,
+    Ocaml_SEEKFUNCTION,
+    Ocaml_OPENSOCKETFUNCTION,
 
-    OcamlURL,
-    OcamlProxy,
-    OcamlUserPWD,
-    OcamlProxyUserPWD,
-    OcamlRange,
-    OcamlReferer,
-    OcamlUserAgent,
-    OcamlFTPPort,
-    OcamlCookie,
-    OcamlHTTPPostStrings,
-    OcamlSSLCert,
-    OcamlSSLCertType,
-    OcamlSSLCertPasswd,
-    OcamlSSLKey,
-    OcamlSSLKeyType,
-    OcamlSSLKeyPasswd,
-    OcamlSSLEngine,
-    OcamlCookieFile,
-    OcamlCustomRequest,
-    OcamlInterface,
-    OcamlCAInfo,
-    OcamlCAPath,
-    OcamlRandomFile,
-    OcamlEGDSocket,
-    OcamlCookieJar,
-    OcamlSSLCipherList,
-    OcamlPrivate,
-    OcamlNETRCFile,
-    OcamlFTPAccount,
-    OcamlCookieList,
-    OcamlFTPAlternativeToUser,
-    OcamlSSHPublicKeyFile,
-    OcamlSSHPrivateKeyFile,
-    OcamlSSHHostPublicKeyMD5,
-    OcamlCopyPostFields,
+    Ocaml_URL,
+    Ocaml_PROXY,
+    Ocaml_USERPWD,
+    Ocaml_PROXYUSERPWD,
+    Ocaml_RANGE,
+    Ocaml_REFERER,
+    Ocaml_USERAGENT,
+    Ocaml_FTPPORT,
+    Ocaml_COOKIE,
+    Ocaml_HTTPPOSTSTRINGS,
+    Ocaml_SSLCERT,
+    Ocaml_SSLCERTTYPE,
+    Ocaml_SSLCERTPASSWD,
+    Ocaml_SSLKEY,
+    Ocaml_SSLKEYTYPE,
+    Ocaml_SSLKEYPASSWD,
+    Ocaml_SSLENGINE,
+    Ocaml_COOKIEFILE,
+    Ocaml_CUSTOMREQUEST,
+    Ocaml_INTERFACE,
+    Ocaml_CAINFO,
+    Ocaml_CAPATH,
+    Ocaml_RANDOM_FILE,
+    Ocaml_EGDSOCKET,
+    Ocaml_COOKIEJAR,
+    Ocaml_SSL_CIPHER_LIST,
+    Ocaml_PRIVATE,
+    Ocaml_NETRC_FILE,
+    Ocaml_FTP_ACCOUNT,
+    Ocaml_COOKIELIST,
+    Ocaml_FTP_ALTERNATIVE_TO_USER,
+    Ocaml_SSH_PUBLIC_KEYFILE,
+    Ocaml_SSH_PRIVATE_KEYFILE,
+    Ocaml_SSH_HOST_PUBLIC_KEY_MD5,
+    Ocaml_COPYPOSTFIELDS,
 
-    OcamlDNSServers,
+    Ocaml_DNS_SERVERS,
 
-    OcamlMailFrom,
-    OcamlMailRcpt,
+    Ocaml_MAIL_FROM,
+    Ocaml_MAIL_RCPT,
 
     /* Not used, last for size */
     OcamlValuesSize
@@ -647,7 +647,7 @@ static void raiseError(Connection *conn, CURLcode code)
 
     if (conn != NULL && conn->errorBuffer != NULL)
     {
-        Store_field(Field(conn->ocamlValues, OcamlErrorBuffer), 0,
+        Store_field(Field(conn->ocamlValues, Ocaml_ERRORBUFFER), 0,
 		    copy_string(conn->errorBuffer));
     }
 
@@ -958,7 +958,7 @@ static size_t writeFunction_nolock(char *ptr, size_t size, size_t nmemb, void *d
     for (i = 0; i < size*nmemb; i++)
         Byte(str, i) = ptr[i];
 
-    result = callback_exn(Field(conn->ocamlValues, OcamlWriteCallback), str);
+    result = callback_exn(Field(conn->ocamlValues, Ocaml_WRITEFUNCTION), str);
 
     CAMLreturnT(size_t, Is_exception_result(result) ? 0 : Int_val(result));
 }
@@ -974,7 +974,7 @@ static size_t readFunction_nolock(void *ptr, size_t size, size_t nmemb, void *da
 
     checkConnection(conn);
 
-    result = callback_exn(Field(conn->ocamlValues, OcamlReadCallback),
+    result = callback_exn(Field(conn->ocamlValues, Ocaml_READFUNCTION),
                       Val_int(size*nmemb));
 
     if (Is_exception_result(result))
@@ -1012,7 +1012,7 @@ static size_t headerFunction_nolock(char *ptr, size_t size, size_t nmemb, void *
     for (i = 0; i < size*nmemb; i++)
         Byte(str, i) = ptr[i];
 
-    result = callback_exn(Field(conn->ocamlValues, OcamlHeaderCallback), str);
+    result = callback_exn(Field(conn->ocamlValues, Ocaml_HEADERFUNCTION), str);
 
     CAMLreturnT(size_t, Is_exception_result(result) ? 0 : Int_val(result));
 }
@@ -1037,7 +1037,7 @@ static int progressFunction_nolock(void *data,
     callbackData[2] = copy_double(ulTotal);
     callbackData[3] = copy_double(ulNow);
 
-    result = callbackN_exn(Field(conn->ocamlValues, OcamlProgressCallback),
+    result = callbackN_exn(Field(conn->ocamlValues, Ocaml_PROGRESSFUNCTION),
                        4, callbackData);
 
     CAMLreturnT(int, Is_exception_result(result) ? 1 : Bool_val(result));
@@ -1077,7 +1077,7 @@ static int debugFunction_nolock(CURL *debugConnection,
     for (i = 0; i < bufferLength; i++)
         Byte(camlMessage, i) = buffer[i];
 
-    callback3_exn(Field(conn->ocamlValues, OcamlDebugCallback),
+    callback3_exn(Field(conn->ocamlValues, Ocaml_DEBUGFUNCTION),
               camlDebugConnection,
               camlInfoType,
               camlMessage);
@@ -1119,7 +1119,7 @@ static curlioerr ioctlFunction_nolock(CURL *ioctl,
 
     camlConnection = caml_curl_alloc(conn);
 
-    camlResult = callback2_exn(Field(conn->ocamlValues, OcamlIOCTLCallback),
+    camlResult = callback2_exn(Field(conn->ocamlValues, Ocaml_IOCTLFUNCTION),
                            camlConnection,
                            camlCmd);
 
@@ -1182,7 +1182,7 @@ static int seekFunction_nolock(void *data,
         failwith("Invalid seek code");
 
     camlResult = callback2_exn(Field(conn->ocamlValues,
-                                 OcamlSeekFunctionCallback),
+                                 Ocaml_SEEKFUNCTION),
                            camlOffset,
                            camlOrigin);
 
@@ -1230,7 +1230,7 @@ static int openSocketFunction_nolock(void *data,
     if (-1 != sock)
     {
       /* FIXME windows */
-      result = callback_exn(Field(conn->ocamlValues, OcamlOpenSocketFunctionCallback), Val_int(sock));
+      result = callback_exn(Field(conn->ocamlValues, Ocaml_OPENSOCKETFUNCTION), Val_int(sock));
       if (Is_exception_result(result))
       {
         close(sock);
@@ -1337,7 +1337,7 @@ static void handle_WRITEFUNCTION(Connection *conn, value option)
     CURLcode result = CURLE_OK;
 
     if (Tag_val(option) == Closure_tag)
-        Store_field(conn->ocamlValues, OcamlWriteCallback, option);
+        Store_field(conn->ocamlValues, Ocaml_WRITEFUNCTION, option);
     else
         failwith("Not a proper closure");
 
@@ -1364,7 +1364,7 @@ static void handle_READFUNCTION(Connection *conn, value option)
     CURLcode result = CURLE_OK;
 
     if (Tag_val(option) == Closure_tag)
-        Store_field(conn->ocamlValues, OcamlReadCallback, option);
+        Store_field(conn->ocamlValues, Ocaml_READFUNCTION, option);
     else
         failwith("Not a proper closure");
 
@@ -1390,7 +1390,7 @@ static void handle_URL(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlURL, option);
+    Store_field(conn->ocamlValues, Ocaml_URL, option);
 
     if (conn->url != NULL)
         free(conn->url);
@@ -1427,7 +1427,7 @@ static void handle_PROXY(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlProxy, option);
+    Store_field(conn->ocamlValues, Ocaml_PROXY, option);
 
     if (conn->proxy != NULL)
         free(conn->proxy);
@@ -1755,7 +1755,7 @@ static void handle_USERPWD(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlUserPWD, option);
+    Store_field(conn->ocamlValues, Ocaml_USERPWD, option);
 
     if (conn->userPwd != NULL)
         free(conn->userPwd);
@@ -1777,7 +1777,7 @@ static void handle_PROXYUSERPWD(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlProxyUserPWD, option);
+    Store_field(conn->ocamlValues, Ocaml_PROXYUSERPWD, option);
 
     if (conn->proxyUserPwd != NULL)
         free(conn->proxyUserPwd);
@@ -1799,7 +1799,7 @@ static void handle_RANGE(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlRange, option);
+    Store_field(conn->ocamlValues, Ocaml_RANGE, option);
 
     if (conn->range != NULL)
         free(conn->range);
@@ -1821,7 +1821,7 @@ static void handle_ERRORBUFFER(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlErrorBuffer, option);
+    Store_field(conn->ocamlValues, Ocaml_ERRORBUFFER, option);
 
     if (conn->errorBuffer != NULL)
         free(conn->errorBuffer);
@@ -1858,7 +1858,7 @@ static void handle_POSTFIELDS(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlPostFields, option);
+    Store_field(conn->ocamlValues, Ocaml_POSTFIELDS, option);
 
     if (conn->postFields != NULL)
         free(conn->postFields);
@@ -1896,7 +1896,7 @@ static void handle_REFERER(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlReferer, option);
+    Store_field(conn->ocamlValues, Ocaml_REFERER, option);
 
     if (conn->referer != NULL)
         free(conn->referer);
@@ -1918,7 +1918,7 @@ static void handle_USERAGENT(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlUserAgent, option);
+    Store_field(conn->ocamlValues, Ocaml_USERAGENT, option);
 
     if (conn->userAgent != NULL)
         free(conn->userAgent);
@@ -1940,7 +1940,7 @@ static void handle_FTPPORT(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlFTPPort, option);
+    Store_field(conn->ocamlValues, Ocaml_FTPPORT, option);
 
     if (conn->ftpPort != NULL)
         free(conn->ftpPort);
@@ -2007,7 +2007,7 @@ static void handle_COOKIE(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlCookie, option);
+    Store_field(conn->ocamlValues, Ocaml_COOKIE, option);
 
     if (conn->cookie != NULL)
         free(conn->cookie);
@@ -2030,7 +2030,7 @@ static void handle_HTTPHEADER(Connection *conn, value option)
     CAMLlocal1(listIter);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlHTTPHeader, option);
+    Store_field(conn->ocamlValues, Ocaml_HTTPHEADER, option);
 
     free_curl_slist(conn->httpHeader);
     conn->httpHeader = NULL;
@@ -2063,7 +2063,7 @@ static void handle_HTTPPOST(Connection *conn, value option)
 
     listIter = option;
 
-    Store_field(conn->ocamlValues, OcamlHTTPPost, option);
+    Store_field(conn->ocamlValues, Ocaml_HTTPPOST, option);
 
     if (conn->httpPostFirst != NULL)
         curl_formfree(conn->httpPostFirst);
@@ -2451,7 +2451,7 @@ static void handle_SSLCERT(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlSSLCert, option);
+    Store_field(conn->ocamlValues, Ocaml_SSLCERT, option);
 
     if (conn->sslCert != NULL)
         free(conn->sslCert);
@@ -2473,7 +2473,7 @@ static void handle_SSLCERTTYPE(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlSSLCertType, option);
+    Store_field(conn->ocamlValues, Ocaml_SSLCERTTYPE, option);
 
     if (conn->sslCertType != NULL)
         free(conn->sslCertType);
@@ -2495,7 +2495,7 @@ static void handle_SSLCERTPASSWD(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlSSLCertPasswd, option);
+    Store_field(conn->ocamlValues, Ocaml_SSLCERTPASSWD, option);
 
     if (conn->sslCertPasswd != NULL)
         free(conn->sslCertPasswd);
@@ -2517,7 +2517,7 @@ static void handle_SSLKEY(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlSSLKey, option);
+    Store_field(conn->ocamlValues, Ocaml_SSLKEY, option);
 
     if (conn->sslKey != NULL)
         free(conn->sslKey);
@@ -2539,7 +2539,7 @@ static void handle_SSLKEYTYPE(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlSSLKeyType, option);
+    Store_field(conn->ocamlValues, Ocaml_SSLKEYTYPE, option);
 
     if (conn->sslKeyType != NULL)
         free(conn->sslKeyType);
@@ -2561,7 +2561,7 @@ static void handle_SSLKEYPASSWD(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlSSLKeyPasswd, option);
+    Store_field(conn->ocamlValues, Ocaml_SSLKEYPASSWD, option);
 
     if (conn->sslKeyPasswd != NULL)
         free(conn->sslKeyPasswd);
@@ -2583,7 +2583,7 @@ static void handle_SSLENGINE(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlSSLEngine, option);
+    Store_field(conn->ocamlValues, Ocaml_SSLENGINE, option);
 
     if (conn->sslEngine != NULL)
         free(conn->sslEngine);
@@ -2636,7 +2636,7 @@ static void handle_QUOTE(Connection *conn, value option)
     CAMLlocal1(listIter);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlQuote, option);
+    Store_field(conn->ocamlValues, Ocaml_QUOTE, option);
 
     free_curl_slist(conn->quote);
     conn->quote = NULL;
@@ -2666,7 +2666,7 @@ static void handle_POSTQUOTE(Connection *conn, value option)
     CAMLlocal1(listIter);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlPostQuote, option);
+    Store_field(conn->ocamlValues, Ocaml_POSTQUOTE, option);
 
     free_curl_slist(conn->postQuote);
     conn->postQuote = NULL;
@@ -2696,7 +2696,7 @@ static void handle_HEADERFUNCTION(Connection *conn, value option)
     CURLcode result = CURLE_OK;
 
     if (Tag_val(option) == Closure_tag)
-        Store_field(conn->ocamlValues, OcamlHeaderCallback, option);
+        Store_field(conn->ocamlValues, Ocaml_HEADERFUNCTION, option);
     else
         failwith("Not a proper closure");
 
@@ -2722,7 +2722,7 @@ static void handle_COOKIEFILE(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlCookieFile, option);
+    Store_field(conn->ocamlValues, Ocaml_COOKIEFILE, option);
 
     if (conn->cookieFile != NULL)
         free(conn->cookieFile);
@@ -2799,7 +2799,7 @@ static void handle_CUSTOMREQUEST(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlCustomRequest, option);
+    Store_field(conn->ocamlValues, Ocaml_CUSTOMREQUEST, option);
 
     if (conn->customRequest != NULL)
         free(conn->customRequest);
@@ -2821,7 +2821,7 @@ static void handle_INTERFACE(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlInterface, option);
+    Store_field(conn->ocamlValues, Ocaml_INTERFACE, option);
 
     if (conn->interface_ != NULL)
         free(conn->interface_);
@@ -2892,7 +2892,7 @@ static void handle_PROGRESSFUNCTION(Connection *conn, value option)
     CURLcode result = CURLE_OK;
 
     if (Tag_val(option) == Closure_tag)
-        Store_field(conn->ocamlValues, OcamlProgressCallback, option);
+        Store_field(conn->ocamlValues, Ocaml_PROGRESSFUNCTION, option);
     else
         failwith("Not a proper closure");
 
@@ -2932,7 +2932,7 @@ static void handle_CAINFO(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlCAInfo, option);
+    Store_field(conn->ocamlValues, Ocaml_CAINFO, option);
 
     if (conn->caInfo != NULL)
         free(conn->caInfo);
@@ -2954,7 +2954,7 @@ static void handle_CAPATH(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlCAPath, option);
+    Store_field(conn->ocamlValues, Ocaml_CAPATH, option);
 
     if (conn->caPath != NULL)
         free(conn->caPath);
@@ -3081,7 +3081,7 @@ static void handle_RANDOM_FILE(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlRandomFile, option);
+    Store_field(conn->ocamlValues, Ocaml_RANDOM_FILE, option);
 
     if (conn->randomFile != NULL)
         free(conn->randomFile);
@@ -3103,7 +3103,7 @@ static void handle_EGDSOCKET(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlEGDSocket, option);
+    Store_field(conn->ocamlValues, Ocaml_EGDSOCKET, option);
 
     if (conn->egdSocket != NULL)
         free(conn->egdSocket);
@@ -3182,7 +3182,7 @@ static void handle_COOKIEJAR(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlCookieJar, option);
+    Store_field(conn->ocamlValues, Ocaml_COOKIEJAR, option);
 
     if (conn->cookieJar != NULL)
         free(conn->cookieJar);
@@ -3204,7 +3204,7 @@ static void handle_SSL_CIPHER_LIST(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlSSLCipherList, option);
+    Store_field(conn->ocamlValues, Ocaml_SSL_CIPHER_LIST, option);
 
     if (conn->sslCipherList != NULL)
         free(conn->sslCipherList);
@@ -3308,7 +3308,7 @@ static void handle_DEBUGFUNCTION(Connection *conn, value option)
     CURLcode result = CURLE_OK;
 
     if (Tag_val(option) == Closure_tag)
-        Store_field(conn->ocamlValues, OcamlDebugCallback, option);
+        Store_field(conn->ocamlValues, Ocaml_DEBUGFUNCTION, option);
     else
         failwith("Not a proper closure");
 
@@ -3334,7 +3334,7 @@ static void handle_PRIVATE(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlPrivate, option);
+    Store_field(conn->ocamlValues, Ocaml_PRIVATE, option);
 
     if (conn->private != NULL)
         free(conn->private);
@@ -3359,7 +3359,7 @@ static void handle_HTTP200ALIASES(Connection *conn, value option)
     CAMLlocal1(listIter);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlHTTP200Aliases, option);
+    Store_field(conn->ocamlValues, Ocaml_HTTP200ALIASES, option);
 
     free_curl_slist(conn->http200Aliases);
     conn->http200Aliases = NULL;
@@ -3678,7 +3678,7 @@ static void handle_NETRC_FILE(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlNETRCFile, option);
+    Store_field(conn->ocamlValues, Ocaml_NETRC_FILE, option);
 
     if (conn->netrcFile != NULL)
         free(conn->netrcFile);
@@ -3819,7 +3819,7 @@ static void handle_IOCTLFUNCTION(Connection *conn, value option)
     CURLcode result = CURLE_OK;
 
     if (Tag_val(option) == Closure_tag)
-        Store_field(conn->ocamlValues, OcamlIOCTLCallback, option);
+        Store_field(conn->ocamlValues, Ocaml_IOCTLFUNCTION, option);
     else
         failwith("Not a proper closure");
     
@@ -3846,7 +3846,7 @@ static void handle_FTP_ACCOUNT(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlFTPAccount, option);
+    Store_field(conn->ocamlValues, Ocaml_FTP_ACCOUNT, option);
 
     if (conn->ftpaccount != NULL)
         free(conn->ftpaccount);
@@ -3870,7 +3870,7 @@ static void handle_COOKIELIST(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlCookieList, option);
+    Store_field(conn->ocamlValues, Ocaml_COOKIELIST, option);
 
     if (conn->cookielist != NULL)
         free(conn->cookielist);
@@ -4056,7 +4056,7 @@ static void handle_FTP_ALTERNATIVE_TO_USER(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlFTPAlternativeToUser, option);
+    Store_field(conn->ocamlValues, Ocaml_FTP_ALTERNATIVE_TO_USER, option);
 
     if (conn->ftpAlternativeToUser != NULL)
         free(conn->ftpAlternativeToUser);
@@ -4150,7 +4150,7 @@ static void handle_SSH_PUBLIC_KEYFILE(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlSSHPublicKeyFile, option);
+    Store_field(conn->ocamlValues, Ocaml_SSH_PUBLIC_KEYFILE, option);
 
     if (conn->sshPublicKeyFile != NULL)
         free(conn->sshPublicKeyFile);
@@ -4174,7 +4174,7 @@ static void handle_SSH_PRIVATE_KEYFILE(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlSSHPrivateKeyFile, option);
+    Store_field(conn->ocamlValues, Ocaml_SSH_PRIVATE_KEYFILE, option);
 
     if (conn->sshPrivateKeyFile != NULL)
         free(conn->sshPrivateKeyFile);
@@ -4355,7 +4355,7 @@ static void handle_SSH_HOST_PUBLIC_KEY_MD5(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlSSHHostPublicKeyMD5, option);
+    Store_field(conn->ocamlValues, Ocaml_SSH_HOST_PUBLIC_KEY_MD5, option);
 
     if (conn->sshHostPublicKeyMD5 != NULL)
         free(conn->sshHostPublicKeyMD5);
@@ -4379,7 +4379,7 @@ static void handle_COPYPOSTFIELDS(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlCopyPostFields, option);
+    Store_field(conn->ocamlValues, Ocaml_COPYPOSTFIELDS, option);
 
     if (conn->copyPostFields != NULL)
         free(conn->copyPostFields);
@@ -4421,7 +4421,7 @@ static void handle_SEEKFUNCTION(Connection *conn, value option)
     CURLcode result = CURLE_OK;
 
     if (Tag_val(option) == Closure_tag)
-        Store_field(conn->ocamlValues, OcamlSeekFunctionCallback, option);
+        Store_field(conn->ocamlValues, Ocaml_SEEKFUNCTION, option);
     else
         failwith("Not a proper closure");
 
@@ -4464,7 +4464,7 @@ static void handle_OPENSOCKETFUNCTION(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlOpenSocketFunctionCallback, option);
+    Store_field(conn->ocamlValues, Ocaml_OPENSOCKETFUNCTION, option);
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_OPENSOCKETDATA,
@@ -4672,7 +4672,7 @@ static void handle_DNS_SERVERS(Connection *conn, value option)
 {
   CAMLparam1(option);
 
-  Store_field(conn->ocamlValues, OcamlDNSServers, option);
+  Store_field(conn->ocamlValues, Ocaml_DNS_SERVERS, option);
 
   CURLcode result = CURLE_OK;
   free_if(conn->dns_servers);
@@ -4696,7 +4696,7 @@ static void handle_MAIL_FROM(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlMailFrom, option);
+    Store_field(conn->ocamlValues, Ocaml_MAIL_FROM, option);
 
     if (conn->mailFrom != NULL)
         free(conn->mailFrom);
@@ -4721,7 +4721,7 @@ static void handle_MAIL_RCPT(Connection *conn, value option)
     CAMLlocal1(listIter);
     CURLcode result = CURLE_OK;
 
-    Store_field(conn->ocamlValues, OcamlMailRcpt, option);
+    Store_field(conn->ocamlValues, Ocaml_MAIL_RCPT, option);
 
     free_curl_slist(conn->mailRcpt);
     conn->mailRcpt = NULL;
@@ -4757,169 +4757,169 @@ static Connection *duplicateConnection(Connection *original)
 
     connection = allocConnection(h);
 
-    Store_field(connection->ocamlValues, OcamlWriteCallback,
-		Field(original->ocamlValues, OcamlWriteCallback));
-    Store_field(connection->ocamlValues, OcamlReadCallback,
-		Field(original->ocamlValues, OcamlReadCallback));
-    Store_field(connection->ocamlValues, OcamlErrorBuffer,
-		Field(original->ocamlValues, OcamlErrorBuffer));
-    Store_field(connection->ocamlValues, OcamlPostFields,
-		Field(original->ocamlValues, OcamlPostFields));
-    Store_field(connection->ocamlValues, OcamlHTTPHeader,
-		Field(original->ocamlValues, OcamlHTTPHeader));
-    Store_field(connection->ocamlValues, OcamlQuote,
-		Field(original->ocamlValues, OcamlQuote));
-    Store_field(connection->ocamlValues, OcamlPostQuote,
-		Field(original->ocamlValues, OcamlPostQuote));
-    Store_field(connection->ocamlValues, OcamlHeaderCallback,
-		Field(original->ocamlValues, OcamlHeaderCallback));
-    Store_field(connection->ocamlValues, OcamlProgressCallback,
-		Field(original->ocamlValues, OcamlProgressCallback));
-    Store_field(connection->ocamlValues, OcamlDebugCallback,
-		Field(original->ocamlValues, OcamlDebugCallback));
-    Store_field(connection->ocamlValues, OcamlHTTP200Aliases,
-		Field(original->ocamlValues, OcamlHTTP200Aliases));
-    Store_field(connection->ocamlValues, OcamlIOCTLCallback,
-		Field(original->ocamlValues, OcamlIOCTLCallback));
-    Store_field(connection->ocamlValues, OcamlSeekFunctionCallback,
-		Field(original->ocamlValues, OcamlSeekFunctionCallback));
+    Store_field(connection->ocamlValues, Ocaml_WRITEFUNCTION,
+		Field(original->ocamlValues, Ocaml_WRITEFUNCTION));
+    Store_field(connection->ocamlValues, Ocaml_READFUNCTION,
+		Field(original->ocamlValues, Ocaml_READFUNCTION));
+    Store_field(connection->ocamlValues, Ocaml_ERRORBUFFER,
+		Field(original->ocamlValues, Ocaml_ERRORBUFFER));
+    Store_field(connection->ocamlValues, Ocaml_POSTFIELDS,
+		Field(original->ocamlValues, Ocaml_POSTFIELDS));
+    Store_field(connection->ocamlValues, Ocaml_HTTPHEADER,
+		Field(original->ocamlValues, Ocaml_HTTPHEADER));
+    Store_field(connection->ocamlValues, Ocaml_QUOTE,
+		Field(original->ocamlValues, Ocaml_QUOTE));
+    Store_field(connection->ocamlValues, Ocaml_POSTQUOTE,
+		Field(original->ocamlValues, Ocaml_POSTQUOTE));
+    Store_field(connection->ocamlValues, Ocaml_HEADERFUNCTION,
+		Field(original->ocamlValues, Ocaml_HEADERFUNCTION));
+    Store_field(connection->ocamlValues, Ocaml_PROGRESSFUNCTION,
+		Field(original->ocamlValues, Ocaml_PROGRESSFUNCTION));
+    Store_field(connection->ocamlValues, Ocaml_DEBUGFUNCTION,
+		Field(original->ocamlValues, Ocaml_DEBUGFUNCTION));
+    Store_field(connection->ocamlValues, Ocaml_HTTP200ALIASES,
+		Field(original->ocamlValues, Ocaml_HTTP200ALIASES));
+    Store_field(connection->ocamlValues, Ocaml_IOCTLFUNCTION,
+		Field(original->ocamlValues, Ocaml_IOCTLFUNCTION));
+    Store_field(connection->ocamlValues, Ocaml_SEEKFUNCTION,
+		Field(original->ocamlValues, Ocaml_SEEKFUNCTION));
 
-    if (Field(original->ocamlValues, OcamlURL) != Val_unit)
+    if (Field(original->ocamlValues, Ocaml_URL) != Val_unit)
         handle_URL(connection, Field(original->ocamlValues,
-                                    OcamlURL));
-    if (Field(original->ocamlValues, OcamlProxy) != Val_unit)
+                                    Ocaml_URL));
+    if (Field(original->ocamlValues, Ocaml_PROXY) != Val_unit)
         handle_PROXY(connection, Field(original->ocamlValues,
-                                      OcamlProxy));
-    if (Field(original->ocamlValues, OcamlUserPWD) != Val_unit)
+                                      Ocaml_PROXY));
+    if (Field(original->ocamlValues, Ocaml_USERPWD) != Val_unit)
         handle_USERPWD(connection, Field(original->ocamlValues,
-                                        OcamlUserPWD));
-    if (Field(original->ocamlValues, OcamlProxyUserPWD) != Val_unit)
+                                        Ocaml_USERPWD));
+    if (Field(original->ocamlValues, Ocaml_PROXYUSERPWD) != Val_unit)
         handle_PROXYUSERPWD(connection, Field(original->ocamlValues,
-                                             OcamlProxyUserPWD));
-    if (Field(original->ocamlValues, OcamlRange) != Val_unit)
+                                             Ocaml_PROXYUSERPWD));
+    if (Field(original->ocamlValues, Ocaml_RANGE) != Val_unit)
         handle_RANGE(connection, Field(original->ocamlValues,
-                                      OcamlRange));
-    if (Field(original->ocamlValues, OcamlErrorBuffer) != Val_unit)
+                                      Ocaml_RANGE));
+    if (Field(original->ocamlValues, Ocaml_ERRORBUFFER) != Val_unit)
         handle_ERRORBUFFER(connection, Field(original->ocamlValues,
-                                            OcamlErrorBuffer));
-    if (Field(original->ocamlValues, OcamlPostFields) != Val_unit)
+                                            Ocaml_ERRORBUFFER));
+    if (Field(original->ocamlValues, Ocaml_POSTFIELDS) != Val_unit)
         handle_POSTFIELDS(connection, Field(original->ocamlValues,
-                                           OcamlPostFields));
-    if (Field(original->ocamlValues, OcamlReferer) != Val_unit)
+                                           Ocaml_POSTFIELDS));
+    if (Field(original->ocamlValues, Ocaml_REFERER) != Val_unit)
         handle_REFERER(connection, Field(original->ocamlValues,
-                                        OcamlReferer));
-    if (Field(original->ocamlValues, OcamlUserAgent) != Val_unit)
+                                        Ocaml_REFERER));
+    if (Field(original->ocamlValues, Ocaml_USERAGENT) != Val_unit)
         handle_USERAGENT(connection, Field(original->ocamlValues,
-                                          OcamlUserAgent));
-    if (Field(original->ocamlValues, OcamlFTPPort) != Val_unit)
+                                          Ocaml_USERAGENT));
+    if (Field(original->ocamlValues, Ocaml_FTPPORT) != Val_unit)
         handle_FTPPORT(connection, Field(original->ocamlValues,
-                                        OcamlFTPPort));
-    if (Field(original->ocamlValues, OcamlCookie) != Val_unit)
+                                        Ocaml_FTPPORT));
+    if (Field(original->ocamlValues, Ocaml_COOKIE) != Val_unit)
         handle_COOKIE(connection, Field(original->ocamlValues,
-                                       OcamlCookie));
-    if (Field(original->ocamlValues, OcamlHTTPHeader) != Val_unit)
+                                       Ocaml_COOKIE));
+    if (Field(original->ocamlValues, Ocaml_HTTPHEADER) != Val_unit)
         handle_HTTPHEADER(connection, Field(original->ocamlValues,
-                                           OcamlHTTPHeader));
-    if (Field(original->ocamlValues, OcamlHTTPPost) != Val_unit)
+                                           Ocaml_HTTPHEADER));
+    if (Field(original->ocamlValues, Ocaml_HTTPPOST) != Val_unit)
         handle_HTTPPOST(connection, Field(original->ocamlValues,
-                                         OcamlHTTPPost));
-    if (Field(original->ocamlValues, OcamlSSLCert) != Val_unit)
+                                         Ocaml_HTTPPOST));
+    if (Field(original->ocamlValues, Ocaml_SSLCERT) != Val_unit)
         handle_SSLCERT(connection, Field(original->ocamlValues,
-                                        OcamlSSLCert));
-    if (Field(original->ocamlValues, OcamlSSLCertType) != Val_unit)
+                                        Ocaml_SSLCERT));
+    if (Field(original->ocamlValues, Ocaml_SSLCERTTYPE) != Val_unit)
         handle_SSLCERTTYPE(connection, Field(original->ocamlValues,
-                                            OcamlSSLCertType));
-    if (Field(original->ocamlValues, OcamlSSLCertPasswd) != Val_unit)
+                                            Ocaml_SSLCERTTYPE));
+    if (Field(original->ocamlValues, Ocaml_SSLCERTPASSWD) != Val_unit)
         handle_SSLCERTPASSWD(connection, Field(original->ocamlValues,
-                                              OcamlSSLCertPasswd));
-    if (Field(original->ocamlValues, OcamlSSLKey) != Val_unit)
+                                              Ocaml_SSLCERTPASSWD));
+    if (Field(original->ocamlValues, Ocaml_SSLKEY) != Val_unit)
         handle_SSLKEY(connection, Field(original->ocamlValues,
-                                       OcamlSSLKey));
-    if (Field(original->ocamlValues, OcamlSSLKeyType) != Val_unit)
+                                       Ocaml_SSLKEY));
+    if (Field(original->ocamlValues, Ocaml_SSLKEYTYPE) != Val_unit)
         handle_SSLKEYTYPE(connection, Field(original->ocamlValues,
-                                           OcamlSSLKeyType));
-    if (Field(original->ocamlValues, OcamlSSLKeyPasswd) != Val_unit)
+                                           Ocaml_SSLKEYTYPE));
+    if (Field(original->ocamlValues, Ocaml_SSLKEYPASSWD) != Val_unit)
         handle_SSLKEYPASSWD(connection, Field(original->ocamlValues,
-                                             OcamlSSLKeyPasswd));
-    if (Field(original->ocamlValues, OcamlSSLEngine) != Val_unit)
+                                             Ocaml_SSLKEYPASSWD));
+    if (Field(original->ocamlValues, Ocaml_SSLENGINE) != Val_unit)
         handle_SSLENGINE(connection, Field(original->ocamlValues,
-                                          OcamlSSLEngine));
-    if (Field(original->ocamlValues, OcamlQuote) != Val_unit)
+                                          Ocaml_SSLENGINE));
+    if (Field(original->ocamlValues, Ocaml_QUOTE) != Val_unit)
         handle_QUOTE(connection, Field(original->ocamlValues,
-                                      OcamlQuote));
-    if (Field(original->ocamlValues, OcamlPostQuote) != Val_unit)
+                                      Ocaml_QUOTE));
+    if (Field(original->ocamlValues, Ocaml_POSTQUOTE) != Val_unit)
         handle_POSTQUOTE(connection, Field(original->ocamlValues,
-                                          OcamlPostQuote));
-    if (Field(original->ocamlValues, OcamlCookieFile) != Val_unit)
+                                          Ocaml_POSTQUOTE));
+    if (Field(original->ocamlValues, Ocaml_COOKIEFILE) != Val_unit)
         handle_COOKIEFILE(connection, Field(original->ocamlValues,
-                                           OcamlCookieFile));
-    if (Field(original->ocamlValues, OcamlCustomRequest) != Val_unit)
+                                           Ocaml_COOKIEFILE));
+    if (Field(original->ocamlValues, Ocaml_CUSTOMREQUEST) != Val_unit)
         handle_CUSTOMREQUEST(connection, Field(original->ocamlValues,
-                                              OcamlCustomRequest));
-    if (Field(original->ocamlValues, OcamlInterface) != Val_unit)
+                                              Ocaml_CUSTOMREQUEST));
+    if (Field(original->ocamlValues, Ocaml_INTERFACE) != Val_unit)
         handle_INTERFACE(connection, Field(original->ocamlValues,
-                                          OcamlInterface));
-    if (Field(original->ocamlValues, OcamlCAInfo) != Val_unit)
+                                          Ocaml_INTERFACE));
+    if (Field(original->ocamlValues, Ocaml_CAINFO) != Val_unit)
         handle_CAINFO(connection, Field(original->ocamlValues,
-                                       OcamlCAInfo));
-    if (Field(original->ocamlValues, OcamlCAPath) != Val_unit)
+                                       Ocaml_CAINFO));
+    if (Field(original->ocamlValues, Ocaml_CAPATH) != Val_unit)
         handle_CAPATH(connection, Field(original->ocamlValues,
-                                       OcamlCAPath));
-    if (Field(original->ocamlValues, OcamlRandomFile) != Val_unit)
+                                       Ocaml_CAPATH));
+    if (Field(original->ocamlValues, Ocaml_RANDOM_FILE) != Val_unit)
         handle_RANDOM_FILE(connection, Field(original->ocamlValues,
-                                           OcamlRandomFile));
-    if (Field(original->ocamlValues, OcamlEGDSocket) != Val_unit)
+                                           Ocaml_RANDOM_FILE));
+    if (Field(original->ocamlValues, Ocaml_EGDSOCKET) != Val_unit)
         handle_EGDSOCKET(connection, Field(original->ocamlValues,
-                                          OcamlEGDSocket));
-    if (Field(original->ocamlValues, OcamlCookieJar) != Val_unit)
+                                          Ocaml_EGDSOCKET));
+    if (Field(original->ocamlValues, Ocaml_COOKIEJAR) != Val_unit)
         handle_COOKIEJAR(connection, Field(original->ocamlValues,
-                                          OcamlCookieJar));
-    if (Field(original->ocamlValues, OcamlSSLCipherList) != Val_unit)
+                                          Ocaml_COOKIEJAR));
+    if (Field(original->ocamlValues, Ocaml_SSL_CIPHER_LIST) != Val_unit)
         handle_SSL_CIPHER_LIST(connection, Field(original->ocamlValues,
-                                              OcamlSSLCipherList));
-    if (Field(original->ocamlValues, OcamlPrivate) != Val_unit)
+                                              Ocaml_SSL_CIPHER_LIST));
+    if (Field(original->ocamlValues, Ocaml_PRIVATE) != Val_unit)
         handle_PRIVATE(connection, Field(original->ocamlValues,
-                                        OcamlPrivate));
-    if (Field(original->ocamlValues, OcamlHTTP200Aliases) != Val_unit)
+                                        Ocaml_PRIVATE));
+    if (Field(original->ocamlValues, Ocaml_HTTP200ALIASES) != Val_unit)
         handle_HTTP200ALIASES(connection, Field(original->ocamlValues,
-                                               OcamlHTTP200Aliases));
-    if (Field(original->ocamlValues, OcamlNETRCFile) != Val_unit)
+                                               Ocaml_HTTP200ALIASES));
+    if (Field(original->ocamlValues, Ocaml_NETRC_FILE) != Val_unit)
         handle_NETRC_FILE(connection, Field(original->ocamlValues,
-                                          OcamlNETRCFile));
-    if (Field(original->ocamlValues, OcamlFTPAccount) != Val_unit)
+                                          Ocaml_NETRC_FILE));
+    if (Field(original->ocamlValues, Ocaml_FTP_ACCOUNT) != Val_unit)
         handle_FTP_ACCOUNT(connection, Field(original->ocamlValues,
-                                           OcamlFTPAccount));
-    if (Field(original->ocamlValues, OcamlCookieList) != Val_unit)
+                                           Ocaml_FTP_ACCOUNT));
+    if (Field(original->ocamlValues, Ocaml_COOKIELIST) != Val_unit)
         handle_COOKIELIST(connection, Field(original->ocamlValues,
-                                           OcamlCookieList));
-    if (Field(original->ocamlValues, OcamlFTPAlternativeToUser) != Val_unit)
+                                           Ocaml_COOKIELIST));
+    if (Field(original->ocamlValues, Ocaml_FTP_ALTERNATIVE_TO_USER) != Val_unit)
         handle_FTP_ALTERNATIVE_TO_USER(connection,
                                    Field(original->ocamlValues,
-                                         OcamlFTPAlternativeToUser));
-    if (Field(original->ocamlValues, OcamlSSHPublicKeyFile) != Val_unit)
+                                         Ocaml_FTP_ALTERNATIVE_TO_USER));
+    if (Field(original->ocamlValues, Ocaml_SSH_PUBLIC_KEYFILE) != Val_unit)
         handle_SSH_PUBLIC_KEYFILE(connection,
                                Field(original->ocamlValues,
-                                     OcamlSSHPublicKeyFile));
-    if (Field(original->ocamlValues, OcamlSSHPrivateKeyFile) != Val_unit)
+                                     Ocaml_SSH_PUBLIC_KEYFILE));
+    if (Field(original->ocamlValues, Ocaml_SSH_PRIVATE_KEYFILE) != Val_unit)
         handle_SSH_PRIVATE_KEYFILE(connection,
                                 Field(original->ocamlValues,
-                                      OcamlSSHPrivateKeyFile));
-    if (Field(original->ocamlValues, OcamlCopyPostFields) != Val_unit)
+                                      Ocaml_SSH_PRIVATE_KEYFILE));
+    if (Field(original->ocamlValues, Ocaml_COPYPOSTFIELDS) != Val_unit)
         handle_COPYPOSTFIELDS(connection,
                              Field(original->ocamlValues,
-                                   OcamlCopyPostFields));
-    if (Field(original->ocamlValues, OcamlDNSServers) != Val_unit)
+                                   Ocaml_COPYPOSTFIELDS));
+    if (Field(original->ocamlValues, Ocaml_DNS_SERVERS) != Val_unit)
         handle_DNS_SERVERS(connection,
                          Field(original->ocamlValues,
-                               OcamlDNSServers));
-    if (Field(original->ocamlValues, OcamlMailFrom) != Val_unit)
+                               Ocaml_DNS_SERVERS));
+    if (Field(original->ocamlValues, Ocaml_MAIL_FROM) != Val_unit)
         handle_MAIL_FROM(connection,
                        Field(original->ocamlValues,
-                             OcamlMailFrom));
-    if (Field(original->ocamlValues, OcamlMailRcpt) != Val_unit)
+                             Ocaml_MAIL_FROM));
+    if (Field(original->ocamlValues, Ocaml_MAIL_RCPT) != Val_unit)
         handle_MAIL_RCPT(connection,
                        Field(original->ocamlValues,
-                             OcamlMailRcpt));
+                             Ocaml_MAIL_RCPT));
 
     return connection;
 }
@@ -6152,7 +6152,7 @@ CAMLprim value caml_curlm_remove_finished(value v_multi)
     conn = findConnection(handle);
     if (conn->errorBuffer != NULL)
     {
-        Store_field(Field(conn->ocamlValues, OcamlErrorBuffer), 0, caml_copy_string(conn->errorBuffer));
+        Store_field(Field(conn->ocamlValues, Ocaml_ERRORBUFFER), 0, caml_copy_string(conn->errorBuffer));
     }
     conn->refcount--;
     /* NB: same handle, but different block */
