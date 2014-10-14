@@ -133,54 +133,54 @@ struct Connection
 
     size_t refcount; /* number of references to this structure */
 
-    char *url;
-    char *proxy;
-    char *userPwd;
-    char *proxyUserPwd;
-    char *range;
-    char *errorBuffer;
-    char *postFields;
-    int postFieldSize;
-    char *referer;
-    char *userAgent;
-    char *ftpPort;
-    char *cookie;
-    struct curl_slist *httpHeader;
+    char *curl_URL;
+    char *curl_PROXY;
+    char *curl_USERPWD;
+    char *curl_PROXYUSERPWD;
+    char *curl_RANGE;
+    char *curl_ERRORBUFFER;
+    char *curl_POSTFIELDS;
+    int curl_POSTFIELDSIZE;
+    char *curl_REFERER;
+    char *curl_USERAGENT;
+    char *curl_FTPPORT;
+    char *curl_COOKIE;
+    struct curl_slist *curl_HTTPHEADER;
     struct curl_httppost *httpPostFirst;
     struct curl_httppost *httpPostLast;
     struct curl_slist *httpPostStrings;
-    struct curl_slist *resolve;
-    char *sslCert;
-    char *sslCertType;
-    char *sslCertPasswd;
-    char *sslKey;
-    char *sslKeyType;
-    char *sslKeyPasswd;
-    char *sslEngine;
-    struct curl_slist *quote;
-    struct curl_slist *postQuote;
-    char *cookieFile;
-    char *customRequest;
-    char *interface_; /* `interface` gives problems on windows */
-    char *caInfo;
-    char *caPath;
-    char *randomFile;
-    char *egdSocket;
-    char *cookieJar;
-    char *sslCipherList;
-    char *private;
-    struct curl_slist *http200Aliases;
-    char *netrcFile;
-    char *ftpaccount;
-    char *cookielist;
-    char *ftpAlternativeToUser;
-    char *sshPublicKeyFile;
-    char *sshPrivateKeyFile;
-    char *sshHostPublicKeyMD5;
-    char *copyPostFields;
-    char *dns_servers;
-    char *mailFrom;
-    struct curl_slist *mailRcpt;
+    struct curl_slist *curl_RESOLVE;
+    char *curl_SSLCERT;
+    char *curl_SSLCERTTYPE;
+    char *curl_SSLCERTPASSWD;
+    char *curl_SSLKEY;
+    char *curl_SSLKEYTYPE;
+    char *curl_SSLKEYPASSWD;
+    char *curl_SSLENGINE;
+    struct curl_slist *curl_QUOTE;
+    struct curl_slist *curl_POSTQUOTE;
+    char *curl_COOKIEFILE;
+    char *curl_CUSTOMREQUEST;
+    char *curl_INTERFACE;
+    char *curl_CAINFO;
+    char *curl_CAPATH;
+    char *curl_RANDOM_FILE;
+    char *curl_EGDSOCKET;
+    char *curl_COOKIEJAR;
+    char *curl_SSL_CIPHER_LIST;
+    char *curl_PRIVATE;
+    struct curl_slist *curl_HTTP200ALIASES;
+    char *curl_NETRC_FILE;
+    char *curl_FTP_ACCOUNT;
+    char *curl_COOKIELIST;
+    char *curl_FTP_ALTERNATIVE_TO_USER;
+    char *curl_SSH_PUBLIC_KEYFILE;
+    char *curl_SSH_PRIVATE_KEYFILE;
+    char *curl_SSH_HOST_PUBLIC_KEY_MD5;
+    char *curl_COPYPOSTFIELDS;
+    char *curl_DNS_SERVERS;
+    char *curl_MAIL_FROM;
+    struct curl_slist *curl_MAIL_RCPT;
 };
 
 struct ConnectionList
@@ -645,10 +645,10 @@ static void raiseError(Connection *conn, CURLcode code)
     Store_field(exceptionData, 1, Val_int(code));
     Store_field(exceptionData, 2, copy_string(errorString));
 
-    if (conn != NULL && conn->errorBuffer != NULL)
+    if (conn != NULL && conn->curl_ERRORBUFFER != NULL)
     {
         Store_field(Field(conn->ocamlValues, Ocaml_ERRORBUFFER), 0,
-		    copy_string(conn->errorBuffer));
+		    copy_string(conn->curl_ERRORBUFFER));
     }
 
     exception = caml_named_value("CurlException");
@@ -696,53 +696,53 @@ static Connection* allocConnection(CURL* h)
 
     connection->refcount = 0;
 
-    connection->url = NULL;
-    connection->proxy = NULL;
-    connection->userPwd = NULL;
-    connection->proxyUserPwd = NULL;
-    connection->range = NULL;
-    connection->errorBuffer = NULL;
-    connection->postFields = NULL;
-    connection->postFieldSize = -1;
-    connection->referer = NULL;
-    connection->userAgent = NULL;
-    connection->ftpPort = NULL;
-    connection->cookie = NULL;
-    connection->httpHeader = NULL;
+    connection->curl_URL = NULL;
+    connection->curl_PROXY = NULL;
+    connection->curl_USERPWD = NULL;
+    connection->curl_PROXYUSERPWD = NULL;
+    connection->curl_RANGE = NULL;
+    connection->curl_ERRORBUFFER = NULL;
+    connection->curl_POSTFIELDS = NULL;
+    connection->curl_POSTFIELDSIZE = -1;
+    connection->curl_REFERER = NULL;
+    connection->curl_USERAGENT = NULL;
+    connection->curl_FTPPORT = NULL;
+    connection->curl_COOKIE = NULL;
+    connection->curl_HTTPHEADER = NULL;
     connection->httpPostFirst = NULL;
     connection->httpPostLast = NULL;
     connection->httpPostStrings = NULL;
-    connection->sslCert = NULL;
-    connection->sslCertType = NULL;
-    connection->sslCertPasswd = NULL;
-    connection->sslKey = NULL;
-    connection->sslKeyType = NULL;
-    connection->sslKeyPasswd = NULL;
-    connection->sslEngine = NULL;
-    connection->quote = NULL;
-    connection->postQuote = NULL;
-    connection->cookieFile = NULL;
-    connection->customRequest = NULL;
-    connection->interface_ = NULL;
-    connection->caInfo = NULL;
-    connection->caPath = NULL;
-    connection->randomFile = NULL;
-    connection->egdSocket = NULL;
-    connection->cookieJar = NULL;
-    connection->sslCipherList = NULL;
-    connection->private = NULL;
-    connection->http200Aliases = NULL;
-    connection->netrcFile = NULL;
-    connection->ftpaccount = NULL;
-    connection->cookielist = NULL;
-    connection->ftpAlternativeToUser = NULL;
-    connection->sshPublicKeyFile = NULL;
-    connection->sshPrivateKeyFile = NULL;
-    connection->copyPostFields = NULL;
-    connection->resolve = NULL;
-    connection->dns_servers = NULL;
-    connection->mailFrom = NULL;
-    connection->mailRcpt = NULL;
+    connection->curl_SSLCERT = NULL;
+    connection->curl_SSLCERTTYPE = NULL;
+    connection->curl_SSLCERTPASSWD = NULL;
+    connection->curl_SSLKEY = NULL;
+    connection->curl_SSLKEYTYPE = NULL;
+    connection->curl_SSLKEYPASSWD = NULL;
+    connection->curl_SSLENGINE = NULL;
+    connection->curl_QUOTE = NULL;
+    connection->curl_POSTQUOTE = NULL;
+    connection->curl_COOKIEFILE = NULL;
+    connection->curl_CUSTOMREQUEST = NULL;
+    connection->curl_INTERFACE = NULL;
+    connection->curl_CAINFO = NULL;
+    connection->curl_CAPATH = NULL;
+    connection->curl_RANDOM_FILE = NULL;
+    connection->curl_EGDSOCKET = NULL;
+    connection->curl_COOKIEJAR = NULL;
+    connection->curl_SSL_CIPHER_LIST = NULL;
+    connection->curl_PRIVATE = NULL;
+    connection->curl_HTTP200ALIASES = NULL;
+    connection->curl_NETRC_FILE = NULL;
+    connection->curl_FTP_ACCOUNT = NULL;
+    connection->curl_COOKIELIST = NULL;
+    connection->curl_FTP_ALTERNATIVE_TO_USER = NULL;
+    connection->curl_SSH_PUBLIC_KEYFILE = NULL;
+    connection->curl_SSH_PRIVATE_KEYFILE = NULL;
+    connection->curl_COPYPOSTFIELDS = NULL;
+    connection->curl_RESOLVE = NULL;
+    connection->curl_DNS_SERVERS = NULL;
+    connection->curl_MAIL_FROM = NULL;
+    connection->curl_MAIL_RCPT = NULL;
 
     return connection;
 }
@@ -800,52 +800,52 @@ static void removeConnection(Connection *connection, int finalization)
 
     remove_global_root(&connection->ocamlValues);
 
-    free_if(connection->url);
-    free_if(connection->proxy);
-    free_if(connection->userPwd);
-    free_if(connection->proxyUserPwd);
-    free_if(connection->range);
-    free_if(connection->errorBuffer);
-    free_if(connection->postFields);
-    free_if(connection->referer);
-    free_if(connection->userAgent);
-    free_if(connection->ftpPort);
-    free_if(connection->cookie);
-    free_curl_slist(connection->httpHeader);
+    free_if(connection->curl_URL);
+    free_if(connection->curl_PROXY);
+    free_if(connection->curl_USERPWD);
+    free_if(connection->curl_PROXYUSERPWD);
+    free_if(connection->curl_RANGE);
+    free_if(connection->curl_ERRORBUFFER);
+    free_if(connection->curl_POSTFIELDS);
+    free_if(connection->curl_REFERER);
+    free_if(connection->curl_USERAGENT);
+    free_if(connection->curl_FTPPORT);
+    free_if(connection->curl_COOKIE);
+    free_curl_slist(connection->curl_HTTPHEADER);
     if (connection->httpPostFirst != NULL)
         curl_formfree(connection->httpPostFirst);
     free_curl_slist(connection->httpPostStrings);
-    free_curl_slist(connection->resolve);
-    free_if(connection->sslCert);
-    free_if(connection->sslCertType);
-    free_if(connection->sslCertPasswd);
-    free_if(connection->sslKey);
-    free_if(connection->sslKeyType);
-    free_if(connection->sslKeyPasswd);
-    free_if(connection->sslEngine);
-    free_curl_slist(connection->quote);
-    free_curl_slist(connection->postQuote);
-    free_if(connection->cookieFile);
-    free_if(connection->customRequest);
-    free_if(connection->interface_);
-    free_if(connection->caInfo);
-    free_if(connection->caPath);
-    free_if(connection->randomFile);
-    free_if(connection->egdSocket);
-    free_if(connection->cookieJar);
-    free_if(connection->sslCipherList);
-    free_if(connection->private);
-    free_curl_slist(connection->http200Aliases);
-    free_if(connection->netrcFile);
-    free_if(connection->ftpaccount);
-    free_if(connection->cookielist);
-    free_if(connection->ftpAlternativeToUser);
-    free_if(connection->sshPublicKeyFile);
-    free_if(connection->sshPrivateKeyFile);
-    free_if(connection->copyPostFields);
-    free_if(connection->dns_servers);
-    free_if(connection->mailFrom);
-    free_curl_slist(connection->mailRcpt);
+    free_curl_slist(connection->curl_RESOLVE);
+    free_if(connection->curl_SSLCERT);
+    free_if(connection->curl_SSLCERTTYPE);
+    free_if(connection->curl_SSLCERTPASSWD);
+    free_if(connection->curl_SSLKEY);
+    free_if(connection->curl_SSLKEYTYPE);
+    free_if(connection->curl_SSLKEYPASSWD);
+    free_if(connection->curl_SSLENGINE);
+    free_curl_slist(connection->curl_QUOTE);
+    free_curl_slist(connection->curl_POSTQUOTE);
+    free_if(connection->curl_COOKIEFILE);
+    free_if(connection->curl_CUSTOMREQUEST);
+    free_if(connection->curl_INTERFACE);
+    free_if(connection->curl_CAINFO);
+    free_if(connection->curl_CAPATH);
+    free_if(connection->curl_RANDOM_FILE);
+    free_if(connection->curl_EGDSOCKET);
+    free_if(connection->curl_COOKIEJAR);
+    free_if(connection->curl_SSL_CIPHER_LIST);
+    free_if(connection->curl_PRIVATE);
+    free_curl_slist(connection->curl_HTTP200ALIASES);
+    free_if(connection->curl_NETRC_FILE);
+    free_if(connection->curl_FTP_ACCOUNT);
+    free_if(connection->curl_COOKIELIST);
+    free_if(connection->curl_FTP_ALTERNATIVE_TO_USER);
+    free_if(connection->curl_SSH_PUBLIC_KEYFILE);
+    free_if(connection->curl_SSH_PRIVATE_KEYFILE);
+    free_if(connection->curl_COPYPOSTFIELDS);
+    free_if(connection->curl_DNS_SERVERS);
+    free_if(connection->curl_MAIL_FROM);
+    free_curl_slist(connection->curl_MAIL_RCPT);
 }
 
 #if 1
@@ -1392,14 +1392,14 @@ static void handle_URL(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_URL, option);
 
-    if (conn->url != NULL)
-        free(conn->url);
+    if (conn->curl_URL != NULL)
+        free(conn->curl_URL);
 
-    conn->url = strdup(String_val(option));
+    conn->curl_URL = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_URL,
-                              conn->url);
+                              conn->curl_URL);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -1429,14 +1429,14 @@ static void handle_PROXY(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_PROXY, option);
 
-    if (conn->proxy != NULL)
-        free(conn->proxy);
+    if (conn->curl_PROXY != NULL)
+        free(conn->curl_PROXY);
 
-    conn->proxy = strdup(String_val(option));
+    conn->curl_PROXY = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_PROXY,
-                              conn->proxy);
+                              conn->curl_PROXY);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -1757,14 +1757,14 @@ static void handle_USERPWD(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_USERPWD, option);
 
-    if (conn->userPwd != NULL)
-        free(conn->userPwd);
+    if (conn->curl_USERPWD != NULL)
+        free(conn->curl_USERPWD);
 
-    conn->userPwd = strdup(String_val(option));
+    conn->curl_USERPWD = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_USERPWD,
-                              conn->userPwd);
+                              conn->curl_USERPWD);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -1779,14 +1779,14 @@ static void handle_PROXYUSERPWD(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_PROXYUSERPWD, option);
 
-    if (conn->proxyUserPwd != NULL)
-        free(conn->proxyUserPwd);
+    if (conn->curl_PROXYUSERPWD != NULL)
+        free(conn->curl_PROXYUSERPWD);
 
-    conn->proxyUserPwd = strdup(String_val(option));
+    conn->curl_PROXYUSERPWD = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_PROXYUSERPWD,
-                              conn->proxyUserPwd);
+                              conn->curl_PROXYUSERPWD);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -1801,14 +1801,14 @@ static void handle_RANGE(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_RANGE, option);
 
-    if (conn->range != NULL)
-        free(conn->range);
+    if (conn->curl_RANGE != NULL)
+        free(conn->curl_RANGE);
 
-    conn->range = strdup(String_val(option));
+    conn->curl_RANGE = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_RANGE,
-                              conn->range);
+                              conn->curl_RANGE);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -1823,14 +1823,14 @@ static void handle_ERRORBUFFER(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_ERRORBUFFER, option);
 
-    if (conn->errorBuffer != NULL)
-        free(conn->errorBuffer);
+    if (conn->curl_ERRORBUFFER != NULL)
+        free(conn->curl_ERRORBUFFER);
 
-    conn->errorBuffer = malloc(sizeof(char) * CURL_ERROR_SIZE);
+    conn->curl_ERRORBUFFER = malloc(sizeof(char) * CURL_ERROR_SIZE);
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_ERRORBUFFER,
-                              conn->errorBuffer);
+                              conn->curl_ERRORBUFFER);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -1860,15 +1860,15 @@ static void handle_POSTFIELDS(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_POSTFIELDS, option);
 
-    if (conn->postFields != NULL)
-        free(conn->postFields);
+    if (conn->curl_POSTFIELDS != NULL)
+        free(conn->curl_POSTFIELDS);
 
-    conn->postFields = malloc(string_length(option)+1);
-    memcpy(conn->postFields, String_val(option), string_length(option)+1);
+    conn->curl_POSTFIELDS = malloc(string_length(option)+1);
+    memcpy(conn->curl_POSTFIELDS, String_val(option), string_length(option)+1);
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_POSTFIELDS,
-                              conn->postFields);
+                              conn->curl_POSTFIELDS);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -1898,14 +1898,14 @@ static void handle_REFERER(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_REFERER, option);
 
-    if (conn->referer != NULL)
-        free(conn->referer);
+    if (conn->curl_REFERER != NULL)
+        free(conn->curl_REFERER);
 
-    conn->referer = strdup(String_val(option));
+    conn->curl_REFERER = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_REFERER,
-                              conn->referer);
+                              conn->curl_REFERER);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -1920,14 +1920,14 @@ static void handle_USERAGENT(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_USERAGENT, option);
 
-    if (conn->userAgent != NULL)
-        free(conn->userAgent);
+    if (conn->curl_USERAGENT != NULL)
+        free(conn->curl_USERAGENT);
 
-    conn->userAgent = strdup(String_val(option));
+    conn->curl_USERAGENT = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_USERAGENT,
-                              conn->userAgent);
+                              conn->curl_USERAGENT);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -1942,14 +1942,14 @@ static void handle_FTPPORT(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_FTPPORT, option);
 
-    if (conn->ftpPort != NULL)
-        free(conn->ftpPort);
+    if (conn->curl_FTPPORT != NULL)
+        free(conn->curl_FTPPORT);
 
-    conn->ftpPort = strdup(String_val(option));
+    conn->curl_FTPPORT = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_FTPPORT,
-                              conn->ftpPort);
+                              conn->curl_FTPPORT);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -2009,14 +2009,14 @@ static void handle_COOKIE(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_COOKIE, option);
 
-    if (conn->cookie != NULL)
-        free(conn->cookie);
+    if (conn->curl_COOKIE != NULL)
+        free(conn->curl_COOKIE);
 
-    conn->cookie = strdup(String_val(option));
+    conn->curl_COOKIE = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_COOKIE,
-                              conn->cookie);
+                              conn->curl_COOKIE);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -2032,21 +2032,21 @@ static void handle_HTTPHEADER(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_HTTPHEADER, option);
 
-    free_curl_slist(conn->httpHeader);
-    conn->httpHeader = NULL;
+    free_curl_slist(conn->curl_HTTPHEADER);
+    conn->curl_HTTPHEADER = NULL;
 
     listIter = option;
 
     while (!Is_long(listIter))
     {
-        conn->httpHeader = curl_slist_append(conn->httpHeader, String_val(Field(listIter, 0)));
+        conn->curl_HTTPHEADER = curl_slist_append(conn->curl_HTTPHEADER, String_val(Field(listIter, 0)));
 
         listIter = Field(listIter, 1);
     }
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_HTTPHEADER,
-                              conn->httpHeader);
+                              conn->curl_HTTPHEADER);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -2453,14 +2453,14 @@ static void handle_SSLCERT(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_SSLCERT, option);
 
-    if (conn->sslCert != NULL)
-        free(conn->sslCert);
+    if (conn->curl_SSLCERT != NULL)
+        free(conn->curl_SSLCERT);
 
-    conn->sslCert = strdup(String_val(option));
+    conn->curl_SSLCERT = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_SSLCERT,
-                              conn->sslCert);
+                              conn->curl_SSLCERT);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -2475,14 +2475,14 @@ static void handle_SSLCERTTYPE(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_SSLCERTTYPE, option);
 
-    if (conn->sslCertType != NULL)
-        free(conn->sslCertType);
+    if (conn->curl_SSLCERTTYPE != NULL)
+        free(conn->curl_SSLCERTTYPE);
 
-    conn->sslCertType = strdup(String_val(option));
+    conn->curl_SSLCERTTYPE = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_SSLCERTTYPE,
-                              conn->sslCertType);
+                              conn->curl_SSLCERTTYPE);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -2497,14 +2497,14 @@ static void handle_SSLCERTPASSWD(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_SSLCERTPASSWD, option);
 
-    if (conn->sslCertPasswd != NULL)
-        free(conn->sslCertPasswd);
+    if (conn->curl_SSLCERTPASSWD != NULL)
+        free(conn->curl_SSLCERTPASSWD);
 
-    conn->sslCertPasswd = strdup(String_val(option));
+    conn->curl_SSLCERTPASSWD = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_SSLCERTPASSWD,
-                              conn->sslCertPasswd);
+                              conn->curl_SSLCERTPASSWD);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -2519,14 +2519,14 @@ static void handle_SSLKEY(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_SSLKEY, option);
 
-    if (conn->sslKey != NULL)
-        free(conn->sslKey);
+    if (conn->curl_SSLKEY != NULL)
+        free(conn->curl_SSLKEY);
 
-    conn->sslKey = strdup(String_val(option));
+    conn->curl_SSLKEY = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_SSLKEY,
-                              conn->sslKey);
+                              conn->curl_SSLKEY);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -2541,14 +2541,14 @@ static void handle_SSLKEYTYPE(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_SSLKEYTYPE, option);
 
-    if (conn->sslKeyType != NULL)
-        free(conn->sslKeyType);
+    if (conn->curl_SSLKEYTYPE != NULL)
+        free(conn->curl_SSLKEYTYPE);
 
-    conn->sslKeyType = strdup(String_val(option));
+    conn->curl_SSLKEYTYPE = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_SSLKEYTYPE,
-                              conn->sslKeyType);
+                              conn->curl_SSLKEYTYPE);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -2563,14 +2563,14 @@ static void handle_SSLKEYPASSWD(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_SSLKEYPASSWD, option);
 
-    if (conn->sslKeyPasswd != NULL)
-        free(conn->sslKeyPasswd);
+    if (conn->curl_SSLKEYPASSWD != NULL)
+        free(conn->curl_SSLKEYPASSWD);
 
-    conn->sslKeyPasswd = strdup(String_val(option));
+    conn->curl_SSLKEYPASSWD = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_SSLKEYPASSWD,
-                              conn->sslKeyPasswd);
+                              conn->curl_SSLKEYPASSWD);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -2585,14 +2585,14 @@ static void handle_SSLENGINE(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_SSLENGINE, option);
 
-    if (conn->sslEngine != NULL)
-        free(conn->sslEngine);
+    if (conn->curl_SSLENGINE != NULL)
+        free(conn->curl_SSLENGINE);
 
-    conn->sslEngine = strdup(String_val(option));
+    conn->curl_SSLENGINE = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_SSLENGINE,
-                              conn->sslEngine);
+                              conn->curl_SSLENGINE);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -2638,21 +2638,21 @@ static void handle_QUOTE(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_QUOTE, option);
 
-    free_curl_slist(conn->quote);
-    conn->quote = NULL;
+    free_curl_slist(conn->curl_QUOTE);
+    conn->curl_QUOTE = NULL;
 
     listIter = option;
 
     while (!Is_long(listIter))
     {
-        conn->quote = curl_slist_append(conn->quote, String_val(Field(listIter, 0)));
+        conn->curl_QUOTE = curl_slist_append(conn->curl_QUOTE, String_val(Field(listIter, 0)));
 
         listIter = Field(listIter, 1);
     }
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_QUOTE,
-                              conn->quote);
+                              conn->curl_QUOTE);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -2668,21 +2668,21 @@ static void handle_POSTQUOTE(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_POSTQUOTE, option);
 
-    free_curl_slist(conn->postQuote);
-    conn->postQuote = NULL;
+    free_curl_slist(conn->curl_POSTQUOTE);
+    conn->curl_POSTQUOTE = NULL;
 
     listIter = option;
 
     while (!Is_long(listIter))
     {
-        conn->postQuote = curl_slist_append(conn->postQuote, String_val(Field(listIter, 0)));
+        conn->curl_POSTQUOTE = curl_slist_append(conn->curl_POSTQUOTE, String_val(Field(listIter, 0)));
 
         listIter = Field(listIter, 1);
     }
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_POSTQUOTE,
-                              conn->postQuote);
+                              conn->curl_POSTQUOTE);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -2724,14 +2724,14 @@ static void handle_COOKIEFILE(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_COOKIEFILE, option);
 
-    if (conn->cookieFile != NULL)
-        free(conn->cookieFile);
+    if (conn->curl_COOKIEFILE != NULL)
+        free(conn->curl_COOKIEFILE);
 
-    conn->cookieFile = strdup(String_val(option));
+    conn->curl_COOKIEFILE = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_COOKIEFILE,
-                              conn->cookieFile);
+                              conn->curl_COOKIEFILE);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -2801,14 +2801,14 @@ static void handle_CUSTOMREQUEST(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_CUSTOMREQUEST, option);
 
-    if (conn->customRequest != NULL)
-        free(conn->customRequest);
+    if (conn->curl_CUSTOMREQUEST != NULL)
+        free(conn->curl_CUSTOMREQUEST);
 
-    conn->customRequest = strdup(String_val(option));
+    conn->curl_CUSTOMREQUEST = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_CUSTOMREQUEST,
-                              conn->customRequest);
+                              conn->curl_CUSTOMREQUEST);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -2823,14 +2823,14 @@ static void handle_INTERFACE(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_INTERFACE, option);
 
-    if (conn->interface_ != NULL)
-        free(conn->interface_);
+    if (conn->curl_INTERFACE != NULL)
+        free(conn->curl_INTERFACE);
 
-    conn->interface_ = strdup(String_val(option));
+    conn->curl_INTERFACE = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_INTERFACE,
-                              conn->interface_);
+                              conn->curl_INTERFACE);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -2934,14 +2934,14 @@ static void handle_CAINFO(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_CAINFO, option);
 
-    if (conn->caInfo != NULL)
-        free(conn->caInfo);
+    if (conn->curl_CAINFO != NULL)
+        free(conn->curl_CAINFO);
 
-    conn->caInfo = strdup(String_val(option));
+    conn->curl_CAINFO = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_CAINFO,
-                              conn->caInfo);
+                              conn->curl_CAINFO);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -2956,14 +2956,14 @@ static void handle_CAPATH(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_CAPATH, option);
 
-    if (conn->caPath != NULL)
-        free(conn->caPath);
+    if (conn->curl_CAPATH != NULL)
+        free(conn->curl_CAPATH);
 
-    conn->caPath = strdup(String_val(option));
+    conn->curl_CAPATH = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_CAPATH,
-                              conn->caPath);
+                              conn->curl_CAPATH);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -3083,14 +3083,14 @@ static void handle_RANDOM_FILE(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_RANDOM_FILE, option);
 
-    if (conn->randomFile != NULL)
-        free(conn->randomFile);
+    if (conn->curl_RANDOM_FILE != NULL)
+        free(conn->curl_RANDOM_FILE);
 
-    conn->randomFile = strdup(String_val(option));
+    conn->curl_RANDOM_FILE = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_RANDOM_FILE,
-                              conn->randomFile);
+                              conn->curl_RANDOM_FILE);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -3105,14 +3105,14 @@ static void handle_EGDSOCKET(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_EGDSOCKET, option);
 
-    if (conn->egdSocket != NULL)
-        free(conn->egdSocket);
+    if (conn->curl_EGDSOCKET != NULL)
+        free(conn->curl_EGDSOCKET);
 
-    conn->egdSocket = strdup(String_val(option));
+    conn->curl_EGDSOCKET = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_EGDSOCKET,
-                              conn->egdSocket);
+                              conn->curl_EGDSOCKET);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -3184,14 +3184,14 @@ static void handle_COOKIEJAR(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_COOKIEJAR, option);
 
-    if (conn->cookieJar != NULL)
-        free(conn->cookieJar);
+    if (conn->curl_COOKIEJAR != NULL)
+        free(conn->curl_COOKIEJAR);
 
-    conn->cookieJar = strdup(String_val(option));
+    conn->curl_COOKIEJAR = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_COOKIEJAR,
-                              conn->cookieJar);
+                              conn->curl_COOKIEJAR);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -3206,14 +3206,14 @@ static void handle_SSL_CIPHER_LIST(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_SSL_CIPHER_LIST, option);
 
-    if (conn->sslCipherList != NULL)
-        free(conn->sslCipherList);
+    if (conn->curl_SSL_CIPHER_LIST != NULL)
+        free(conn->curl_SSL_CIPHER_LIST);
 
-    conn->sslCipherList = strdup(String_val(option));
+    conn->curl_SSL_CIPHER_LIST = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_SSL_CIPHER_LIST,
-                              conn->sslCipherList);
+                              conn->curl_SSL_CIPHER_LIST);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -3336,14 +3336,14 @@ static void handle_PRIVATE(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_PRIVATE, option);
 
-    if (conn->private != NULL)
-        free(conn->private);
+    if (conn->curl_PRIVATE != NULL)
+        free(conn->curl_PRIVATE);
 
-    conn->private = strdup(String_val(option));
+    conn->curl_PRIVATE = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_PRIVATE,
-                              conn->private);
+                              conn->curl_PRIVATE);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -3361,21 +3361,21 @@ static void handle_HTTP200ALIASES(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_HTTP200ALIASES, option);
 
-    free_curl_slist(conn->http200Aliases);
-    conn->http200Aliases = NULL;
+    free_curl_slist(conn->curl_HTTP200ALIASES);
+    conn->curl_HTTP200ALIASES = NULL;
 
     listIter = option;
 
     while (!Is_long(listIter))
     {
-        conn->http200Aliases = curl_slist_append(conn->http200Aliases, String_val(Field(listIter, 0)));
+        conn->curl_HTTP200ALIASES = curl_slist_append(conn->curl_HTTP200ALIASES, String_val(Field(listIter, 0)));
 
         listIter = Field(listIter, 1);
     }
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_HTTP200ALIASES,
-                              conn->http200Aliases);
+                              conn->curl_HTTP200ALIASES);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -3680,14 +3680,14 @@ static void handle_NETRC_FILE(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_NETRC_FILE, option);
 
-    if (conn->netrcFile != NULL)
-        free(conn->netrcFile);
+    if (conn->curl_NETRC_FILE != NULL)
+        free(conn->curl_NETRC_FILE);
 
-    conn->netrcFile = strdup(String_val(option));
+    conn->curl_NETRC_FILE = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_NETRC_FILE,
-                              conn->netrcFile);
+                              conn->curl_NETRC_FILE);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -3848,14 +3848,14 @@ static void handle_FTP_ACCOUNT(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_FTP_ACCOUNT, option);
 
-    if (conn->ftpaccount != NULL)
-        free(conn->ftpaccount);
+    if (conn->curl_FTP_ACCOUNT != NULL)
+        free(conn->curl_FTP_ACCOUNT);
     
-    conn->ftpaccount = strdup(String_val(option));
+    conn->curl_FTP_ACCOUNT = strdup(String_val(option));
     
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_FTP_ACCOUNT,
-                              conn->ftpaccount);
+                              conn->curl_FTP_ACCOUNT);
     
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -3872,14 +3872,14 @@ static void handle_COOKIELIST(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_COOKIELIST, option);
 
-    if (conn->cookielist != NULL)
-        free(conn->cookielist);
+    if (conn->curl_COOKIELIST != NULL)
+        free(conn->curl_COOKIELIST);
     
-    conn->cookielist = strdup(String_val(option));
+    conn->curl_COOKIELIST  = strdup(String_val(option));
     
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_COOKIELIST,
-                              conn->cookielist);
+                              conn->curl_COOKIELIST);
     
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -4058,14 +4058,14 @@ static void handle_FTP_ALTERNATIVE_TO_USER(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_FTP_ALTERNATIVE_TO_USER, option);
 
-    if (conn->ftpAlternativeToUser != NULL)
-        free(conn->ftpAlternativeToUser);
+    if (conn->curl_FTP_ALTERNATIVE_TO_USER != NULL)
+        free(conn->curl_FTP_ALTERNATIVE_TO_USER);
 
-    conn->ftpAlternativeToUser = strdup(String_val(option));
+    conn->curl_FTP_ALTERNATIVE_TO_USER = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_FTP_ALTERNATIVE_TO_USER,
-                              conn->ftpAlternativeToUser);
+                              conn->curl_FTP_ALTERNATIVE_TO_USER);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -4152,14 +4152,14 @@ static void handle_SSH_PUBLIC_KEYFILE(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_SSH_PUBLIC_KEYFILE, option);
 
-    if (conn->sshPublicKeyFile != NULL)
-        free(conn->sshPublicKeyFile);
+    if (conn->curl_SSH_PUBLIC_KEYFILE != NULL)
+        free(conn->curl_SSH_PUBLIC_KEYFILE);
 
-    conn->sshPublicKeyFile = strdup(String_val(option));
+    conn->curl_SSH_PUBLIC_KEYFILE = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_SSH_PUBLIC_KEYFILE,
-                              conn->sshPublicKeyFile);
+                              conn->curl_SSH_PUBLIC_KEYFILE);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -4176,14 +4176,14 @@ static void handle_SSH_PRIVATE_KEYFILE(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_SSH_PRIVATE_KEYFILE, option);
 
-    if (conn->sshPrivateKeyFile != NULL)
-        free(conn->sshPrivateKeyFile);
+    if (conn->curl_SSH_PRIVATE_KEYFILE != NULL)
+        free(conn->curl_SSH_PRIVATE_KEYFILE);
 
-    conn->sshPrivateKeyFile = strdup(String_val(option));
+    conn->curl_SSH_PRIVATE_KEYFILE = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_SSH_PRIVATE_KEYFILE,
-                              conn->sshPrivateKeyFile);
+                              conn->curl_SSH_PRIVATE_KEYFILE);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -4357,14 +4357,14 @@ static void handle_SSH_HOST_PUBLIC_KEY_MD5(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_SSH_HOST_PUBLIC_KEY_MD5, option);
 
-    if (conn->sshHostPublicKeyMD5 != NULL)
-        free(conn->sshHostPublicKeyMD5);
+    if (conn->curl_SSH_HOST_PUBLIC_KEY_MD5 != NULL)
+        free(conn->curl_SSH_HOST_PUBLIC_KEY_MD5);
 
-    conn->sshHostPublicKeyMD5 = strdup(String_val(option));
+    conn->curl_SSH_HOST_PUBLIC_KEY_MD5 = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_SSH_HOST_PUBLIC_KEY_MD5,
-                              conn->sshHostPublicKeyMD5);
+                              conn->curl_SSH_HOST_PUBLIC_KEY_MD5);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -4381,14 +4381,14 @@ static void handle_COPYPOSTFIELDS(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_COPYPOSTFIELDS, option);
 
-    if (conn->copyPostFields != NULL)
-        free(conn->copyPostFields);
+    if (conn->curl_COPYPOSTFIELDS != NULL)
+        free(conn->curl_COPYPOSTFIELDS);
 
-    conn->copyPostFields = strdup(String_val(option));
+    conn->curl_COPYPOSTFIELDS = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_COPYPOSTFIELDS,
-                              conn->copyPostFields);
+                              conn->curl_COPYPOSTFIELDS);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -4645,20 +4645,20 @@ static void handle_RESOLVE(Connection *conn, value option)
 
   CURLcode result = CURLE_OK;
 
-  free_curl_slist(conn->resolve);
-  conn->resolve = NULL;
+  free_curl_slist(conn->curl_RESOLVE);
+  conn->curl_RESOLVE = NULL;
 
   head = option;
 
   while (head != Val_emptylist)
   {
-     conn->resolve = curl_slist_append(conn->resolve, String_val(Field(head,0)));
+     conn->curl_RESOLVE = curl_slist_append(conn->curl_RESOLVE, String_val(Field(head,0)));
      head = Field(head, 1);
   }
 
   result = curl_easy_setopt(conn->connection,
                             CURLOPT_RESOLVE,
-                            conn->resolve);
+                            conn->curl_RESOLVE);
 
   if (result != CURLE_OK)
     raiseError(conn, result);
@@ -4675,13 +4675,13 @@ static void handle_DNS_SERVERS(Connection *conn, value option)
   Store_field(conn->ocamlValues, Ocaml_DNS_SERVERS, option);
 
   CURLcode result = CURLE_OK;
-  free_if(conn->dns_servers);
+  free_if(conn->curl_DNS_SERVERS);
 
-  conn->dns_servers = strdup(String_val(option));
+  conn->curl_DNS_SERVERS = strdup(String_val(option));
 
   result = curl_easy_setopt(conn->connection,
                             CURLOPT_DNS_SERVERS,
-                            conn->dns_servers);
+                            conn->curl_DNS_SERVERS);
 
   if (result != CURLE_OK)
     raiseError(conn, result);
@@ -4698,14 +4698,14 @@ static void handle_MAIL_FROM(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_MAIL_FROM, option);
 
-    if (conn->mailFrom != NULL)
-        free(conn->mailFrom);
+    if (conn->curl_MAIL_FROM != NULL)
+        free(conn->curl_MAIL_FROM);
 
-    conn->mailFrom = strdup(String_val(option));
+    conn->curl_MAIL_FROM = strdup(String_val(option));
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_MAIL_FROM,
-                              conn->mailFrom);
+                              conn->curl_MAIL_FROM);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -4723,21 +4723,21 @@ static void handle_MAIL_RCPT(Connection *conn, value option)
 
     Store_field(conn->ocamlValues, Ocaml_MAIL_RCPT, option);
 
-    free_curl_slist(conn->mailRcpt);
-    conn->mailRcpt = NULL;
+    free_curl_slist(conn->curl_MAIL_RCPT);
+    conn->curl_MAIL_RCPT = NULL;
 
     listIter = option;
 
     while (Val_emptylist != listIter)
     {
-        conn->mailRcpt = curl_slist_append(conn->mailRcpt, String_val(Field(listIter, 0)));
+        conn->curl_MAIL_RCPT = curl_slist_append(conn->curl_MAIL_RCPT, String_val(Field(listIter, 0)));
 
         listIter = Field(listIter, 1);
     }
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_MAIL_RCPT,
-                              conn->mailRcpt);
+                              conn->curl_MAIL_RCPT);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -6150,9 +6150,9 @@ CAMLprim value caml_curlm_remove_finished(value v_multi)
   else
   {
     conn = findConnection(handle);
-    if (conn->errorBuffer != NULL)
+    if (conn->curl_ERRORBUFFER != NULL)
     {
-        Store_field(Field(conn->ocamlValues, Ocaml_ERRORBUFFER), 0, caml_copy_string(conn->errorBuffer));
+        Store_field(Field(conn->ocamlValues, Ocaml_ERRORBUFFER), 0, caml_copy_string(conn->curl_ERRORBUFFER));
     }
     conn->refcount--;
     /* NB: same handle, but different block */
