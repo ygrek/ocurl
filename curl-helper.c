@@ -1385,246 +1385,65 @@ static void handle_READFUNCTION(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handle_URL(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_URL, option);
-
-    if (conn->curl_URL != NULL)
-        free(conn->curl_URL);
-
-    conn->curl_URL = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_URL,
-                              conn->curl_URL);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
+#define SETOPT_STRING(name) \
+static void handle_##name(Connection *conn, value option) \
+{ \
+    CAMLparam1(option); \
+    CURLcode result = CURLE_OK; \
+\
+    Store_field(conn->ocamlValues, Ocaml_##name, option); \
+\
+    if (conn->curl_##name != NULL) \
+        free(conn->curl_##name); \
+\
+    conn->curl_##name = strdup(String_val(option)); \
+\
+    result = curl_easy_setopt(conn->connection, CURLOPT_##name, conn->curl_##name); \
+\
+    if (result != CURLE_OK) \
+        raiseError(conn, result); \
+\
+    CAMLreturn0; \
 }
 
-static void handle_INFILESIZE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_INFILESIZE,
-                              Long_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
+#define SETOPT_VAL(name, conv_val) \
+static void handle_##name(Connection *conn, value option) \
+{ \
+    CAMLparam1(option); \
+    CURLcode result = CURLE_OK; \
+\
+    result = curl_easy_setopt(conn->connection, CURLOPT_##name, conv_val(option)); \
+\
+    if (result != CURLE_OK) \
+        raiseError(conn, result); \
+\
+    CAMLreturn0; \
 }
 
-static void handle_PROXY(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
+#define SETOPT_BOOL(name) SETOPT_VAL(name, Bool_val)
+#define SETOPT_LONG(name) SETOPT_VAL(name, Long_val)
+#define SETOPT_INT64(name) SETOPT_VAL(name, Int64_val)
 
-    Store_field(conn->ocamlValues, Ocaml_PROXY, option);
-
-    if (conn->curl_PROXY != NULL)
-        free(conn->curl_PROXY);
-
-    conn->curl_PROXY = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_PROXY,
-                              conn->curl_PROXY);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_PROXYPORT(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_PROXYPORT,
-                              Long_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_HTTPPROXYTUNNEL(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_HTTPPROXYTUNNEL,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_VERBOSE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_VERBOSE,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_HEADER(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_HEADER,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_NOPROGRESS(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_NOPROGRESS,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_STRING( URL)
+SETOPT_LONG( INFILESIZE)
+SETOPT_STRING( PROXY)
+SETOPT_LONG( PROXYPORT)
+SETOPT_BOOL( HTTPPROXYTUNNEL)
+SETOPT_BOOL( VERBOSE)
+SETOPT_BOOL( HEADER)
+SETOPT_BOOL( NOPROGRESS)
 
 #if HAVE_DECL_CURLOPT_NOSIGNAL
-static void handle_NOSIGNAL(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_NOSIGNAL,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_BOOL( NOSIGNAL)
 #endif
 
-static void handle_NOBODY(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
+SETOPT_BOOL( NOBODY)
+SETOPT_BOOL( FAILONERROR)
+SETOPT_BOOL( UPLOAD)
+SETOPT_BOOL( POST)
+SETOPT_BOOL( FTPLISTONLY)
+SETOPT_BOOL( FTPAPPEND)
 
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_NOBODY,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_FAILONERROR(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_FAILONERROR,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_UPLOAD(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_UPLOAD,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_POST(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_POST,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_FTPLISTONLY(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_FTPLISTONLY,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_FTPAPPEND(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_FTPAPPEND,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
 
 static void handle_NETRC(Connection *conn, value option)
 {
@@ -1705,116 +1524,13 @@ static void handle_ENCODING(Connection *conn, value option)
 }
 #endif
 
-static void handle_FOLLOWLOCATION(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
 
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_FOLLOWLOCATION,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_TRANSFERTEXT(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_TRANSFERTEXT,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_PUT(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_PUT,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_USERPWD(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_USERPWD, option);
-
-    if (conn->curl_USERPWD != NULL)
-        free(conn->curl_USERPWD);
-
-    conn->curl_USERPWD = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_USERPWD,
-                              conn->curl_USERPWD);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_PROXYUSERPWD(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_PROXYUSERPWD, option);
-
-    if (conn->curl_PROXYUSERPWD != NULL)
-        free(conn->curl_PROXYUSERPWD);
-
-    conn->curl_PROXYUSERPWD = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_PROXYUSERPWD,
-                              conn->curl_PROXYUSERPWD);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_RANGE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_RANGE, option);
-
-    if (conn->curl_RANGE != NULL)
-        free(conn->curl_RANGE);
-
-    conn->curl_RANGE = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_RANGE,
-                              conn->curl_RANGE);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_BOOL( FOLLOWLOCATION)
+SETOPT_BOOL( TRANSFERTEXT)
+SETOPT_BOOL( PUT)
+SETOPT_STRING( USERPWD)
+SETOPT_STRING( PROXYUSERPWD)
+SETOPT_STRING( RANGE)
 
 static void handle_ERRORBUFFER(Connection *conn, value option)
 {
@@ -1838,20 +1554,7 @@ static void handle_ERRORBUFFER(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handle_TIMEOUT(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_TIMEOUT,
-                              Long_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_LONG( TIMEOUT)
 
 static void handle_POSTFIELDS(Connection *conn, value option)
 {
@@ -1876,153 +1579,14 @@ static void handle_POSTFIELDS(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handle_POSTFIELDSIZE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_POSTFIELDSIZE,
-                              Long_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_REFERER(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_REFERER, option);
-
-    if (conn->curl_REFERER != NULL)
-        free(conn->curl_REFERER);
-
-    conn->curl_REFERER = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_REFERER,
-                              conn->curl_REFERER);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_USERAGENT(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_USERAGENT, option);
-
-    if (conn->curl_USERAGENT != NULL)
-        free(conn->curl_USERAGENT);
-
-    conn->curl_USERAGENT = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_USERAGENT,
-                              conn->curl_USERAGENT);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_FTPPORT(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_FTPPORT, option);
-
-    if (conn->curl_FTPPORT != NULL)
-        free(conn->curl_FTPPORT);
-
-    conn->curl_FTPPORT = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_FTPPORT,
-                              conn->curl_FTPPORT);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_LOW_SPEED_LIMIT(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_LOW_SPEED_LIMIT,
-                              Long_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_LOW_SPEED_TIME(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_LOW_SPEED_TIME,
-                              Long_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_RESUME_FROM(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_RESUME_FROM,
-                              Long_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_COOKIE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_COOKIE, option);
-
-    if (conn->curl_COOKIE != NULL)
-        free(conn->curl_COOKIE);
-
-    conn->curl_COOKIE = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_COOKIE,
-                              conn->curl_COOKIE);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_LONG( POSTFIELDSIZE)
+SETOPT_STRING( REFERER)
+SETOPT_STRING( USERAGENT)
+SETOPT_STRING( FTPPORT)
+SETOPT_LONG( LOW_SPEED_LIMIT)
+SETOPT_LONG( LOW_SPEED_TIME)
+SETOPT_LONG( RESUME_FROM)
+SETOPT_STRING( COOKIE)
 
 static void handle_HTTPHEADER(Connection *conn, value option)
 {
@@ -2446,189 +2010,15 @@ static void handle_HTTPPOST(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handle_SSLCERT(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_SSLCERT, option);
-
-    if (conn->curl_SSLCERT != NULL)
-        free(conn->curl_SSLCERT);
-
-    conn->curl_SSLCERT = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_SSLCERT,
-                              conn->curl_SSLCERT);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_SSLCERTTYPE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_SSLCERTTYPE, option);
-
-    if (conn->curl_SSLCERTTYPE != NULL)
-        free(conn->curl_SSLCERTTYPE);
-
-    conn->curl_SSLCERTTYPE = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_SSLCERTTYPE,
-                              conn->curl_SSLCERTTYPE);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_SSLCERTPASSWD(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_SSLCERTPASSWD, option);
-
-    if (conn->curl_SSLCERTPASSWD != NULL)
-        free(conn->curl_SSLCERTPASSWD);
-
-    conn->curl_SSLCERTPASSWD = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_SSLCERTPASSWD,
-                              conn->curl_SSLCERTPASSWD);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_SSLKEY(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_SSLKEY, option);
-
-    if (conn->curl_SSLKEY != NULL)
-        free(conn->curl_SSLKEY);
-
-    conn->curl_SSLKEY = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_SSLKEY,
-                              conn->curl_SSLKEY);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_SSLKEYTYPE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_SSLKEYTYPE, option);
-
-    if (conn->curl_SSLKEYTYPE != NULL)
-        free(conn->curl_SSLKEYTYPE);
-
-    conn->curl_SSLKEYTYPE = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_SSLKEYTYPE,
-                              conn->curl_SSLKEYTYPE);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_SSLKEYPASSWD(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_SSLKEYPASSWD, option);
-
-    if (conn->curl_SSLKEYPASSWD != NULL)
-        free(conn->curl_SSLKEYPASSWD);
-
-    conn->curl_SSLKEYPASSWD = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_SSLKEYPASSWD,
-                              conn->curl_SSLKEYPASSWD);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_SSLENGINE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_SSLENGINE, option);
-
-    if (conn->curl_SSLENGINE != NULL)
-        free(conn->curl_SSLENGINE);
-
-    conn->curl_SSLENGINE = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_SSLENGINE,
-                              conn->curl_SSLENGINE);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_SSLENGINE_DEFAULT(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_SSLENGINE_DEFAULT,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_CRLF(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_CRLF,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_STRING( SSLCERT)
+SETOPT_STRING( SSLCERTTYPE)
+SETOPT_STRING( SSLCERTPASSWD)
+SETOPT_STRING( SSLKEY)
+SETOPT_STRING( SSLKEYTYPE)
+SETOPT_STRING( SSLKEYPASSWD)
+SETOPT_STRING( SSLENGINE)
+SETOPT_BOOL( SSLENGINE_DEFAULT)
+SETOPT_BOOL( CRLF)
 
 static void handle_QUOTE(Connection *conn, value option)
 {
@@ -2717,42 +2107,8 @@ static void handle_HEADERFUNCTION(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handle_COOKIEFILE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_COOKIEFILE, option);
-
-    if (conn->curl_COOKIEFILE != NULL)
-        free(conn->curl_COOKIEFILE);
-
-    conn->curl_COOKIEFILE = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_COOKIEFILE,
-                              conn->curl_COOKIEFILE);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_SSLVERSION(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_SSLVERSION,
-                              Long_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_STRING( COOKIEFILE)
+SETOPT_LONG( SSLVERSION)
 
 static void handle_TIMECONDITION(Connection *conn, value option)
 {
@@ -2779,64 +2135,9 @@ static void handle_TIMECONDITION(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handle_TIMEVALUE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_TIMEVALUE,
-                              Int32_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_CUSTOMREQUEST(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_CUSTOMREQUEST, option);
-
-    if (conn->curl_CUSTOMREQUEST != NULL)
-        free(conn->curl_CUSTOMREQUEST);
-
-    conn->curl_CUSTOMREQUEST = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_CUSTOMREQUEST,
-                              conn->curl_CUSTOMREQUEST);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_INTERFACE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_INTERFACE, option);
-
-    if (conn->curl_INTERFACE != NULL)
-        free(conn->curl_INTERFACE);
-
-    conn->curl_INTERFACE = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_INTERFACE,
-                              conn->curl_INTERFACE);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_VAL( TIMEVALUE, Int32_val)
+SETOPT_STRING( CUSTOMREQUEST)
+SETOPT_STRING( INTERFACE)
 
 static void handle_KRB4LEVEL(Connection *conn, value option)
 {
@@ -2912,109 +2213,12 @@ static void handle_PROGRESSFUNCTION(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handle_SSL_VERIFYPEER(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_SSL_VERIFYPEER,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_CAINFO(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_CAINFO, option);
-
-    if (conn->curl_CAINFO != NULL)
-        free(conn->curl_CAINFO);
-
-    conn->curl_CAINFO = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_CAINFO,
-                              conn->curl_CAINFO);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_CAPATH(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_CAPATH, option);
-
-    if (conn->curl_CAPATH != NULL)
-        free(conn->curl_CAPATH);
-
-    conn->curl_CAPATH = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_CAPATH,
-                              conn->curl_CAPATH);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_FILETIME(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_FILETIME,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_MAXREDIRS(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_MAXREDIRS,
-                              Long_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_MAXCONNECTS(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_MAXCONNECTS,
-                              Long_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_BOOL( SSL_VERIFYPEER)
+SETOPT_STRING( CAINFO)
+SETOPT_STRING( CAPATH)
+SETOPT_BOOL( FILETIME)
+SETOPT_LONG( MAXREDIRS)
+SETOPT_LONG( MAXCONNECTS)
 
 static void handle_CLOSEPOLICY(Connection *conn, value option)
 {
@@ -3046,109 +2250,12 @@ static void handle_CLOSEPOLICY(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handle_FRESH_CONNECT(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_FRESH_CONNECT,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_FORBID_REUSE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_FORBID_REUSE,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_RANDOM_FILE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_RANDOM_FILE, option);
-
-    if (conn->curl_RANDOM_FILE != NULL)
-        free(conn->curl_RANDOM_FILE);
-
-    conn->curl_RANDOM_FILE = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_RANDOM_FILE,
-                              conn->curl_RANDOM_FILE);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_EGDSOCKET(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_EGDSOCKET, option);
-
-    if (conn->curl_EGDSOCKET != NULL)
-        free(conn->curl_EGDSOCKET);
-
-    conn->curl_EGDSOCKET = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_EGDSOCKET,
-                              conn->curl_EGDSOCKET);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_CONNECTTIMEOUT(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_CONNECTTIMEOUT,
-                              Long_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_HTTPGET(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_HTTPGET,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_BOOL( FRESH_CONNECT)
+SETOPT_BOOL( FORBID_REUSE)
+SETOPT_STRING( RANDOM_FILE)
+SETOPT_STRING( EGDSOCKET)
+SETOPT_LONG( CONNECTTIMEOUT)
+SETOPT_BOOL( HTTPGET)
 
 static void handle_SSL_VERIFYHOST(Connection *conn, value option)
 {
@@ -3177,49 +2284,8 @@ static void handle_SSL_VERIFYHOST(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handle_COOKIEJAR(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_COOKIEJAR, option);
-
-    if (conn->curl_COOKIEJAR != NULL)
-        free(conn->curl_COOKIEJAR);
-
-    conn->curl_COOKIEJAR = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_COOKIEJAR,
-                              conn->curl_COOKIEJAR);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_SSL_CIPHER_LIST(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_SSL_CIPHER_LIST, option);
-
-    if (conn->curl_SSL_CIPHER_LIST != NULL)
-        free(conn->curl_SSL_CIPHER_LIST);
-
-    conn->curl_SSL_CIPHER_LIST = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_SSL_CIPHER_LIST,
-                              conn->curl_SSL_CIPHER_LIST);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_STRING( COOKIEJAR)
+SETOPT_STRING( SSL_CIPHER_LIST)
 
 static void handle_HTTP_VERSION(Connection *conn, value option)
 {
@@ -3257,50 +2323,9 @@ static void handle_HTTP_VERSION(Connection *conn, value option)
     CAMLreturn0;
 }
 
-static void handle_FTP_USE_EPSV(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_FTP_USE_EPSV,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_DNS_CACHE_TIMEOUT(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_DNS_CACHE_TIMEOUT,
-                              Long_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_DNS_USE_GLOBAL_CACHE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_DNS_USE_GLOBAL_CACHE,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_BOOL( FTP_USE_EPSV)
+SETOPT_LONG( DNS_CACHE_TIMEOUT)
+SETOPT_BOOL( DNS_USE_GLOBAL_CACHE)
 
 static void handle_DEBUGFUNCTION(Connection *conn, value option)
 {
@@ -3329,27 +2354,7 @@ static void handle_DEBUGFUNCTION(Connection *conn, value option)
 }
 
 #if HAVE_DECL_CURLOPT_PRIVATE
-static void handle_PRIVATE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_PRIVATE, option);
-
-    if (conn->curl_PRIVATE != NULL)
-        free(conn->curl_PRIVATE);
-
-    conn->curl_PRIVATE = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_PRIVATE,
-                              conn->curl_PRIVATE);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_STRING( PRIVATE)
 #endif
 
 #if HAVE_DECL_CURLOPT_HTTP200ALIASES
@@ -3385,37 +2390,11 @@ static void handle_HTTP200ALIASES(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_UNRESTRICTED_AUTH
-static void handle_UNRESTRICTED_AUTH(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_UNRESTRICTED_AUTH,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_BOOL( UNRESTRICTED_AUTH)
 #endif
 
 #if HAVE_DECL_CURLOPT_FTP_USE_EPRT
-static void handle_FTP_USE_EPRT(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_FTP_USE_EPRT,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_BOOL( FTP_USE_EPRT)
 #endif
 
 #if HAVE_DECL_CURLOPT_HTTPAUTH
@@ -3476,20 +2455,7 @@ static void handle_HTTPAUTH(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_FTP_CREATE_MISSING_DIRS
-static void handle_FTP_CREATE_MISSING_DIRS(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_FTP_CREATE_MISSING_DIRS,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_BOOL( FTP_CREATE_MISSING_DIRS)
 #endif
 
 #if HAVE_DECL_CURLOPT_PROXYAUTH
@@ -3550,20 +2516,7 @@ static void handle_PROXYAUTH(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_FTP_RESPONSE_TIMEOUT
-static void handle_FTP_RESPONSE_TIMEOUT(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_FTP_RESPONSE_TIMEOUT,
-                              Long_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_LONG( FTP_RESPONSE_TIMEOUT)
 #endif
 
 #if HAVE_DECL_CURLOPT_IPRESOLVE
@@ -3605,95 +2558,23 @@ static void handle_IPRESOLVE(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_MAXFILESIZE
-static void handle_MAXFILESIZE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_MAXFILESIZE,
-                              Int32_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_VAL( MAXFILESIZE, Int32_val)
 #endif
 
 #if HAVE_DECL_CURLOPT_INFILESIZE_LARGE
-static void handle_INFILESIZE_LARGE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_INFILESIZE_LARGE,
-                              Int64_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_INT64( INFILESIZE_LARGE)
 #endif
 
 #if HAVE_DECL_CURLOPT_RESUME_FROM_LARGE
-static void handle_RESUME_FROM_LARGE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_RESUME_FROM_LARGE,
-                              Int64_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_INT64( RESUME_FROM_LARGE)
 #endif
 
 #if HAVE_DECL_CURLOPT_MAXFILESIZE_LARGE
-static void handle_MAXFILESIZE_LARGE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_MAXFILESIZE_LARGE,
-                              Int64_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_INT64( MAXFILESIZE_LARGE)
 #endif
 
 #if HAVE_DECL_CURLOPT_NETRC_FILE
-static void handle_NETRC_FILE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_NETRC_FILE, option);
-
-    if (conn->curl_NETRC_FILE != NULL)
-        free(conn->curl_NETRC_FILE);
-
-    conn->curl_NETRC_FILE = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_NETRC_FILE,
-                              conn->curl_NETRC_FILE);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_STRING( NETRC_FILE)
 #endif
 
 #if HAVE_DECL_CURLOPT_FTP_SSL
@@ -3741,37 +2622,11 @@ static void handle_FTP_SSL(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_POSTFIELDSIZE_LARGE
-static void handle_POSTFIELDSIZE_LARGE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_POSTFIELDSIZE_LARGE,
-                              Int64_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_INT64( POSTFIELDSIZE_LARGE)
 #endif
 
 #if HAVE_DECL_CURLOPT_TCP_NODELAY
-static void handle_TCP_NODELAY(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_TCP_NODELAY,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_BOOL( TCP_NODELAY)
 #endif
 
 #if HAVE_DECL_CURLOPT_FTPSSLAUTH
@@ -3841,85 +2696,19 @@ static void handle_IOCTLFUNCTION(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_FTP_ACCOUNT
-static void handle_FTP_ACCOUNT(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_FTP_ACCOUNT, option);
-
-    if (conn->curl_FTP_ACCOUNT != NULL)
-        free(conn->curl_FTP_ACCOUNT);
-    
-    conn->curl_FTP_ACCOUNT = strdup(String_val(option));
-    
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_FTP_ACCOUNT,
-                              conn->curl_FTP_ACCOUNT);
-    
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_STRING( FTP_ACCOUNT)
 #endif
 
 #if HAVE_DECL_CURLOPT_COOKIELIST
-static void handle_COOKIELIST(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_COOKIELIST, option);
-
-    if (conn->curl_COOKIELIST != NULL)
-        free(conn->curl_COOKIELIST);
-    
-    conn->curl_COOKIELIST  = strdup(String_val(option));
-    
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_COOKIELIST,
-                              conn->curl_COOKIELIST);
-    
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_STRING( COOKIELIST)
 #endif
 
 #if HAVE_DECL_CURLOPT_IGNORE_CONTENT_LENGTH
-static void handle_IGNORE_CONTENT_LENGTH(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_IGNORE_CONTENT_LENGTH,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_BOOL( IGNORE_CONTENT_LENGTH)
 #endif
 
 #if HAVE_DECL_CURLOPT_FTP_SKIP_PASV_IP
-static void handle_FTP_SKIP_PASV_IP(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_FTP_SKIP_PASV_IP,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_BOOL( FTP_SKIP_PASV_IP)
 #endif
 
 #if HAVE_DECL_CURLOPT_FTP_FILEMETHOD
@@ -3966,129 +2755,31 @@ static void handle_FTP_FILEMETHOD(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_LOCALPORT
-static void handle_LOCALPORT(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_LOCALPORT,
-                              Long_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_LONG( LOCALPORT)
 #endif
 
 #if HAVE_DECL_CURLOPT_LOCALPORTRANGE
-static void handle_LOCALPORTRANGE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_LOCALPORTRANGE,
-                              Long_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_LONG( LOCALPORTRANGE)
 #endif
 
 #if HAVE_DECL_CURLOPT_CONNECT_ONLY
-static void handle_CONNECT_ONLY(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_CONNECT_ONLY,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_BOOL( CONNECT_ONLY)
 #endif
 
 #if HAVE_DECL_CURLOPT_MAX_SEND_SPEED_LARGE
-static void handle_MAX_SEND_SPEED_LARGE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_MAX_SEND_SPEED_LARGE,
-                              Int64_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_INT64( MAX_SEND_SPEED_LARGE)
 #endif
 
 #if HAVE_DECL_CURLOPT_MAX_RECV_SPEED_LARGE
-static void handle_MAX_RECV_SPEED_LARGE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_MAX_RECV_SPEED_LARGE,
-                              Int64_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_INT64( MAX_RECV_SPEED_LARGE)
 #endif
 
 #if HAVE_DECL_CURLOPT_FTP_ALTERNATIVE_TO_USER
-static void handle_FTP_ALTERNATIVE_TO_USER(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_FTP_ALTERNATIVE_TO_USER, option);
-
-    if (conn->curl_FTP_ALTERNATIVE_TO_USER != NULL)
-        free(conn->curl_FTP_ALTERNATIVE_TO_USER);
-
-    conn->curl_FTP_ALTERNATIVE_TO_USER = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_FTP_ALTERNATIVE_TO_USER,
-                              conn->curl_FTP_ALTERNATIVE_TO_USER);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_STRING( FTP_ALTERNATIVE_TO_USER)
 #endif
 
 #if HAVE_DECL_CURLOPT_SSL_SESSIONID_CACHE
-static void handle_SSL_SESSIONID_CACHE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_SSL_SESSIONID_CACHE,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_BOOL( SSL_SESSIONID_CACHE)
 #endif
 
 #if HAVE_DECL_CURLOPT_SSH_AUTH_TYPES
@@ -4145,51 +2836,11 @@ static void handle_SSH_AUTH_TYPES(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_SSH_PUBLIC_KEYFILE
-static void handle_SSH_PUBLIC_KEYFILE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_SSH_PUBLIC_KEYFILE, option);
-
-    if (conn->curl_SSH_PUBLIC_KEYFILE != NULL)
-        free(conn->curl_SSH_PUBLIC_KEYFILE);
-
-    conn->curl_SSH_PUBLIC_KEYFILE = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_SSH_PUBLIC_KEYFILE,
-                              conn->curl_SSH_PUBLIC_KEYFILE);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_STRING( SSH_PUBLIC_KEYFILE)
 #endif
 
 #if HAVE_DECL_CURLOPT_SSH_PRIVATE_KEYFILE
-static void handle_SSH_PRIVATE_KEYFILE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_SSH_PRIVATE_KEYFILE, option);
-
-    if (conn->curl_SSH_PRIVATE_KEYFILE != NULL)
-        free(conn->curl_SSH_PRIVATE_KEYFILE);
-
-    conn->curl_SSH_PRIVATE_KEYFILE = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_SSH_PRIVATE_KEYFILE,
-                              conn->curl_SSH_PRIVATE_KEYFILE);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_STRING( SSH_PRIVATE_KEYFILE)
 #endif
 
 #if HAVE_DECL_CURLOPT_FTP_SSL_CCC
@@ -4231,187 +2882,43 @@ static void handle_FTP_SSL_CCC(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_TIMEOUT_MS
-static void handle_TIMEOUT_MS(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_TIMEOUT_MS,
-                              Long_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_LONG( TIMEOUT_MS)
 #endif
 
 #if HAVE_DECL_CURLOPT_CONNECTTIMEOUT_MS
-static void handle_CONNECTTIMEOUT_MS(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_CONNECTTIMEOUT_MS,
-                              Long_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_LONG( CONNECTTIMEOUT_MS)
 #endif
 
 #if HAVE_DECL_CURLOPT_HTTP_TRANSFER_DECODING
-static void handle_HTTP_TRANSFER_DECODING(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_HTTP_TRANSFER_DECODING,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_BOOL( HTTP_TRANSFER_DECODING)
 #endif
 
 #if HAVE_DECL_CURLOPT_HTTP_CONTENT_DECODING
-static void handle_HTTP_CONTENT_DECODING(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_HTTP_CONTENT_DECODING,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_BOOL( HTTP_CONTENT_DECODING)
 #endif
 
 #if HAVE_DECL_CURLOPT_NEW_FILE_PERMS
-static void handle_NEW_FILE_PERMS(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_NEW_FILE_PERMS,
-                              Long_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_LONG( NEW_FILE_PERMS)
 #endif
 
 #if HAVE_DECL_CURLOPT_NEW_DIRECTORY_PERMS
-static void handle_NEW_DIRECTORY_PERMS(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_NEW_DIRECTORY_PERMS,
-                              Long_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_LONG( NEW_DIRECTORY_PERMS)
 #endif
 
 #if HAVE_DECL_CURLOPT_POST301
-static void handle_POST301(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_POST301,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_BOOL( POST301)
 #endif
 
 #if HAVE_DECL_CURLOPT_SSH_HOST_PUBLIC_KEY_MD5
-static void handle_SSH_HOST_PUBLIC_KEY_MD5(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_SSH_HOST_PUBLIC_KEY_MD5, option);
-
-    if (conn->curl_SSH_HOST_PUBLIC_KEY_MD5 != NULL)
-        free(conn->curl_SSH_HOST_PUBLIC_KEY_MD5);
-
-    conn->curl_SSH_HOST_PUBLIC_KEY_MD5 = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_SSH_HOST_PUBLIC_KEY_MD5,
-                              conn->curl_SSH_HOST_PUBLIC_KEY_MD5);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_STRING( SSH_HOST_PUBLIC_KEY_MD5)
 #endif
 
 #if HAVE_DECL_CURLOPT_COPYPOSTFIELDS
-static void handle_COPYPOSTFIELDS(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_COPYPOSTFIELDS, option);
-
-    if (conn->curl_COPYPOSTFIELDS != NULL)
-        free(conn->curl_COPYPOSTFIELDS);
-
-    conn->curl_COPYPOSTFIELDS = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_COPYPOSTFIELDS,
-                              conn->curl_COPYPOSTFIELDS);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_STRING( COPYPOSTFIELDS)
 #endif
 
 #if HAVE_DECL_CURLOPT_PROXY_TRANSFER_MODE
-static void handle_PROXY_TRANSFER_MODE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_PROXY_TRANSFER_MODE,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_BOOL( PROXY_TRANSFER_MODE)
 #endif
 
 #if HAVE_DECL_CURLOPT_SEEKFUNCTION
@@ -4444,18 +2951,7 @@ static void handle_SEEKFUNCTION(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_AUTOREFERER
-static void handle_AUTOREFERER(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = curl_easy_setopt(conn->connection,
-                              CURLOPT_AUTOREFERER,
-                              Bool_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_BOOL( AUTOREFERER)
 #endif
 
 #if HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
@@ -4668,50 +3164,11 @@ static void handle_RESOLVE(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_DNS_SERVERS
-static void handle_DNS_SERVERS(Connection *conn, value option)
-{
-  CAMLparam1(option);
-
-  Store_field(conn->ocamlValues, Ocaml_DNS_SERVERS, option);
-
-  CURLcode result = CURLE_OK;
-  free_if(conn->curl_DNS_SERVERS);
-
-  conn->curl_DNS_SERVERS = strdup(String_val(option));
-
-  result = curl_easy_setopt(conn->connection,
-                            CURLOPT_DNS_SERVERS,
-                            conn->curl_DNS_SERVERS);
-
-  if (result != CURLE_OK)
-    raiseError(conn, result);
-
-  CAMLreturn0;
-}
+SETOPT_STRING( DNS_SERVERS)
 #endif
 
 #if HAVE_DECL_CURLOPT_MAIL_FROM
-static void handle_MAIL_FROM(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_MAIL_FROM, option);
-
-    if (conn->curl_MAIL_FROM != NULL)
-        free(conn->curl_MAIL_FROM);
-
-    conn->curl_MAIL_FROM = strdup(String_val(option));
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_MAIL_FROM,
-                              conn->curl_MAIL_FROM);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_STRING( MAIL_FROM)
 #endif
 
 #if HAVE_DECL_CURLOPT_MAIL_RCPT
