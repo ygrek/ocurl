@@ -613,6 +613,14 @@ struct CURLOptionMapping
 /*    CURLoption option; */
 };
 
+static char* strdup_ml(value v)
+{
+  char* p = NULL;
+  p = malloc(caml_string_length(v)+1);
+  memcpy(p,String_val(v),caml_string_length(v)+1); // caml strings have terminating zero
+  return p;
+}
+
 static void free_curl_slist(struct curl_slist *slist)
 {
     if (NULL == slist)
@@ -1563,8 +1571,7 @@ static void handle_POSTFIELDS(Connection *conn, value option)
     if (conn->curl_POSTFIELDS != NULL)
         free(conn->curl_POSTFIELDS);
 
-    conn->curl_POSTFIELDS = malloc(string_length(option)+1);
-    memcpy(conn->curl_POSTFIELDS, String_val(option), string_length(option)+1);
+    conn->curl_POSTFIELDS = strdup_ml(option);
 
     result = curl_easy_setopt(conn->connection,
                               CURLOPT_POSTFIELDS,
@@ -1647,17 +1654,9 @@ static void handle_HTTPPOST(Connection *conn, value option)
             if (Is_long(Field(formItem, 2)) &&
                 Long_val(Field(formItem, 2)) == 0)
             {
-                str1 = (char *)malloc(string_length(Field(formItem, 0))+1);
-                memcpy(str1,
-                       String_val(Field(formItem, 0)),
-                       string_length(Field(formItem, 0)));
-                str1[string_length(Field(formItem, 0))] = 0;
+                str1 = strdup_ml(Field(formItem, 0));
 
-                str2 = (char *)malloc(string_length(Field(formItem, 1))+1);
-                memcpy(str2,
-                       String_val(Field(formItem, 1)),
-                       string_length(Field(formItem, 1)));
-                str2[string_length(Field(formItem, 1))] = 0;
+                str2 = strdup_ml(Field(formItem, 1));
 
                 curl_formadd(&conn->httpPostFirst,
                              &conn->httpPostLast,
@@ -1673,25 +1672,13 @@ static void handle_HTTPPOST(Connection *conn, value option)
             }
             else if (Is_block(Field(formItem, 2)))
             {
-                str1 = (char *)malloc(string_length(Field(formItem, 0))+1);
-                memcpy(str1,
-                       String_val(Field(formItem, 0)),
-                       string_length(Field(formItem, 0)));
-                str1[string_length(Field(formItem, 0))] = 0;
+                str1 = strdup_ml(Field(formItem, 0));
 
-                str2 = (char *)malloc(string_length(Field(formItem, 1))+1);
-                memcpy(str2,
-                       String_val(Field(formItem, 1)),
-                       string_length(Field(formItem, 1)));
-                str2[string_length(Field(formItem, 1))] = 0;
+                str2 = strdup_ml(Field(formItem, 1));
 
                 contentType = Field(formItem, 2);
 
-                str3 = (char *)malloc(string_length(Field(contentType, 0))+1);
-                memcpy(str3,
-                       String_val(Field(contentType, 0)),
-                       string_length(Field(contentType, 0)));
-                str3[string_length(Field(contentType, 0))] = 0;
+                str3 = strdup_ml(Field(contentType, 0));
 
                 curl_formadd(&conn->httpPostFirst,
                              &conn->httpPostLast,
@@ -1722,17 +1709,9 @@ static void handle_HTTPPOST(Connection *conn, value option)
             if (Is_long(Field(formItem, 2)) &&
                 Long_val(Field(formItem, 2)) == 0)
             {
-                str1 = (char *)malloc(string_length(Field(formItem, 0))+1);
-                memcpy(str1,
-                       String_val(Field(formItem, 0)),
-                       string_length(Field(formItem, 0)));
-                str1[string_length(Field(formItem, 0))] = 0;
+                str1 = strdup_ml(Field(formItem, 0));
 
-                str2 = (char *)malloc(string_length(Field(formItem, 1))+1);
-                memcpy(str2,
-                       String_val(Field(formItem, 1)),
-                       string_length(Field(formItem, 1)));
-                str2[string_length(Field(formItem, 1))] = 0;
+                str2 = strdup_ml(Field(formItem, 1));
 
                 curl_formadd(&conn->httpPostFirst,
                              &conn->httpPostLast,
@@ -1746,25 +1725,13 @@ static void handle_HTTPPOST(Connection *conn, value option)
             }
             else if (Is_block(Field(formItem, 2)))
             {
-                str1 = (char *)malloc(string_length(Field(formItem, 0))+1);
-                memcpy(str1,
-                       String_val(Field(formItem, 0)),
-                       string_length(Field(formItem, 0)));
-                str1[string_length(Field(formItem, 0))] = 0;
+                str1 = strdup_ml(Field(formItem, 0));
 
-                str2 = (char *)malloc(string_length(Field(formItem, 1))+1);
-                memcpy(str2,
-                       String_val(Field(formItem, 1)),
-                       string_length(Field(formItem, 1)));
-                str2[string_length(Field(formItem, 1))] = 0;
+                str2 = strdup_ml(Field(formItem, 1));
 
                 contentType = Field(formItem, 2);
 
-                str3 = (char *)malloc(string_length(Field(contentType, 0))+1);
-                memcpy(str3,
-                       String_val(Field(contentType, 0)),
-                       string_length(Field(contentType, 0)));
-                str3[string_length(Field(contentType, 0))] = 0;
+                str3 = strdup_ml(Field(contentType, 0));
 
                 curl_formadd(&conn->httpPostFirst,
                              &conn->httpPostLast,
@@ -1793,17 +1760,9 @@ static void handle_HTTPPOST(Connection *conn, value option)
             if (Is_long(Field(formItem, 2)) &&
                 Long_val(Field(formItem, 2)) == 0)
             {
-                str1 = (char *)malloc(string_length(Field(formItem, 0))+1);
-                memcpy(str1,
-                       String_val(Field(formItem, 0)),
-                       string_length(Field(formItem, 0)));
-                str1[string_length(Field(formItem, 0))] = 0;
+                str1 = strdup_ml(Field(formItem, 0));
 
-                str2 = (char *)malloc(string_length(Field(formItem, 1))+1);
-                memcpy(str2,
-                       String_val(Field(formItem, 1)),
-                       string_length(Field(formItem, 1)));
-                str2[string_length(Field(formItem, 1))] = 0;
+                str2 = strdup_ml(Field(formItem, 1));
 
                 curl_formadd(&conn->httpPostFirst,
                              &conn->httpPostLast,
@@ -1817,25 +1776,13 @@ static void handle_HTTPPOST(Connection *conn, value option)
             }
             else if (Is_block(Field(formItem, 2)))
             {
-                str1 = (char *)malloc(string_length(Field(formItem, 0))+1);
-                memcpy(str1,
-                       String_val(Field(formItem, 0)),
-                       string_length(Field(formItem, 0)));
-                str1[string_length(Field(formItem, 0))] = 0;
+                str1 = strdup_ml(Field(formItem, 0));
 
-                str2 = (char *)malloc(string_length(Field(formItem, 1))+1);
-                memcpy(str2,
-                       String_val(Field(formItem, 1)),
-                       string_length(Field(formItem, 1)));
-                str2[string_length(Field(formItem, 1))] = 0;
+                str2 = strdup_ml(Field(formItem, 1));
 
                 contentType = Field(formItem, 2);
 
-                str3 = (char *)malloc(string_length(Field(contentType, 0))+1);
-                memcpy(str3,
-                       String_val(Field(contentType, 0)),
-                       string_length(Field(contentType, 0)));
-                str3[string_length(Field(contentType, 0))] = 0;
+                str3 = strdup_ml(Field(contentType, 0));
 
                 curl_formadd(&conn->httpPostFirst,
                              &conn->httpPostLast,
@@ -1864,23 +1811,11 @@ static void handle_HTTPPOST(Connection *conn, value option)
             if (Is_long(Field(formItem, 3)) &&
                 Long_val(Field(formItem, 3)) == 0)
             {
-                str1 = (char *)malloc(string_length(Field(formItem, 0))+1);
-                memcpy(str1,
-                       String_val(Field(formItem, 0)),
-                       string_length(Field(formItem, 0)));
-                str1[string_length(Field(formItem, 0))] = 0;
+                str1 = strdup_ml(Field(formItem, 0));
 
-                str2 = (char *)malloc(string_length(Field(formItem, 1))+1);
-                memcpy(str2,
-                       String_val(Field(formItem, 1)),
-                       string_length(Field(formItem, 1)));
-                str2[string_length(Field(formItem, 1))] = 0;
+                str2 = strdup_ml(Field(formItem, 1));
 
-                str3 = (char *)malloc(string_length(Field(formItem, 2))+1);
-                memcpy(str3,
-                       String_val(Field(formItem, 2)),
-                       string_length(Field(formItem, 2)));
-                str3[string_length(Field(formItem, 2))] = 0;
+                str3 = strdup_ml(Field(formItem, 2));
 
                 curl_formadd(&conn->httpPostFirst,
                              &conn->httpPostLast,
@@ -1898,31 +1833,15 @@ static void handle_HTTPPOST(Connection *conn, value option)
             }
             else if (Is_block(Field(formItem, 3)))
             {
-                str1 = (char *)malloc(string_length(Field(formItem, 0))+1);
-                memcpy(str1,
-                       String_val(Field(formItem, 0)),
-                       string_length(Field(formItem, 0)));
-                str1[string_length(Field(formItem, 0))] = 0;
+                str1 = strdup_ml(Field(formItem, 0));
 
-                str2 = (char *)malloc(string_length(Field(formItem, 1))+1);
-                memcpy(str2,
-                       String_val(Field(formItem, 1)),
-                       string_length(Field(formItem, 1)));
-                str2[string_length(Field(formItem, 1))] = 0;
+                str2 = strdup_ml(Field(formItem, 1));
 
-                str3 = (char *)malloc(string_length(Field(formItem, 2))+1);
-                memcpy(str3,
-                       String_val(Field(formItem, 2)),
-                       string_length(Field(formItem, 2)));
-                str3[string_length(Field(formItem, 2))] = 0;
+                str3 = strdup_ml(Field(formItem, 2));
 
                 contentType = Field(formItem, 3);
 
-                str4 = (char *)malloc(string_length(Field(contentType, 0))+1);
-                memcpy(str4,
-                       String_val(Field(contentType, 0)),
-                       string_length(Field(contentType, 0)));
-                str4[string_length(Field(contentType, 0))] = 0;
+                str4 = strdup_ml(Field(contentType, 0));
 
                 curl_formadd(&conn->httpPostFirst,
                              &conn->httpPostLast,
