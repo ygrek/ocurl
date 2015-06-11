@@ -148,7 +148,6 @@ struct Connection
     struct curl_slist *curl_HTTPHEADER;
     struct curl_httppost *httpPostFirst;
     struct curl_httppost *httpPostLast;
-    struct curl_slist *httpPostStrings;
     struct curl_slist *curl_RESOLVE;
     char *curl_SSLCERT;
     char *curl_SSLCERTTYPE;
@@ -711,7 +710,6 @@ static Connection* allocConnection(CURL* h)
     connection->curl_HTTPHEADER = NULL;
     connection->httpPostFirst = NULL;
     connection->httpPostLast = NULL;
-    connection->httpPostStrings = NULL;
     connection->curl_SSLCERT = NULL;
     connection->curl_SSLCERTTYPE = NULL;
     connection->curl_SSLCERTPASSWD = NULL;
@@ -814,7 +812,6 @@ static void removeConnection(Connection *connection, int finalization)
     free_curl_slist(connection->curl_HTTPHEADER);
     if (connection->httpPostFirst != NULL)
         curl_formfree(connection->httpPostFirst);
-    free_curl_slist(connection->httpPostStrings);
     free_curl_slist(connection->curl_RESOLVE);
     free_if(connection->curl_SSLCERT);
     free_if(connection->curl_SSLCERTTYPE);
@@ -1635,9 +1632,6 @@ static void handle_HTTPPOST(Connection *conn, value option)
     conn->httpPostFirst = NULL;
     conn->httpPostLast = NULL;
 
-    free_curl_slist(conn->httpPostStrings);
-    conn->httpPostStrings = NULL;
-
     while (!Is_long(listIter))
     {
         formItem = Field(listIter, 0);
@@ -1658,16 +1652,12 @@ static void handle_HTTPPOST(Connection *conn, value option)
                        String_val(Field(formItem, 0)),
                        string_length(Field(formItem, 0)));
                 str1[string_length(Field(formItem, 0))] = 0;
-                conn->httpPostStrings =
-                    curl_slist_append(conn->httpPostStrings, str1);
 
                 str2 = (char *)malloc(string_length(Field(formItem, 1))+1);
                 memcpy(str2,
                        String_val(Field(formItem, 1)),
                        string_length(Field(formItem, 1)));
                 str2[string_length(Field(formItem, 1))] = 0;
-                conn->httpPostStrings =
-                    curl_slist_append(conn->httpPostStrings, str2);
 
                 curl_formadd(&conn->httpPostFirst,
                              &conn->httpPostLast,
@@ -1688,16 +1678,12 @@ static void handle_HTTPPOST(Connection *conn, value option)
                        String_val(Field(formItem, 0)),
                        string_length(Field(formItem, 0)));
                 str1[string_length(Field(formItem, 0))] = 0;
-                conn->httpPostStrings =
-                    curl_slist_append(conn->httpPostStrings, str1);
 
                 str2 = (char *)malloc(string_length(Field(formItem, 1))+1);
                 memcpy(str2,
                        String_val(Field(formItem, 1)),
                        string_length(Field(formItem, 1)));
                 str2[string_length(Field(formItem, 1))] = 0;
-                conn->httpPostStrings =
-                    curl_slist_append(conn->httpPostStrings, str2);
 
                 contentType = Field(formItem, 2);
 
@@ -1706,8 +1692,6 @@ static void handle_HTTPPOST(Connection *conn, value option)
                        String_val(Field(contentType, 0)),
                        string_length(Field(contentType, 0)));
                 str3[string_length(Field(contentType, 0))] = 0;
-                conn->httpPostStrings =
-                    curl_slist_append(conn->httpPostStrings, str3);
 
                 curl_formadd(&conn->httpPostFirst,
                              &conn->httpPostLast,
@@ -1743,16 +1727,12 @@ static void handle_HTTPPOST(Connection *conn, value option)
                        String_val(Field(formItem, 0)),
                        string_length(Field(formItem, 0)));
                 str1[string_length(Field(formItem, 0))] = 0;
-                conn->httpPostStrings =
-                    curl_slist_append(conn->httpPostStrings, str1);
 
                 str2 = (char *)malloc(string_length(Field(formItem, 1))+1);
                 memcpy(str2,
                        String_val(Field(formItem, 1)),
                        string_length(Field(formItem, 1)));
                 str2[string_length(Field(formItem, 1))] = 0;
-                conn->httpPostStrings =
-                    curl_slist_append(conn->httpPostStrings, str2);
 
                 curl_formadd(&conn->httpPostFirst,
                              &conn->httpPostLast,
@@ -1771,16 +1751,12 @@ static void handle_HTTPPOST(Connection *conn, value option)
                        String_val(Field(formItem, 0)),
                        string_length(Field(formItem, 0)));
                 str1[string_length(Field(formItem, 0))] = 0;
-                conn->httpPostStrings =
-                    curl_slist_append(conn->httpPostStrings, str1);
 
                 str2 = (char *)malloc(string_length(Field(formItem, 1))+1);
                 memcpy(str2,
                        String_val(Field(formItem, 1)),
                        string_length(Field(formItem, 1)));
                 str2[string_length(Field(formItem, 1))] = 0;
-                conn->httpPostStrings =
-                    curl_slist_append(conn->httpPostStrings, str2);
 
                 contentType = Field(formItem, 2);
 
@@ -1789,8 +1765,6 @@ static void handle_HTTPPOST(Connection *conn, value option)
                        String_val(Field(contentType, 0)),
                        string_length(Field(contentType, 0)));
                 str3[string_length(Field(contentType, 0))] = 0;
-                conn->httpPostStrings =
-                    curl_slist_append(conn->httpPostStrings, str3);
 
                 curl_formadd(&conn->httpPostFirst,
                              &conn->httpPostLast,
@@ -1824,16 +1798,12 @@ static void handle_HTTPPOST(Connection *conn, value option)
                        String_val(Field(formItem, 0)),
                        string_length(Field(formItem, 0)));
                 str1[string_length(Field(formItem, 0))] = 0;
-                conn->httpPostStrings =
-                    curl_slist_append(conn->httpPostStrings, str1);
 
                 str2 = (char *)malloc(string_length(Field(formItem, 1))+1);
                 memcpy(str2,
                        String_val(Field(formItem, 1)),
                        string_length(Field(formItem, 1)));
                 str2[string_length(Field(formItem, 1))] = 0;
-                conn->httpPostStrings =
-                    curl_slist_append(conn->httpPostStrings, str2);
 
                 curl_formadd(&conn->httpPostFirst,
                              &conn->httpPostLast,
@@ -1852,16 +1822,12 @@ static void handle_HTTPPOST(Connection *conn, value option)
                        String_val(Field(formItem, 0)),
                        string_length(Field(formItem, 0)));
                 str1[string_length(Field(formItem, 0))] = 0;
-                conn->httpPostStrings =
-                    curl_slist_append(conn->httpPostStrings, str1);
 
                 str2 = (char *)malloc(string_length(Field(formItem, 1))+1);
                 memcpy(str2,
                        String_val(Field(formItem, 1)),
                        string_length(Field(formItem, 1)));
                 str2[string_length(Field(formItem, 1))] = 0;
-                conn->httpPostStrings =
-                    curl_slist_append(conn->httpPostStrings, str2);
 
                 contentType = Field(formItem, 2);
 
@@ -1870,8 +1836,6 @@ static void handle_HTTPPOST(Connection *conn, value option)
                        String_val(Field(contentType, 0)),
                        string_length(Field(contentType, 0)));
                 str3[string_length(Field(contentType, 0))] = 0;
-                conn->httpPostStrings =
-                    curl_slist_append(conn->httpPostStrings, str3);
 
                 curl_formadd(&conn->httpPostFirst,
                              &conn->httpPostLast,
@@ -1905,24 +1869,18 @@ static void handle_HTTPPOST(Connection *conn, value option)
                        String_val(Field(formItem, 0)),
                        string_length(Field(formItem, 0)));
                 str1[string_length(Field(formItem, 0))] = 0;
-                conn->httpPostStrings =
-                    curl_slist_append(conn->httpPostStrings, str1);
 
                 str2 = (char *)malloc(string_length(Field(formItem, 1))+1);
                 memcpy(str2,
                        String_val(Field(formItem, 1)),
                        string_length(Field(formItem, 1)));
                 str2[string_length(Field(formItem, 1))] = 0;
-                conn->httpPostStrings =
-                    curl_slist_append(conn->httpPostStrings, str2);
 
                 str3 = (char *)malloc(string_length(Field(formItem, 2))+1);
                 memcpy(str3,
                        String_val(Field(formItem, 2)),
                        string_length(Field(formItem, 2)));
                 str3[string_length(Field(formItem, 2))] = 0;
-                conn->httpPostStrings =
-                    curl_slist_append(conn->httpPostStrings, str3);
 
                 curl_formadd(&conn->httpPostFirst,
                              &conn->httpPostLast,
@@ -1945,24 +1903,18 @@ static void handle_HTTPPOST(Connection *conn, value option)
                        String_val(Field(formItem, 0)),
                        string_length(Field(formItem, 0)));
                 str1[string_length(Field(formItem, 0))] = 0;
-                conn->httpPostStrings =
-                    curl_slist_append(conn->httpPostStrings, str1);
 
                 str2 = (char *)malloc(string_length(Field(formItem, 1))+1);
                 memcpy(str2,
                        String_val(Field(formItem, 1)),
                        string_length(Field(formItem, 1)));
                 str2[string_length(Field(formItem, 1))] = 0;
-                conn->httpPostStrings =
-                    curl_slist_append(conn->httpPostStrings, str2);
 
                 str3 = (char *)malloc(string_length(Field(formItem, 2))+1);
                 memcpy(str3,
                        String_val(Field(formItem, 2)),
                        string_length(Field(formItem, 2)));
                 str3[string_length(Field(formItem, 2))] = 0;
-                conn->httpPostStrings =
-                    curl_slist_append(conn->httpPostStrings, str3);
 
                 contentType = Field(formItem, 3);
 
@@ -1971,8 +1923,6 @@ static void handle_HTTPPOST(Connection *conn, value option)
                        String_val(Field(contentType, 0)),
                        string_length(Field(contentType, 0)));
                 str4[string_length(Field(contentType, 0))] = 0;
-                conn->httpPostStrings =
-                    curl_slist_append(conn->httpPostStrings, str4);
 
                 curl_formadd(&conn->httpPostFirst,
                              &conn->httpPostLast,
