@@ -20,4 +20,5 @@ examples/ocurl_test_threads
 examples/test_cb_exn
 examples/test_lwt
 examples/test_lwt_unit
+examples/test_memory_leaks
 /doc
