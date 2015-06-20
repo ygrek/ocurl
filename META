@@ -1,7 +1,7 @@
 name="curl"
 version=""
 description="bindings to libcurl"
-requires=""
+requires="unix"
 archive(byte)="curl.cma"
 archive(native)="curl.cmxa"
 
