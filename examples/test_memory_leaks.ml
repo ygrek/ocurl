@@ -11,9 +11,10 @@ let test1 () =
 
 let rss () =
   let path = Printf.sprintf "/proc/%d/statm" (Unix.getpid ()) in
-  match open_in path with
-  | exception exn -> Printf.eprintf "Error opening %s (%s), ignoring\n%!" path (Printexc.to_string exn); 0
-  | ch -> let n = Scanf.fscanf ch "%_d %d" (fun x -> 4*1024*x) in close_in_noerr ch; n
+  try
+    let ch = open_in path in
+    let n = Scanf.fscanf ch "%_d %d" (fun x -> 4*1024*x) in close_in_noerr ch; n
+  with exn -> Printf.eprintf "Error opening %s (%s), ignoring\n%!" path (Printexc.to_string exn); 0
 
 let () =
   let rss1 = rss () in
