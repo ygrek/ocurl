@@ -25,9 +25,11 @@ CURLHELPEROBJS	= curl-helper.o
 CURLOBJS	= curl.cmx
 CURLBCOBJS	= $(CURLOBJS:.cmx=.cmo)
 
+SO=$(shell ocamlc -config | fgrep ext_dll | sed -e "s/.*: //")
+
 CLIBS = @CURLLIBS@
 
-TARGETS := curl.cma libcurl-helper.a dllcurl-helper.so
+TARGETS := curl.cma libcurl-helper.a dllcurl-helper$(SO)
 ifneq (@OCAML_PKG_lwt@,no)
 TARGETS += curl_lwt.cmo
 endif
@@ -60,10 +62,10 @@ targets:	$(TARGETS) examples
 examples:
 		(cd examples; $(MAKE))
 
-curl.cma:	$(CURLBCOBJS) dllcurl-helper.so
+curl.cma:	$(CURLBCOBJS) dllcurl-helper$(SO)
 		$(OCAMLMKLIB) -o curl $(CURLBCOBJS) -oc curl-helper $(CLIBS)
 
-curl.cmxa:	$(CURLOBJS) dllcurl-helper.so
+curl.cmxa:	$(CURLOBJS) dllcurl-helper$(SO)
 		$(OCAMLMKLIB) -o curl $(CURLOBJS) -oc curl-helper $(CLIBS)
 
 curl_lwt.cmo: curl_lwt.ml
@@ -84,7 +86,7 @@ curl_lwt.cmi: curl_lwt.mli
 .ml.cmo:
 		$(OCAMLC) -c $(FLAGS) $< -o $@
 
-libcurl-helper.a dllcurl-helper.so:	$(CURLHELPEROBJS)
+libcurl-helper.a dllcurl-helper$(SO):	$(CURLHELPEROBJS)
 		$(OCAMLMKLIB) -oc curl-helper $(CURLHELPEROBJS) $(CLIBS)
 
 .c.o:
@@ -119,7 +121,7 @@ release:
 	gpg -a -b $(NAME).tar.gz
 
 clean:
-		@rm -f $(TARGETS) *~ *.cm* *.o *.a *.so .depend core
+		@rm -f $(TARGETS) *~ *.cm* *.o *.a *$(SO) .depend core
 		@(cd examples; $(MAKE) clean)
 
 distclean: clean
