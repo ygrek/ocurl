@@ -2495,7 +2495,20 @@ SETOPT_INT64( POSTFIELDSIZE_LARGE)
 #endif
 
 #if HAVE_DECL_CURLOPT_TCP_NODELAY
-SETOPT_BOOL( TCP_NODELAY)
+static void handle_TCP_NODELAY(Connection *conn, value option)
+{
+    CAMLparam1(option);
+    CURLcode result = CURLE_OK;
+
+    result = curl_easy_setopt(conn->connection,
+                              CURLOPT_TCP_NODELAY,
+                              Bool_val(option));
+
+    if (result != CURLE_OK)
+        raiseError(conn, result);
+
+    CAMLreturn0;
+}
 #endif
 
 #if HAVE_DECL_CURLOPT_FTPSSLAUTH
