@@ -146,6 +146,7 @@ struct Connection
     char *curl_FTPPORT;
     char *curl_COOKIE;
     struct curl_slist *curl_HTTPHEADER;
+    struct curl_slist *httpPostBuffers;
     struct curl_httppost *httpPostFirst;
     struct curl_httppost *httpPostLast;
     struct curl_slist *curl_RESOLVE;
@@ -716,6 +717,7 @@ static Connection* allocConnection(CURL* h)
     connection->curl_FTPPORT = NULL;
     connection->curl_COOKIE = NULL;
     connection->curl_HTTPHEADER = NULL;
+    connection->httpPostBuffers = NULL;
     connection->httpPostFirst = NULL;
     connection->httpPostLast = NULL;
     connection->curl_SSLCERT = NULL;
@@ -818,6 +820,7 @@ static void removeConnection(Connection *connection, int finalization)
     free_if(connection->curl_FTPPORT);
     free_if(connection->curl_COOKIE);
     free_curl_slist(connection->curl_HTTPHEADER);
+    free_curl_slist(connection->httpPostBuffers);
     if (connection->httpPostFirst != NULL)
         curl_formfree(connection->httpPostFirst);
     free_curl_slist(connection->curl_RESOLVE);
@@ -1627,15 +1630,16 @@ static void handle_HTTPPOST(Connection *conn, value option)
     CAMLparam1(option);
     CAMLlocal3(listIter, formItem, contentType);
     CURLcode result = CURLE_OK;
-    char *str1, *str2, *str3, *str4;
 
     listIter = option;
 
     Store_field(conn->ocamlValues, Ocaml_HTTPPOST, option);
 
+    free_curl_slist(conn->httpPostBuffers);
     if (conn->httpPostFirst != NULL)
         curl_formfree(conn->httpPostFirst);
 
+    conn->httpPostBuffers = NULL;
     conn->httpPostFirst = NULL;
     conn->httpPostLast = NULL;
 
@@ -1654,44 +1658,34 @@ static void handle_HTTPPOST(Connection *conn, value option)
             if (Is_long(Field(formItem, 2)) &&
                 Long_val(Field(formItem, 2)) == 0)
             {
-                str1 = strdup_ml(Field(formItem, 0));
-
-                str2 = strdup_ml(Field(formItem, 1));
-
                 curl_formadd(&conn->httpPostFirst,
                              &conn->httpPostLast,
-                             CURLFORM_PTRNAME,
-                             str1,
+                             CURLFORM_COPYNAME,
+                             String_val(Field(formItem, 0)),
                              CURLFORM_NAMELENGTH,
                              string_length(Field(formItem, 0)),
-                             CURLFORM_PTRCONTENTS,
-                             str2,
+                             CURLFORM_COPYCONTENTS,
+                             String_val(Field(formItem, 1)),
                              CURLFORM_CONTENTSLENGTH,
                              string_length(Field(formItem, 1)),
                              CURLFORM_END);
             }
             else if (Is_block(Field(formItem, 2)))
             {
-                str1 = strdup_ml(Field(formItem, 0));
-
-                str2 = strdup_ml(Field(formItem, 1));
-
                 contentType = Field(formItem, 2);
-
-                str3 = strdup_ml(Field(contentType, 0));
 
                 curl_formadd(&conn->httpPostFirst,
                              &conn->httpPostLast,
-                             CURLFORM_PTRNAME,
-                             str1,
+                             CURLFORM_COPYNAME,
+                             String_val(Field(formItem, 0)),
                              CURLFORM_NAMELENGTH,
                              string_length(Field(formItem, 0)),
                              CURLFORM_PTRCONTENTS,
-                             str2,
+                             String_val(Field(formItem, 1)),
                              CURLFORM_CONTENTSLENGTH,
                              string_length(Field(formItem, 1)),
                              CURLFORM_CONTENTTYPE,
-                             str3,
+                             String_val(Field(contentType, 0)),
                              CURLFORM_END);
             }
             else
@@ -1709,40 +1703,30 @@ static void handle_HTTPPOST(Connection *conn, value option)
             if (Is_long(Field(formItem, 2)) &&
                 Long_val(Field(formItem, 2)) == 0)
             {
-                str1 = strdup_ml(Field(formItem, 0));
-
-                str2 = strdup_ml(Field(formItem, 1));
-
                 curl_formadd(&conn->httpPostFirst,
                              &conn->httpPostLast,
-                             CURLFORM_PTRNAME,
-                             str1,
+                             CURLFORM_COPYNAME,
+                             String_val(Field(formItem, 0)),
                              CURLFORM_NAMELENGTH,
                              string_length(Field(formItem, 0)),
                              CURLFORM_FILECONTENT,
-                             str2,
+                             String_val(Field(formItem, 1)),
                              CURLFORM_END);
             }
             else if (Is_block(Field(formItem, 2)))
             {
-                str1 = strdup_ml(Field(formItem, 0));
-
-                str2 = strdup_ml(Field(formItem, 1));
-
                 contentType = Field(formItem, 2);
-
-                str3 = strdup_ml(Field(contentType, 0));
 
                 curl_formadd(&conn->httpPostFirst,
                              &conn->httpPostLast,
-                             CURLFORM_PTRNAME,
-                             str1,
+                             CURLFORM_COPYNAME,
+                             String_val(Field(formItem, 0)),
                              CURLFORM_NAMELENGTH,
                              string_length(Field(formItem, 0)),
                              CURLFORM_FILECONTENT,
-                             str2,
+                             String_val(Field(formItem, 1)),
                              CURLFORM_CONTENTTYPE,
-                             str3,
+                             String_val(Field(contentType, 0)),
                              CURLFORM_END);
             }
             else
@@ -1760,40 +1744,30 @@ static void handle_HTTPPOST(Connection *conn, value option)
             if (Is_long(Field(formItem, 2)) &&
                 Long_val(Field(formItem, 2)) == 0)
             {
-                str1 = strdup_ml(Field(formItem, 0));
-
-                str2 = strdup_ml(Field(formItem, 1));
-
                 curl_formadd(&conn->httpPostFirst,
                              &conn->httpPostLast,
-                             CURLFORM_PTRNAME,
-                             str1,
+                             CURLFORM_COPYNAME,
+                             String_val(Field(formItem, 0)),
                              CURLFORM_NAMELENGTH,
                              string_length(Field(formItem, 0)),
                              CURLFORM_FILE,
-                             str2,
+                             String_val(Field(formItem, 1)),
                              CURLFORM_END);
             }
             else if (Is_block(Field(formItem, 2)))
             {
-                str1 = strdup_ml(Field(formItem, 0));
-
-                str2 = strdup_ml(Field(formItem, 1));
-
                 contentType = Field(formItem, 2);
-
-                str3 = strdup_ml(Field(contentType, 0));
 
                 curl_formadd(&conn->httpPostFirst,
                              &conn->httpPostLast,
-                             CURLFORM_PTRNAME,
-                             str1,
+                             CURLFORM_COPYNAME,
+                             String_val(Field(formItem, 0)),
                              CURLFORM_NAMELENGTH,
                              string_length(Field(formItem, 0)),
                              CURLFORM_FILE,
-                             str2,
+                             String_val(Field(formItem, 1)),
                              CURLFORM_CONTENTTYPE,
-                             str3,
+                             String_val(Field(contentType, 0)),
                              CURLFORM_END);
             }
             else
@@ -1811,52 +1785,42 @@ static void handle_HTTPPOST(Connection *conn, value option)
             if (Is_long(Field(formItem, 3)) &&
                 Long_val(Field(formItem, 3)) == 0)
             {
-                str1 = strdup_ml(Field(formItem, 0));
-
-                str2 = strdup_ml(Field(formItem, 1));
-
-                str3 = strdup_ml(Field(formItem, 2));
+                conn->httpPostBuffers = curl_slist_append(conn->httpPostBuffers, String_val(Field(formItem, 2)));
 
                 curl_formadd(&conn->httpPostFirst,
                              &conn->httpPostLast,
-                             CURLFORM_PTRNAME,
-                             str1,
+                             CURLFORM_COPYNAME,
+                             String_val(Field(formItem, 0)),
                              CURLFORM_NAMELENGTH,
                              string_length(Field(formItem, 0)),
                              CURLFORM_BUFFER,
-                             str2,
+                             String_val(Field(formItem, 1)),
                              CURLFORM_BUFFERPTR,
-                             str3,
+                             conn->httpPostBuffers->data,
                              CURLFORM_BUFFERLENGTH,
                              string_length(Field(formItem, 2)),
                              CURLFORM_END);
             }
             else if (Is_block(Field(formItem, 3)))
             {
-                str1 = strdup_ml(Field(formItem, 0));
-
-                str2 = strdup_ml(Field(formItem, 1));
-
-                str3 = strdup_ml(Field(formItem, 2));
+                conn->httpPostBuffers = curl_slist_append(conn->httpPostBuffers, String_val(Field(formItem, 2)));
 
                 contentType = Field(formItem, 3);
 
-                str4 = strdup_ml(Field(contentType, 0));
-
                 curl_formadd(&conn->httpPostFirst,
                              &conn->httpPostLast,
-                             CURLFORM_PTRNAME,
-                             str1,
+                             CURLFORM_COPYNAME,
+                             String_val(Field(formItem, 0)),
                              CURLFORM_NAMELENGTH,
                              string_length(Field(formItem, 0)),
                              CURLFORM_BUFFER,
-                             str2,
+                             String_val(Field(formItem, 1)),
                              CURLFORM_BUFFERPTR,
-                             str3,
+                             conn->httpPostBuffers->data,
                              CURLFORM_BUFFERLENGTH,
                              string_length(Field(formItem, 2)),
                              CURLFORM_CONTENTTYPE,
-                             str4,
+                             String_val(Field(contentType, 0)),
                              CURLFORM_END);
             }
             else
