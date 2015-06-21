@@ -6,6 +6,7 @@
 *.lib
 *.dll
 *.so
+*.exe
 config.*
 .depend
 Makefile
