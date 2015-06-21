@@ -60,7 +60,7 @@ typedef struct ConnectionList ConnectionList;
 
 #define Connection_val(v) (*(Connection**)Data_custom_val(v))
 
-enum OcamlValues
+typedef enum OcamlValues
 {
     Ocaml_WRITEFUNCTION,
     Ocaml_READFUNCTION,
@@ -119,9 +119,11 @@ enum OcamlValues
     Ocaml_MAIL_FROM,
     Ocaml_MAIL_RCPT,
 
+    Ocaml_RESOLVE,
+
     /* Not used, last for size */
     OcamlValuesSize
-};
+} OcamlValue;
 
 struct Connection
 {
@@ -1393,6 +1395,31 @@ static void handle_READFUNCTION(Connection *conn, value option)
     CAMLreturn0;
 }
 
+static void handle_slist(Connection *conn, struct curl_slist** slist, OcamlValue caml_option, CURLoption curl_option, value option)
+{
+    CAMLparam1(option);
+    CURLcode result = CURLE_OK;
+
+    Store_field(conn->ocamlValues, caml_option, option);
+
+    free_curl_slist(*slist);
+    *slist = NULL;
+
+    while (Val_emptylist != option)
+    {
+        *slist = curl_slist_append(*slist, String_val(Field(option, 0)));
+
+        option = Field(option, 1);
+    }
+
+    result = curl_easy_setopt(conn->connection, curl_option, *slist);
+
+    if (result != CURLE_OK)
+        raiseError(conn, result);
+
+    CAMLreturn0;
+}
+
 #define SETOPT_STRING(name) \
 static void handle_##name(Connection *conn, value option) \
 { \
@@ -1431,6 +1458,12 @@ static void handle_##name(Connection *conn, value option) \
 #define SETOPT_BOOL(name) SETOPT_VAL(name, Bool_val)
 #define SETOPT_LONG(name) SETOPT_VAL(name, Long_val)
 #define SETOPT_INT64(name) SETOPT_VAL(name, Int64_val)
+
+#define SETOPT_SLIST(name) \
+static void handle_##name(Connection* conn, value option) \
+{ \
+  handle_slist(conn,&(conn->curl_##name),Ocaml_##name,CURLOPT_##name,option); \
+}
 
 SETOPT_STRING( URL)
 SETOPT_LONG( INFILESIZE)
@@ -1595,35 +1628,7 @@ SETOPT_LONG( LOW_SPEED_TIME)
 SETOPT_LONG( RESUME_FROM)
 SETOPT_STRING( COOKIE)
 
-static void handle_HTTPHEADER(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CAMLlocal1(listIter);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_HTTPHEADER, option);
-
-    free_curl_slist(conn->curl_HTTPHEADER);
-    conn->curl_HTTPHEADER = NULL;
-
-    listIter = option;
-
-    while (!Is_long(listIter))
-    {
-        conn->curl_HTTPHEADER = curl_slist_append(conn->curl_HTTPHEADER, String_val(Field(listIter, 0)));
-
-        listIter = Field(listIter, 1);
-    }
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_HTTPHEADER,
-                              conn->curl_HTTPHEADER);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_SLIST( HTTPHEADER)
 
 static void handle_HTTPPOST(Connection *conn, value option)
 {
@@ -1853,65 +1858,8 @@ SETOPT_STRING( SSLENGINE)
 SETOPT_BOOL( SSLENGINE_DEFAULT)
 SETOPT_BOOL( CRLF)
 
-static void handle_QUOTE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CAMLlocal1(listIter);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_QUOTE, option);
-
-    free_curl_slist(conn->curl_QUOTE);
-    conn->curl_QUOTE = NULL;
-
-    listIter = option;
-
-    while (!Is_long(listIter))
-    {
-        conn->curl_QUOTE = curl_slist_append(conn->curl_QUOTE, String_val(Field(listIter, 0)));
-
-        listIter = Field(listIter, 1);
-    }
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_QUOTE,
-                              conn->curl_QUOTE);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_POSTQUOTE(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CAMLlocal1(listIter);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_POSTQUOTE, option);
-
-    free_curl_slist(conn->curl_POSTQUOTE);
-    conn->curl_POSTQUOTE = NULL;
-
-    listIter = option;
-
-    while (!Is_long(listIter))
-    {
-        conn->curl_POSTQUOTE = curl_slist_append(conn->curl_POSTQUOTE, String_val(Field(listIter, 0)));
-
-        listIter = Field(listIter, 1);
-    }
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_POSTQUOTE,
-                              conn->curl_POSTQUOTE);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_SLIST( QUOTE)
+SETOPT_SLIST( POSTQUOTE)
 
 static void handle_HEADERFUNCTION(Connection *conn, value option)
 {
@@ -2191,35 +2139,7 @@ SETOPT_STRING( PRIVATE)
 #endif
 
 #if HAVE_DECL_CURLOPT_HTTP200ALIASES
-static void handle_HTTP200ALIASES(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CAMLlocal1(listIter);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_HTTP200ALIASES, option);
-
-    free_curl_slist(conn->curl_HTTP200ALIASES);
-    conn->curl_HTTP200ALIASES = NULL;
-
-    listIter = option;
-
-    while (!Is_long(listIter))
-    {
-        conn->curl_HTTP200ALIASES = curl_slist_append(conn->curl_HTTP200ALIASES, String_val(Field(listIter, 0)));
-
-        listIter = Field(listIter, 1);
-    }
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_HTTP200ALIASES,
-                              conn->curl_HTTP200ALIASES);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_SLIST( HTTP200ALIASES)
 #endif
 
 #if HAVE_DECL_CURLOPT_UNRESTRICTED_AUTH
@@ -2967,33 +2887,7 @@ static void handle_REDIR_PROTOCOLS(Connection *conn, value option)
 #endif
 
 #if HAVE_DECL_CURLOPT_RESOLVE
-static void handle_RESOLVE(Connection *conn, value option)
-{
-  CAMLparam1(option);
-  CAMLlocal1(head);
-
-  CURLcode result = CURLE_OK;
-
-  free_curl_slist(conn->curl_RESOLVE);
-  conn->curl_RESOLVE = NULL;
-
-  head = option;
-
-  while (head != Val_emptylist)
-  {
-     conn->curl_RESOLVE = curl_slist_append(conn->curl_RESOLVE, String_val(Field(head,0)));
-     head = Field(head, 1);
-  }
-
-  result = curl_easy_setopt(conn->connection,
-                            CURLOPT_RESOLVE,
-                            conn->curl_RESOLVE);
-
-  if (result != CURLE_OK)
-    raiseError(conn, result);
-
-  CAMLreturn0;
-}
+SETOPT_SLIST( RESOLVE)
 #endif
 
 #if HAVE_DECL_CURLOPT_DNS_SERVERS
@@ -3005,35 +2899,7 @@ SETOPT_STRING( MAIL_FROM)
 #endif
 
 #if HAVE_DECL_CURLOPT_MAIL_RCPT
-static void handle_MAIL_RCPT(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CAMLlocal1(listIter);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_MAIL_RCPT, option);
-
-    free_curl_slist(conn->curl_MAIL_RCPT);
-    conn->curl_MAIL_RCPT = NULL;
-
-    listIter = option;
-
-    while (Val_emptylist != listIter)
-    {
-        conn->curl_MAIL_RCPT = curl_slist_append(conn->curl_MAIL_RCPT, String_val(Field(listIter, 0)));
-
-        listIter = Field(listIter, 1);
-    }
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_MAIL_RCPT,
-                              conn->curl_MAIL_RCPT);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_SLIST( MAIL_RCPT)
 #endif
 
 static Connection *duplicateConnection(Connection *original)
