@@ -1441,13 +1441,13 @@ static void handle_##name(Connection *conn, value option) \
     CAMLreturn0; \
 }
 
-#define SETOPT_VAL(name, conv_val) \
-static void handle_##name(Connection *conn, value option) \
+#define SETOPT_VAL_(func_name, curl_option, conv_val) \
+static void func_name(Connection *conn, value option) \
 { \
     CAMLparam1(option); \
     CURLcode result = CURLE_OK; \
 \
-    result = curl_easy_setopt(conn->connection, CURLOPT_##name, conv_val(option)); \
+    result = curl_easy_setopt(conn->connection, curl_option, conv_val(option)); \
 \
     if (result != CURLE_OK) \
         raiseError(conn, result); \
@@ -1455,6 +1455,7 @@ static void handle_##name(Connection *conn, value option) \
     CAMLreturn0; \
 }
 
+#define SETOPT_VAL(name, conv) SETOPT_VAL_(handle_##name, CURLOPT_##name, conv)
 #define SETOPT_BOOL(name) SETOPT_VAL(name, Bool_val)
 #define SETOPT_LONG(name) SETOPT_VAL(name, Long_val)
 #define SETOPT_INT64(name) SETOPT_VAL(name, Int64_val)
@@ -2379,7 +2380,8 @@ SETOPT_INT64( POSTFIELDSIZE_LARGE)
 #endif
 
 #if HAVE_DECL_CURLOPT_TCP_NODELAY
-SETOPT_BOOL( TCP_NODELAY)
+/* not using SETOPT_BOOL here because of TCP_NODELAY defined in winsock.h */
+SETOPT_VAL_( handle_TCP_NODELAY, CURLOPT_TCP_NODELAY, Bool_val)
 #endif
 
 #if HAVE_DECL_CURLOPT_FTPSSLAUTH
