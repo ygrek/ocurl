@@ -2,7 +2,7 @@
 ###	@configure_input@
 ###
 
-.PHONY:		all targets examples install clean distclean depend release doc
+.PHONY:		all targets examples install clean distclean depend release doc build test reinstall
 
 .SUFFIXES:	.ml .mli .cmx .cmi .cmo .cmxa .cma .c @EXT_OBJ@
 
@@ -130,6 +130,10 @@ else
 		(cd $(INSTALLDIR) && rm -f curl.cma curl.cmxa curl.mli curl.cmi curl$(EXT_LIB) libcurl-helper$(EXT_LIB))
 		rmdir $(INSTALLDIR)
 endif
+
+reinstall:
+	$(MAKE) uninstall
+	$(MAKE) install
 
 NAME=@PACKAGE_NAME@-@PACKAGE_VERSION@
 
