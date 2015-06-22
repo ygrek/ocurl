@@ -7,7 +7,7 @@
 let counter = ref 0
 
 let reader file maxBytes =
-  let buffer = String.create maxBytes in
+  let buffer = String.make maxBytes ' ' in
   let readBytes = input file buffer 0 maxBytes in
     if readBytes = 0 then ""
     else
