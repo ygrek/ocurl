@@ -1,3 +1,11 @@
+0.7.3  -  22 Jun 2015
+
+    + CURLOPT_MAIL_FROM CURLOPT_MAIL_RCPT
+    - CURLOPT_STDERR
+    * fix CURLOPT_SSH_HOST_PUBLIC_KEY_MD5 and CURLOPT_INFILESIZE_LARGE
+    * fix memory leaks in CURLOPT_HTTPPOST handling
+    * use specific NotImplemented exception instead of generic Failure
+
 0.7.2  -  23 Sep 2014
 
     * fix Curl.duphandle wrt CURLOPT_DNS_SERVERS
