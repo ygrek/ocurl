@@ -944,17 +944,17 @@ value caml_curl_alloc(Connection* conn)
   return v;
 }
 
-#define WRAP_DATA_CALLBACK(f) \
-static size_t f(char *ptr, size_t size, size_t nmemb, void *data)\
+#define WRAP_DATA_CALLBACK(name) \
+static size_t cb_##name(char *ptr, size_t size, size_t nmemb, void *data)\
 {\
     size_t result;\
     leave_blocking_section();\
-    result = f##_nolock(ptr,size,nmemb,data);\
+    result = cb_##name##_nolock(ptr,size,nmemb,data);\
     enter_blocking_section();\
     return result;\
 }
 
-static size_t writeFunction_nolock(char *ptr, size_t size, size_t nmemb, void *data)
+static size_t cb_WRITEFUNCTION_nolock(char *ptr, size_t size, size_t nmemb, void *data)
 {
     CAMLparam0();
     CAMLlocal2(result, str);
@@ -973,9 +973,9 @@ static size_t writeFunction_nolock(char *ptr, size_t size, size_t nmemb, void *d
     CAMLreturnT(size_t, Is_exception_result(result) ? 0 : Int_val(result));
 }
 
-WRAP_DATA_CALLBACK(writeFunction)
+WRAP_DATA_CALLBACK( WRITEFUNCTION)
 
-static size_t readFunction_nolock(void *ptr, size_t size, size_t nmemb, void *data)
+static size_t cb_READFUNCTION_nolock(void *ptr, size_t size, size_t nmemb, void *data)
 {
     CAMLparam0();
     CAMLlocal1(result);
@@ -1006,9 +1006,9 @@ static size_t readFunction_nolock(void *ptr, size_t size, size_t nmemb, void *da
     }
 }
 
-WRAP_DATA_CALLBACK(readFunction)
+WRAP_DATA_CALLBACK( READFUNCTION)
 
-static size_t headerFunction_nolock(char *ptr, size_t size, size_t nmemb, void *data)
+static size_t cb_HEADERFUNCTION_nolock(char *ptr, size_t size, size_t nmemb, void *data)
 {
     CAMLparam0();
     CAMLlocal2(result,str);
@@ -1027,9 +1027,9 @@ static size_t headerFunction_nolock(char *ptr, size_t size, size_t nmemb, void *
     CAMLreturnT(size_t, Is_exception_result(result) ? 0 : Int_val(result));
 }
 
-WRAP_DATA_CALLBACK(headerFunction)
+WRAP_DATA_CALLBACK( HEADERFUNCTION)
 
-static int progressFunction_nolock(void *data,
+static int cb_PROGRESSFUNCTION_nolock(void *data,
                             double dlTotal,
                             double dlNow,
                             double ulTotal,
@@ -1053,7 +1053,7 @@ static int progressFunction_nolock(void *data,
     CAMLreturnT(int, Is_exception_result(result) ? 1 : Bool_val(result));
 }
 
-static int progressFunction(void *data,
+static int cb_PROGRESSFUNCTION(void *data,
                             double dlTotal,
                             double dlNow,
                             double ulTotal,
@@ -1061,12 +1061,12 @@ static int progressFunction(void *data,
 {
   int r;
   leave_blocking_section();
-  r = progressFunction_nolock(data,dlTotal,dlNow,ulTotal,ulNow);
+  r = cb_PROGRESSFUNCTION_nolock(data,dlTotal,dlNow,ulTotal,ulNow);
   enter_blocking_section();
   return r;
 }
 
-static int debugFunction_nolock(CURL *debugConnection,
+static int cb_DEBUGFUNCTION_nolock(CURL *debugConnection,
                          curl_infotype infoType,
                          char *buffer,
                          size_t bufferLength,
@@ -1095,7 +1095,7 @@ static int debugFunction_nolock(CURL *debugConnection,
     CAMLreturnT(int, 0);
 }
 
-static int debugFunction(CURL *debugConnection,
+static int cb_DEBUGFUNCTION(CURL *debugConnection,
                          curl_infotype infoType,
                          char *buffer,
                          size_t bufferLength,
@@ -1103,12 +1103,12 @@ static int debugFunction(CURL *debugConnection,
 {
   int r;
   leave_blocking_section();
-  r = debugFunction_nolock(debugConnection, infoType, buffer, bufferLength, data);
+  r = cb_DEBUGFUNCTION_nolock(debugConnection, infoType, buffer, bufferLength, data);
   enter_blocking_section();
   return r;
 }
 
-static curlioerr ioctlFunction_nolock(CURL *ioctl,
+static curlioerr cb_IOCTLFUNCTION_nolock(CURL *ioctl,
                                int cmd,
                                void *data)
 {
@@ -1160,19 +1160,19 @@ static curlioerr ioctlFunction_nolock(CURL *ioctl,
     CAMLreturnT(curlioerr, result);
 }
 
-static curlioerr ioctlFunction(CURL *ioctl,
+static curlioerr cb_IOCTLFUNCTION(CURL *ioctl,
                                int cmd,
                                void *data)
 {
   curlioerr r;
   leave_blocking_section();
-  r = ioctlFunction_nolock(ioctl, cmd, data);
+  r = cb_IOCTLFUNCTION_nolock(ioctl, cmd, data);
   enter_blocking_section();
   return r;
 }
 
 #if HAVE_DECL_CURLOPT_SEEKFUNCTION
-static int seekFunction_nolock(void *data,
+static int cb_SEEKFUNCTION_nolock(void *data,
                         curl_off_t offset,
                         int origin)
 {
@@ -1211,13 +1211,13 @@ static int seekFunction_nolock(void *data,
     CAMLreturnT(int, result);
 }
 
-static int seekFunction(void *data,
+static int cb_SEEKFUNCTION(void *data,
                         curl_off_t offset,
                         int origin)
 {
   int r;
   leave_blocking_section();
-  r = seekFunction_nolock(data,offset,origin);
+  r = cb_SEEKFUNCTION_nolock(data,offset,origin);
   enter_blocking_section();
   return r;
 }
@@ -1225,7 +1225,7 @@ static int seekFunction(void *data,
 #endif
 
 #if HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
-static int openSocketFunction_nolock(void *data,
+static int cb_OPENSOCKETFUNCTION_nolock(void *data,
                         curlsocktype purpose,
                         struct curl_sockaddr *addr)
 {
@@ -1251,13 +1251,13 @@ static int openSocketFunction_nolock(void *data,
     CAMLreturnT(int, (sock == -1) ? CURL_SOCKET_BAD : sock);
 }
 
-static int openSocketFunction(void *data,
+static int cb_OPENSOCKETFUNCTION(void *data,
                         curlsocktype purpose,
                         struct curl_sockaddr *address)
 {
   int r;
   leave_blocking_section();
-  r = openSocketFunction_nolock(data,purpose,address);
+  r = cb_OPENSOCKETFUNCTION_nolock(data,purpose,address);
   enter_blocking_section();
   return r;
 }
@@ -1341,59 +1341,36 @@ CAMLprim value helper_curl_easy_reset(value conn)
  **  curl_easy_setopt helper utility functions
  **/
 
-static void handle_WRITEFUNCTION(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    if (Tag_val(option) == Closure_tag)
-        Store_field(conn->ocamlValues, Ocaml_WRITEFUNCTION, option);
-    else
-        failwith("Not a proper closure");
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_WRITEFUNCTION,
-                              writeFunction);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_WRITEDATA,
-                              conn);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
+#define SETOPT_FUNCTION(name) \
+static void handle_##name##FUNCTION(Connection *conn, value option) \
+{ \
+    CAMLparam1(option); \
+    CURLcode result = CURLE_OK; \
+    Store_field(conn->ocamlValues, Ocaml_##name##FUNCTION, option); \
+    result = curl_easy_setopt(conn->connection, CURLOPT_##name##FUNCTION, cb_##name##FUNCTION); \
+    if (result != CURLE_OK) raiseError(conn, result); \
+    result = curl_easy_setopt(conn->connection, CURLOPT_##name##DATA, conn); \
+    if (result != CURLE_OK) raiseError(conn, result); \
+    CAMLreturn0; \
 }
 
-static void handle_READFUNCTION(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
+SETOPT_FUNCTION( WRITE)
+SETOPT_FUNCTION( READ)
+SETOPT_FUNCTION( HEADER)
+SETOPT_FUNCTION( PROGRESS)
+SETOPT_FUNCTION( DEBUG)
 
-    if (Tag_val(option) == Closure_tag)
-        Store_field(conn->ocamlValues, Ocaml_READFUNCTION, option);
-    else
-        failwith("Not a proper closure");
+#if HAVE_DECL_CURLOPT_SEEKFUNCTION
+SETOPT_FUNCTION( SEEK)
+#endif
 
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_READFUNCTION,
-                              readFunction);
+#if HAVE_DECL_CURLOPT_IOCTLFUNCTION
+SETOPT_FUNCTION( IOCTL)
+#endif
 
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_READDATA,
-                              conn);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+#if HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
+SETOPT_FUNCTION( OPENSOCKET)
+#endif
 
 static void handle_slist(Connection *conn, struct curl_slist** slist, OcamlValue caml_option, CURLoption curl_option, value option)
 {
@@ -1862,33 +1839,6 @@ SETOPT_BOOL( CRLF)
 SETOPT_SLIST( QUOTE)
 SETOPT_SLIST( POSTQUOTE)
 
-static void handle_HEADERFUNCTION(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    if (Tag_val(option) == Closure_tag)
-        Store_field(conn->ocamlValues, Ocaml_HEADERFUNCTION, option);
-    else
-        failwith("Not a proper closure");
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_HEADERFUNCTION,
-                              headerFunction);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_WRITEHEADER,
-                              conn);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
 SETOPT_STRING( COOKIEFILE)
 SETOPT_LONG( SSLVERSION)
 
@@ -1962,32 +1912,6 @@ static void handle_KRB4LEVEL(Connection *conn, value option)
         failwith("Invalid KRB4 Option");
         break;
     }
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-
-static void handle_PROGRESSFUNCTION(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    if (Tag_val(option) == Closure_tag)
-        Store_field(conn->ocamlValues, Ocaml_PROGRESSFUNCTION, option);
-    else
-        failwith("Not a proper closure");
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_PROGRESSFUNCTION,
-                              progressFunction);
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_PROGRESSDATA,
-                              conn);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -2108,32 +2032,6 @@ static void handle_HTTP_VERSION(Connection *conn, value option)
 SETOPT_BOOL( FTP_USE_EPSV)
 SETOPT_LONG( DNS_CACHE_TIMEOUT)
 SETOPT_BOOL( DNS_USE_GLOBAL_CACHE)
-
-static void handle_DEBUGFUNCTION(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    if (Tag_val(option) == Closure_tag)
-        Store_field(conn->ocamlValues, Ocaml_DEBUGFUNCTION, option);
-    else
-        failwith("Not a proper closure");
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_DEBUGFUNCTION,
-                              debugFunction);
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_DEBUGDATA,
-                              conn);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
 
 #if HAVE_DECL_CURLOPT_PRIVATE
 SETOPT_STRING( PRIVATE)
@@ -2422,34 +2320,6 @@ static void handle_FTPSSLAUTH(Connection *conn, value option)
 }
 #endif
 
-#if HAVE_DECL_CURLOPT_IOCTLFUNCTION
-static void handle_IOCTLFUNCTION(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    if (Tag_val(option) == Closure_tag)
-        Store_field(conn->ocamlValues, Ocaml_IOCTLFUNCTION, option);
-    else
-        failwith("Not a proper closure");
-    
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_IOCTLFUNCTION,
-                              ioctlFunction);
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-    
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_DEBUGDATA,
-                              conn);
-    
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-#endif
-
 #if HAVE_DECL_CURLOPT_FTP_ACCOUNT
 SETOPT_STRING( FTP_ACCOUNT)
 #endif
@@ -2676,63 +2546,8 @@ SETOPT_STRING( COPYPOSTFIELDS)
 SETOPT_BOOL( PROXY_TRANSFER_MODE)
 #endif
 
-#if HAVE_DECL_CURLOPT_SEEKFUNCTION
-static void handle_SEEKFUNCTION(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    if (Tag_val(option) == Closure_tag)
-        Store_field(conn->ocamlValues, Ocaml_SEEKFUNCTION, option);
-    else
-        failwith("Not a proper closure");
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_SEEKFUNCTION,
-                              seekFunction);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_SEEKDATA,
-                              conn);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
-#endif
-
 #if HAVE_DECL_CURLOPT_AUTOREFERER
 SETOPT_BOOL( AUTOREFERER)
-#endif
-
-#if HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
-static void handle_OPENSOCKETFUNCTION(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    Store_field(conn->ocamlValues, Ocaml_OPENSOCKETFUNCTION, option);
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_OPENSOCKETDATA,
-                              conn);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    result = curl_easy_setopt(conn->connection,
-                              CURLOPT_OPENSOCKETFUNCTION,
-                              openSocketFunction);
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
 #endif
 
 #if HAVE_DECL_CURLOPT_PROXYTYPE
