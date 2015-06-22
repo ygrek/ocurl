@@ -4,7 +4,7 @@
 
 .PHONY:		all targets examples install clean distclean depend release doc
 
-.SUFFIXES:	.ml .mli .cmx .cmi .cmo .cmxa .cma .c .o
+.SUFFIXES:	.ml .mli .cmx .cmi .cmo .cmxa .cma .c @EXT_OBJ@
 
 INSTALLDIR	= @INSTALLDIR@
 INSTALL		= @INSTALL@
@@ -16,18 +16,22 @@ OCAMLOPT = @OCAMLOPT@
 OCAMLDEP = @OCAMLDEP@
 OCAMLMKLIB = @OCAMLMKLIB@
 
+EXT_LIB = @EXT_LIB@
+EXT_OBJ = @EXT_OBJ@
+EXT_DLL = @EXT_DLL@
+
 FLAGS		= -g
 LIBS		=
 
 CFLAGS		= @CFLAGS@ @DEFS@ -Wall
 
-CURLHELPEROBJS	= curl-helper.o
+CURLHELPEROBJS	= curl-helper$(EXT_OBJ)
 CURLOBJS	= curl.cmx
 CURLBCOBJS	= $(CURLOBJS:.cmx=.cmo)
 
 CLIBS = @CURLLIBS@
 
-TARGETS := curl.cma libcurl-helper.a dllcurl-helper.so
+TARGETS := curl.cma libcurl-helper$(EXT_LIB) dllcurl-helper$(EXT_DLL)
 ifneq (@OCAML_PKG_lwt@,no)
 TARGETS += curl_lwt.cmo
 endif
@@ -38,9 +42,9 @@ TARGETS += curl_lwt.cmx
 endif
 endif
 
-INSTALL_TARGETS = curl.a curl.cmi curl.mli $(TARGETS)
+INSTALL_TARGETS = curl$(EXT_LIB) curl.cmi curl.mli $(TARGETS)
 ifneq (@OCAML_PKG_lwt@,no)
-INSTALL_TARGETS += curl_lwt.cmi curl_lwt.mli curl_lwt.o
+INSTALL_TARGETS += curl_lwt.cmi curl_lwt.mli curl_lwt$(EXT_OBJ)
 endif
 
 all:
@@ -60,10 +64,10 @@ targets:	$(TARGETS) examples
 examples:
 		(cd examples; $(MAKE))
 
-curl.cma:	$(CURLBCOBJS) dllcurl-helper.so
+curl.cma:	$(CURLBCOBJS) dllcurl-helper$(EXT_DLL)
 		$(OCAMLMKLIB) -o curl $(CURLBCOBJS) -oc curl-helper $(CLIBS)
 
-curl.cmxa:	$(CURLOBJS) dllcurl-helper.so
+curl.cmxa:	$(CURLOBJS) dllcurl-helper$(EXT_DLL)
 		$(OCAMLMKLIB) -o curl $(CURLOBJS) -oc curl-helper $(CLIBS)
 
 curl_lwt.cmo: curl_lwt.ml
@@ -84,10 +88,10 @@ curl_lwt.cmi: curl_lwt.mli
 .ml.cmo:
 		$(OCAMLC) -c $(FLAGS) $< -o $@
 
-libcurl-helper.a dllcurl-helper.so:	$(CURLHELPEROBJS)
+libcurl-helper$(EXT_LIB) dllcurl-helper$(EXT_DLL):	$(CURLHELPEROBJS)
 		$(OCAMLMKLIB) -oc curl-helper $(CURLHELPEROBJS) $(CLIBS)
 
-.c.o:
+.c$(EXT_OBJ):
 		$(OCAMLC) -c -ccopt "$(CFLAGS)" $<
 
 install:
@@ -100,14 +104,14 @@ ifeq (@OCAMLBEST@,opt)
 		$(INSTALLDATA) curl.cmxa $(INSTALLDIR)
 endif
 		$(INSTALLDATA) curl.mli curl.cmi $(INSTALLDIR)
-		$(INSTALLDATA) curl.a libcurl-helper.a $(INSTALLDIR)
+		$(INSTALLDATA) curl$(EXT_LIB) libcurl-helper$(EXT_LIB) $(INSTALLDIR)
 endif
 
 uninstall:
 ifneq (@OCAMLFIND@,no)
 		$(FINDLIB) remove curl
 else
-		(cd $(INSTALLDIR) && rm -f curl.cma curl.cmxa curl.mli curl.cmi curl.a libcurl-helper.a)
+		(cd $(INSTALLDIR) && rm -f curl.cma curl.cmxa curl.mli curl.cmi curl$(EXT_LIB) libcurl-helper$(EXT_LIB))
 		rmdir $(INSTALLDIR)
 endif
 
@@ -119,7 +123,7 @@ release:
 	gpg -a -b $(NAME).tar.gz
 
 clean:
-		@rm -f $(TARGETS) *~ *.cm* *.o *.a *.so .depend core
+		@rm -f $(TARGETS) *~ *.cm* *$(EXT_OBJ) *$(EXT_LIB) *$(EXT_DLL) .depend core
 		@(cd examples; $(MAKE) clean)
 
 distclean: clean

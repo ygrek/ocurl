@@ -32,6 +32,25 @@ AC_SUBST(INSTALLDIR)
 AC_SUBST(OCAMLFIND)
 AC_SUBST(OCAML_PKG_lwt)
 
+AC_MSG_CHECKING([for ext_dll])
+EXT_DLL=`$OCAML print_ext.ml dll || $OCAMLC -config | fgrep ext_dll | sed -e "s/.*: //"`
+AS_IF([ test "$?" -eq 0 ],,[AC_MSG_ERROR([failed])] )
+AC_MSG_RESULT([$EXT_DLL])
+
+AC_MSG_CHECKING([for ext_lib])
+EXT_LIB=`$OCAML print_ext.ml lib || $OCAMLC -config | fgrep ext_lib | sed -e "s/.*: //"`
+AS_IF([ test "$?" -eq 0 ],,[AC_MSG_ERROR([failed])] )
+AC_MSG_RESULT([$EXT_LIB])
+
+AC_MSG_CHECKING([for ext_obj])
+EXT_OBJ=`$OCAML print_ext.ml obj || $OCAMLC -config | fgrep ext_obj | sed -e "s/.*: //"`
+AS_IF([ test "$?" -eq 0 ],,[AC_MSG_ERROR([failed])] )
+AC_MSG_RESULT([$EXT_OBJ])
+
+AC_SUBST(EXT_DLL)
+AC_SUBST(EXT_LIB)
+AC_SUBST(EXT_OBJ)
+
 # set CFLAGS for tests below
 CFLAGS="$CFLAGS $CURLCFLAGS"
 
