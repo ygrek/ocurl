@@ -51,6 +51,22 @@ all:
 		@$(MAKE) depend
 		@$(MAKE) targets
 
+build: all
+
+test: examples
+	examples/test_cb_exn
+	examples/test_memory_leaks
+ifneq (@OCAML_PKG_lwt@,no)
+	examples/test_lwt_unit
+endif
+ifeq (@OCAMLBEST@,opt)
+	examples/test_cb_exn.opt
+	examples/test_memory_leaks.opt
+ifneq (@OCAML_PKG_lwt@,no)
+	examples/test_lwt_unit.opt
+endif
+endif
+
 doc:
 		mkdir -p doc
 ifneq (@OCAML_PKG_lwt@,no)
