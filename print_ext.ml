@@ -1,5 +1,3 @@
-#use "topfind";;
-#require "compiler-libs.common";;
 match List.tl (Array.to_list Sys.argv) with
 | ["dll"] -> print_endline Config.ext_dll
 | ["obj"] -> print_endline Config.ext_obj

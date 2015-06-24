@@ -4188,9 +4188,15 @@ fi
 
 
 
+if test "$OCAMLFIND" == "no"; then :
+  $OCAMLC -I +compiler-libs ocamlcommon.cma print_ext.ml -o print_ext
+else
+  $OCAMLFIND c -linkpkg -package compiler-libs.common print_ext.ml -o print_ext
+fi
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ext_dll" >&5
 $as_echo_n "checking for ext_dll... " >&6; }
-EXT_DLL=`$OCAML print_ext.ml dll || $OCAMLC -config | fgrep ext_dll | sed -e "s/.*: //"`
+EXT_DLL=`./print_ext dll || $OCAMLC -config | fgrep ext_dll | sed -e "s/.*: //"`
 if  test "$?" -eq 0 ; then :
 
 else
@@ -4201,7 +4207,7 @@ $as_echo "$EXT_DLL" >&6; }
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ext_lib" >&5
 $as_echo_n "checking for ext_lib... " >&6; }
-EXT_LIB=`$OCAML print_ext.ml lib || $OCAMLC -config | fgrep ext_lib | sed -e "s/.*: //"`
+EXT_LIB=`./print_ext lib || $OCAMLC -config | fgrep ext_lib | sed -e "s/.*: //"`
 if  test "$?" -eq 0 ; then :
 
 else
@@ -4212,7 +4218,7 @@ $as_echo "$EXT_LIB" >&6; }
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ext_obj" >&5
 $as_echo_n "checking for ext_obj... " >&6; }
-EXT_OBJ=`$OCAML print_ext.ml obj || $OCAMLC -config | fgrep ext_obj | sed -e "s/.*: //"`
+EXT_OBJ=`./print_ext obj || $OCAMLC -config | fgrep ext_obj | sed -e "s/.*: //"`
 if  test "$?" -eq 0 ; then :
 
 else

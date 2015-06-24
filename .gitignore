@@ -23,3 +23,5 @@ examples/test_lwt
 examples/test_lwt_unit
 examples/test_memory_leaks
 /doc
+/print_ext
+/autom4te.cache
