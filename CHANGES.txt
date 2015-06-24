@@ -1,3 +1,7 @@
+0.7.4  -  23 Jun 2015
+
+    * fix build
+
 0.7.3  -  22 Jun 2015
 
     + CURLOPT_MAIL_FROM CURLOPT_MAIL_RCPT
