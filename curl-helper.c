@@ -613,7 +613,7 @@ struct CURLOptionMapping
 {
     void (*optionHandler)(Connection *, value);
     char *name;
-/*    CURLoption option; */
+    OcamlValue ocamlValue;
 };
 
 static char* strdup_ml(value v)
@@ -2719,236 +2719,60 @@ SETOPT_STRING( MAIL_FROM)
 SETOPT_SLIST( MAIL_RCPT)
 #endif
 
-static Connection *duplicateConnection(Connection *original)
-{
-    Connection *connection;
-    CURL* h;
-
-    caml_enter_blocking_section();
-    h  = curl_easy_duphandle(original->connection);
-    caml_leave_blocking_section();
-
-    connection = allocConnection(h);
-
-    Store_field(connection->ocamlValues, Ocaml_WRITEFUNCTION,
-		Field(original->ocamlValues, Ocaml_WRITEFUNCTION));
-    Store_field(connection->ocamlValues, Ocaml_READFUNCTION,
-		Field(original->ocamlValues, Ocaml_READFUNCTION));
-    Store_field(connection->ocamlValues, Ocaml_ERRORBUFFER,
-		Field(original->ocamlValues, Ocaml_ERRORBUFFER));
-    Store_field(connection->ocamlValues, Ocaml_POSTFIELDS,
-		Field(original->ocamlValues, Ocaml_POSTFIELDS));
-    Store_field(connection->ocamlValues, Ocaml_HTTPHEADER,
-		Field(original->ocamlValues, Ocaml_HTTPHEADER));
-    Store_field(connection->ocamlValues, Ocaml_QUOTE,
-		Field(original->ocamlValues, Ocaml_QUOTE));
-    Store_field(connection->ocamlValues, Ocaml_POSTQUOTE,
-		Field(original->ocamlValues, Ocaml_POSTQUOTE));
-    Store_field(connection->ocamlValues, Ocaml_HEADERFUNCTION,
-		Field(original->ocamlValues, Ocaml_HEADERFUNCTION));
-    Store_field(connection->ocamlValues, Ocaml_PROGRESSFUNCTION,
-		Field(original->ocamlValues, Ocaml_PROGRESSFUNCTION));
-    Store_field(connection->ocamlValues, Ocaml_DEBUGFUNCTION,
-		Field(original->ocamlValues, Ocaml_DEBUGFUNCTION));
-    Store_field(connection->ocamlValues, Ocaml_HTTP200ALIASES,
-		Field(original->ocamlValues, Ocaml_HTTP200ALIASES));
-    Store_field(connection->ocamlValues, Ocaml_IOCTLFUNCTION,
-		Field(original->ocamlValues, Ocaml_IOCTLFUNCTION));
-    Store_field(connection->ocamlValues, Ocaml_SEEKFUNCTION,
-		Field(original->ocamlValues, Ocaml_SEEKFUNCTION));
-
-    if (Field(original->ocamlValues, Ocaml_URL) != Val_unit)
-        handle_URL(connection, Field(original->ocamlValues,
-                                    Ocaml_URL));
-    if (Field(original->ocamlValues, Ocaml_PROXY) != Val_unit)
-        handle_PROXY(connection, Field(original->ocamlValues,
-                                      Ocaml_PROXY));
-    if (Field(original->ocamlValues, Ocaml_USERPWD) != Val_unit)
-        handle_USERPWD(connection, Field(original->ocamlValues,
-                                        Ocaml_USERPWD));
-    if (Field(original->ocamlValues, Ocaml_PROXYUSERPWD) != Val_unit)
-        handle_PROXYUSERPWD(connection, Field(original->ocamlValues,
-                                             Ocaml_PROXYUSERPWD));
-    if (Field(original->ocamlValues, Ocaml_RANGE) != Val_unit)
-        handle_RANGE(connection, Field(original->ocamlValues,
-                                      Ocaml_RANGE));
-    if (Field(original->ocamlValues, Ocaml_ERRORBUFFER) != Val_unit)
-        handle_ERRORBUFFER(connection, Field(original->ocamlValues,
-                                            Ocaml_ERRORBUFFER));
-    if (Field(original->ocamlValues, Ocaml_POSTFIELDS) != Val_unit)
-        handle_POSTFIELDS(connection, Field(original->ocamlValues,
-                                           Ocaml_POSTFIELDS));
-    if (Field(original->ocamlValues, Ocaml_REFERER) != Val_unit)
-        handle_REFERER(connection, Field(original->ocamlValues,
-                                        Ocaml_REFERER));
-    if (Field(original->ocamlValues, Ocaml_USERAGENT) != Val_unit)
-        handle_USERAGENT(connection, Field(original->ocamlValues,
-                                          Ocaml_USERAGENT));
-    if (Field(original->ocamlValues, Ocaml_FTPPORT) != Val_unit)
-        handle_FTPPORT(connection, Field(original->ocamlValues,
-                                        Ocaml_FTPPORT));
-    if (Field(original->ocamlValues, Ocaml_COOKIE) != Val_unit)
-        handle_COOKIE(connection, Field(original->ocamlValues,
-                                       Ocaml_COOKIE));
-    if (Field(original->ocamlValues, Ocaml_HTTPHEADER) != Val_unit)
-        handle_HTTPHEADER(connection, Field(original->ocamlValues,
-                                           Ocaml_HTTPHEADER));
-    if (Field(original->ocamlValues, Ocaml_HTTPPOST) != Val_unit)
-        handle_HTTPPOST(connection, Field(original->ocamlValues,
-                                         Ocaml_HTTPPOST));
-    if (Field(original->ocamlValues, Ocaml_SSLCERT) != Val_unit)
-        handle_SSLCERT(connection, Field(original->ocamlValues,
-                                        Ocaml_SSLCERT));
-    if (Field(original->ocamlValues, Ocaml_SSLCERTTYPE) != Val_unit)
-        handle_SSLCERTTYPE(connection, Field(original->ocamlValues,
-                                            Ocaml_SSLCERTTYPE));
-    if (Field(original->ocamlValues, Ocaml_SSLCERTPASSWD) != Val_unit)
-        handle_SSLCERTPASSWD(connection, Field(original->ocamlValues,
-                                              Ocaml_SSLCERTPASSWD));
-    if (Field(original->ocamlValues, Ocaml_SSLKEY) != Val_unit)
-        handle_SSLKEY(connection, Field(original->ocamlValues,
-                                       Ocaml_SSLKEY));
-    if (Field(original->ocamlValues, Ocaml_SSLKEYTYPE) != Val_unit)
-        handle_SSLKEYTYPE(connection, Field(original->ocamlValues,
-                                           Ocaml_SSLKEYTYPE));
-    if (Field(original->ocamlValues, Ocaml_SSLKEYPASSWD) != Val_unit)
-        handle_SSLKEYPASSWD(connection, Field(original->ocamlValues,
-                                             Ocaml_SSLKEYPASSWD));
-    if (Field(original->ocamlValues, Ocaml_SSLENGINE) != Val_unit)
-        handle_SSLENGINE(connection, Field(original->ocamlValues,
-                                          Ocaml_SSLENGINE));
-    if (Field(original->ocamlValues, Ocaml_QUOTE) != Val_unit)
-        handle_QUOTE(connection, Field(original->ocamlValues,
-                                      Ocaml_QUOTE));
-    if (Field(original->ocamlValues, Ocaml_POSTQUOTE) != Val_unit)
-        handle_POSTQUOTE(connection, Field(original->ocamlValues,
-                                          Ocaml_POSTQUOTE));
-    if (Field(original->ocamlValues, Ocaml_COOKIEFILE) != Val_unit)
-        handle_COOKIEFILE(connection, Field(original->ocamlValues,
-                                           Ocaml_COOKIEFILE));
-    if (Field(original->ocamlValues, Ocaml_CUSTOMREQUEST) != Val_unit)
-        handle_CUSTOMREQUEST(connection, Field(original->ocamlValues,
-                                              Ocaml_CUSTOMREQUEST));
-    if (Field(original->ocamlValues, Ocaml_INTERFACE) != Val_unit)
-        handle_INTERFACE(connection, Field(original->ocamlValues,
-                                          Ocaml_INTERFACE));
-    if (Field(original->ocamlValues, Ocaml_CAINFO) != Val_unit)
-        handle_CAINFO(connection, Field(original->ocamlValues,
-                                       Ocaml_CAINFO));
-    if (Field(original->ocamlValues, Ocaml_CAPATH) != Val_unit)
-        handle_CAPATH(connection, Field(original->ocamlValues,
-                                       Ocaml_CAPATH));
-    if (Field(original->ocamlValues, Ocaml_RANDOM_FILE) != Val_unit)
-        handle_RANDOM_FILE(connection, Field(original->ocamlValues,
-                                           Ocaml_RANDOM_FILE));
-    if (Field(original->ocamlValues, Ocaml_EGDSOCKET) != Val_unit)
-        handle_EGDSOCKET(connection, Field(original->ocamlValues,
-                                          Ocaml_EGDSOCKET));
-    if (Field(original->ocamlValues, Ocaml_COOKIEJAR) != Val_unit)
-        handle_COOKIEJAR(connection, Field(original->ocamlValues,
-                                          Ocaml_COOKIEJAR));
-    if (Field(original->ocamlValues, Ocaml_SSL_CIPHER_LIST) != Val_unit)
-        handle_SSL_CIPHER_LIST(connection, Field(original->ocamlValues,
-                                              Ocaml_SSL_CIPHER_LIST));
-    if (Field(original->ocamlValues, Ocaml_PRIVATE) != Val_unit)
-        handle_PRIVATE(connection, Field(original->ocamlValues,
-                                        Ocaml_PRIVATE));
-    if (Field(original->ocamlValues, Ocaml_HTTP200ALIASES) != Val_unit)
-        handle_HTTP200ALIASES(connection, Field(original->ocamlValues,
-                                               Ocaml_HTTP200ALIASES));
-    if (Field(original->ocamlValues, Ocaml_NETRC_FILE) != Val_unit)
-        handle_NETRC_FILE(connection, Field(original->ocamlValues,
-                                          Ocaml_NETRC_FILE));
-    if (Field(original->ocamlValues, Ocaml_FTP_ACCOUNT) != Val_unit)
-        handle_FTP_ACCOUNT(connection, Field(original->ocamlValues,
-                                           Ocaml_FTP_ACCOUNT));
-    if (Field(original->ocamlValues, Ocaml_COOKIELIST) != Val_unit)
-        handle_COOKIELIST(connection, Field(original->ocamlValues,
-                                           Ocaml_COOKIELIST));
-    if (Field(original->ocamlValues, Ocaml_FTP_ALTERNATIVE_TO_USER) != Val_unit)
-        handle_FTP_ALTERNATIVE_TO_USER(connection,
-                                   Field(original->ocamlValues,
-                                         Ocaml_FTP_ALTERNATIVE_TO_USER));
-    if (Field(original->ocamlValues, Ocaml_SSH_PUBLIC_KEYFILE) != Val_unit)
-        handle_SSH_PUBLIC_KEYFILE(connection,
-                               Field(original->ocamlValues,
-                                     Ocaml_SSH_PUBLIC_KEYFILE));
-    if (Field(original->ocamlValues, Ocaml_SSH_PRIVATE_KEYFILE) != Val_unit)
-        handle_SSH_PRIVATE_KEYFILE(connection,
-                                Field(original->ocamlValues,
-                                      Ocaml_SSH_PRIVATE_KEYFILE));
-    if (Field(original->ocamlValues, Ocaml_COPYPOSTFIELDS) != Val_unit)
-        handle_COPYPOSTFIELDS(connection,
-                             Field(original->ocamlValues,
-                                   Ocaml_COPYPOSTFIELDS));
-    if (Field(original->ocamlValues, Ocaml_DNS_SERVERS) != Val_unit)
-        handle_DNS_SERVERS(connection,
-                         Field(original->ocamlValues,
-                               Ocaml_DNS_SERVERS));
-    if (Field(original->ocamlValues, Ocaml_MAIL_FROM) != Val_unit)
-        handle_MAIL_FROM(connection,
-                       Field(original->ocamlValues,
-                             Ocaml_MAIL_FROM));
-    if (Field(original->ocamlValues, Ocaml_MAIL_RCPT) != Val_unit)
-        handle_MAIL_RCPT(connection,
-                       Field(original->ocamlValues,
-                             Ocaml_MAIL_RCPT));
-
-    return connection;
-}
-
 /**
  **  curl_easy_setopt helper function
  **/
 
-#define MAP(name) { handle_ ## name, "CURLOPT_"#name /*, CURLOPT_##name */ }
-#define MAP_NO(name) { NULL, "CURLOPT_"#name /*, CURLOPT_##name */ }
+#define MAP(name) { handle_ ## name, "CURLOPT_"#name, Ocaml_##name }
+#define MAP_NO(name) { NULL, "CURLOPT_"#name , Ocaml_##name }
+#define IMM(name) { handle_ ## name, "CURLOPT_"#name, -1 }
+#define IMM_NO(name) { NULL, "CURLOPT_"#name , -1 }
 
 CURLOptionMapping implementedOptionMap[] =
 {
   MAP(WRITEFUNCTION),
   MAP(READFUNCTION),
-  MAP(INFILESIZE),
+  IMM(INFILESIZE),
   MAP(URL),
   MAP(PROXY),
-  MAP(PROXYPORT),
-  MAP(HTTPPROXYTUNNEL),
-  MAP(VERBOSE),
-  MAP(HEADER),
-  MAP(NOPROGRESS),
+  IMM(PROXYPORT),
+  IMM(HTTPPROXYTUNNEL),
+  IMM(VERBOSE),
+  IMM(HEADER),
+  IMM(NOPROGRESS),
 #if HAVE_DECL_CURLOPT_NOSIGNAL
-  MAP(NOSIGNAL),
+  IMM(NOSIGNAL),
 #else
-  MAP_NO(NOSIGNAL),
+  IMM_NO(NOSIGNAL),
 #endif
-  MAP(NOBODY),
-  MAP(FAILONERROR),
-  MAP(UPLOAD),
-  MAP(POST),
-  MAP(FTPLISTONLY),
-  MAP(FTPAPPEND),
-  MAP(NETRC),
+  IMM(NOBODY),
+  IMM(FAILONERROR),
+  IMM(UPLOAD),
+  IMM(POST),
+  IMM(FTPLISTONLY),
+  IMM(FTPAPPEND),
+  IMM(NETRC),
 #if HAVE_DECL_CURLOPT_ENCODING
-  MAP(ENCODING),
+  IMM(ENCODING),
 #else
-  MAP_NO(ENCODING),
+  IMM_NO(ENCODING),
 #endif
-  MAP(FOLLOWLOCATION),
-  MAP(TRANSFERTEXT),
-  MAP(PUT),
+  IMM(FOLLOWLOCATION),
+  IMM(TRANSFERTEXT),
+  IMM(PUT),
   MAP(USERPWD),
   MAP(PROXYUSERPWD),
   MAP(RANGE),
-  MAP(ERRORBUFFER),
-  MAP(TIMEOUT),
+  IMM(ERRORBUFFER), /* mutable buffer, as output value, do not duplicate */
+  IMM(TIMEOUT),
   MAP(POSTFIELDS),
-  MAP(POSTFIELDSIZE),
+  IMM(POSTFIELDSIZE),
   MAP(REFERER),
   MAP(USERAGENT),
   MAP(FTPPORT),
-  MAP(LOW_SPEED_LIMIT),
-  MAP(LOW_SPEED_TIME),
-  MAP(RESUME_FROM),
+  IMM(LOW_SPEED_LIMIT),
+  IMM(LOW_SPEED_TIME),
+  IMM(RESUME_FROM),
   MAP(COOKIE),
   MAP(HTTPHEADER),
   MAP(HTTPPOST),
@@ -2959,39 +2783,39 @@ CURLOptionMapping implementedOptionMap[] =
   MAP(SSLKEYTYPE),
   MAP(SSLKEYPASSWD),
   MAP(SSLENGINE),
-  MAP(SSLENGINE_DEFAULT),
-  MAP(CRLF),
+  IMM(SSLENGINE_DEFAULT),
+  IMM(CRLF),
   MAP(QUOTE),
   MAP(POSTQUOTE),
   MAP(HEADERFUNCTION),
   MAP(COOKIEFILE),
-  MAP(SSLVERSION),
-  MAP(TIMECONDITION),
-  MAP(TIMEVALUE),
+  IMM(SSLVERSION),
+  IMM(TIMECONDITION),
+  IMM(TIMEVALUE),
   MAP(CUSTOMREQUEST),
   MAP(INTERFACE),
-  MAP(KRB4LEVEL),
+  IMM(KRB4LEVEL),
   MAP(PROGRESSFUNCTION),
-  MAP(SSL_VERIFYPEER),
+  IMM(SSL_VERIFYPEER),
   MAP(CAINFO),
   MAP(CAPATH),
-  MAP(FILETIME),
-  MAP(MAXREDIRS),
-  MAP(MAXCONNECTS),
-  MAP(CLOSEPOLICY),
-  MAP(FRESH_CONNECT),
-  MAP(FORBID_REUSE),
+  IMM(FILETIME),
+  IMM(MAXREDIRS),
+  IMM(MAXCONNECTS),
+  IMM(CLOSEPOLICY),
+  IMM(FRESH_CONNECT),
+  IMM(FORBID_REUSE),
   MAP(RANDOM_FILE),
   MAP(EGDSOCKET),
-  MAP(CONNECTTIMEOUT),
-  MAP(HTTPGET),
-  MAP(SSL_VERIFYHOST),
+  IMM(CONNECTTIMEOUT),
+  IMM(HTTPGET),
+  IMM(SSL_VERIFYHOST),
   MAP(COOKIEJAR),
   MAP(SSL_CIPHER_LIST),
-  MAP(HTTP_VERSION),
-  MAP(FTP_USE_EPSV),
-  MAP(DNS_CACHE_TIMEOUT),
-  MAP(DNS_USE_GLOBAL_CACHE),
+  IMM(HTTP_VERSION),
+  IMM(FTP_USE_EPSV),
+  IMM(DNS_CACHE_TIMEOUT),
+  IMM(DNS_USE_GLOBAL_CACHE),
   MAP(DEBUGFUNCTION),
 #if HAVE_DECL_CURLOPT_PRIVATE
   MAP(PRIVATE),
@@ -3004,59 +2828,59 @@ CURLOptionMapping implementedOptionMap[] =
   MAP_NO(HTTP200ALIASES),
 #endif
 #if HAVE_DECL_CURLOPT_UNRESTRICTED_AUTH
-  MAP(UNRESTRICTED_AUTH),
+  IMM(UNRESTRICTED_AUTH),
 #else
-  MAP_NO(UNRESTRICTED_AUTH),
+  IMM_NO(UNRESTRICTED_AUTH),
 #endif
 #if HAVE_DECL_CURLOPT_FTP_USE_EPRT
-  MAP(FTP_USE_EPRT),
+  IMM(FTP_USE_EPRT),
 #else
-  MAP_NO(FTP_USE_EPRT),
+  IMM_NO(FTP_USE_EPRT),
 #endif
 #if HAVE_DECL_CURLOPT_HTTPAUTH
-  MAP(HTTPAUTH),
+  IMM(HTTPAUTH),
 #else
-  MAP_NO(HTTPAUTH),
+  IMM_NO(HTTPAUTH),
 #endif
 #if HAVE_DECL_CURLOPT_FTP_CREATE_MISSING_DIRS
-  MAP(FTP_CREATE_MISSING_DIRS),
+  IMM(FTP_CREATE_MISSING_DIRS),
 #else
-  MAP_NO(FTP_CREATE_MISSING_DIRS),
+  IMM_NO(FTP_CREATE_MISSING_DIRS),
 #endif
 #if HAVE_DECL_CURLOPT_PROXYAUTH
-  MAP(PROXYAUTH),
+  IMM(PROXYAUTH),
 #else
-  MAP_NO(PROXYAUTH),
+  IMM_NO(PROXYAUTH),
 #endif
 #if HAVE_DECL_CURLOPT_FTP_RESPONSE_TIMEOUT
-  MAP(FTP_RESPONSE_TIMEOUT),
+  IMM(FTP_RESPONSE_TIMEOUT),
 #else
-  MAP_NO(FTP_RESPONSE_TIMEOUT),
+  IMM_NO(FTP_RESPONSE_TIMEOUT),
 #endif
 #if HAVE_DECL_CURLOPT_IPRESOLVE
-  MAP(IPRESOLVE),
+  IMM(IPRESOLVE),
 #else
-  MAP_NO(IPRESOLVE),
+  IMM_NO(IPRESOLVE),
 #endif
 #if HAVE_DECL_CURLOPT_MAXFILESIZE
-  MAP(MAXFILESIZE),
+  IMM(MAXFILESIZE),
 #else
-  MAP_NO(MAXFILESIZE),
+  IMM_NO(MAXFILESIZE),
 #endif
 #if HAVE_DECL_CURLOPT_INFILESIZE_LARGE
-  MAP(INFILESIZE_LARGE),
+  IMM(INFILESIZE_LARGE),
 #else
-  MAP_NO(INFILESIZE_LARGE),
+  IMM_NO(INFILESIZE_LARGE),
 #endif
 #if HAVE_DECL_CURLOPT_RESUME_FROM_LARGE
-  MAP(RESUME_FROM_LARGE),
+  IMM(RESUME_FROM_LARGE),
 #else
-  MAP_NO(RESUME_FROM_LARGE),
+  IMM_NO(RESUME_FROM_LARGE),
 #endif
 #if HAVE_DECL_CURLOPT_MAXFILESIZE_LARGE
-  MAP(MAXFILESIZE_LARGE),
+  IMM(MAXFILESIZE_LARGE),
 #else
-  MAP_NO(MAXFILESIZE_LARGE),
+  IMM_NO(MAXFILESIZE_LARGE),
 #endif
 #if HAVE_DECL_CURLOPT_NETRC_FILE
   MAP(NETRC_FILE),
@@ -3064,24 +2888,24 @@ CURLOptionMapping implementedOptionMap[] =
   MAP_NO(NETRC_FILE),
 #endif
 #if HAVE_DECL_CURLOPT_FTP_SSL
-  MAP(FTP_SSL),
+  IMM(FTP_SSL),
 #else
-  MAP_NO(FTP_SSL),
+  IMM_NO(FTP_SSL),
 #endif
 #if HAVE_DECL_CURLOPT_POSTFIELDSIZE_LARGE
-  MAP(POSTFIELDSIZE_LARGE),
+  IMM(POSTFIELDSIZE_LARGE),
 #else
-  MAP_NO(POSTFIELDSIZE_LARGE),
+  IMM_NO(POSTFIELDSIZE_LARGE),
 #endif
 #if HAVE_DECL_CURLOPT_TCP_NODELAY
-  MAP(TCP_NODELAY),
+  IMM(TCP_NODELAY),
 #else
-  MAP_NO(TCP_NODELAY),
+  IMM_NO(TCP_NODELAY),
 #endif
 #if HAVE_DECL_CURLOPT_FTPSSLAUTH
-  MAP(FTPSSLAUTH),
+  IMM(FTPSSLAUTH),
 #else
-  MAP_NO(FTPSSLAUTH),
+  IMM_NO(FTPSSLAUTH),
 #endif
 #if HAVE_DECL_CURLOPT_IOCTLFUNCTION
   MAP(IOCTLFUNCTION),
@@ -3099,44 +2923,44 @@ CURLOptionMapping implementedOptionMap[] =
   MAP_NO(COOKIELIST),
 #endif
 #if HAVE_DECL_CURLOPT_IGNORE_CONTENT_LENGTH
-  MAP(IGNORE_CONTENT_LENGTH),
+  IMM(IGNORE_CONTENT_LENGTH),
 #else
-  MAP_NO(IGNORE_CONTENT_LENGTH),
+  IMM_NO(IGNORE_CONTENT_LENGTH),
 #endif
 #if HAVE_DECL_CURLOPT_FTP_SKIP_PASV_IP
-  MAP(FTP_SKIP_PASV_IP),
+  IMM(FTP_SKIP_PASV_IP),
 #else
-  MAP_NO(FTP_SKIP_PASV_IP),
+  IMM_NO(FTP_SKIP_PASV_IP),
 #endif
 #if HAVE_DECL_CURLOPT_FTP_FILEMETHOD
-  MAP(FTP_FILEMETHOD),
+  IMM(FTP_FILEMETHOD),
 #else
-  MAP_NO(FTP_FILEMETHOD),
+  IMM_NO(FTP_FILEMETHOD),
 #endif
 #if HAVE_DECL_CURLOPT_LOCALPORT
-  MAP(LOCALPORT),
+  IMM(LOCALPORT),
 #else
-  MAP_NO(LOCALPORT),
+  IMM_NO(LOCALPORT),
 #endif
 #if HAVE_DECL_CURLOPT_LOCALPORTRANGE
-  MAP(LOCALPORTRANGE),
+  IMM(LOCALPORTRANGE),
 #else
-  MAP_NO(LOCALPORTRANGE),
+  IMM_NO(LOCALPORTRANGE),
 #endif
 #if HAVE_DECL_CURLOPT_CONNECT_ONLY
-  MAP(CONNECT_ONLY),
+  IMM(CONNECT_ONLY),
 #else
-  MAP_NO(CONNECT_ONLY),
+  IMM_NO(CONNECT_ONLY),
 #endif
 #if HAVE_DECL_CURLOPT_MAX_SEND_SPEED_LARGE
-  MAP(MAX_SEND_SPEED_LARGE),
+  IMM(MAX_SEND_SPEED_LARGE),
 #else
-  MAP_NO(MAX_SEND_SPEED_LARGE),
+  IMM_NO(MAX_SEND_SPEED_LARGE),
 #endif
 #if HAVE_DECL_CURLOPT_MAX_RECV_SPEED_LARGE
-  MAP(MAX_RECV_SPEED_LARGE),
+  IMM(MAX_RECV_SPEED_LARGE),
 #else
-  MAP_NO(MAX_RECV_SPEED_LARGE),
+  IMM_NO(MAX_RECV_SPEED_LARGE),
 #endif
 #if HAVE_DECL_CURLOPT_FTP_ALTERNATIVE_TO_USER
   MAP(FTP_ALTERNATIVE_TO_USER),
@@ -3144,14 +2968,14 @@ CURLOptionMapping implementedOptionMap[] =
   MAP_NO(FTP_ALTERNATIVE_TO_USER),
 #endif
 #if HAVE_DECL_CURLOPT_SSL_SESSIONID_CACHE
-  MAP(SSL_SESSIONID_CACHE),
+  IMM(SSL_SESSIONID_CACHE),
 #else
-  MAP_NO(SSL_SESSIONID_CACHE),
+  IMM_NO(SSL_SESSIONID_CACHE),
 #endif
 #if HAVE_DECL_CURLOPT_SSH_AUTH_TYPES
-  MAP(SSH_AUTH_TYPES),
+  IMM(SSH_AUTH_TYPES),
 #else
-  MAP_NO(SSH_AUTH_TYPES),
+  IMM_NO(SSH_AUTH_TYPES),
 #endif
 #if HAVE_DECL_CURLOPT_SSH_PUBLIC_KEYFILE
   MAP(SSH_PUBLIC_KEYFILE),
@@ -3164,44 +2988,44 @@ CURLOptionMapping implementedOptionMap[] =
   MAP_NO(SSH_PRIVATE_KEYFILE),
 #endif
 #if HAVE_DECL_CURLOPT_FTP_SSL_CCC
-  MAP(FTP_SSL_CCC),
+  IMM(FTP_SSL_CCC),
 #else
-  MAP_NO(FTP_SSL_CCC),
+  IMM_NO(FTP_SSL_CCC),
 #endif
 #if HAVE_DECL_CURLOPT_TIMEOUT_MS
-  MAP(TIMEOUT_MS),
+  IMM(TIMEOUT_MS),
 #else
-  MAP_NO(TIMEOUT_MS),
+  IMM_NO(TIMEOUT_MS),
 #endif
 #if HAVE_DECL_CURLOPT_CONNECTTIMEOUT_MS
-  MAP(CONNECTTIMEOUT_MS),
+  IMM(CONNECTTIMEOUT_MS),
 #else
-  MAP_NO(CONNECTTIMEOUT_MS),
+  IMM_NO(CONNECTTIMEOUT_MS),
 #endif
 #if HAVE_DECL_CURLOPT_HTTP_TRANSFER_DECODING
-  MAP(HTTP_TRANSFER_DECODING),
+  IMM(HTTP_TRANSFER_DECODING),
 #else
-  MAP_NO(HTTP_TRANSFER_DECODING),
+  IMM_NO(HTTP_TRANSFER_DECODING),
 #endif
 #if HAVE_DECL_CURLOPT_HTTP_CONTENT_DECODING
-  MAP(HTTP_CONTENT_DECODING),
+  IMM(HTTP_CONTENT_DECODING),
 #else
-  MAP_NO(HTTP_CONTENT_DECODING),
+  IMM_NO(HTTP_CONTENT_DECODING),
 #endif
 #if HAVE_DECL_CURLOPT_NEW_FILE_PERMS
-  MAP(NEW_FILE_PERMS),
+  IMM(NEW_FILE_PERMS),
 #else
-  MAP_NO(NEW_FILE_PERMS),
+  IMM_NO(NEW_FILE_PERMS),
 #endif
 #if HAVE_DECL_CURLOPT_NEW_DIRECTORY_PERMS
-  MAP(NEW_DIRECTORY_PERMS),
+  IMM(NEW_DIRECTORY_PERMS),
 #else
-  MAP_NO(NEW_DIRECTORY_PERMS),
+  IMM_NO(NEW_DIRECTORY_PERMS),
 #endif
 #if HAVE_DECL_CURLOPT_POST301
-  MAP(POST301),
+  IMM(POST301),
 #else
-  MAP_NO(POST301),
+  IMM_NO(POST301),
 #endif
 #if HAVE_DECL_CURLOPT_SSH_HOST_PUBLIC_KEY_MD5
   MAP(SSH_HOST_PUBLIC_KEY_MD5),
@@ -3214,9 +3038,9 @@ CURLOptionMapping implementedOptionMap[] =
   MAP_NO(COPYPOSTFIELDS),
 #endif
 #if HAVE_DECL_CURLOPT_PROXY_TRANSFER_MODE
-  MAP(PROXY_TRANSFER_MODE),
+  IMM(PROXY_TRANSFER_MODE),
 #else
-  MAP_NO(PROXY_TRANSFER_MODE),
+  IMM_NO(PROXY_TRANSFER_MODE),
 #endif
 #if HAVE_DECL_CURLOPT_SEEKFUNCTION
   MAP(SEEKFUNCTION),
@@ -3224,9 +3048,9 @@ CURLOptionMapping implementedOptionMap[] =
   MAP_NO(SEEKFUNCTION),
 #endif
 #if HAVE_DECL_CURLOPT_AUTOREFERER
-  MAP(AUTOREFERER),
+  IMM(AUTOREFERER),
 #else
-  MAP_NO(AUTOREFERER),
+  IMM_NO(AUTOREFERER),
 #endif
 #if HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
   MAP(OPENSOCKETFUNCTION),
@@ -3234,19 +3058,19 @@ CURLOptionMapping implementedOptionMap[] =
   MAP_NO(OPENSOCKETFUNCTION),
 #endif
 #if HAVE_DECL_CURLOPT_PROXYTYPE
-  MAP(PROXYTYPE),
+  IMM(PROXYTYPE),
 #else
-  MAP_NO(PROXYTYPE),
+  IMM_NO(PROXYTYPE),
 #endif
 #if HAVE_DECL_CURLOPT_PROTOCOLS
-  MAP(PROTOCOLS),
+  IMM(PROTOCOLS),
 #else
-  MAP_NO(PROTOCOLS),
+  IMM_NO(PROTOCOLS),
 #endif
 #if HAVE_DECL_CURLOPT_REDIR_PROTOCOLS
-  MAP(REDIR_PROTOCOLS),
+  IMM(REDIR_PROTOCOLS),
 #else
-  MAP_NO(REDIR_PROTOCOLS),
+  IMM_NO(REDIR_PROTOCOLS),
 #endif
 #if HAVE_DECL_CURLOPT_RESOLVE
   MAP(RESOLVE),
@@ -3269,6 +3093,32 @@ CURLOptionMapping implementedOptionMap[] =
   MAP_NO(MAIL_RCPT),
 #endif
 };
+
+static Connection *duplicateConnection(Connection *original)
+{
+    Connection *connection = NULL;
+    CURL* h = NULL;
+    size_t i = 0;
+    CURLOptionMapping* this = NULL;
+
+    caml_enter_blocking_section();
+    h  = curl_easy_duphandle(original->connection);
+    caml_leave_blocking_section();
+
+    connection = allocConnection(h);
+
+    for (i = 0; i < sizeof(implementedOptionMap)/sizeof(CURLOptionMapping); i++)
+    {
+      this = &implementedOptionMap[i];
+      if (-1 == this->ocamlValue) continue;
+      if (this->optionHandler && (Field(original->ocamlValues, this->ocamlValue) != Val_unit))
+      {
+        this->optionHandler(connection, Field(original->ocamlValues, this->ocamlValue));
+      }
+    }
+
+    return connection;
+}
 
 CAMLprim value helper_curl_easy_setopt(value conn, value option)
 {
