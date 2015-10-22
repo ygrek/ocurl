@@ -1663,7 +1663,7 @@ static void handle_HTTPPOST(Connection *conn, value option)
                              String_val(Field(formItem, 0)),
                              CURLFORM_NAMELENGTH,
                              string_length(Field(formItem, 0)),
-                             CURLFORM_PTRCONTENTS,
+                             CURLFORM_COPYCONTENTS,
                              String_val(Field(formItem, 1)),
                              CURLFORM_CONTENTSLENGTH,
                              string_length(Field(formItem, 1)),
