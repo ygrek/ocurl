@@ -624,15 +624,16 @@ static char* strdup_ml(value v)
   return p;
 }
 
+/* appends at the beginning of list, unlike curl_slist_append */
 static struct curl_slist* curl_slist_append_ml(struct curl_slist* list, value v)
 {
-  list = curl_slist_append(list, "");
-  /* FIXME check NULL */
+  /* FIXME check NULLs */
+  struct curl_slist* new_item = malloc(sizeof(struct curl_slist));
 
-  free(list->data);
-  list->data = strdup_ml(v);
+  new_item->next = list;
+  new_item->data = strdup_ml(v);
 
-  return list;
+  return new_item;
 }
 
 static void free_curl_slist(struct curl_slist *slist)
