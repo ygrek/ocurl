@@ -624,8 +624,8 @@ static char* strdup_ml(value v)
   return p;
 }
 
-/* appends at the beginning of list, unlike curl_slist_append */
-static struct curl_slist* curl_slist_append_ml(struct curl_slist* list, value v)
+/* prepends to the beginning of list */
+static struct curl_slist* curl_slist_prepend_ml(struct curl_slist* list, value v)
 {
   /* FIXME check NULLs */
   struct curl_slist* new_item = malloc(sizeof(struct curl_slist));
@@ -1780,7 +1780,7 @@ static void handle_HTTPPOST(Connection *conn, value option)
             if (Is_long(Field(formItem, 3)) &&
                 Long_val(Field(formItem, 3)) == 0)
             {
-                conn->httpPostBuffers = curl_slist_append_ml(conn->httpPostBuffers, Field(formItem, 2));
+                conn->httpPostBuffers = curl_slist_prepend_ml(conn->httpPostBuffers, Field(formItem, 2));
 
                 curl_formadd(&conn->httpPostFirst,
                              &conn->httpPostLast,
@@ -1798,7 +1798,7 @@ static void handle_HTTPPOST(Connection *conn, value option)
             }
             else if (Is_block(Field(formItem, 3)))
             {
-                conn->httpPostBuffers = curl_slist_append_ml(conn->httpPostBuffers, Field(formItem, 2));
+                conn->httpPostBuffers = curl_slist_prepend_ml(conn->httpPostBuffers, Field(formItem, 2));
 
                 contentType = Field(formItem, 3);
 
