@@ -1,6 +1,6 @@
-0.7.6  -
+0.7.6  -  25 Oct 2015
 
-    * fix invalid memory access in CURLOPT_HTTPPOST (mfp)
+    * fix invalid memory access in CURLOPT_HTTPPOST handling (mfp)
 
 0.7.5  -  24 Jul 2015
 
