@@ -2428,7 +2428,7 @@ static void handle_SSH_AUTH_TYPES(Connection *conn, value option)
     long authTypes = CURLSSH_AUTH_NONE;
 
     listIter = option;
-    
+
     while (!Is_long(listIter))
     {
         switch (Long_val(Field(listIter, 0)))
@@ -3700,7 +3700,7 @@ CAMLprim value helper_curl_escape(value str)
     CAMLparam1(str);
     CAMLlocal1(result);
     char *curlResult;
-     
+
     curlResult = curl_escape(String_val(str), string_length(str));
     result = copy_string(curlResult);
     free(curlResult);
@@ -3717,7 +3717,7 @@ CAMLprim value helper_curl_unescape(value str)
     CAMLparam1(str);
     CAMLlocal1(result);
     char *curlResult;
-     
+
     curlResult = curl_unescape(String_val(str), string_length(str));
     result = copy_string(curlResult);
     free(curlResult);
@@ -3937,6 +3937,7 @@ CAMLprim value caml_curl_multi_cleanup(value handle)
   if (CURLM_OK != curl_multi_cleanup(h->handle))
     failwith("caml_curl_multi_cleanup");
 
+  caml_stat_free(h);
   Multi_val(handle) = (ml_multi_handle*)NULL;
 
   CAMLreturn(Val_unit);
