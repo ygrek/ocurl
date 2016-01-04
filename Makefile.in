@@ -21,6 +21,9 @@ EXT_OBJ = @EXT_OBJ@
 EXT_DLL = @EXT_DLL@
 
 FLAGS		= -g
+ifeq (@OCAML_HAS_BIN_ANNOT@,yes)
+FLAGS		+= -bin-annot
+endif
 LIBS		=
 
 CFLAGS		= @CFLAGS@ @DEFS@ -Wall
@@ -43,8 +46,14 @@ endif
 endif
 
 INSTALL_TARGETS = curl$(EXT_LIB) curl.cmi curl.mli $(TARGETS)
+ifeq (@OCAML_HAS_BIN_ANNOT@,yes)
+INSTALL_TARGETS += curl.cmt curl.cmti
+endif
 ifneq (@OCAML_PKG_lwt@,no)
 INSTALL_TARGETS += curl_lwt.cmi curl_lwt.mli curl_lwt$(EXT_OBJ)
+ifeq (@OCAML_HAS_BIN_ANNOT@,yes)
+INSTALL_TARGETS += curl_lwt.cmt curl_lwt.cmti
+endif
 endif
 
 all:

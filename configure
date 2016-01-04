@@ -626,6 +626,7 @@ CPP
 EXT_OBJ
 EXT_LIB
 EXT_DLL
+OCAML_HAS_BIN_ANNOT
 INSTALLDIR
 CURLLIBS
 ac_prefix_program
@@ -4219,6 +4220,18 @@ if test "$OCAMLFIND" == "no"; then :
 else
   $OCAMLFIND c -linkpkg -package compiler-libs.common print_ext.ml -o print_ext
 fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for bin-annot support" >&5
+$as_echo_n "checking for bin-annot support... " >&6; }
+if test "$OCAMLVERSION" \> "4"; then :
+  OCAML_HAS_BIN_ANNOT=yes
+else
+  OCAML_HAS_BIN_ANNOT=no
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $OCAML_HAS_BIN_ANNOT" >&5
+$as_echo "$OCAML_HAS_BIN_ANNOT" >&6; }
+
+
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ext_dll" >&5
 $as_echo_n "checking for ext_dll... " >&6; }

@@ -38,6 +38,12 @@ AS_IF([test "$OCAMLFIND" == "no"],
 [$OCAMLC -I +compiler-libs ocamlcommon.cma print_ext.ml -o print_ext],
 [$OCAMLFIND c -linkpkg -package compiler-libs.common print_ext.ml -o print_ext])
 
+AC_MSG_CHECKING([for bin-annot support])
+AS_IF([test "$OCAMLVERSION" \> "4"],[OCAML_HAS_BIN_ANNOT=yes],[OCAML_HAS_BIN_ANNOT=no])
+AC_MSG_RESULT([$OCAML_HAS_BIN_ANNOT])
+
+AC_SUBST(OCAML_HAS_BIN_ANNOT)
+
 AC_MSG_CHECKING([for ext_dll])
 EXT_DLL=`./print_ext dll || $OCAMLC -config | fgrep ext_dll | sed -e "s/.*: //"`
 AS_IF([ test "$?" -eq 0 ],,[AC_MSG_ERROR([failed])] )
