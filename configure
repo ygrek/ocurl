@@ -643,6 +643,9 @@ OCAMLCDOTOPT
 OCAMLBEST
 OCAMLOPT
 OCAMLLIB
+OCAMLVERSION_PATCH
+OCAMLVERSION_MINOR
+OCAMLVERSION_MAJOR
 OCAMLVERSION
 OCAMLC
 INSTALL_DATA
@@ -3063,7 +3066,10 @@ fi
 
 
   if test "$OCAMLC" != "no"; then
-     OCAMLVERSION=`$OCAMLC -v | sed -n -e 's|.*version* *\(.*\)$|\1|p'`
+     OCAMLVERSION=`$OCAMLC -version`
+     OCAMLVERSION_MAJOR=`$OCAMLC -version | cut -d. -f1`
+     OCAMLVERSION_MINOR=`$OCAMLC -version | cut -d. -f2`
+     OCAMLVERSION_PATCH=`$OCAMLC -version | cut -d. -f3`
      { $as_echo "$as_me:${as_lineno-$LINENO}: result: OCaml version is $OCAMLVERSION" >&5
 $as_echo "OCaml version is $OCAMLVERSION" >&6; }
      # If OCAMLLIB is set, use it
@@ -3075,6 +3081,9 @@ $as_echo "OCAMLLIB previously set; preserving it." >&6; }
      fi
      { $as_echo "$as_me:${as_lineno-$LINENO}: result: OCaml library path is $OCAMLLIB" >&5
 $as_echo "OCaml library path is $OCAMLLIB" >&6; }
+
+
+
 
 
 

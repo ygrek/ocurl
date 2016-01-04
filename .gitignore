@@ -1,5 +1,6 @@
-*.cm[aiox]
+*.cm[aioxt]
 *.cmxa
+*.cmti
 *.o
 *.obj
 *.a
