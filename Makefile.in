@@ -20,7 +20,12 @@ EXT_LIB = @EXT_LIB@
 EXT_OBJ = @EXT_OBJ@
 EXT_DLL = @EXT_DLL@
 
+OCAMLVERSION_MAJOR = @OCAMLVERSION_MAJOR@
+
 FLAGS		= -g
+ifeq "$(OCAMLVERSION_MAJOR)" "4"
+FLAGS		+= -bin-annot
+endif
 LIBS		=
 
 CFLAGS		= @CFLAGS@ @DEFS@ -Wall
@@ -42,9 +47,15 @@ TARGETS += curl_lwt.cmx
 endif
 endif
 
-INSTALL_TARGETS = curl$(EXT_LIB) curl.cmi curl.mli $(TARGETS)
+INSTALL_TARGETS = curl$(EXT_LIB) curl.cmi curl.ml curl.mli $(TARGETS)
+ifeq "$(OCAMLVERSION_MAJOR)" "4"
+INSTALL_TARGETS += curl.cmt curl.cmti
+endif
 ifneq (@OCAML_PKG_lwt@,no)
-INSTALL_TARGETS += curl_lwt.cmi curl_lwt.mli curl_lwt$(EXT_OBJ)
+INSTALL_TARGETS += curl_lwt.cmi curl_lwt.ml curl_lwt.mli curl_lwt$(EXT_OBJ)
+ifeq "$(OCAMLVERSION_MAJOR)" "4"
+INSTALL_TARGETS += curl_lwt.cmt curl_lwt.cmti
+endif
 endif
 
 all:

@@ -14,7 +14,10 @@ AC_DEFUN([AC_PROG_OCAML],
   AC_CHECK_TOOL([OCAMLC],[ocamlc],[no])
 
   if test "$OCAMLC" != "no"; then
-     OCAMLVERSION=`$OCAMLC -v | sed -n -e 's|.*version* *\(.*\)$|\1|p'`
+     OCAMLVERSION=`$OCAMLC -version`
+     OCAMLVERSION_MAJOR=`$OCAMLC -version | cut -d. -f1`
+     OCAMLVERSION_MINOR=`$OCAMLC -version | cut -d. -f2`
+     OCAMLVERSION_PATCH=`$OCAMLC -version | cut -d. -f3`
      AC_MSG_RESULT([OCaml version is $OCAMLVERSION])
      # If OCAMLLIB is set, use it
      if test "$OCAMLLIB" = ""; then
@@ -25,6 +28,9 @@ AC_DEFUN([AC_PROG_OCAML],
      AC_MSG_RESULT([OCaml library path is $OCAMLLIB])
 
      AC_SUBST([OCAMLVERSION])
+     AC_SUBST([OCAMLVERSION_MAJOR])
+     AC_SUBST([OCAMLVERSION_MINOR])
+     AC_SUBST([OCAMLVERSION_PATCH])
      AC_SUBST([OCAMLLIB])
 
      # checking for ocamlopt
