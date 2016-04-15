@@ -4307,3 +4307,80 @@ CAMLprim value caml_curl_multi_timeout(value v_multi)
 
   CAMLreturn(Val_long(ms));
 }
+
+#define SETMOPT_VAL_(func_name, curl_option, conv_val) \
+static void func_name(CURLM *handle, value option) \
+{ \
+    CAMLparam1(option); \
+    CURLcode result = CURLM_OK; \
+\
+    result = curl_multi_setopt(handle, curl_option, conv_val(option)); \
+\
+    check_mcode(result); \
+\
+    CAMLreturn0; \
+}
+
+#define SETMOPT_VAL(name, conv) SETMOPT_VAL_(handle_multi_##name, CURLMOPT_##name, conv)
+#define SETMOPT_BOOL(name) SETMOPT_VAL(name, Bool_val)
+#define SETMOPT_LONG(name) SETMOPT_VAL(name, Long_val)
+#define SETMOPT_INT64(name) SETMOPT_VAL(name, Int64_val)
+
+SETMOPT_LONG( PIPELINING)
+SETMOPT_LONG( MAXCONNECTS)
+SETMOPT_LONG( MAX_PIPELINE_LENGTH)
+SETMOPT_LONG( MAX_HOST_CONNECTIONS)
+
+typedef struct CURLMOptionMapping CURLMOptionMapping;
+#define OPT(name) { handle_multi_## name, "CURLMOPT_"#name}
+
+struct CURLMOptionMapping
+{
+    void (*optionHandler)(CURLM *, value);
+    char *name;
+};
+
+CURLMOptionMapping implementedMOptionMap[] = {
+  OPT( PIPELINING),
+  OPT( MAXCONNECTS),
+  OPT( MAX_PIPELINE_LENGTH),
+  OPT( MAX_HOST_CONNECTIONS),
+};
+
+CAMLprim value caml_curl_multi_setopt(value v_multi, value option)
+{
+    CAMLparam2(v_multi, option);
+    CAMLlocal1(data);
+    CURLM *handle = Multi_val(v_multi)->handle;
+    CURLMOptionMapping* thisOption = NULL;
+    static value* exception = NULL;
+
+    if (!Is_block(option))
+        failwith("Not a block");
+
+    if (Wosize_val(option) < 1)
+        failwith("Insufficient data in block");
+
+    data = Field(option, 0);
+
+    if (Tag_val(option) < sizeof(implementedMOptionMap)/sizeof(CURLMOptionMapping))
+    {
+      thisOption = &implementedMOptionMap[Tag_val(option)];
+      if (thisOption->optionHandler)
+        thisOption->optionHandler(handle, data);
+      else
+      {
+        if (NULL == exception)
+        {
+          exception = caml_named_value("Curl.NotImplemented");
+          if (NULL == exception) caml_invalid_argument("Curl.NotImplemented");
+        }
+
+        caml_raise_with_string(*exception, thisOption->name);
+      }
+    }
+    else
+      failwith("Invalid CURLMOPT Option");
+
+    CAMLreturn(Val_unit);
+}

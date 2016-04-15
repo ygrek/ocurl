@@ -877,6 +877,12 @@ module Multi : sig
   (** type of Curl multi stack *)
   type mt
 
+  type curlMultiOption =
+    | CURLMOPT_PIPELINING of int
+    | CURLMOPT_MAXCONNECTS of int
+    | CURLMOPT_MAX_PIPELINE_LENGTH of int
+    | CURLMOPT_MAX_HOST_CONNECTIONS of int
+
   (** exception raised on internal errors *)
   exception Error of string
 
@@ -952,5 +958,8 @@ module Multi : sig
       @raise Error on errors
   *)
   external timeout : mt -> int = "caml_curl_multi_timeout"
+
+  (** @raise NotImplemented for not implemented option *)
+  val setopt : mt -> curlMultiOption -> unit
 
 end

@@ -1301,6 +1301,12 @@ module Multi = struct
 
   type mt
 
+  type curlMultiOption =
+    | CURLMOPT_PIPELINING of int
+    | CURLMOPT_MAXCONNECTS of int
+    | CURLMOPT_MAX_PIPELINE_LENGTH of int
+    | CURLMOPT_MAX_HOST_CONNECTIONS of int
+
   exception Error of string
 
   let () = Callback.register_exception "Curl.Multi.Error" (Error "")
@@ -1329,5 +1335,6 @@ module Multi = struct
 
   external timeout : mt -> int = "caml_curl_multi_timeout"
 
+  external setopt : mt -> curlMultiOption -> unit = "caml_curl_multi_setopt"
 end
 

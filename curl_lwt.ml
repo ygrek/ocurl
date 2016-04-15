@@ -90,6 +90,10 @@ let create () =
 (* lwt may not run in parallel so one global is OK'ish *)
 let global = lazy (create ())
 
+let setopt opt =
+  let t = Lazy.force global in
+  M.setopt t.mt opt
+
 let perform h =
   let t = Lazy.force global in
   let (waiter,wakener) = Lwt.wait () in
