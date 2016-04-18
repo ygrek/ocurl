@@ -3142,19 +3142,15 @@ CAMLprim value helper_curl_easy_setopt(value conn, value option)
 
     checkConnection(connection);
 
-    if (!Is_block(option))
-        failwith("Not a block");
-
-    if (Wosize_val(option) < 1)
-        failwith("Insufficient data in block");
-
     data = Field(option, 0);
 
     if (Tag_val(option) < sizeof(implementedOptionMap)/sizeof(CURLOptionMapping))
     {
       thisOption = &implementedOptionMap[Tag_val(option)];
       if (thisOption->optionHandler)
+      {
         thisOption->optionHandler(connection, data);
+      }
       else
       {
         if (NULL == exception)
@@ -3167,7 +3163,9 @@ CAMLprim value helper_curl_easy_setopt(value conn, value option)
       }
     }
     else
-      failwith("Invalid CURLOPT Option");
+    {
+      caml_failwith("Invalid CURLOPT Option");
+    }
 
     CAMLreturn(Val_unit);
 }
@@ -4377,19 +4375,15 @@ CAMLprim value caml_curl_multi_setopt(value v_multi, value option)
     CURLMOptionMapping* thisOption = NULL;
     static value* exception = NULL;
 
-    if (!Is_block(option))
-        failwith("Not a block");
-
-    if (Wosize_val(option) < 1)
-        failwith("Insufficient data in block");
-
     data = Field(option, 0);
 
     if (Tag_val(option) < sizeof(implementedMOptionMap)/sizeof(CURLMOptionMapping))
     {
       thisOption = &implementedMOptionMap[Tag_val(option)];
       if (thisOption->optionHandler)
+      {
         thisOption->optionHandler(handle, data);
+      }
       else
       {
         if (NULL == exception)
@@ -4402,7 +4396,9 @@ CAMLprim value caml_curl_multi_setopt(value v_multi, value option)
       }
     }
     else
-      failwith("Invalid CURLMOPT Option");
+    {
+      caml_failwith("Invalid CURLMOPT Option");
+    }
 
     CAMLreturn(Val_unit);
 }
