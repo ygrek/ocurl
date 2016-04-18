@@ -463,6 +463,22 @@
    if you don't. */
 #undef HAVE_DECL_CURLINFO_TOTAL_TIME
 
+/* Define to 1 if you have the declaration of `CURLMOPT_MAXCONNECTS', and to 0
+   if you don't. */
+#undef HAVE_DECL_CURLMOPT_MAXCONNECTS
+
+/* Define to 1 if you have the declaration of `CURLMOPT_MAX_HOST_CONNECTIONS',
+   and to 0 if you don't. */
+#undef HAVE_DECL_CURLMOPT_MAX_HOST_CONNECTIONS
+
+/* Define to 1 if you have the declaration of `CURLMOPT_MAX_PIPELINE_LENGTH',
+   and to 0 if you don't. */
+#undef HAVE_DECL_CURLMOPT_MAX_PIPELINE_LENGTH
+
+/* Define to 1 if you have the declaration of `CURLMOPT_PIPELINING', and to 0
+   if you don't. */
+#undef HAVE_DECL_CURLMOPT_PIPELINING
+
 /* Define to 1 if you have the declaration of `CURLMOPT_SOCKETDATA', and to 0
    if you don't. */
 #undef HAVE_DECL_CURLMOPT_SOCKETDATA

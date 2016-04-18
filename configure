@@ -8153,6 +8153,58 @@ fi
 cat >>confdefs.h <<_ACEOF
 #define HAVE_DECL_CURLE_AGAIN $ac_have_decl
 _ACEOF
+ac_fn_c_check_decl "$LINENO" "CURLMOPT_MAXCONNECTS" "ac_cv_have_decl_CURLMOPT_MAXCONNECTS" "
+#include \"curl/curl.h\"
+
+"
+if test "x$ac_cv_have_decl_CURLMOPT_MAXCONNECTS" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_CURLMOPT_MAXCONNECTS $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "CURLMOPT_PIPELINING" "ac_cv_have_decl_CURLMOPT_PIPELINING" "
+#include \"curl/curl.h\"
+
+"
+if test "x$ac_cv_have_decl_CURLMOPT_PIPELINING" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_CURLMOPT_PIPELINING $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "CURLMOPT_MAX_PIPELINE_LENGTH" "ac_cv_have_decl_CURLMOPT_MAX_PIPELINE_LENGTH" "
+#include \"curl/curl.h\"
+
+"
+if test "x$ac_cv_have_decl_CURLMOPT_MAX_PIPELINE_LENGTH" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_CURLMOPT_MAX_PIPELINE_LENGTH $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "CURLMOPT_MAX_HOST_CONNECTIONS" "ac_cv_have_decl_CURLMOPT_MAX_HOST_CONNECTIONS" "
+#include \"curl/curl.h\"
+
+"
+if test "x$ac_cv_have_decl_CURLMOPT_MAX_HOST_CONNECTIONS" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_CURLMOPT_MAX_HOST_CONNECTIONS $ac_have_decl
+_ACEOF
 ac_fn_c_check_decl "$LINENO" "CURL_VERSION_TLSAUTH_SRP" "ac_cv_have_decl_CURL_VERSION_TLSAUTH_SRP" "
 #include \"curl/curl.h\"
 

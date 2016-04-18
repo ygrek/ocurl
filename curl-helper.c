@@ -4327,12 +4327,22 @@ static void func_name(CURLM *handle, value option) \
 #define SETMOPT_INT64(name) SETMOPT_VAL(name, Int64_val)
 
 SETMOPT_LONG( PIPELINING)
+
+#if HAVE_DECL_CURLMOPT_MAXCONNECTS
 SETMOPT_LONG( MAXCONNECTS)
+#endif
+
+#if HAVE_DECL_CURLMOPT_MAX_PIPELINE_LENGTH
 SETMOPT_LONG( MAX_PIPELINE_LENGTH)
+#endif
+
+#if HAVE_DECL_CURLMOPT_MAX_HOST_CONNECTIONS
 SETMOPT_LONG( MAX_HOST_CONNECTIONS)
+#endif
 
 typedef struct CURLMOptionMapping CURLMOptionMapping;
 #define OPT(name) { handle_multi_## name, "CURLMOPT_"#name}
+#define NO_OPT(name) { NULL, "CURLMOPT_"#name}
 
 struct CURLMOptionMapping
 {
@@ -4342,9 +4352,21 @@ struct CURLMOptionMapping
 
 CURLMOptionMapping implementedMOptionMap[] = {
   OPT( PIPELINING),
+#if HAVE_DECL_CURLMOPT_MAXCONNECTS
   OPT( MAXCONNECTS),
+#else
+  NO_OPT( MAXCONNECTS),
+#endif
+#if HAVE_DECL_CURLMOPT_MAX_PIPELINE_LENGTH
   OPT( MAX_PIPELINE_LENGTH),
+#else
+  NO_OPT( MAX_PIPELINE_LENGTH),
+#endif
+#if HAVE_DECL_CURLMOPT_MAX_HOST_CONNECTIONS
   OPT( MAX_HOST_CONNECTIONS),
+#else
+  NO_OPT( MAX_HOST_CONNECTIONS),
+#endif
 };
 
 CAMLprim value caml_curl_multi_setopt(value v_multi, value option)
