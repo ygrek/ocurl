@@ -4324,7 +4324,7 @@ static void func_name(CURLM *handle, value option) \
 #define SETMOPT_LONG(name) SETMOPT_VAL(name, Long_val)
 #define SETMOPT_INT64(name) SETMOPT_VAL(name, Int64_val)
 
-SETMOPT_LONG( PIPELINING)
+SETMOPT_BOOL( PIPELINING)
 
 #if HAVE_DECL_CURLMOPT_MAXCONNECTS
 SETMOPT_LONG( MAXCONNECTS)

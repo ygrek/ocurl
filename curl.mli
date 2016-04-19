@@ -878,7 +878,7 @@ module Multi : sig
   type mt
 
   type curlMultiOption =
-    | CURLMOPT_PIPELINING of int
+    | CURLMOPT_PIPELINING of bool
     | CURLMOPT_MAXCONNECTS of int
     | CURLMOPT_MAX_PIPELINE_LENGTH of int
     | CURLMOPT_MAX_HOST_CONNECTIONS of int
