@@ -877,8 +877,10 @@ module Multi : sig
   (** type of Curl multi stack *)
   type mt
 
+  type curlPipelining = PIPE_NOTHING | PIPE_HTTP1 | PIPE_MULTIPLEX
+
   type curlMultiOption =
-    | CURLMOPT_PIPELINING of bool
+    | CURLMOPT_PIPELINING of curlPipelining list
     | CURLMOPT_MAXCONNECTS of int
     | CURLMOPT_MAX_PIPELINE_LENGTH of int
     | CURLMOPT_MAX_HOST_CONNECTIONS of int

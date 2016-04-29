@@ -1409,6 +1409,26 @@ static void handle_slist(Connection *conn, struct curl_slist** slist, OcamlValue
     CAMLreturn0;
 }
 
+static long convert_bit_list(long *map, size_t map_size, value option)
+{
+    CAMLparam1(option);
+    long bits = 0;
+    int index;
+
+    while (Val_emptylist != option)
+    {
+        index = Int_val(Field(option, 0));
+        if ((index < 0) || ((size_t)index >= map_size))
+          caml_invalid_argument("convert_bit_list");
+
+        bits |= map[index];
+
+        option = Field(option, 1);
+    }
+
+    CAMLreturnT(long, bits);
+}
+
 #define SETOPT_STRING(name) \
 static void handle_##name(Connection *conn, value option) \
 { \
@@ -2676,23 +2696,9 @@ static void handle_PROTOCOLSOPTION(CURLoption curlopt, Connection *conn, value o
 {
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
-    long protocols = 0;
-    int index;
+    long bits = convert_bit_list(protoMap, sizeof(protoMap) / sizeof(protoMap[0]), option);
 
-    while (Val_emptylist != option)
-    {
-        index = Int_val(Field(option, 0));
-        if ((index < 0) || ((size_t)index >= sizeof(protoMap) / sizeof(protoMap[0])))
-          failwith("Invalid curl protocol");
-
-        protocols = protocols | protoMap[index];
-
-        option = Field(option, 1);
-    }
-
-    result = curl_easy_setopt(conn->connection,
-                              curlopt,
-                              protocols);
+    result = curl_easy_setopt(conn->connection, curlopt, bits);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -4324,7 +4330,26 @@ static void func_name(CURLM *handle, value option) \
 #define SETMOPT_LONG(name) SETMOPT_VAL(name, Long_val)
 #define SETMOPT_INT64(name) SETMOPT_VAL(name, Int64_val)
 
-SETMOPT_BOOL( PIPELINING)
+long pipeliningMap[] =
+{
+  0, /* CURLPIPE_NOTHING */
+  1, /* CURLPIPE_HTTP1 */
+  2, /* CURLPIPE_MULTIPLEX */
+};
+
+static void handle_multi_PIPELINING(CURLM* handle, value option)
+{
+  CAMLparam1(option);
+  CURLcode result = CURLM_OK;
+
+  long bits = convert_bit_list(pipeliningMap, sizeof(pipeliningMap) / sizeof(pipeliningMap[0]), option);
+
+  result = curl_multi_setopt(handle, CURLMOPT_PIPELINING, bits);
+
+  check_mcode(result);
+
+  CAMLreturn0;
+}
 
 #if HAVE_DECL_CURLMOPT_MAXCONNECTS
 SETMOPT_LONG( MAXCONNECTS)
