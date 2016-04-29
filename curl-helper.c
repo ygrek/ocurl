@@ -661,16 +661,15 @@ static void raiseError(Connection *conn, CURLcode code)
         }
     }
 
-    exceptionData = caml_alloc(3, 0);
+    exceptionData = caml_alloc_tuple(3);
 
     Store_field(exceptionData, 0, Val_int(code));
     Store_field(exceptionData, 1, Val_int(code));
-    Store_field(exceptionData, 2, copy_string(errorString));
+    Store_field(exceptionData, 2, caml_copy_string(errorString));
 
     if (conn != NULL && conn->curl_ERRORBUFFER != NULL)
     {
-        Store_field(Field(conn->ocamlValues, Ocaml_ERRORBUFFER), 0,
-		    copy_string(conn->curl_ERRORBUFFER));
+        Store_field(Field(conn->ocamlValues, Ocaml_ERRORBUFFER), 0, caml_copy_string(conn->curl_ERRORBUFFER));
     }
 
     exception = caml_named_value("CurlException");
@@ -3252,7 +3251,7 @@ value convertStringList(struct curl_slist *slist)
     while (p != NULL)
     {
         next = alloc_tuple(2);
-        Store_field(next, 0, copy_string(p->data));
+        Store_field(next, 0, caml_copy_string(p->data));
         Store_field(next, 1, Val_int(0));
 
         if (result == Val_int(0))
@@ -3673,7 +3672,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     {
     case StringValue:
         result = alloc(1, StringValue);
-        Store_field(result, 0, copy_string(strValue?strValue:""));
+        Store_field(result, 0, caml_copy_string(strValue?strValue:""));
         break;
 
     case LongValue:
@@ -3706,7 +3705,7 @@ CAMLprim value helper_curl_escape(value str)
     char *curlResult;
 
     curlResult = curl_escape(String_val(str), string_length(str));
-    result = copy_string(curlResult);
+    result = caml_copy_string(curlResult);
     free(curlResult);
 
     CAMLreturn(result);
@@ -3723,7 +3722,7 @@ CAMLprim value helper_curl_unescape(value str)
     char *curlResult;
 
     curlResult = curl_unescape(String_val(str), string_length(str));
-    result = copy_string(curlResult);
+    result = caml_copy_string(curlResult);
     free(curlResult);
 
     CAMLreturn(result);
@@ -3758,7 +3757,7 @@ CAMLprim value helper_curl_version(void)
     char *str;
 
     str = curl_version();
-    result = copy_string(str);
+    result = caml_copy_string(str);
 
     CAMLreturn(result);
 }

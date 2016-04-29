@@ -18,7 +18,8 @@ let () =
       perform connection;
     with
     | CurlException (CURLE_WRITE_ERROR,_,_) -> printf "ok\n%!"
-    | exn -> printf "E: wrong error: %s : %s\n%!" (Printexc.to_string exn) !error_buffer
+    | CurlException (error,_,name) -> printf "E: wrong error: %s %s : %s\n%!" name (Curl.strerror error) !error_buffer
+    | exn -> printf "E: wrong error: %s\n%!" (Printexc.to_string exn)
   in
   run ();
   run ();
