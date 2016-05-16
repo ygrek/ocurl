@@ -158,7 +158,7 @@ distclean: clean
 		@rm -f Makefile
 
 depend:
-		@$(OCAMLDEP) *.mli *.ml > .depend
+		@$(OCAMLDEP) *.mli $(filter-out errors.ml print_ext.ml, $(wildcard *.ml)) > .depend
 
 ifeq ($(wildcard .depend),.depend)
 ifneq ($(MAKECMDGOALS),clean)
