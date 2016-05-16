@@ -1,3 +1,7 @@
+0.7.7  -  16 May 2016
+
+    + Multi.setopt
+
 0.7.6  -  25 Oct 2015
 
     * fix invalid memory access in CURLOPT_HTTPPOST handling (mfp)

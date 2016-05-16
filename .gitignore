@@ -17,6 +17,7 @@ examples/opar
 examples/ossl
 examples/oput
 examples/ominimal
+examples/omulti
 examples/ocurl
 examples/ocurl_test_threads
 examples/test_cb_exn
