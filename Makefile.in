@@ -39,7 +39,7 @@ ifneq (@OCAML_PKG_lwt@,no)
 TARGETS += curl_lwt.cmo
 endif
 ifeq (@OCAMLBEST@,opt)
-TARGETS += curl.cmxa
+TARGETS += curl.cmxa curl.cmx
 ifneq (@OCAML_PKG_lwt@,no)
 TARGETS += curl_lwt.cmx
 endif
