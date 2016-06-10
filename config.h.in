@@ -827,6 +827,10 @@
    and to 0 if you don't. */
 #undef HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
 
+/* Define to 1 if you have the declaration of `CURLOPT_PIPEWAIT', and to 0 if
+   you don't. */
+#undef HAVE_DECL_CURLOPT_PIPEWAIT
+
 /* Define to 1 if you have the declaration of `CURLOPT_PORT', and to 0 if you
    don't. */
 #undef HAVE_DECL_CURLOPT_PORT

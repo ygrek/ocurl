@@ -113,12 +113,9 @@ typedef enum OcamlValues
     Ocaml_SSH_PRIVATE_KEYFILE,
     Ocaml_SSH_HOST_PUBLIC_KEY_MD5,
     Ocaml_COPYPOSTFIELDS,
-
     Ocaml_DNS_SERVERS,
-
     Ocaml_MAIL_FROM,
     Ocaml_MAIL_RCPT,
-
     Ocaml_RESOLVE,
 
     /* Not used, last for size */
@@ -2736,6 +2733,10 @@ SETOPT_STRING( MAIL_FROM)
 SETOPT_SLIST( MAIL_RCPT)
 #endif
 
+#if HAVE_DECL_CURLOPT_PIPEWAIT
+SETOPT_BOOL( PIPEWAIT)
+#endif
+
 /**
  **  curl_easy_setopt helper function
  **/
@@ -3108,6 +3109,11 @@ CURLOptionMapping implementedOptionMap[] =
   MAP(MAIL_RCPT),
 #else
   MAP_NO(MAIL_RCPT),
+#endif
+#if HAVE_DECL_CURLOPT_PIPEWAIT
+  IMM(PIPEWAIT),
+#else
+  IMM_NO(PIPEWAIT),
 #endif
 };
 

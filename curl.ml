@@ -396,6 +396,7 @@ type curlOption =
   | CURLOPT_DNS_SERVERS of string
   | CURLOPT_MAIL_FROM of string
   | CURLOPT_MAIL_RCPT of string list
+  | CURLOPT_PIPEWAIT of bool
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -929,6 +930,9 @@ let set_mailfrom conn l =
 
 let set_mailrcpt conn l =
   setopt conn (CURLOPT_MAIL_RCPT l)
+
+let set_pipewait conn b =
+  setopt conn (CURLOPT_PIPEWAIT b)
 
 let get_effectiveurl conn =
   match (getinfo conn CURLINFO_EFFECTIVE_URL) with

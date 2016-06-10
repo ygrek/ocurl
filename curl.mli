@@ -404,6 +404,7 @@ type curlOption =
   | CURLOPT_DNS_SERVERS of string
   | CURLOPT_MAIL_FROM of string
   | CURLOPT_MAIL_RCPT of string list
+  | CURLOPT_PIPEWAIT of bool
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -646,6 +647,7 @@ val set_resolve : t -> (string * int * string) list -> (string * int) list -> un
 val set_dns_servers : t -> string list -> unit
 val set_mailfrom : t -> string -> unit
 val set_mailrcpt : t -> string list -> unit
+val set_pipewait : t -> bool -> unit
 
 (** {2 Get transfer properties} *)
 
