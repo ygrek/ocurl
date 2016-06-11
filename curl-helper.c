@@ -2026,30 +2026,31 @@ static void handle_HTTP_VERSION(Connection *conn, value option)
     CAMLparam1(option);
     CURLcode result = CURLE_OK;
 
+    long version = CURL_HTTP_VERSION_NONE;
+
     switch (Long_val(option))
     {
-    case 0: /* HTTP_VERSION_NONE */
-        result = curl_easy_setopt(conn->connection,
-                                  CURLOPT_HTTP_VERSION,
-                                  CURL_HTTP_VERSION_NONE);
-        break;
-
-    case 1: /* HTTP_VERSION_1_0 */
-        result = curl_easy_setopt(conn->connection,
-                                  CURLOPT_HTTP_VERSION,
-                                  CURL_HTTP_VERSION_1_0);
-        break;
-
-    case 2: /* HTTP_VERSION_1_1 */
-        result = curl_easy_setopt(conn->connection,
-                                  CURLOPT_HTTP_VERSION,
-                                  CURL_HTTP_VERSION_1_1);
-        break;
-
+    case 0: version = CURL_HTTP_VERSION_NONE; break;
+    case 1: version = CURL_HTTP_VERSION_1_0; break;
+    case 2: version = CURL_HTTP_VERSION_1_1; break;
+    case 3:
+#if defined(CURL_HTTP_VERSION_2)
+      version = CURL_HTTP_VERSION_2;
+#elif defined(CURL_HTTP_VERSION_2_0)
+      version = CURL_HTTP_VERSION_2_0;
+#endif
+      break;
+    case 4:
+#if defined(CURL_HTTP_VERSION_2TLS)
+      version = CURL_HTTP_VERSION_2TLS;
+#endif
+      break;
     default:
-        failwith("Invalid HTTP_VERSION Option");
-        break;
+      caml_invalid_argument("CURLOPT_HTTP_VERSION");
+      break;
     }
+
+    result = curl_easy_setopt(conn->connection, CURLOPT_HTTP_VERSION, version);
 
     if (result != CURLE_OK)
         raiseError(conn, result);

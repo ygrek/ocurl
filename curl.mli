@@ -158,9 +158,11 @@ type curlSSLVerifyHost =
   | SSLVERIFYHOST_HOSTNAME (** certificate must indicate the matching hostname, or the connection fails *)
 
 type curlHTTPVersion =
-  | HTTP_VERSION_NONE
-  | HTTP_VERSION_1_0
-  | HTTP_VERSION_1_1
+  | HTTP_VERSION_NONE (** libcurl will make the best choice *)
+  | HTTP_VERSION_1_0 (** please use HTTP 1.0 *)
+  | HTTP_VERSION_1_1 (** please use HTTP 1.1 *)
+  | HTTP_VERSION_2 (** please use HTTP 2 *)
+  | HTTP_VERSION_2TLS (** use version 2 for HTTPS, version 1.1 for HTTP *)
 
 type curlDebugType =
   | DEBUGTYPE_TEXT

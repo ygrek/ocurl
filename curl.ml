@@ -153,6 +153,8 @@ type curlHTTPVersion =
   | HTTP_VERSION_NONE
   | HTTP_VERSION_1_0
   | HTTP_VERSION_1_1
+  | HTTP_VERSION_2
+  | HTTP_VERSION_2TLS
 
 type curlDebugType =
   | DEBUGTYPE_TEXT
