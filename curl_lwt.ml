@@ -99,8 +99,11 @@ let perform h =
   let (waiter,wakener) = Lwt.wait () in
   let waiter = Lwt.protected waiter in
   Lwt.on_cancel waiter (fun () ->
-    Curl.Multi.remove t.mt h;
-    Hashtbl.remove t.wakeners h;
+    match Hashtbl.find t.wakeners h with
+    | exception Not_found -> ()
+    | _ ->
+      Curl.Multi.remove t.mt h;
+      Hashtbl.remove t.wakeners h
   );
   Hashtbl.add t.wakeners h wakener;
   M.add t.mt h;
