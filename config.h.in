@@ -323,6 +323,10 @@
    you don't. */
 #undef HAVE_DECL_CURLE_WRITE_ERROR
 
+/* Define to 1 if you have the declaration of `CURLINFO_CERTINFO', and to 0 if
+   you don't. */
+#undef HAVE_DECL_CURLINFO_CERTINFO
+
 /* Define to 1 if you have the declaration of `CURLINFO_CONDITION_UNMET', and
    to 0 if you don't. */
 #undef HAVE_DECL_CURLINFO_CONDITION_UNMET
@@ -510,6 +514,10 @@
 /* Define to 1 if you have the declaration of `CURLOPT_CAPATH', and to 0 if
    you don't. */
 #undef HAVE_DECL_CURLOPT_CAPATH
+
+/* Define to 1 if you have the declaration of `CURLOPT_CERTINFO', and to 0 if
+   you don't. */
+#undef HAVE_DECL_CURLOPT_CERTINFO
 
 /* Define to 1 if you have the declaration of `CURLOPT_CLOSEPOLICY', and to 0
    if you don't. */
