@@ -3253,7 +3253,7 @@ enum GetInfoResultType {
     StringValue, LongValue, DoubleValue, StringListValue, StringListListValue,
 };
 
-value convertStringList(struct curl_slist *slist)
+value convertStringListNoFree(struct curl_slist *slist)
 {
     CAMLparam0();
     CAMLlocal3(result, current, next);
@@ -3273,16 +3273,24 @@ value convertStringList(struct curl_slist *slist)
             result = next;
 
         if (current != Val_int(0))
-	    Store_field(current, 1, next);
+          Store_field(current, 1, next);
 
         current = next;
 
         p = p->next;
     }
 
-    curl_slist_free_all(slist);
-
     CAMLreturn(result);
+}
+
+value convertStringList(struct curl_slist *slist)
+{
+  CAMLparam0();
+  CAMLlocal1(result);
+  result = convertStringListNoFree(slist);
+  curl_slist_free_all(slist);
+
+  CAMLreturn(result);
 }
 
 CAMLprim value helper_curl_easy_getinfo(value conn, value option)
@@ -3698,7 +3706,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
 
         for (i = 0; i < ptr.to_certinfo->num_of_certs; i++) {
           next = alloc_tuple(2);
-          Store_field(next, 0, convertStringList(ptr.to_certinfo->certinfo[i]));
+          Store_field(next, 0, convertStringListNoFree(ptr.to_certinfo->certinfo[i]));
           Store_field(next, 1, current);
           current = next;
         }
