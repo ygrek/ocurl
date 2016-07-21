@@ -14,6 +14,7 @@
 #define CURL_DISABLE_TYPECHECK
 #include <curl/curl.h>
 
+#define CAML_NAME_SPACE
 #include <caml/alloc.h>
 #include <caml/memory.h>
 #include <caml/mlvalues.h>
@@ -21,15 +22,13 @@
 #include <caml/fail.h>
 #include <caml/unixsupport.h>
 #include <caml/custom.h>
+#include <caml/threads.h>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #else
 #pragma message("No config file given.")
 #endif
-
-void leave_blocking_section(void);
-void enter_blocking_section(void);
 
 #define Val_none Val_int(0)
 
@@ -674,7 +673,7 @@ static void raiseError(Connection *conn, CURLcode code)
     if (exception == NULL)
         caml_failwith("CurlException not registered");
 
-    raise_with_arg(*exception, exceptionData);
+    caml_raise_with_arg(*exception, exceptionData);
 
     CAMLreturn0;
 }
@@ -693,7 +692,7 @@ static Connection* allocConnection(CURL* h)
 
     connection->ocamlValues = caml_alloc(OcamlValuesSize, 0);
     resetOcamlValues(connection);
-    register_global_root(&connection->ocamlValues);
+    caml_register_global_root(&connection->ocamlValues);
 
     connection->connection = h;
 
@@ -799,9 +798,9 @@ static void removeConnection(Connection *connection, int finalization)
     }
     else
     {
-      enter_blocking_section();
+      caml_enter_blocking_section();
       curl_easy_cleanup(connection->connection);
-      leave_blocking_section();
+      caml_leave_blocking_section();
     }
 
     connection->connection = NULL;
@@ -816,7 +815,7 @@ static void removeConnection(Connection *connection, int finalization)
     if (connection->prev != NULL)
         connection->prev->next = connection->next;
 
-    remove_global_root(&connection->ocamlValues);
+    caml_remove_global_root(&connection->ocamlValues);
 
     free_if(connection->curl_URL);
     free_if(connection->curl_PROXY);
@@ -886,7 +885,7 @@ static void checkConnection(Connection *connection)
         listIter = listIter->next;
     }
 
-    failwith("Invalid Connection");
+    caml_failwith("Invalid Connection");
 }
 #endif
 
@@ -904,7 +903,7 @@ static Connection* findConnection(CURL* h)
         listIter = listIter->next;
     }
 
-    failwith("Unknown handle");
+    caml_failwith("Unknown handle");
 }
 
 void op_curl_easy_finalize(value v)
@@ -956,9 +955,9 @@ value caml_curl_alloc(Connection* conn)
 static size_t cb_##name(char *ptr, size_t size, size_t nmemb, void *data)\
 {\
     size_t result;\
-    leave_blocking_section();\
+    caml_leave_blocking_section();\
     result = cb_##name##_nolock(ptr,size,nmemb,data);\
-    enter_blocking_section();\
+    caml_enter_blocking_section();\
     return result;\
 }
 
@@ -971,12 +970,12 @@ static size_t cb_WRITEFUNCTION_nolock(char *ptr, size_t size, size_t nmemb, void
 
     checkConnection(conn);
 
-    str = alloc_string(size*nmemb);
+    str = caml_alloc_string(size*nmemb);
 
     for (i = 0; i < size*nmemb; i++)
         Byte(str, i) = ptr[i];
 
-    result = callback_exn(Field(conn->ocamlValues, Ocaml_WRITEFUNCTION), str);
+    result = caml_callback_exn(Field(conn->ocamlValues, Ocaml_WRITEFUNCTION), str);
 
     CAMLreturnT(size_t, Is_exception_result(result) ? 0 : Int_val(result));
 }
@@ -992,7 +991,7 @@ static size_t cb_READFUNCTION_nolock(void *ptr, size_t size, size_t nmemb, void 
 
     checkConnection(conn);
 
-    result = callback_exn(Field(conn->ocamlValues, Ocaml_READFUNCTION),
+    result = caml_callback_exn(Field(conn->ocamlValues, Ocaml_READFUNCTION),
                       Val_int(size*nmemb));
 
     if (Is_exception_result(result))
@@ -1000,7 +999,7 @@ static size_t cb_READFUNCTION_nolock(void *ptr, size_t size, size_t nmemb, void 
       CAMLreturnT(size_t,CURL_READFUNC_ABORT);
     }
 
-    length = string_length(result);
+    length = caml_string_length(result);
 
     if (length <= size*nmemb)
     {
@@ -1025,12 +1024,12 @@ static size_t cb_HEADERFUNCTION_nolock(char *ptr, size_t size, size_t nmemb, voi
 
     checkConnection(conn);
 
-    str = alloc_string(size*nmemb);
+    str = caml_alloc_string(size*nmemb);
 
     for (i = 0; i < size*nmemb; i++)
         Byte(str, i) = ptr[i];
 
-    result = callback_exn(Field(conn->ocamlValues, Ocaml_HEADERFUNCTION), str);
+    result = caml_callback_exn(Field(conn->ocamlValues, Ocaml_HEADERFUNCTION), str);
 
     CAMLreturnT(size_t, Is_exception_result(result) ? 0 : Int_val(result));
 }
@@ -1050,12 +1049,12 @@ static int cb_PROGRESSFUNCTION_nolock(void *data,
 
     checkConnection(conn);
 
-    callbackData[0] = copy_double(dlTotal);
-    callbackData[1] = copy_double(dlNow);
-    callbackData[2] = copy_double(ulTotal);
-    callbackData[3] = copy_double(ulNow);
+    callbackData[0] = caml_copy_double(dlTotal);
+    callbackData[1] = caml_copy_double(dlNow);
+    callbackData[2] = caml_copy_double(ulTotal);
+    callbackData[3] = caml_copy_double(ulNow);
 
-    result = callbackN_exn(Field(conn->ocamlValues, Ocaml_PROGRESSFUNCTION),
+    result = caml_callbackN_exn(Field(conn->ocamlValues, Ocaml_PROGRESSFUNCTION),
                        4, callbackData);
 
     CAMLreturnT(int, Is_exception_result(result) ? 1 : Bool_val(result));
@@ -1068,9 +1067,9 @@ static int cb_PROGRESSFUNCTION(void *data,
                             double ulNow)
 {
   int r;
-  leave_blocking_section();
+  caml_leave_blocking_section();
   r = cb_PROGRESSFUNCTION_nolock(data,dlTotal,dlNow,ulTotal,ulNow);
-  enter_blocking_section();
+  caml_enter_blocking_section();
   return r;
 }
 
@@ -1090,12 +1089,12 @@ static int cb_DEBUGFUNCTION_nolock(CURL *debugConnection,
 
     camlDebugConnection = (value)conn;
     camlInfoType = Val_long(infoType);
-    camlMessage = alloc_string(bufferLength);
+    camlMessage = caml_alloc_string(bufferLength);
 
     for (i = 0; i < bufferLength; i++)
         Byte(camlMessage, i) = buffer[i];
 
-    callback3_exn(Field(conn->ocamlValues, Ocaml_DEBUGFUNCTION),
+    caml_callback3_exn(Field(conn->ocamlValues, Ocaml_DEBUGFUNCTION),
               camlDebugConnection,
               camlInfoType,
               camlMessage);
@@ -1110,9 +1109,9 @@ static int cb_DEBUGFUNCTION(CURL *debugConnection,
                          void *data)
 {
   int r;
-  leave_blocking_section();
+  caml_leave_blocking_section();
   r = cb_DEBUGFUNCTION_nolock(debugConnection, infoType, buffer, bufferLength, data);
-  enter_blocking_section();
+  caml_enter_blocking_section();
   return r;
 }
 
@@ -1133,11 +1132,11 @@ static curlioerr cb_IOCTLFUNCTION_nolock(CURL *ioctl,
     else if (cmd == CURLIOCMD_RESTARTREAD)
         camlCmd = Val_long(1);
     else
-        failwith("Invalid IOCTL Cmd!");
+        caml_failwith("Invalid IOCTL Cmd!");
 
     camlConnection = caml_curl_alloc(conn);
 
-    camlResult = callback2_exn(Field(conn->ocamlValues, Ocaml_IOCTLFUNCTION),
+    camlResult = caml_callback2_exn(Field(conn->ocamlValues, Ocaml_IOCTLFUNCTION),
                            camlConnection,
                            camlCmd);
 
@@ -1173,9 +1172,9 @@ static curlioerr cb_IOCTLFUNCTION(CURL *ioctl,
                                void *data)
 {
   curlioerr r;
-  leave_blocking_section();
+  caml_leave_blocking_section();
   r = cb_IOCTLFUNCTION_nolock(ioctl, cmd, data);
-  enter_blocking_section();
+  caml_enter_blocking_section();
   return r;
 }
 
@@ -1188,7 +1187,7 @@ static int cb_SEEKFUNCTION_nolock(void *data,
     CAMLlocal3(camlResult, camlOffset, camlOrigin);
     Connection *conn = (Connection *)data;
 
-    camlOffset = copy_int64(offset);
+    camlOffset = caml_copy_int64(offset);
 
     if (origin == SEEK_SET)
         camlOrigin = Val_long(0);
@@ -1197,9 +1196,9 @@ static int cb_SEEKFUNCTION_nolock(void *data,
     else if (origin == SEEK_END)
         camlOrigin = Val_long(2);
     else
-        failwith("Invalid seek code");
+        caml_failwith("Invalid seek code");
 
-    camlResult = callback2_exn(Field(conn->ocamlValues,
+    camlResult = caml_callback2_exn(Field(conn->ocamlValues,
                                  Ocaml_SEEKFUNCTION),
                            camlOffset,
                            camlOrigin);
@@ -1213,7 +1212,7 @@ static int cb_SEEKFUNCTION_nolock(void *data,
       case 0: result = CURL_SEEKFUNC_OK; break;
       case 1: result = CURL_SEEKFUNC_FAIL; break;
       case 2: result = CURL_SEEKFUNC_CANTSEEK; break;
-      default: failwith("Invalid seek result");
+      default: caml_failwith("Invalid seek result");
     }
 
     CAMLreturnT(int, result);
@@ -1224,9 +1223,9 @@ static int cb_SEEKFUNCTION(void *data,
                         int origin)
 {
   int r;
-  leave_blocking_section();
+  caml_leave_blocking_section();
   r = cb_SEEKFUNCTION_nolock(data,offset,origin);
-  enter_blocking_section();
+  caml_enter_blocking_section();
   return r;
 }
 
@@ -1248,7 +1247,7 @@ static int cb_OPENSOCKETFUNCTION_nolock(void *data,
     if (-1 != sock)
     {
       /* FIXME windows */
-      result = callback_exn(Field(conn->ocamlValues, Ocaml_OPENSOCKETFUNCTION), Val_int(sock));
+      result = caml_callback_exn(Field(conn->ocamlValues, Ocaml_OPENSOCKETFUNCTION), Val_int(sock));
       if (Is_exception_result(result))
       {
         close(sock);
@@ -1264,9 +1263,9 @@ static int cb_OPENSOCKETFUNCTION(void *data,
                         struct curl_sockaddr *address)
 {
   int r;
-  leave_blocking_section();
+  caml_leave_blocking_section();
   r = cb_OPENSOCKETFUNCTION_nolock(data,purpose,address);
-  enter_blocking_section();
+  caml_enter_blocking_section();
   return r;
 }
 
@@ -1299,11 +1298,11 @@ CAMLprim value helper_curl_global_init(value initOption)
         break;
 
     default:
-        failwith("Invalid Initialization Option");
+        caml_failwith("Invalid Initialization Option");
         break;
     }
 
-    /* Keep compiler happy, we should never get here due to failwith() */
+    /* Keep compiler happy, we should never get here due to caml_failwith() */
     CAMLreturn(Val_unit);
 }
 
@@ -1513,7 +1512,7 @@ static void handle_NETRC(Connection *conn, value option)
         break;
 
     default:
-        failwith("Invalid NETRC Option");
+        caml_failwith("Invalid NETRC Option");
         break;
     }
 
@@ -1560,7 +1559,7 @@ static void handle_ENCODING(Connection *conn, value option)
         break;
 
     default:
-        failwith("Invalid Encoding Option");
+        caml_failwith("Invalid Encoding Option");
         break;
     }
 
@@ -1663,7 +1662,7 @@ static void handle_HTTPPOST(Connection *conn, value option)
         case 0: /* CURLFORM_CONTENT */
             if (Wosize_val(formItem) < 3)
             {
-                failwith("Incorrect CURLFORM_CONTENT parameters");
+                caml_failwith("Incorrect CURLFORM_CONTENT parameters");
             }
 
             if (Is_long(Field(formItem, 2)) &&
@@ -1674,11 +1673,11 @@ static void handle_HTTPPOST(Connection *conn, value option)
                              CURLFORM_COPYNAME,
                              String_val(Field(formItem, 0)),
                              CURLFORM_NAMELENGTH,
-                             string_length(Field(formItem, 0)),
+                             caml_string_length(Field(formItem, 0)),
                              CURLFORM_COPYCONTENTS,
                              String_val(Field(formItem, 1)),
                              CURLFORM_CONTENTSLENGTH,
-                             string_length(Field(formItem, 1)),
+                             caml_string_length(Field(formItem, 1)),
                              CURLFORM_END);
             }
             else if (Is_block(Field(formItem, 2)))
@@ -1690,25 +1689,25 @@ static void handle_HTTPPOST(Connection *conn, value option)
                              CURLFORM_COPYNAME,
                              String_val(Field(formItem, 0)),
                              CURLFORM_NAMELENGTH,
-                             string_length(Field(formItem, 0)),
+                             caml_string_length(Field(formItem, 0)),
                              CURLFORM_COPYCONTENTS,
                              String_val(Field(formItem, 1)),
                              CURLFORM_CONTENTSLENGTH,
-                             string_length(Field(formItem, 1)),
+                             caml_string_length(Field(formItem, 1)),
                              CURLFORM_CONTENTTYPE,
                              String_val(Field(contentType, 0)),
                              CURLFORM_END);
             }
             else
             {
-                failwith("Incorrect CURLFORM_CONTENT parameters");
+                caml_failwith("Incorrect CURLFORM_CONTENT parameters");
             }
             break;
 
         case 1: /* CURLFORM_FILECONTENT */
             if (Wosize_val(formItem) < 3)
             {
-                failwith("Incorrect CURLFORM_FILECONTENT parameters");
+                caml_failwith("Incorrect CURLFORM_FILECONTENT parameters");
             }
 
             if (Is_long(Field(formItem, 2)) &&
@@ -1719,7 +1718,7 @@ static void handle_HTTPPOST(Connection *conn, value option)
                              CURLFORM_COPYNAME,
                              String_val(Field(formItem, 0)),
                              CURLFORM_NAMELENGTH,
-                             string_length(Field(formItem, 0)),
+                             caml_string_length(Field(formItem, 0)),
                              CURLFORM_FILECONTENT,
                              String_val(Field(formItem, 1)),
                              CURLFORM_END);
@@ -1733,7 +1732,7 @@ static void handle_HTTPPOST(Connection *conn, value option)
                              CURLFORM_COPYNAME,
                              String_val(Field(formItem, 0)),
                              CURLFORM_NAMELENGTH,
-                             string_length(Field(formItem, 0)),
+                             caml_string_length(Field(formItem, 0)),
                              CURLFORM_FILECONTENT,
                              String_val(Field(formItem, 1)),
                              CURLFORM_CONTENTTYPE,
@@ -1742,14 +1741,14 @@ static void handle_HTTPPOST(Connection *conn, value option)
             }
             else
             {
-                failwith("Incorrect CURLFORM_FILECONTENT parameters");
+                caml_failwith("Incorrect CURLFORM_FILECONTENT parameters");
             }
             break;
 
         case 2: /* CURLFORM_FILE */
             if (Wosize_val(formItem) < 3)
             {
-                failwith("Incorrect CURLFORM_FILE parameters");
+                caml_failwith("Incorrect CURLFORM_FILE parameters");
             }
 
             if (Is_long(Field(formItem, 2)) &&
@@ -1760,7 +1759,7 @@ static void handle_HTTPPOST(Connection *conn, value option)
                              CURLFORM_COPYNAME,
                              String_val(Field(formItem, 0)),
                              CURLFORM_NAMELENGTH,
-                             string_length(Field(formItem, 0)),
+                             caml_string_length(Field(formItem, 0)),
                              CURLFORM_FILE,
                              String_val(Field(formItem, 1)),
                              CURLFORM_END);
@@ -1774,7 +1773,7 @@ static void handle_HTTPPOST(Connection *conn, value option)
                              CURLFORM_COPYNAME,
                              String_val(Field(formItem, 0)),
                              CURLFORM_NAMELENGTH,
-                             string_length(Field(formItem, 0)),
+                             caml_string_length(Field(formItem, 0)),
                              CURLFORM_FILE,
                              String_val(Field(formItem, 1)),
                              CURLFORM_CONTENTTYPE,
@@ -1783,14 +1782,14 @@ static void handle_HTTPPOST(Connection *conn, value option)
             }
             else
             {
-                failwith("Incorrect CURLFORM_FILE parameters");
+                caml_failwith("Incorrect CURLFORM_FILE parameters");
             }
             break;
 
         case 3: /* CURLFORM_BUFFER */
             if (Wosize_val(formItem) < 4)
             {
-                failwith("Incorrect CURLFORM_BUFFER parameters");
+                caml_failwith("Incorrect CURLFORM_BUFFER parameters");
             }
 
             if (Is_long(Field(formItem, 3)) &&
@@ -1803,13 +1802,13 @@ static void handle_HTTPPOST(Connection *conn, value option)
                              CURLFORM_COPYNAME,
                              String_val(Field(formItem, 0)),
                              CURLFORM_NAMELENGTH,
-                             string_length(Field(formItem, 0)),
+                             caml_string_length(Field(formItem, 0)),
                              CURLFORM_BUFFER,
                              String_val(Field(formItem, 1)),
                              CURLFORM_BUFFERPTR,
                              conn->httpPostBuffers->data,
                              CURLFORM_BUFFERLENGTH,
-                             string_length(Field(formItem, 2)),
+                             caml_string_length(Field(formItem, 2)),
                              CURLFORM_END);
             }
             else if (Is_block(Field(formItem, 3)))
@@ -1823,20 +1822,20 @@ static void handle_HTTPPOST(Connection *conn, value option)
                              CURLFORM_COPYNAME,
                              String_val(Field(formItem, 0)),
                              CURLFORM_NAMELENGTH,
-                             string_length(Field(formItem, 0)),
+                             caml_string_length(Field(formItem, 0)),
                              CURLFORM_BUFFER,
                              String_val(Field(formItem, 1)),
                              CURLFORM_BUFFERPTR,
                              conn->httpPostBuffers->data,
                              CURLFORM_BUFFERLENGTH,
-                             string_length(Field(formItem, 2)),
+                             caml_string_length(Field(formItem, 2)),
                              CURLFORM_CONTENTTYPE,
                              String_val(Field(contentType, 0)),
                              CURLFORM_END);
             }
             else
             {
-                failwith("Incorrect CURLFORM_BUFFER parameters");
+                caml_failwith("Incorrect CURLFORM_BUFFER parameters");
             }
             break;
         }
@@ -1883,7 +1882,7 @@ static void handle_TIMECONDITION(Connection *conn, value option)
     case 2: timecond = CURL_TIMECOND_IFUNMODSINCE; break;
     case 3: timecond = CURL_TIMECOND_LASTMOD; break;
     default:
-        failwith("Invalid TIMECOND Option");
+        caml_failwith("Invalid TIMECOND Option");
         break;
     }
 
@@ -1937,7 +1936,7 @@ static void handle_KRB4LEVEL(Connection *conn, value option)
         break;
 
     default:
-        failwith("Invalid KRB4 Option");
+        caml_failwith("Invalid KRB4 Option");
         break;
     }
 
@@ -1974,7 +1973,7 @@ static void handle_CLOSEPOLICY(Connection *conn, value option)
         break;
 
     default:
-        failwith("Invalid CLOSEPOLICY Option");
+        caml_failwith("Invalid CLOSEPOLICY Option");
         break;
     }
 
@@ -2008,7 +2007,7 @@ static void handle_SSL_VERIFYHOST(Connection *conn, value option)
         break;
 
     default:
-        failwith("Invalid SSLVERIFYHOST Option");
+        caml_failwith("Invalid SSLVERIFYHOST Option");
         break;
     }
 
@@ -2117,7 +2116,7 @@ static void handle_HTTPAUTH(Connection *conn, value option)
             break;
 
         default:
-            failwith("Invalid HTTPAUTH Value");
+            caml_failwith("Invalid HTTPAUTH Value");
             break;
         }
 
@@ -2178,7 +2177,7 @@ static void handle_PROXYAUTH(Connection *conn, value option)
             break;
 
         default:
-            failwith("Invalid HTTPAUTH Value");
+            caml_failwith("Invalid HTTPAUTH Value");
             break;
         }
 
@@ -2227,7 +2226,7 @@ static void handle_IPRESOLVE(Connection *conn, value option)
         break;
 
     default:
-        failwith("Invalid IPRESOLVE Value");
+        caml_failwith("Invalid IPRESOLVE Value");
         break;
     }
 
@@ -2291,7 +2290,7 @@ static void handle_FTP_SSL(Connection *conn, value option)
         break;
 
     default:
-        failwith("Invalid FTP_SSL Value");
+        caml_failwith("Invalid FTP_SSL Value");
         break;
     }
 
@@ -2338,7 +2337,7 @@ static void handle_FTPSSLAUTH(Connection *conn, value option)
         break;
 
     default:
-        failwith("Invalid FTPSSLAUTH value");
+        caml_failwith("Invalid FTPSSLAUTH value");
         break;
     }
 
@@ -2397,7 +2396,7 @@ static void handle_FTP_FILEMETHOD(Connection *conn, value option)
                                   CURLFTPMETHOD_SINGLECWD);
 
     default:
-        failwith("Invalid FTP_FILEMETHOD value");
+        caml_failwith("Invalid FTP_FILEMETHOD value");
         break;
     }
 
@@ -2471,7 +2470,7 @@ static void handle_SSH_AUTH_TYPES(Connection *conn, value option)
             break;
 
         default:
-            failwith("Invalid CURLSSH_AUTH_TYPES Value");
+            caml_failwith("Invalid CURLSSH_AUTH_TYPES Value");
             break;
         }
 
@@ -2524,7 +2523,7 @@ static void handle_FTP_SSL_CCC(Connection *conn, value option)
         break;
 
     default:
-        failwith("Invalid FTPSSL_CCC value");
+        caml_failwith("Invalid FTPSSL_CCC value");
         break;
     }
 
@@ -2595,7 +2594,7 @@ static void handle_PROXYTYPE(Connection *conn, value option)
       case 4: proxy_type = CURLPROXY_SOCKS4A; break;
       case 5: proxy_type = CURLPROXY_SOCKS5_HOSTNAME; break;
       default:
-        failwith("Invalid curl proxy type");
+        caml_failwith("Invalid curl proxy type");
     }
 
     result = curl_easy_setopt(conn->connection,
@@ -3194,9 +3193,9 @@ CAMLprim value helper_curl_easy_perform(value conn)
 
     checkConnection(connection);
 
-    enter_blocking_section();
+    caml_enter_blocking_section();
     result = curl_easy_perform(connection->connection);
-    leave_blocking_section();
+    caml_leave_blocking_section();
 
     if (result != CURLE_OK)
         raiseError(connection, result);
@@ -3257,7 +3256,7 @@ value convertStringList(struct curl_slist *slist)
 
     while (p != NULL)
     {
-        next = alloc_tuple(2);
+        next = caml_alloc_tuple(2);
         Store_field(next, 0, caml_copy_string(p->data));
         Store_field(next, 1, Val_int(0));
 
@@ -3668,7 +3667,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
 #endif
 
     default:
-        failwith("Invalid CURLINFO Option");
+        caml_failwith("Invalid CURLINFO Option");
         break;
     }
 
@@ -3678,22 +3677,22 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     switch (resultType)
     {
     case StringValue:
-        result = alloc(1, StringValue);
+        result = caml_alloc(1, StringValue);
         Store_field(result, 0, caml_copy_string(strValue?strValue:""));
         break;
 
     case LongValue:
-        result = alloc(1, LongValue);
+        result = caml_alloc(1, LongValue);
         Store_field(result, 0, Val_long(longValue));
         break;
 
     case DoubleValue:
-        result = alloc(1, DoubleValue);
-        Store_field(result, 0, copy_double(doubleValue));
+        result = caml_alloc(1, DoubleValue);
+        Store_field(result, 0, caml_copy_double(doubleValue));
         break;
 
     case StringListValue:
-        result = alloc(1, StringListValue);
+        result = caml_alloc(1, StringListValue);
         Store_field(result, 0, convertStringList(stringListValue));
         break;
     }
@@ -3711,7 +3710,7 @@ CAMLprim value helper_curl_escape(value str)
     CAMLlocal1(result);
     char *curlResult;
 
-    curlResult = curl_escape(String_val(str), string_length(str));
+    curlResult = curl_escape(String_val(str), caml_string_length(str));
     result = caml_copy_string(curlResult);
     free(curlResult);
 
@@ -3728,7 +3727,7 @@ CAMLprim value helper_curl_unescape(value str)
     CAMLlocal1(result);
     char *curlResult;
 
-    curlResult = curl_unescape(String_val(str), string_length(str));
+    curlResult = curl_unescape(String_val(str), caml_string_length(str));
     result = caml_copy_string(curlResult);
     free(curlResult);
 
@@ -3748,7 +3747,7 @@ CAMLprim value helper_curl_getdate(value str, value now)
 
     curlNow = (time_t)Double_val(now);
     curlResult = curl_getdate(String_val(str), &curlNow);
-    result = copy_double((double)curlResult);
+    result = caml_copy_double((double)curlResult);
 
     CAMLreturn(result);
 }
@@ -3921,7 +3920,7 @@ CAMLprim value caml_curl_multi_init(value unit)
   if (!h)
   {
     caml_stat_free(multi);
-    failwith("caml_curl_multi_init");
+    caml_failwith("caml_curl_multi_init");
   }
 
   multi->handle = h;
@@ -3945,7 +3944,7 @@ CAMLprim value caml_curl_multi_cleanup(value handle)
   caml_remove_generational_global_root(&h->values);
 
   if (CURLM_OK != curl_multi_cleanup(h->handle))
-    failwith("caml_curl_multi_cleanup");
+    caml_failwith("caml_curl_multi_cleanup");
 
   caml_stat_free(h);
   Multi_val(handle) = (ml_multi_handle*)NULL;
@@ -3967,7 +3966,7 @@ static CURL* curlm_remove_finished(CURLM* multi_handle, CURLcode* result)
       if (result) *result = msg->data.result;
       if (CURLM_OK != curl_multi_remove_handle(multi_handle, easy_handle))
       {
-        /*failwith("curlm_remove_finished");*/
+        /*caml_failwith("curlm_remove_finished");*/
       }
       return easy_handle;
     }
@@ -4068,7 +4067,7 @@ CAMLprim value caml_curl_multi_add_handle(value v_multi, value v_easy)
   {
     conn->refcount--; /* not added, revert */
     caml_leave_blocking_section();
-    failwith("caml_curl_multi_add_handle");
+    caml_failwith("caml_curl_multi_add_handle");
   }
   caml_leave_blocking_section();
 
@@ -4086,7 +4085,7 @@ CAMLprim value caml_curl_multi_remove_handle(value v_multi, value v_easy)
   if (CURLM_OK != curl_multi_remove_handle(multi, conn->connection))
   {
     caml_leave_blocking_section();
-    failwith("caml_curl_multi_remove_handle");
+    caml_failwith("caml_curl_multi_remove_handle");
   }
   conn->refcount--;
   caml_leave_blocking_section();
