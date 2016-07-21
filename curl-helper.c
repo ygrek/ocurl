@@ -24,6 +24,10 @@
 #include <caml/custom.h>
 #include <caml/threads.h>
 
+#ifndef CAMLdrop
+#define CAMLdrop caml_local_roots = caml__frame
+#endif
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #else
@@ -951,18 +955,10 @@ value caml_curl_alloc(Connection* conn)
   return v;
 }
 
-#define WRAP_DATA_CALLBACK(name) \
-static size_t cb_##name(char *ptr, size_t size, size_t nmemb, void *data)\
-{\
-    size_t result;\
-    caml_leave_blocking_section();\
-    result = cb_##name##_nolock(ptr,size,nmemb,data);\
-    caml_enter_blocking_section();\
-    return result;\
-}
-
-static size_t cb_WRITEFUNCTION_nolock(char *ptr, size_t size, size_t nmemb, void *data)
+static size_t cb_WRITEFUNCTION(char *ptr, size_t size, size_t nmemb, void *data)
 {
+    caml_leave_blocking_section();
+
     CAMLparam0();
     CAMLlocal2(result, str);
     Connection *conn = (Connection *)data;
@@ -977,13 +973,17 @@ static size_t cb_WRITEFUNCTION_nolock(char *ptr, size_t size, size_t nmemb, void
 
     result = caml_callback_exn(Field(conn->ocamlValues, Ocaml_WRITEFUNCTION), str);
 
-    CAMLreturnT(size_t, Is_exception_result(result) ? 0 : Int_val(result));
+    size_t r = Is_exception_result(result) ? 0 : Int_val(result);
+    CAMLdrop;
+
+    caml_enter_blocking_section();
+    return r;
 }
 
-WRAP_DATA_CALLBACK( WRITEFUNCTION)
-
-static size_t cb_READFUNCTION_nolock(void *ptr, size_t size, size_t nmemb, void *data)
+static size_t cb_READFUNCTION(void *ptr, size_t size, size_t nmemb, void *data)
 {
+    caml_leave_blocking_section();
+
     CAMLparam0();
     CAMLlocal1(result);
     Connection *conn = (Connection *)data;
@@ -1001,22 +1001,27 @@ static size_t cb_READFUNCTION_nolock(void *ptr, size_t size, size_t nmemb, void 
 
     length = caml_string_length(result);
 
+    size_t r;
+
     if (length <= size*nmemb)
     {
       memcpy(ptr, String_val(result), length);
-
-      CAMLreturnT(size_t,length);
+      r = length;
     }
     else
     {
-      CAMLreturnT(size_t,CURL_READFUNC_ABORT);
+      r = CURL_READFUNC_ABORT;
     }
+    CAMLdrop;
+
+    caml_enter_blocking_section();
+    return r;
 }
 
-WRAP_DATA_CALLBACK( READFUNCTION)
-
-static size_t cb_HEADERFUNCTION_nolock(char *ptr, size_t size, size_t nmemb, void *data)
+static size_t cb_HEADERFUNCTION(char *ptr, size_t size, size_t nmemb, void *data)
 {
+    caml_leave_blocking_section();
+
     CAMLparam0();
     CAMLlocal2(result,str);
     Connection *conn = (Connection *)data;
@@ -1031,17 +1036,21 @@ static size_t cb_HEADERFUNCTION_nolock(char *ptr, size_t size, size_t nmemb, voi
 
     result = caml_callback_exn(Field(conn->ocamlValues, Ocaml_HEADERFUNCTION), str);
 
-    CAMLreturnT(size_t, Is_exception_result(result) ? 0 : Int_val(result));
+    size_t r = Is_exception_result(result) ? 0 : Int_val(result);
+    CAMLdrop;
+
+    caml_enter_blocking_section();
+    return r;
 }
 
-WRAP_DATA_CALLBACK( HEADERFUNCTION)
-
-static int cb_PROGRESSFUNCTION_nolock(void *data,
+static int cb_PROGRESSFUNCTION(void *data,
                             double dlTotal,
                             double dlNow,
                             double ulTotal,
                             double ulNow)
 {
+    caml_leave_blocking_section();
+
     CAMLparam0();
     CAMLlocal1(result);
     CAMLlocalN(callbackData, 4);
@@ -1057,28 +1066,21 @@ static int cb_PROGRESSFUNCTION_nolock(void *data,
     result = caml_callbackN_exn(Field(conn->ocamlValues, Ocaml_PROGRESSFUNCTION),
                        4, callbackData);
 
-    CAMLreturnT(int, Is_exception_result(result) ? 1 : Bool_val(result));
+    int r = Is_exception_result(result) ? 1 : Bool_val(result);
+    CAMLdrop;
+
+    caml_enter_blocking_section();
+    return r;
 }
 
-static int cb_PROGRESSFUNCTION(void *data,
-                            double dlTotal,
-                            double dlNow,
-                            double ulTotal,
-                            double ulNow)
-{
-  int r;
-  caml_leave_blocking_section();
-  r = cb_PROGRESSFUNCTION_nolock(data,dlTotal,dlNow,ulTotal,ulNow);
-  caml_enter_blocking_section();
-  return r;
-}
-
-static int cb_DEBUGFUNCTION_nolock(CURL *debugConnection,
+static int cb_DEBUGFUNCTION(CURL *debugConnection,
                          curl_infotype infoType,
                          char *buffer,
                          size_t bufferLength,
                          void *data)
 {
+    caml_leave_blocking_section();
+
     CAMLparam0();
     CAMLlocal3(camlDebugConnection, camlInfoType, camlMessage);
     size_t i;
@@ -1099,26 +1101,18 @@ static int cb_DEBUGFUNCTION_nolock(CURL *debugConnection,
               camlInfoType,
               camlMessage);
 
-    CAMLreturnT(int, 0);
+    CAMLdrop;
+
+    caml_enter_blocking_section();
+    return 0;
 }
 
-static int cb_DEBUGFUNCTION(CURL *debugConnection,
-                         curl_infotype infoType,
-                         char *buffer,
-                         size_t bufferLength,
-                         void *data)
-{
-  int r;
-  caml_leave_blocking_section();
-  r = cb_DEBUGFUNCTION_nolock(debugConnection, infoType, buffer, bufferLength, data);
-  caml_enter_blocking_section();
-  return r;
-}
-
-static curlioerr cb_IOCTLFUNCTION_nolock(CURL *ioctl,
+static curlioerr cb_IOCTLFUNCTION(CURL *ioctl,
                                int cmd,
                                void *data)
 {
+    caml_leave_blocking_section();
+
     CAMLparam0();
     CAMLlocal3(camlResult, camlConnection, camlCmd);
     Connection *conn = (Connection *)data;
@@ -1163,26 +1157,19 @@ static curlioerr cb_IOCTLFUNCTION_nolock(CURL *ioctl,
         result = CURLIOE_FAILRESTART;
         break;
     }
+    CAMLdrop;
 
-    CAMLreturnT(curlioerr, result);
-}
-
-static curlioerr cb_IOCTLFUNCTION(CURL *ioctl,
-                               int cmd,
-                               void *data)
-{
-  curlioerr r;
-  caml_leave_blocking_section();
-  r = cb_IOCTLFUNCTION_nolock(ioctl, cmd, data);
-  caml_enter_blocking_section();
-  return r;
+    caml_enter_blocking_section();
+    return result;
 }
 
 #if HAVE_DECL_CURLOPT_SEEKFUNCTION
-static int cb_SEEKFUNCTION_nolock(void *data,
+static int cb_SEEKFUNCTION(void *data,
                         curl_off_t offset,
                         int origin)
 {
+    caml_leave_blocking_section();
+
     CAMLparam0();
     CAMLlocal3(camlResult, camlOffset, camlOrigin);
     Connection *conn = (Connection *)data;
@@ -1214,28 +1201,20 @@ static int cb_SEEKFUNCTION_nolock(void *data,
       case 2: result = CURL_SEEKFUNC_CANTSEEK; break;
       default: caml_failwith("Invalid seek result");
     }
+    CAMLdrop;
 
-    CAMLreturnT(int, result);
+    caml_enter_blocking_section();
+    return result;
 }
-
-static int cb_SEEKFUNCTION(void *data,
-                        curl_off_t offset,
-                        int origin)
-{
-  int r;
-  caml_leave_blocking_section();
-  r = cb_SEEKFUNCTION_nolock(data,offset,origin);
-  caml_enter_blocking_section();
-  return r;
-}
-
 #endif
 
 #if HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
-static int cb_OPENSOCKETFUNCTION_nolock(void *data,
+static int cb_OPENSOCKETFUNCTION(void *data,
                         curlsocktype purpose,
                         struct curl_sockaddr *addr)
 {
+    caml_leave_blocking_section();
+
     CAMLparam0();
     CAMLlocal1(result);
     Connection *conn = (Connection *)data;
@@ -1254,21 +1233,11 @@ static int cb_OPENSOCKETFUNCTION_nolock(void *data,
         sock = -1;
       }
     }
+    CAMLdrop;
 
-    CAMLreturnT(int, (sock == -1) ? CURL_SOCKET_BAD : sock);
+    caml_enter_blocking_section();
+    return ((sock == -1) ? CURL_SOCKET_BAD : sock);
 }
-
-static int cb_OPENSOCKETFUNCTION(void *data,
-                        curlsocktype purpose,
-                        struct curl_sockaddr *address)
-{
-  int r;
-  caml_leave_blocking_section();
-  r = cb_OPENSOCKETFUNCTION_nolock(data,purpose,address);
-  caml_enter_blocking_section();
-  return r;
-}
-
 #endif
 
 /**
@@ -4224,8 +4193,10 @@ CAMLprim value caml_curl_multi_socket_all(value v_multi)
   CAMLreturn(Val_int(still_running));
 }
 
-static int curlm_sock_cb_nolock(CURL *e, curl_socket_t sock, int what, ml_multi_handle* multi, void *sockp)
+static int curlm_sock_cb(CURL *e, curl_socket_t sock, int what, void *cbp, void *sockp)
 {
+  caml_leave_blocking_section();
+
   CAMLparam0();
   CAMLlocal2(v_what,csock);
   (void)e;
@@ -4245,19 +4216,12 @@ static int curlm_sock_cb_nolock(CURL *e, curl_socket_t sock, int what, ml_multi_
       raise_multi_error("curlm_sock_cb"); /* FIXME exception from callback */
   }
   csock=Val_socket(sock);
-  caml_callback2(Field(multi->values,curlmopt_socket_function),
+  caml_callback2(Field(((ml_multi_handle*)cbp)->values,curlmopt_socket_function),
                  csock, v_what);
+  CAMLdrop;
 
-  CAMLreturn(0);
-}
-
-static int curlm_sock_cb(CURL *e, curl_socket_t sock, int what, void *cbp, void *sockp)
-{
-  int ret;
-  caml_leave_blocking_section();
-  ret = curlm_sock_cb_nolock(e, sock, what, (ml_multi_handle*)cbp, sockp);
   caml_enter_blocking_section();
-  return ret;
+  return 0;
 }
 
 CAMLprim value caml_curl_multi_socketfunction(value v_multi, value v_cb)
@@ -4273,19 +4237,15 @@ CAMLprim value caml_curl_multi_socketfunction(value v_multi, value v_cb)
   CAMLreturn(Val_unit);
 }
 
-static void curlm_timer_cb_nolock(ml_multi_handle *multi, long timeout_ms)
-{
-  CAMLparam0();
-  caml_callback(Field(multi->values,curlmopt_timer_function), Val_long(timeout_ms));
-  CAMLreturn0;
-}
-
 static int curlm_timer_cb(CURLM *multi, long timeout_ms, void *userp)
 {
-  (void)multi;
-
   caml_leave_blocking_section();
-  curlm_timer_cb_nolock((ml_multi_handle*)userp, timeout_ms);
+
+  CAMLparam0();
+  (void)multi;
+  caml_callback(Field(((ml_multi_handle*)userp)->values,curlmopt_timer_function), Val_long(timeout_ms));
+  CAMLdrop;
+
   caml_enter_blocking_section();
   return 0;
 }
