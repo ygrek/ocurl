@@ -135,6 +135,15 @@ type curlHTTPPost =
   | CURLFORM_CONTENTTYPE of string
 *)
 
+type curlSSLVersion =
+  | SSLVERSION_DEFAULT (** attempt to figure out the remote SSL protocol version *)
+  | SSLVERSION_TLSv1 (** TLSv1.x *)
+  | SSLVERSION_SSLv2 (** SSLv2 *)
+  | SSLVERSION_SSLv3 (** SSLv3 *)
+  | SSLVERSION_TLSv1_0 (** Added in 7.34.0 *)
+  | SSLVERSION_TLSv1_1 (** Added in 7.34.0 *)
+  | SSLVERSION_TLSv1_2 (** Added in 7.34.0 *)
+
 type curlTimeCondition =
   | TIMECOND_NONE (** since 0.6.1 *)
   | TIMECOND_IFMODSINCE
@@ -323,7 +332,7 @@ type curlOption =
   | CURLOPT_POSTQUOTE of string list
   | CURLOPT_HEADERFUNCTION of (string -> int)
   | CURLOPT_COOKIEFILE of string
-  | CURLOPT_SSLVERSION of int
+  | CURLOPT_SSLVERSION of curlSSLVersion
   | CURLOPT_TIMECONDITION of curlTimeCondition
   | CURLOPT_TIMEVALUE of int32
   | CURLOPT_CUSTOMREQUEST of string
@@ -564,7 +573,7 @@ val set_quote : t -> string list -> unit
 val set_postquote : t -> string list -> unit
 val set_headerfunction: t -> (string -> int) -> unit
 val set_cookiefile : t -> string -> unit
-val set_sslversion : t -> int -> unit
+val set_sslversion : t -> curlSSLVersion -> unit
 val set_timecondition : t -> curlTimeCondition -> unit
 val set_timevalue : t -> int32 -> unit
 val set_customrequest : t -> string -> unit
@@ -760,7 +769,7 @@ class handle :
     method set_postquote : string list -> unit
     method set_headerfunction: (string -> int) -> unit
     method set_cookiefile : string -> unit
-    method set_sslversion : int -> unit
+    method set_sslversion : curlSSLVersion -> unit
     method set_timecondition : curlTimeCondition -> unit
     method set_timevalue : int32 -> unit
     method set_customrequest : string -> unit

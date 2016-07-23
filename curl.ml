@@ -127,6 +127,15 @@ type curlHTTPPost =
   | CURLFORM_CONTENTTYPE of string
 *)
 
+type curlSSLVersion =
+  | SSLVERSION_DEFAULT
+  | SSLVERSION_TLSv1
+  | SSLVERSION_SSLv2
+  | SSLVERSION_SSLv3
+  | SSLVERSION_TLSv1_0
+  | SSLVERSION_TLSv1_1
+  | SSLVERSION_TLSv1_2
+
 type curlTimeCondition =
   | TIMECOND_NONE
   | TIMECOND_IFMODSINCE
@@ -315,7 +324,7 @@ type curlOption =
   | CURLOPT_POSTQUOTE of string list
   | CURLOPT_HEADERFUNCTION of (string -> int)
   | CURLOPT_COOKIEFILE of string
-  | CURLOPT_SSLVERSION of int
+  | CURLOPT_SSLVERSION of curlSSLVersion
   | CURLOPT_TIMECONDITION of curlTimeCondition
   | CURLOPT_TIMEVALUE of int32
   | CURLOPT_CUSTOMREQUEST of string

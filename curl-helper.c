@@ -1836,10 +1836,37 @@ SETOPT_SLIST( QUOTE)
 SETOPT_SLIST( POSTQUOTE)
 
 SETOPT_STRING( COOKIEFILE)
-SETOPT_LONG( SSLVERSION)
 #if HAVE_DECL_CURLOPT_CERTINFO
 SETOPT_BOOL( CERTINFO)
 #endif
+
+static void handle_SSLVERSION(Connection *conn, value option)
+{
+    CAMLparam1(option);
+    CURLcode result = CURLE_OK;
+    int v = CURL_SSLVERSION_DEFAULT;
+
+    switch (Long_val(option))
+    {
+    case 0: v = CURL_SSLVERSION_DEFAULT; break;
+    case 1: v = CURL_SSLVERSION_TLSv1; break;
+    case 2: v = CURL_SSLVERSION_SSLv2; break;
+    case 3: v = CURL_SSLVERSION_SSLv3; break;
+    case 4: v = CURL_SSLVERSION_TLSv1_0; break;
+    case 5: v = CURL_SSLVERSION_TLSv1_1; break;
+    case 6: v = CURL_SSLVERSION_TLSv1_2; break;
+    default:
+        caml_failwith("Invalid SSLVERSION Option");
+        break;
+    }
+
+    result = curl_easy_setopt(conn->connection, CURLOPT_SSLVERSION, v);
+
+    if (result != CURLE_OK)
+        raiseError(conn, result);
+
+    CAMLreturn0;
+}
 
 static void handle_TIMECONDITION(Connection *conn, value option)
 {
