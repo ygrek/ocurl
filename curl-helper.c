@@ -3221,26 +3221,25 @@ enum GetInfoResultType {
     StringValue, LongValue, DoubleValue, StringListValue, StringListListValue,
 };
 
-value convertStringListNoFree(struct curl_slist *slist)
+value convertStringList(struct curl_slist *p)
 {
     CAMLparam0();
     CAMLlocal3(result, current, next);
-    struct curl_slist *p = slist;
 
-    result = Val_int(0);
-    current = Val_int(0);
-    next = Val_int(0);
+    result = Val_emptylist;
+    current = Val_emptylist;
+    next = Val_emptylist;
 
     while (p != NULL)
     {
         next = caml_alloc_tuple(2);
         Store_field(next, 0, caml_copy_string(p->data));
-        Store_field(next, 1, Val_int(0));
+        Store_field(next, 1, Val_emptylist);
 
-        if (result == Val_int(0))
+        if (result == Val_emptylist)
             result = next;
 
-        if (current != Val_int(0))
+        if (current != Val_emptylist)
           Store_field(current, 1, next);
 
         current = next;
@@ -3249,16 +3248,6 @@ value convertStringListNoFree(struct curl_slist *slist)
     }
 
     CAMLreturn(result);
-}
-
-value convertStringList(struct curl_slist *slist)
-{
-  CAMLparam0();
-  CAMLlocal1(result);
-  result = convertStringListNoFree(slist);
-  curl_slist_free_all(slist);
-
-  CAMLreturn(result);
 }
 
 CAMLprim value helper_curl_easy_getinfo(value conn, value option)
@@ -3272,8 +3261,8 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     double doubleValue;
     long longValue;
     struct curl_slist *stringListValue = NULL;
-    int i;
 #if HAVE_DECL_CURLINFO_CERTINFO
+    int i;
     union {
       struct curl_slist    *to_info;
       struct curl_certinfo *to_certinfo;
@@ -3673,8 +3662,8 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
           break;
 
         for (i = 0; i < ptr.to_certinfo->num_of_certs; i++) {
-          next = alloc_tuple(2);
-          Store_field(next, 0, convertStringListNoFree(ptr.to_certinfo->certinfo[i]));
+          next = caml_alloc_tuple(2);
+          Store_field(next, 0, convertStringList(ptr.to_certinfo->certinfo[i]));
           Store_field(next, 1, current);
           current = next;
         }
@@ -3710,9 +3699,11 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case StringListValue:
         result = caml_alloc(1, StringListValue);
         Store_field(result, 0, convertStringList(stringListValue));
+        curl_slist_free_all(stringListValue);
         break;
+
     case StringListListValue:
-        result = alloc(1, StringListListValue);
+        result = caml_alloc(1, StringListListValue);
         Store_field(result, 0, current);
         break;
     }
