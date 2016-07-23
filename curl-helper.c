@@ -1837,6 +1837,9 @@ SETOPT_SLIST( POSTQUOTE)
 
 SETOPT_STRING( COOKIEFILE)
 SETOPT_LONG( SSLVERSION)
+#if HAVE_DECL_CURLOPT_CERTINFO
+SETOPT_BOOL( CERTINFO)
+#endif
 
 static void handle_TIMECONDITION(Connection *conn, value option)
 {
@@ -3084,6 +3087,11 @@ CURLOptionMapping implementedOptionMap[] =
 #else
   IMM_NO(PIPEWAIT),
 #endif
+#if HAVE_DECL_CURLOPT_CERTINFO
+  IMM(CERTINFO),
+#else
+  IMM_NO(CERTINFO),
+#endif
 };
 
 static Connection *duplicateConnection(Connection *original)
@@ -3210,10 +3218,10 @@ CAMLprim value helper_curl_easy_duphandle(value conn)
  **/
 
 enum GetInfoResultType {
-    StringValue, LongValue, DoubleValue, StringListValue
+    StringValue, LongValue, DoubleValue, StringListValue, StringListListValue,
 };
 
-value convertStringList(struct curl_slist *slist)
+value convertStringListNoFree(struct curl_slist *slist)
 {
     CAMLparam0();
     CAMLlocal3(result, current, next);
@@ -3233,22 +3241,30 @@ value convertStringList(struct curl_slist *slist)
             result = next;
 
         if (current != Val_int(0))
-	    Store_field(current, 1, next);
+          Store_field(current, 1, next);
 
         current = next;
 
         p = p->next;
     }
 
-    curl_slist_free_all(slist);
-
     CAMLreturn(result);
+}
+
+value convertStringList(struct curl_slist *slist)
+{
+  CAMLparam0();
+  CAMLlocal1(result);
+  result = convertStringListNoFree(slist);
+  curl_slist_free_all(slist);
+
+  CAMLreturn(result);
 }
 
 CAMLprim value helper_curl_easy_getinfo(value conn, value option)
 {
     CAMLparam2(conn, option);
-    CAMLlocal1(result);
+    CAMLlocal3(result, current, next);
     CURLcode curlResult;
     Connection *connection = Connection_val(conn);
     enum GetInfoResultType resultType;
@@ -3256,6 +3272,13 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     double doubleValue;
     long longValue;
     struct curl_slist *stringListValue = NULL;
+    int i;
+#if HAVE_DECL_CURLINFO_CERTINFO
+    union {
+      struct curl_slist    *to_info;
+      struct curl_certinfo *to_certinfo;
+    } ptr;
+#endif
 
     checkConnection(connection);
 
@@ -3634,7 +3657,31 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
 #else
 #pragma message("libcurl does not provide CURLINFO_CONDITION_UNMET")
 #endif
+#if HAVE_DECL_CURLINFO_CERTINFO
+    case 36: /* CURLINFO_CERTINFO */
+        resultType = StringListListValue;
+        ptr.to_info = NULL;
+        curlResult = curl_easy_getinfo(connection->connection,
+                                       CURLINFO_CERTINFO,
+                                       &ptr.to_info);
 
+        result = Val_emptylist;
+        current = Val_emptylist;
+        next = Val_emptylist;
+
+        if (curlResult != CURLE_OK || !ptr.to_info)
+          break;
+
+        for (i = 0; i < ptr.to_certinfo->num_of_certs; i++) {
+          next = alloc_tuple(2);
+          Store_field(next, 0, convertStringListNoFree(ptr.to_certinfo->certinfo[i]));
+          Store_field(next, 1, current);
+          current = next;
+        }
+        break;
+#else
+#pragma message("libcurl does not provide CURLINFO_CERTINFO")
+#endif
     default:
         caml_failwith("Invalid CURLINFO Option");
         break;
@@ -3663,6 +3710,10 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case StringListValue:
         result = caml_alloc(1, StringListValue);
         Store_field(result, 0, convertStringList(stringListValue));
+        break;
+    case StringListListValue:
+        result = alloc(1, StringListListValue);
+        Store_field(result, 0, current);
         break;
     }
 

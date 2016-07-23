@@ -407,6 +407,7 @@ type curlOption =
   | CURLOPT_MAIL_FROM of string
   | CURLOPT_MAIL_RCPT of string list
   | CURLOPT_PIPEWAIT of bool
+  | CURLOPT_CERTINFO of bool
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -451,14 +452,16 @@ type curlInfo =
   | CURLINFO_LOCAL_IP
   | CURLINFO_LOCAL_PORT
   | CURLINFO_CONDITION_UNMET
+  | CURLINFO_CERTINFO
 
 type curlInfoResult =
   | CURLINFO_String of string
   | CURLINFO_Long of int
   | CURLINFO_Double of float
   | CURLINFO_StringList of string list
+  | CURLINFO_StringListList of string list list
 
-type version_info = { 
+type version_info = {
   version : string;
   number : int * int * int;
   host : string;
@@ -555,6 +558,7 @@ val set_sslkeytype : t -> string -> unit
 val set_sslkeypasswd : t -> string -> unit
 val set_sslengine : t -> string -> unit
 val set_sslenginedefault : t -> bool -> unit
+val set_certinfo : t -> bool -> unit
 val set_crlf : t -> bool -> unit
 val set_quote : t -> string list -> unit
 val set_postquote : t -> string list -> unit
@@ -692,6 +696,7 @@ val get_localport : t -> int
 (** @since 0.5.5 (libcurl 7.21.0) *)
 val get_conditionunmet : t -> bool
 (** @since 0.6.1 (libcurl 7.19.4) *)
+val get_certinfo : t -> string list list
 
 (** {2 Object interface} *)
 
@@ -749,6 +754,7 @@ class handle :
     method set_sslkeypasswd : string -> unit
     method set_sslengine : string -> unit
     method set_sslenginedefault : bool -> unit
+    method set_certinfo : bool -> unit
     method set_crlf : bool -> unit
     method set_quote : string list -> unit
     method set_postquote : string list -> unit
@@ -871,6 +877,7 @@ class handle :
     method get_localip : string
     method get_localport : int
     method get_conditionunmet : bool
+    method get_certinfo : string list list
   end
 
 (** {2 curl_multi API} *)

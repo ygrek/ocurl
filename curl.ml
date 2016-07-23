@@ -399,6 +399,7 @@ type curlOption =
   | CURLOPT_MAIL_FROM of string
   | CURLOPT_MAIL_RCPT of string list
   | CURLOPT_PIPEWAIT of bool
+  | CURLOPT_CERTINFO of bool
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -443,12 +444,14 @@ type curlInfo =
   | CURLINFO_LOCAL_IP
   | CURLINFO_LOCAL_PORT
   | CURLINFO_CONDITION_UNMET
+  | CURLINFO_CERTINFO
 
 type curlInfoResult =
   | CURLINFO_String of string
   | CURLINFO_Long of int
   | CURLINFO_Double of float
   | CURLINFO_StringList of string list
+  | CURLINFO_StringListList of string list list
 
 exception NotImplemented of string
 
@@ -666,6 +669,9 @@ let set_sslengine conn sslengine =
 
 let set_sslenginedefault conn flag =
   setopt conn (CURLOPT_SSLENGINEDEFAULT flag)
+
+let set_certinfo conn flag =
+  setopt conn (CURLOPT_CERTINFO flag)
 
 let set_crlf conn flag =
   setopt conn (CURLOPT_CRLF flag)
@@ -1054,6 +1060,11 @@ let get_httpconnectcode conn =
   |  CURLINFO_Long l -> l
   | _ -> 0
 
+let get_certinfo conn =
+  match (getinfo conn CURLINFO_CERTINFO) with
+  | CURLINFO_StringListList l -> l
+  | _ -> []
+
 let generate_auth auth =
   let result = ref [] in
     if auth land 1 != 0 then result := [CURLAUTH_BASIC];
@@ -1178,6 +1189,7 @@ class handle =
     method set_sslkeypasswd sslkeypasswd = set_sslkeypasswd conn sslkeypasswd
     method set_sslengine sslengine = set_sslengine conn sslengine
     method set_sslenginedefault flag = set_sslenginedefault conn flag
+    method set_certinfo flag = set_certinfo conn flag
     method set_crlf flag = set_crlf conn flag
     method set_quote quote = set_quote conn quote
     method set_postquote postquote = set_postquote conn postquote
@@ -1301,6 +1313,7 @@ class handle =
     method get_localip = get_localip conn
     method get_localport = get_localport conn
     method get_conditionunmet = get_conditionunmet conn
+    method get_certinfo = get_certinfo conn
 end
 
 module Multi = struct
