@@ -1,3 +1,10 @@
+0.7.8  -  6 Sep 2016
+
+    + CURLOPT_PIPEWAIT
+    + CURLOPT_CERTINFO CURLINFO_CERTINFO
+    + CURL_HTTP_VERSION_2 CURL_HTTP_VERSION_2TLS
+    * CURLOPT_SSLVERSION is now a variant type (backward-incompatible change)
+
 0.7.7  -  16 May 2016
 
     + Multi.setopt

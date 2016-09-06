@@ -26,7 +26,7 @@ Requirements
 Build
 -----
 
-Edit `Makefile.msvc` and make CURLDIR variable point 
+Edit `Makefile.msvc` and make CURLDIR variable point
 to the root directory of libcurl installation.
 Copy `config.h.windows` to `config.h`.
 
@@ -43,5 +43,5 @@ Making release
 * commit
 * ./configure && make release
 
----- 
+----
  ygrek at autistici dot org
