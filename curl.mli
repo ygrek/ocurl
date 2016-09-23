@@ -140,9 +140,9 @@ type curlSSLVersion =
   | SSLVERSION_TLSv1 (** TLSv1.x *)
   | SSLVERSION_SSLv2 (** SSLv2 *)
   | SSLVERSION_SSLv3 (** SSLv3 *)
-  | SSLVERSION_TLSv1_0 (** Added in 7.34.0 *)
-  | SSLVERSION_TLSv1_1 (** Added in 7.34.0 *)
-  | SSLVERSION_TLSv1_2 (** Added in 7.34.0 *)
+  | SSLVERSION_TLSv1_0 (** Added in libcurl 7.34.0, will request TLSv1 in previous versions *)
+  | SSLVERSION_TLSv1_1 (** Added in libcurl 7.34.0, will request TLSv1 in previous versions *)
+  | SSLVERSION_TLSv1_2 (** Added in libcurl 7.34.0, will request TLSv1 in previous versions *)
 
 type curlTimeCondition =
   | TIMECOND_NONE (** since 0.6.1 *)

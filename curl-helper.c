@@ -1840,6 +1840,18 @@ SETOPT_STRING( COOKIEFILE)
 SETOPT_BOOL( CERTINFO)
 #endif
 
+#if !defined(CURL_SSLVERSION_TLSv1_0)
+#define CURL_SSLVERSION_TLSv1_0 CURL_SSLVERSION_TLSv1
+#endif
+
+#if !defined(CURL_SSLVERSION_TLSv1_1)
+#define CURL_SSLVERSION_TLSv1_1 CURL_SSLVERSION_TLSv1
+#endif
+
+#if !defined(CURL_SSLVERSION_TLSv1_2)
+#define CURL_SSLVERSION_TLSv1_2 CURL_SSLVERSION_TLSv1
+#endif
+
 static void handle_SSLVERSION(Connection *conn, value option)
 {
     CAMLparam1(option);
