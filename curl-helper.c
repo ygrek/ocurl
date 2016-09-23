@@ -4362,7 +4362,7 @@ CAMLprim value caml_curl_multi_timeout(value v_multi)
 static void func_name(CURLM *handle, value option) \
 { \
     CAMLparam1(option); \
-    CURLcode result = CURLM_OK; \
+    CURLMcode result = CURLM_OK; \
 \
     result = curl_multi_setopt(handle, curl_option, conv_val(option)); \
 \
@@ -4386,7 +4386,7 @@ long pipeliningMap[] =
 static void handle_multi_PIPELINING(CURLM* handle, value option)
 {
   CAMLparam1(option);
-  CURLcode result = CURLM_OK;
+  CURLMcode result = CURLM_OK;
 
   long bits = convert_bit_list(pipeliningMap, sizeof(pipeliningMap) / sizeof(pipeliningMap[0]), option);
 
