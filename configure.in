@@ -2,7 +2,7 @@ dnl
 dnl ocurl autoconf input
 dnl
 
-AC_INIT(ocurl,0.7.8)
+AC_INIT(ocurl,0.7.9)
 
 AC_PROG_CC()
 
