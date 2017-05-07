@@ -127,7 +127,7 @@ typedef enum OcamlValues
 
 struct Connection
 {
-    CURL *connection;
+    CURL *handle;
 
     value ocamlValues;
 
@@ -687,7 +687,7 @@ static Connection* allocConnection(CURL* h)
     resetOcamlValues(connection);
     caml_register_global_root(&connection->ocamlValues);
 
-    connection->connection = h;
+    connection->handle = h;
     curl_easy_setopt(h, CURLOPT_PRIVATE, connection);
 
     connection->refcount = 0;
@@ -759,7 +759,7 @@ static void removeConnection(Connection *connection, int finalization)
 {
     const char* fin_url = NULL;
 
-    if (!connection->connection)
+    if (!connection->handle)
     {
       return; /* already cleaned up */
     }
@@ -767,21 +767,21 @@ static void removeConnection(Connection *connection, int finalization)
     if (finalization)
     {
       /* cannot engage OCaml runtime at finalization, just report leak */
-      if (CURLE_OK != curl_easy_getinfo(connection->connection, CURLINFO_EFFECTIVE_URL, &fin_url) || NULL == fin_url)
+      if (CURLE_OK != curl_easy_getinfo(connection->handle, CURLINFO_EFFECTIVE_URL, &fin_url) || NULL == fin_url)
       {
         fin_url = "unknown";
       }
-      fprintf(stderr,"Curl: handle %p leaked, conn %p, url %s\n", connection->connection, connection, fin_url);
+      fprintf(stderr,"Curl: handle %p leaked, conn %p, url %s\n", connection->handle, connection, fin_url);
       fflush(stderr);
     }
     else
     {
       caml_enter_blocking_section();
-      curl_easy_cleanup(connection->connection);
+      curl_easy_cleanup(connection->handle);
       caml_leave_blocking_section();
     }
 
-    connection->connection = NULL;
+    connection->handle = NULL;
 
     caml_remove_global_root(&connection->ocamlValues);
 
@@ -852,7 +852,7 @@ static void checkConnection(Connection * connection)
 #else
 static void checkConnection(Connection *connection)
 {
-  if (connection != getConnection(connection->connection))
+  if (connection != getConnection(connection->handle))
   {
     caml_failwith("Invalid Connection");
   }
@@ -1256,7 +1256,7 @@ CAMLprim value helper_curl_easy_reset(value conn)
     Connection *connection = Connection_val(conn);
 
     checkConnection(connection);
-    curl_easy_reset(connection->connection);
+    curl_easy_reset(connection->handle);
     resetOcamlValues(connection);
 
     CAMLreturn(Val_unit);
@@ -1272,9 +1272,9 @@ static void handle_##name##FUNCTION(Connection *conn, value option) \
     CAMLparam1(option); \
     CURLcode result = CURLE_OK; \
     Store_field(conn->ocamlValues, Ocaml_##name##FUNCTION, option); \
-    result = curl_easy_setopt(conn->connection, CURLOPT_##name##FUNCTION, cb_##name##FUNCTION); \
+    result = curl_easy_setopt(conn->handle, CURLOPT_##name##FUNCTION, cb_##name##FUNCTION); \
     if (result != CURLE_OK) raiseError(conn, result); \
-    result = curl_easy_setopt(conn->connection, CURLOPT_##name##DATA, conn); \
+    result = curl_easy_setopt(conn->handle, CURLOPT_##name##DATA, conn); \
     if (result != CURLE_OK) raiseError(conn, result); \
     CAMLreturn0; \
 }
@@ -1314,7 +1314,7 @@ static void handle_slist(Connection *conn, struct curl_slist** slist, OcamlValue
         option = Field(option, 1);
     }
 
-    result = curl_easy_setopt(conn->connection, curl_option, *slist);
+    result = curl_easy_setopt(conn->handle, curl_option, *slist);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -1355,7 +1355,7 @@ static void handle_##name(Connection *conn, value option) \
 \
     conn->curl_##name = strdup(String_val(option)); \
 \
-    result = curl_easy_setopt(conn->connection, CURLOPT_##name, conn->curl_##name); \
+    result = curl_easy_setopt(conn->handle, CURLOPT_##name, conn->curl_##name); \
 \
     if (result != CURLE_OK) \
         raiseError(conn, result); \
@@ -1369,7 +1369,7 @@ static void func_name(Connection *conn, value option) \
     CAMLparam1(option); \
     CURLcode result = CURLE_OK; \
 \
-    result = curl_easy_setopt(conn->connection, curl_option, conv_val(option)); \
+    result = curl_easy_setopt(conn->handle, curl_option, conv_val(option)); \
 \
     if (result != CURLE_OK) \
         raiseError(conn, result); \
@@ -1434,7 +1434,7 @@ static void handle_NETRC(Connection *conn, value option)
         break;
     }
 
-    result = curl_easy_setopt(conn->connection,
+    result = curl_easy_setopt(conn->handle,
                               CURLOPT_NETRC,
                               netrc);
 
@@ -1453,25 +1453,25 @@ static void handle_ENCODING(Connection *conn, value option)
     switch (Long_val(option))
     {
     case 0: /* CURL_ENCODING_NONE */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_ENCODING,
                                   "identity");
         break;
 
     case 1: /* CURL_ENCODING_DEFLATE */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_ENCODING,
                                   "deflate");
         break;
 
     case 2: /* CURL_ENCODING_GZIP */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_ENCODING,
                                   "gzip");
         break;
 
     case 3: /* CURL_ENCODING_ANY */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_ENCODING,
                                   "");
         break;
@@ -1508,7 +1508,7 @@ static void handle_ERRORBUFFER(Connection *conn, value option)
 
     conn->curl_ERRORBUFFER = malloc(sizeof(char) * CURL_ERROR_SIZE);
 
-    result = curl_easy_setopt(conn->connection,
+    result = curl_easy_setopt(conn->handle,
                               CURLOPT_ERRORBUFFER,
                               conn->curl_ERRORBUFFER);
 
@@ -1532,7 +1532,7 @@ static void handle_POSTFIELDS(Connection *conn, value option)
 
     conn->curl_POSTFIELDS = strdup_ml(option);
 
-    result = curl_easy_setopt(conn->connection,
+    result = curl_easy_setopt(conn->handle,
                               CURLOPT_POSTFIELDS,
                               conn->curl_POSTFIELDS);
 
@@ -1761,7 +1761,7 @@ static void handle_HTTPPOST(Connection *conn, value option)
         listIter = Field(listIter, 1);
     }
 
-    result = curl_easy_setopt(conn->connection,
+    result = curl_easy_setopt(conn->handle,
                               CURLOPT_HTTPPOST,
                               conn->httpPostFirst);
 
@@ -1826,7 +1826,7 @@ static void handle_SSLVERSION(Connection *conn, value option)
         break;
     }
 
-    result = curl_easy_setopt(conn->connection, CURLOPT_SSLVERSION, v);
+    result = curl_easy_setopt(conn->handle, CURLOPT_SSLVERSION, v);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -1851,7 +1851,7 @@ static void handle_TIMECONDITION(Connection *conn, value option)
         break;
     }
 
-    result = curl_easy_setopt(conn->connection, CURLOPT_TIMECONDITION, timecond);
+    result = curl_easy_setopt(conn->handle, CURLOPT_TIMECONDITION, timecond);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -1871,31 +1871,31 @@ static void handle_KRB4LEVEL(Connection *conn, value option)
     switch (Long_val(option))
     {
     case 0: /* KRB4_NONE */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_KRB4LEVEL,
                                   NULL);
         break;
 
     case 1: /* KRB4_CLEAR */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_KRB4LEVEL,
                                   "clear");
         break;
 
     case 2: /* KRB4_SAFE */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_KRB4LEVEL,
                                   "safe");
         break;
 
     case 3: /* KRB4_CONFIDENTIAL */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_KRB4LEVEL,
                                   "confidential");
         break;
 
     case 4: /* KRB4_PRIVATE */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_KRB4LEVEL,
                                   "private");
         break;
@@ -1926,13 +1926,13 @@ static void handle_CLOSEPOLICY(Connection *conn, value option)
     switch (Long_val(option))
     {
     case 0: /* CLOSEPOLICY_OLDEST */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_CLOSEPOLICY,
                                   CURLCLOSEPOLICY_OLDEST);
         break;
 
     case 1: /* CLOSEPOLICY_LEAST_RECENTLY_USED */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_CLOSEPOLICY,
                                   CURLCLOSEPOLICY_LEAST_RECENTLY_USED);
         break;
@@ -1965,7 +1965,7 @@ static void handle_SSL_VERIFYHOST(Connection *conn, value option)
     case 0: /* SSLVERIFYHOST_NONE */
     case 1: /* SSLVERIFYHOST_EXISTENCE */
     case 2: /* SSLVERIFYHOST_HOSTNAME */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_SSL_VERIFYHOST,
                                   /* map EXISTENCE to HOSTNAME */
                                   Long_val(option) == 0 ? 0 : 2);
@@ -2014,7 +2014,7 @@ static void handle_HTTP_VERSION(Connection *conn, value option)
       break;
     }
 
-    result = curl_easy_setopt(conn->connection, CURLOPT_HTTP_VERSION, version);
+    result = curl_easy_setopt(conn->handle, CURLOPT_HTTP_VERSION, version);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -2091,7 +2091,7 @@ static void handle_HTTPAUTH(Connection *conn, value option)
         listIter = Field(listIter, 1);
     }
 
-    result = curl_easy_setopt(conn->connection,
+    result = curl_easy_setopt(conn->handle,
                               CURLOPT_HTTPAUTH,
                               auth);
 
@@ -2152,7 +2152,7 @@ static void handle_PROXYAUTH(Connection *conn, value option)
         listIter = Field(listIter, 1);
     }
 
-    result = curl_easy_setopt(conn->connection,
+    result = curl_easy_setopt(conn->handle,
                               CURLOPT_PROXYAUTH,
                               auth);
 
@@ -2176,19 +2176,19 @@ static void handle_IPRESOLVE(Connection *conn, value option)
     switch (Long_val(option))
     {
     case 0: /* CURL_IPRESOLVE_WHATEVER */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_IPRESOLVE,
                                   CURL_IPRESOLVE_WHATEVER);
         break;
 
     case 1: /* CURL_IPRESOLVE_V4 */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_IPRESOLVE,
                                   CURL_IPRESOLVE_V4);
         break;
 
     case 2: /* CURL_IPRESOLVE_V6 */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_IPRESOLVE,
                                   CURL_IPRESOLVE_V6);
         break;
@@ -2234,25 +2234,25 @@ static void handle_FTP_SSL(Connection *conn, value option)
     switch (Long_val(option))
     {
     case 0: /* CURLFTPSSL_NONE */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_FTP_SSL,
                                   CURLFTPSSL_NONE);
         break;
 
     case 1: /* CURLFTPSSL_TRY */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_FTP_SSL,
                                   CURLFTPSSL_TRY);
         break;
 
     case 2: /* CURLFTPSSL_CONTROL */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_FTP_SSL,
                                   CURLFTPSSL_CONTROL);
         break;
 
     case 3: /* CURLFTPSSL_ALL */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_FTP_SSL,
                                   CURLFTPSSL_ALL);
         break;
@@ -2287,19 +2287,19 @@ static void handle_FTPSSLAUTH(Connection *conn, value option)
     switch (Long_val(option))
     {
     case 0: /* CURLFTPAUTH_DEFAULT */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_FTPSSLAUTH,
                                   CURLFTPAUTH_DEFAULT);
         break;
 
     case 1: /* CURLFTPAUTH_SSL */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_FTPSSLAUTH,
                                   CURLFTPAUTH_SSL);
         break;
 
     case 2: /* CURLFTPAUTH_TLS */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_FTPSSLAUTH,
                                   CURLFTPAUTH_TLS);
         break;
@@ -2341,25 +2341,25 @@ static void handle_FTP_FILEMETHOD(Connection *conn, value option)
     switch (Long_val(option))
     {
     case 0: /* CURLFTPMETHOD_DEFAULT */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_FTP_FILEMETHOD,
                                   CURLFTPMETHOD_DEFAULT);
         break;
 
     case 1: /* CURLFTMETHOD_MULTICWD */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_FTP_FILEMETHOD,
                                   CURLFTPMETHOD_MULTICWD);
         break;
 
     case 2: /* CURLFTPMETHOD_NOCWD */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_FTP_FILEMETHOD,
                                   CURLFTPMETHOD_NOCWD);
         break;
 
     case 3: /* CURLFTPMETHOD_SINGLECWD */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_FTP_FILEMETHOD,
                                   CURLFTPMETHOD_SINGLECWD);
 
@@ -2445,7 +2445,7 @@ static void handle_SSH_AUTH_TYPES(Connection *conn, value option)
         listIter = Field(listIter, 1);
     }
 
-    result = curl_easy_setopt(conn->connection,
+    result = curl_easy_setopt(conn->handle,
                               CURLOPT_SSH_AUTH_TYPES,
                               authTypes);
 
@@ -2473,19 +2473,19 @@ static void handle_FTP_SSL_CCC(Connection *conn, value option)
     switch (Long_val(option))
     {
     case 0: /* CURLFTPSSL_CCC_NONE */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_FTP_SSL_CCC,
                                   CURLFTPSSL_CCC_NONE);
         break;
 
     case 1: /* CURLFTPSSL_CCC_PASSIVE */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_FTP_SSL_CCC,
                                   CURLFTPSSL_CCC_PASSIVE);
         break;
 
     case 2: /* CURLFTPSSL_CCC_ACTIVE */
-        result = curl_easy_setopt(conn->connection,
+        result = curl_easy_setopt(conn->handle,
                                   CURLOPT_FTP_SSL_CCC,
                                   CURLFTPSSL_CCC_ACTIVE);
         break;
@@ -2565,7 +2565,7 @@ static void handle_PROXYTYPE(Connection *conn, value option)
         caml_failwith("Invalid curl proxy type");
     }
 
-    result = curl_easy_setopt(conn->connection,
+    result = curl_easy_setopt(conn->handle,
                               CURLOPT_PROXYTYPE,
                               proxy_type);
 
@@ -2662,7 +2662,7 @@ static void handle_PROTOCOLSOPTION(CURLoption curlopt, Connection *conn, value o
     CURLcode result = CURLE_OK;
     long bits = convert_bit_list(protoMap, sizeof(protoMap) / sizeof(protoMap[0]), option);
 
-    result = curl_easy_setopt(conn->connection, curlopt, bits);
+    result = curl_easy_setopt(conn->handle, curlopt, bits);
 
     if (result != CURLE_OK)
         raiseError(conn, result);
@@ -3094,7 +3094,7 @@ static Connection *duplicateConnection(Connection *original)
     CURLOptionMapping* this = NULL;
 
     caml_enter_blocking_section();
-    h  = curl_easy_duphandle(original->connection);
+    h  = curl_easy_duphandle(original->handle);
     caml_leave_blocking_section();
 
     connection = allocConnection(h);
@@ -3163,7 +3163,7 @@ CAMLprim value helper_curl_easy_perform(value conn)
     checkConnection(connection);
 
     caml_enter_blocking_section();
-    result = curl_easy_perform(connection->connection);
+    result = curl_easy_perform(connection->handle);
     caml_leave_blocking_section();
 
     if (result != CURLE_OK)
@@ -3270,7 +3270,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 0: /* CURLINFO_EFFECTIVE_URL */
         resultType = StringValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_EFFECTIVE_URL,
                                        &strValue);
         break;
@@ -3284,13 +3284,13 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
 #if HAVE_DECL_CURLINFO_RESPONSE_CODE
         resultType = LongValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_RESPONSE_CODE,
                                        &longValue);
 #else
         resultType = LongValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_HTTP_CODE,
                                        &longValue);
 #endif
@@ -3301,7 +3301,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 3: /* CURLINFO_TOTAL_TIME */
         resultType = DoubleValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_TOTAL_TIME,
                                        &doubleValue);
         break;
@@ -3311,7 +3311,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 4: /* CURLINFO_NAMELOOKUP_TIME */
         resultType = DoubleValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_NAMELOOKUP_TIME,
                                        &doubleValue);
         break;
@@ -3321,7 +3321,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 5: /* CURLINFO_CONNECT_TIME */
         resultType = DoubleValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_CONNECT_TIME,
                                        &doubleValue);
         break;
@@ -3331,7 +3331,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 6: /* CURLINFO_PRETRANSFER_TIME */
         resultType = DoubleValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_PRETRANSFER_TIME,
                                        &doubleValue);
         break;
@@ -3341,7 +3341,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 7: /* CURLINFO_SIZE_UPLOAD */
         resultType = DoubleValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_SIZE_UPLOAD,
                                        &doubleValue);
         break;
@@ -3351,7 +3351,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 8: /* CURLINFO_SIZE_DOWNLOAD */
         resultType = DoubleValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_SIZE_DOWNLOAD,
                                        &doubleValue);
         break;
@@ -3361,7 +3361,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 9: /* CURLINFO_SPEED_DOWNLOAD */
         resultType = DoubleValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_SPEED_DOWNLOAD,
                                        &doubleValue);
         break;
@@ -3371,7 +3371,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 10: /* CURLINFO_SPEED_UPLOAD */
         resultType = DoubleValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_SPEED_UPLOAD,
                                        &doubleValue);
         break;
@@ -3382,7 +3382,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 11: /* CURLINFO_HEADER_SIZE */
         resultType = LongValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_HEADER_SIZE,
                                        &longValue);
         break;
@@ -3392,7 +3392,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 12: /* CURLINFO_REQUEST_SIZE */
         resultType = LongValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_REQUEST_SIZE,
                                        &longValue);
         break;
@@ -3402,7 +3402,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 13: /* CURLINFO_SSL_VERIFYRESULT */
         resultType = LongValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_SSL_VERIFYRESULT,
                                        &longValue);
         break;
@@ -3412,7 +3412,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 14: /* CURLINFO_FILETIME */
         resultType = DoubleValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_FILETIME,
                                        &longValue);
 
@@ -3424,7 +3424,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 15: /* CURLINFO_CONTENT_LENGTH_DOWNLOAD */
         resultType = DoubleValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_CONTENT_LENGTH_DOWNLOAD,
                                        &doubleValue);
         break;
@@ -3434,7 +3434,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 16: /* CURLINFO_CONTENT_LENGTH_UPLOAD */
         resultType = DoubleValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_CONTENT_LENGTH_UPLOAD,
                                        &doubleValue);
         break;
@@ -3444,7 +3444,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 17: /* CURLINFO_STARTTRANSFER_TIME */
         resultType = DoubleValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_STARTTRANSFER_TIME,
                                        &doubleValue);
         break;
@@ -3454,7 +3454,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 18: /* CURLINFO_CONTENT_TYPE */
         resultType = StringValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_CONTENT_TYPE,
                                        &strValue);
         break;
@@ -3464,7 +3464,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 19: /* CURLINFO_REDIRECT_TIME */
         resultType = DoubleValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_REDIRECT_TIME,
                                        &doubleValue);
         break;
@@ -3474,7 +3474,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 20: /* CURLINFO_REDIRECT_COUNT */
         resultType = LongValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_REDIRECT_COUNT,
                                        &longValue);
         break;
@@ -3491,7 +3491,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 22: /* CURLINFO_HTTP_CONNECTCODE */
         resultType = LongValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_HTTP_CONNECTCODE,
                                        &longValue);
         break;
@@ -3501,7 +3501,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 23: /* CURLINFO_HTTPAUTH_AVAIL */
         resultType = LongValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_HTTPAUTH_AVAIL,
                                        &longValue);
         break;
@@ -3511,7 +3511,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 24: /* CURLINFO_PROXYAUTH_AVAIL */
         resultType = LongValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_PROXYAUTH_AVAIL,
                                        &longValue);
         break;
@@ -3521,7 +3521,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 25: /* CURLINFO_OS_ERRNO */
         resultType = LongValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_OS_ERRNO,
                                        &longValue);
         break;
@@ -3531,7 +3531,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 26: /* CURLINFO_NUM_CONNECTS */
         resultType = LongValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_NUM_CONNECTS,
                                        &longValue);
         break;
@@ -3541,7 +3541,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 27: /* CURLINFO_SSL_ENGINES */
         resultType = StringListValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_SSL_ENGINES,
                                        &stringListValue);
         break;
@@ -3551,7 +3551,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 28: /* CURLINFO_COOKIELIST */
         resultType = StringListValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_COOKIELIST,
                                        &stringListValue);
         break;
@@ -3561,7 +3561,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 29: /* CURLINFO_LASTSOCKET */
         resultType = LongValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_LASTSOCKET,
                                        &longValue);
         break;
@@ -3571,7 +3571,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 30: /* CURLINFO_FTP_ENTRY_PATH */
         resultType = StringValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_FTP_ENTRY_PATH,
                                        &strValue);
         break;
@@ -3581,7 +3581,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 31: /* CURLINFO_REDIRECT_URL */
         resultType = StringValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_REDIRECT_URL,
                                        &strValue);
         break;
@@ -3593,7 +3593,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 32: /* CURLINFO_PRIMARY_IP */
         resultType = StringValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_PRIMARY_IP,
                                        &strValue);
         break;
@@ -3605,7 +3605,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 33: /* CURLINFO_LOCAL_IP */
         resultType = StringValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_LOCAL_IP,
                                        &strValue);
         break;
@@ -3617,7 +3617,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 34: /* CURLINFO_LOCAL_PORT */
         resultType = LongValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_LOCAL_PORT,
                                        &longValue);
         break;
@@ -3629,7 +3629,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 35: /* CURLINFO_CONDITION_UNMET */
         resultType = LongValue;
 
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_CONDITION_UNMET,
                                        &longValue);
         break;
@@ -3640,7 +3640,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case 36: /* CURLINFO_CERTINFO */
         resultType = StringListListValue;
         ptr.to_info = NULL;
-        curlResult = curl_easy_getinfo(connection->connection,
+        curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_CERTINFO,
                                        &ptr.to_info);
 
@@ -3867,7 +3867,7 @@ CAMLprim value caml_curl_pause(value conn, value opts)
     opts = Field(opts,1);
   }
 
-  result = curl_easy_pause(connection->connection,bitmask);
+  result = curl_easy_pause(connection->handle,bitmask);
   if (result != CURLE_OK)
     raiseError(connection, result);
 
@@ -4067,7 +4067,7 @@ CAMLprim value caml_curl_multi_add_handle(value v_multi, value v_easy)
 
   /* may invoke callbacks so need to be consistent with locks */
   caml_enter_blocking_section();
-  if (CURLM_OK != curl_multi_add_handle(multi, conn->connection))
+  if (CURLM_OK != curl_multi_add_handle(multi, conn->handle))
   {
     conn->refcount--; /* not added, revert */
     caml_leave_blocking_section();
@@ -4086,7 +4086,7 @@ CAMLprim value caml_curl_multi_remove_handle(value v_multi, value v_easy)
 
   /* may invoke callbacks so need to be consistent with locks */
   caml_enter_blocking_section();
-  if (CURLM_OK != curl_multi_remove_handle(multi, conn->connection))
+  if (CURLM_OK != curl_multi_remove_handle(multi, conn->handle))
   {
     caml_leave_blocking_section();
     caml_failwith("caml_curl_multi_remove_handle");
