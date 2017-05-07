@@ -1257,6 +1257,7 @@ CAMLprim value helper_curl_easy_reset(value conn)
 
     checkConnection(connection);
     curl_easy_reset(connection->handle);
+    curl_easy_setopt(connection->handle, CURLOPT_PRIVATE, connection);
     resetOcamlValues(connection);
 
     CAMLreturn(Val_unit);
