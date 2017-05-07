@@ -128,8 +128,6 @@ typedef enum OcamlValues
 struct Connection
 {
     CURL *connection;
-    Connection *next;
-    Connection *prev;
 
     value ocamlValues;
 
@@ -183,14 +181,6 @@ struct Connection
     char *curl_MAIL_FROM;
     struct curl_slist *curl_MAIL_RCPT;
 };
-
-struct ConnectionList
-{
-    Connection *head;
-    Connection *tail;
-};
-
-static ConnectionList connectionList = {NULL, NULL};
 
 typedef struct CURLErrorMapping CURLErrorMapping;
 
@@ -700,21 +690,6 @@ static Connection* allocConnection(CURL* h)
     connection->connection = h;
     curl_easy_setopt(h, CURLOPT_PRIVATE, connection);
 
-    connection->next = NULL;
-    connection->prev = NULL;
-
-    if (connectionList.tail == NULL)
-    {
-        connectionList.tail = connection;
-        connectionList.head = connection;
-    }
-    else
-    {
-        connection->prev = connectionList.head;
-        connectionList.head->next = connection;
-        connectionList.head = connection;
-    }
-
     connection->refcount = 0;
 
     connection->curl_URL = NULL;
@@ -808,16 +783,6 @@ static void removeConnection(Connection *connection, int finalization)
 
     connection->connection = NULL;
 
-    if (connectionList.tail == connection)
-        connectionList.tail = connectionList.tail->next;
-    if (connectionList.head == connection)
-        connectionList.head = connectionList.head->prev;
-
-    if (connection->next != NULL)
-        connection->next->prev = connection->prev;
-    if (connection->prev != NULL)
-        connection->prev->next = connection->next;
-
     caml_remove_global_root(&connection->ocamlValues);
 
     free_if(connection->curl_URL);
@@ -887,19 +852,10 @@ static void checkConnection(Connection * connection)
 #else
 static void checkConnection(Connection *connection)
 {
-    Connection *listIter;
-
-    listIter = connectionList.tail;
-
-    while (listIter != NULL)
-    {
-        if (listIter == connection)
-            return;
-
-        listIter = listIter->next;
-    }
-
+  if (connection != getConnection(connection->connection))
+  {
     caml_failwith("Invalid Connection");
+  }
 }
 #endif
 
