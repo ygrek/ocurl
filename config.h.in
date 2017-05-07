@@ -407,10 +407,6 @@
    if you don't. */
 #undef HAVE_DECL_CURLINFO_PRIMARY_IP
 
-/* Define to 1 if you have the declaration of `CURLINFO_PRIVATE', and to 0 if
-   you don't. */
-#undef HAVE_DECL_CURLINFO_PRIVATE
-
 /* Define to 1 if you have the declaration of `CURLINFO_PROXYAUTH_AVAIL', and
    to 0 if you don't. */
 #undef HAVE_DECL_CURLINFO_PROXYAUTH_AVAIL
@@ -870,10 +866,6 @@
 /* Define to 1 if you have the declaration of `CURLOPT_PREQUOTE', and to 0 if
    you don't. */
 #undef HAVE_DECL_CURLOPT_PREQUOTE
-
-/* Define to 1 if you have the declaration of `CURLOPT_PRIVATE', and to 0 if
-   you don't. */
-#undef HAVE_DECL_CURLOPT_PRIVATE
 
 /* Define to 1 if you have the declaration of `CURLOPT_PROGRESSDATA', and to 0
    if you don't. */

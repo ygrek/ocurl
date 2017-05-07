@@ -2077,9 +2077,7 @@ SETOPT_BOOL( FTP_USE_EPSV)
 SETOPT_LONG( DNS_CACHE_TIMEOUT)
 SETOPT_BOOL( DNS_USE_GLOBAL_CACHE)
 
-#if HAVE_DECL_CURLOPT_PRIVATE
 SETOPT_STRING( PRIVATE)
-#endif
 
 #if HAVE_DECL_CURLOPT_HTTP200ALIASES
 SETOPT_SLIST( HTTP200ALIASES)
@@ -2851,11 +2849,7 @@ CURLOptionMapping implementedOptionMap[] =
   IMM(DNS_CACHE_TIMEOUT),
   IMM(DNS_USE_GLOBAL_CACHE),
   MAP(DEBUGFUNCTION),
-#if HAVE_DECL_CURLOPT_PRIVATE
   MAP(PRIVATE),
-#else
-  MAP_NO(PRIVATE),
-#endif
 #if HAVE_DECL_CURLOPT_HTTP200ALIASES
   MAP(HTTP200ALIASES),
 #else
@@ -3531,7 +3525,6 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
         break;
 #endif
 
-#if HAVE_DECL_CURLINFO_PRIVATE
     case 21: /* CURLINFO_PRIVATE */
         resultType = StringValue;
 
@@ -3539,7 +3532,6 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
                                        CURLINFO_PRIVATE,
                                        &strValue);
         break;
-#endif
 
 #if HAVE_DECL_CURLINFO_HTTP_CONNECTCODE
     case 22: /* CURLINFO_HTTP_CONNECTCODE */

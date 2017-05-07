@@ -5981,19 +5981,6 @@ fi
 cat >>confdefs.h <<_ACEOF
 #define HAVE_DECL_CURLOPT_ENCODING $ac_have_decl
 _ACEOF
-ac_fn_c_check_decl "$LINENO" "CURLOPT_PRIVATE" "ac_cv_have_decl_CURLOPT_PRIVATE" "
-#include \"curl/curl.h\"
-
-"
-if test "x$ac_cv_have_decl_CURLOPT_PRIVATE" = xyes; then :
-  ac_have_decl=1
-else
-  ac_have_decl=0
-fi
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_DECL_CURLOPT_PRIVATE $ac_have_decl
-_ACEOF
 ac_fn_c_check_decl "$LINENO" "CURLOPT_HTTP200ALIASES" "ac_cv_have_decl_CURLOPT_HTTP200ALIASES" "
 #include \"curl/curl.h\"
 
@@ -6955,19 +6942,6 @@ fi
 
 cat >>confdefs.h <<_ACEOF
 #define HAVE_DECL_CURLINFO_REDIRECT_COUNT $ac_have_decl
-_ACEOF
-ac_fn_c_check_decl "$LINENO" "CURLINFO_PRIVATE" "ac_cv_have_decl_CURLINFO_PRIVATE" "
-#include \"curl/curl.h\"
-
-"
-if test "x$ac_cv_have_decl_CURLINFO_PRIVATE" = xyes; then :
-  ac_have_decl=1
-else
-  ac_have_decl=0
-fi
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_DECL_CURLINFO_PRIVATE $ac_have_decl
 _ACEOF
 ac_fn_c_check_decl "$LINENO" "CURLINFO_HTTP_CONNECTCODE" "ac_cv_have_decl_CURLINFO_HTTP_CONNECTCODE" "
 #include \"curl/curl.h\"
