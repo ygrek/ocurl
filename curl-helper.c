@@ -170,7 +170,6 @@ struct Connection
     char *curl_EGDSOCKET;
     char *curl_COOKIEJAR;
     char *curl_SSL_CIPHER_LIST;
-    char *curl_PRIVATE;
     struct curl_slist *curl_HTTP200ALIASES;
     char *curl_NETRC_FILE;
     char *curl_FTP_ACCOUNT;
@@ -751,7 +750,6 @@ static Connection* allocConnection(CURL* h)
     connection->curl_EGDSOCKET = NULL;
     connection->curl_COOKIEJAR = NULL;
     connection->curl_SSL_CIPHER_LIST = NULL;
-    connection->curl_PRIVATE = NULL;
     connection->curl_HTTP200ALIASES = NULL;
     connection->curl_NETRC_FILE = NULL;
     connection->curl_FTP_ACCOUNT = NULL;
@@ -855,7 +853,6 @@ static void removeConnection(Connection *connection, int finalization)
     free_if(connection->curl_EGDSOCKET);
     free_if(connection->curl_COOKIEJAR);
     free_if(connection->curl_SSL_CIPHER_LIST);
-    free_if(connection->curl_PRIVATE);
     free_curl_slist(connection->curl_HTTP200ALIASES);
     free_if(connection->curl_NETRC_FILE);
     free_if(connection->curl_FTP_ACCOUNT);
@@ -2077,7 +2074,12 @@ SETOPT_BOOL( FTP_USE_EPSV)
 SETOPT_LONG( DNS_CACHE_TIMEOUT)
 SETOPT_BOOL( DNS_USE_GLOBAL_CACHE)
 
-SETOPT_STRING( PRIVATE)
+static void handle_PRIVATE(Connection *conn, value option)
+{
+    CAMLparam1(option);
+    Store_field(conn->ocamlValues, Ocaml_PRIVATE, option);
+    CAMLreturn0;
+}
 
 #if HAVE_DECL_CURLOPT_HTTP200ALIASES
 SETOPT_SLIST( HTTP200ALIASES)
@@ -3257,6 +3259,7 @@ CAMLprim value helper_curl_easy_duphandle(value conn)
 
 enum GetInfoResultType {
     StringValue, LongValue, DoubleValue, StringListValue, StringListListValue,
+    OCamlValue, /* keep last - no matching OCaml CURLINFO_ constructor */
 };
 
 value convertStringList(struct curl_slist *p)
@@ -3526,11 +3529,10 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
 #endif
 
     case 21: /* CURLINFO_PRIVATE */
-        resultType = StringValue;
-
-        curlResult = curl_easy_getinfo(connection->connection,
-                                       CURLINFO_PRIVATE,
-                                       &strValue);
+        resultType = OCamlValue;
+        curlResult = CURLE_OK;
+        result = caml_alloc(1, StringValue);
+        Store_field(result, 0, Field(connection->ocamlValues, Ocaml_PRIVATE));
         break;
 
 #if HAVE_DECL_CURLINFO_HTTP_CONNECTCODE
@@ -3741,6 +3743,9 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
     case StringListListValue:
         result = caml_alloc(1, StringListListValue);
         Store_field(result, 0, current);
+        break;
+
+    case OCamlValue:
         break;
     }
 

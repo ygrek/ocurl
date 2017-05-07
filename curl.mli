@@ -361,7 +361,7 @@ type curlOption =
   | CURLOPT_DNSCACHETIMEOUT of int
   | CURLOPT_DNSUSEGLOBALCACHE of bool
   | CURLOPT_DEBUGFUNCTION of (t -> curlDebugType -> string -> unit)
-  | CURLOPT_PRIVATE of string
+  | CURLOPT_PRIVATE of string (** doesn't employ libcurl's CURLOPT_PRIVATE *)
   | CURLOPT_HTTP200ALIASES of string list
   | CURLOPT_UNRESTRICTEDAUTH of bool
   | CURLOPT_FTPUSEEPRT of bool
@@ -447,7 +447,7 @@ type curlInfo =
   | CURLINFO_CONTENT_TYPE
   | CURLINFO_REDIRECT_TIME
   | CURLINFO_REDIRECT_COUNT
-  | CURLINFO_PRIVATE
+  | CURLINFO_PRIVATE (** returns value previously set with CURLOPT_PRIVATE, doesn't employ libcurl's CURLOPT_PRIVATE *)
   | CURLINFO_HTTP_CONNECTCODE
   | CURLINFO_HTTPAUTH_AVAIL
   | CURLINFO_PROXYAUTH_AVAIL

@@ -5,8 +5,11 @@ let leak1 = 1024 * 1024
 
 let test1 () =
   let h = init () in
-  let s = String.make leak1 'c' in
-  set_httppost h [CURLFORM_CONTENT ("part", s, DEFAULT)];
+  let s1 = String.make leak1 'd' in
+  set_private h s1;
+  let s2 = String.make leak1 'c' in
+  set_httppost h [CURLFORM_CONTENT ("part", s2, DEFAULT)];
+  assert (get_private h = s1);
   cleanup h
 
 let rss () =
