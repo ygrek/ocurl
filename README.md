@@ -40,7 +40,7 @@ Making release
 ==============
 
 * Update CHANGES.txt
-* Update version in configure.in
+* Update version in configure.ac
 * autoreconf
 * commit
 * ./configure && make release
