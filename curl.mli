@@ -447,7 +447,7 @@ type curlInfo =
   | CURLINFO_CONTENT_TYPE
   | CURLINFO_REDIRECT_TIME
   | CURLINFO_REDIRECT_COUNT
-  | CURLINFO_PRIVATE (** returns value previously set with CURLOPT_PRIVATE, doesn't employ libcurl's CURLOPT_PRIVATE *)
+  | CURLINFO_PRIVATE (** returns value previously set with CURLOPT_PRIVATE, doesn't employ libcurl's CURLINFO_PRIVATE *)
   | CURLINFO_HTTP_CONNECTCODE
   | CURLINFO_HTTPAUTH_AVAIL
   | CURLINFO_PROXYAUTH_AVAIL

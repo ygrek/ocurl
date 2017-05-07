@@ -698,6 +698,7 @@ static Connection* allocConnection(CURL* h)
     caml_register_global_root(&connection->ocamlValues);
 
     connection->connection = h;
+    curl_easy_setopt(h, CURLOPT_PRIVATE, connection);
 
     connection->next = NULL;
     connection->prev = NULL;
@@ -866,6 +867,18 @@ static void removeConnection(Connection *connection, int finalization)
     free_curl_slist(connection->curl_MAIL_RCPT);
 }
 
+static Connection* getConnection(CURL* h)
+{
+  Connection* p = NULL;
+
+  if (CURLE_OK != curl_easy_getinfo(h, CURLINFO_PRIVATE, &p) || NULL == p)
+  {
+    caml_failwith("Unknown handle");
+  }
+
+  return p;
+}
+
 #if 1
 static void checkConnection(Connection * connection)
 {
@@ -889,23 +902,6 @@ static void checkConnection(Connection *connection)
     caml_failwith("Invalid Connection");
 }
 #endif
-
-static Connection* findConnection(CURL* h)
-{
-    Connection *listIter;
-
-    listIter = connectionList.tail;
-
-    while (listIter != NULL)
-    {
-        if (listIter->connection == h)
-            return listIter;
-
-        listIter = listIter->next;
-    }
-
-    caml_failwith("Unknown handle");
-}
 
 void op_curl_easy_finalize(value v)
 {
@@ -4046,7 +4042,7 @@ CAMLprim value caml_curlm_remove_finished(value v_multi)
   }
   else
   {
-    conn = findConnection(handle);
+    conn = getConnection(handle);
     if (conn->curl_ERRORBUFFER != NULL)
     {
         Store_field(Field(conn->ocamlValues, Ocaml_ERRORBUFFER), 0, caml_copy_string(conn->curl_ERRORBUFFER));
