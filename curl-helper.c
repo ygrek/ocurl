@@ -1852,6 +1852,10 @@ SETOPT_BOOL( CERTINFO)
 #define CURL_SSLVERSION_TLSv1_2 CURL_SSLVERSION_TLSv1
 #endif
 
+#if !defined(CURL_SSLVERSION_TLSv1_3)
+#define CURL_SSLVERSION_TLSv1_3 CURL_SSLVERSION_TLSv1
+#endif
+
 static void handle_SSLVERSION(Connection *conn, value option)
 {
     CAMLparam1(option);
@@ -1867,6 +1871,7 @@ static void handle_SSLVERSION(Connection *conn, value option)
     case 4: v = CURL_SSLVERSION_TLSv1_0; break;
     case 5: v = CURL_SSLVERSION_TLSv1_1; break;
     case 6: v = CURL_SSLVERSION_TLSv1_2; break;
+    case 7: v = CURL_SSLVERSION_TLSv1_3; break;
     default:
         caml_failwith("Invalid SSLVERSION Option");
         break;

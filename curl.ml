@@ -135,6 +135,7 @@ type curlSSLVersion =
   | SSLVERSION_TLSv1_0
   | SSLVERSION_TLSv1_1
   | SSLVERSION_TLSv1_2
+  | SSLVERSION_TLSv1_3
 
 type curlTimeCondition =
   | TIMECOND_NONE
