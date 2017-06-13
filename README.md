@@ -4,15 +4,12 @@ ocurl - OCaml libcurl bindings
 
 [![Build Status](https://travis-ci.org/ygrek/ocurl.svg?branch=master)](https://travis-ci.org/ygrek/ocurl) [![Build status](https://ci.appveyor.com/api/projects/status/b20uqxaeyarwy2s4/branch/master?svg=true)](https://ci.appveyor.com/project/ygrek/ocurl/branch/master)
 
-Homepage: http://ocurl.forge.ocamlcore.org
+Homepage: http://ygrek.org.ua/p/ocurl/
 
 OCaml bindings to libcurl - client-side URL transfer library,
 supporting HTTP and a multitude of other network protocols.
 This is a continuation of ocurl project by Lars Nilsson,
 previously hosted at http://ocurl.sourceforge.net/
-
-NB examples/omulti is not built by default, as it requires
-  patched ocaml-event available at http://repo.or.cz/w/ocaml-event.git
 
 Building on Windows with ocaml/msvc
 ===================================

@@ -54,7 +54,7 @@ let urls =
     "www.forth.org.ru";
     "caml.inria.fr";
     "www.mozart-oz.org";
-    "forge.ocamlcore.org";
+    "elm-lang.org";
   ]
 
 let () =
