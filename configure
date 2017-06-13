@@ -630,8 +630,8 @@ OCAML_HAS_BIN_ANNOT
 INSTALLDIR
 CURLLIBS
 ac_prefix_program
-OCAML_PKG_camlp4
-OCAML_PKG_lwt
+OCAML_PKG_lwt_ppx
+OCAML_PKG_lwt_unix
 OCAMLFIND
 OCAMLBUILD
 OCAMLDOC
@@ -4077,17 +4077,17 @@ fi
 
 
 
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for OCaml findlib package lwt" >&5
-$as_echo_n "checking for OCaml findlib package lwt... " >&6; }
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for OCaml findlib package lwt.unix" >&5
+$as_echo_n "checking for OCaml findlib package lwt.unix... " >&6; }
 
   unset found
   unset pkg
   found=no
-  for pkg in lwt  ; do
+  for pkg in lwt.unix  ; do
     if $OCAMLFIND query $pkg >/dev/null 2>/dev/null; then
       { $as_echo "$as_me:${as_lineno-$LINENO}: result: found" >&5
 $as_echo "found" >&6; }
-      OCAML_PKG_lwt=$pkg
+      OCAML_PKG_lwt_unix=$pkg
       found=yes
       break
     fi
@@ -4095,23 +4095,23 @@ $as_echo "found" >&6; }
   if test "$found" = "no" ; then
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: not found" >&5
 $as_echo "not found" >&6; }
-    OCAML_PKG_lwt=no
+    OCAML_PKG_lwt_unix=no
   fi
 
 
 
 
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for OCaml findlib package camlp4" >&5
-$as_echo_n "checking for OCaml findlib package camlp4... " >&6; }
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for OCaml findlib package lwt.ppx" >&5
+$as_echo_n "checking for OCaml findlib package lwt.ppx... " >&6; }
 
   unset found
   unset pkg
   found=no
-  for pkg in camlp4  ; do
+  for pkg in lwt.ppx  ; do
     if $OCAMLFIND query $pkg >/dev/null 2>/dev/null; then
       { $as_echo "$as_me:${as_lineno-$LINENO}: result: found" >&5
 $as_echo "found" >&6; }
-      OCAML_PKG_camlp4=$pkg
+      OCAML_PKG_lwt_ppx=$pkg
       found=yes
       break
     fi
@@ -4119,7 +4119,7 @@ $as_echo "found" >&6; }
   if test "$found" = "no" ; then
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: not found" >&5
 $as_echo "not found" >&6; }
-    OCAML_PKG_camlp4=no
+    OCAML_PKG_lwt_ppx=no
   fi
 
 

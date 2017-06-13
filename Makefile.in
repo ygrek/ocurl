@@ -35,12 +35,12 @@ CURLBCOBJS	= $(CURLOBJS:.cmx=.cmo)
 CLIBS = @CURLLIBS@
 
 TARGETS := curl.cma libcurl-helper$(EXT_LIB) dllcurl-helper$(EXT_DLL)
-ifneq (@OCAML_PKG_lwt@,no)
+ifneq (@OCAML_PKG_lwt_unix@,no)
 TARGETS += curl_lwt.cmo
 endif
 ifeq (@OCAMLBEST@,opt)
 TARGETS += curl.cmxa curl.cmx
-ifneq (@OCAML_PKG_lwt@,no)
+ifneq (@OCAML_PKG_lwt_unix@,no)
 TARGETS += curl_lwt.cmx
 endif
 endif
@@ -49,7 +49,7 @@ INSTALL_TARGETS = curl$(EXT_LIB) curl.cmi curl.mli $(TARGETS)
 ifeq (@OCAML_HAS_BIN_ANNOT@,yes)
 INSTALL_TARGETS += curl.cmt curl.cmti
 endif
-ifneq (@OCAML_PKG_lwt@,no)
+ifneq (@OCAML_PKG_lwt_unix@,no)
 INSTALL_TARGETS += curl_lwt.cmi curl_lwt.mli curl_lwt$(EXT_OBJ)
 ifeq (@OCAML_HAS_BIN_ANNOT@,yes)
 INSTALL_TARGETS += curl_lwt.cmt curl_lwt.cmti
@@ -65,20 +65,20 @@ build: all
 test: examples
 	examples/test_cb_exn
 	examples/test_memory_leaks
-ifneq (@OCAML_PKG_lwt@,no)
+ifneq (@OCAML_PKG_lwt_unix@,no)
 	examples/test_lwt_unit
 endif
 ifeq (@OCAMLBEST@,opt)
 	examples/test_cb_exn.opt
 	examples/test_memory_leaks.opt
-ifneq (@OCAML_PKG_lwt@,no)
+ifneq (@OCAML_PKG_lwt_unix@,no)
 	examples/test_lwt_unit.opt
 endif
 endif
 
 doc:
 		mkdir -p doc
-ifneq (@OCAML_PKG_lwt@,no)
+ifneq (@OCAML_PKG_lwt_unix@,no)
 		ocamlfind ocamldoc -html -d doc -package lwt curl.mli curl_lwt.mli
 else
 		ocamldoc -html -d doc curl.mli

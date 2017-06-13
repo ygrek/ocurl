@@ -37,17 +37,15 @@ let get url =
   let h = Curl.init () in
   Curl.set_url h url;
   curl_setup_simple h;
-  try_lwt (* e.g. Canceled *)
-    lwt (code,_body) = download h in
+  begin try%lwt (* e.g. Canceled *)
+    let%lwt (code,_body) = download h in
     log_curl h code;
     Lwt.return ()
     (* do something with body *)
   with exn ->
     printfn "EXN %s URL: %s" (Printexc.to_string exn) url;
     Lwt.fail exn
-  finally
-    Curl.cleanup h;
-    Lwt.return ()
+  end[%lwt.finally Curl.cleanup h; Lwt.return ()]
 
 let urls =
   [

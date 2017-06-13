@@ -20,8 +20,8 @@ AC_PROG_INSTALL()
 AC_PROG_OCAML()
 AC_PROG_FINDLIB()
 
-AC_CHECK_OCAML_PKG([lwt])
-AC_CHECK_OCAML_PKG([camlp4])
+AC_CHECK_OCAML_PKG([lwt.unix])
+AC_CHECK_OCAML_PKG([lwt.ppx])
 
 INSTALLDIR=$OCAMLLIB/curl
 
@@ -31,8 +31,8 @@ AC_SUBST(CURLLIBS)
 AC_SUBST(OCAMLLIB)
 AC_SUBST(INSTALLDIR)
 AC_SUBST(OCAMLFIND)
-AC_SUBST(OCAML_PKG_lwt)
-AC_SUBST(OCAML_PKG_camlp4)
+AC_SUBST(OCAML_PKG_lwt_unix)
+AC_SUBST(OCAML_PKG_lwt_ppx)
 
 AS_IF([test "$OCAMLFIND" == "no"],
 [$OCAMLC -I +compiler-libs ocamlcommon.cma print_ext.ml -o print_ext],
