@@ -9,12 +9,17 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <caml/config.h>
+#ifdef HAS_UNISTD
 #include <unistd.h>
+#endif
 /* suppress false gcc warning on seekFunction */
 #define CURL_DISABLE_TYPECHECK
 #include <curl/curl.h>
 
+#ifndef CAML_NAME_SPACE
 #define CAML_NAME_SPACE
+#endif
 #include <caml/alloc.h>
 #include <caml/memory.h>
 #include <caml/mlvalues.h>
@@ -32,6 +37,10 @@
 #include "config.h"
 #else
 #pragma message("No config file given.")
+#endif
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 #define Val_none Val_int(0)
@@ -593,7 +602,7 @@ CURLErrorMapping errorMap[] =
 #else
     {"CURLE_AGAIN", -1},
 #endif
-    {NULL, 0}
+    {NULL, (CURLcode)0}
 };
 
 typedef struct CURLOptionMapping CURLOptionMapping;
@@ -608,7 +617,7 @@ struct CURLOptionMapping
 static char* strdup_ml(value v)
 {
   char* p = NULL;
-  p = malloc(caml_string_length(v)+1);
+  p = (char*)malloc(caml_string_length(v)+1);
   memcpy(p,String_val(v),caml_string_length(v)+1); // caml strings have terminating zero
   return p;
 }
@@ -617,7 +626,7 @@ static char* strdup_ml(value v)
 static struct curl_slist* curl_slist_prepend_ml(struct curl_slist* list, value v)
 {
   /* FIXME check NULLs */
-  struct curl_slist* new_item = malloc(sizeof(struct curl_slist));
+  struct curl_slist* new_item = (struct curl_slist*)malloc(sizeof(struct curl_slist));
 
   new_item->next = list;
   new_item->data = strdup_ml(v);
@@ -1507,7 +1516,7 @@ static void handle_ERRORBUFFER(Connection *conn, value option)
     if (conn->curl_ERRORBUFFER != NULL)
         free(conn->curl_ERRORBUFFER);
 
-    conn->curl_ERRORBUFFER = malloc(sizeof(char) * CURL_ERROR_SIZE);
+    conn->curl_ERRORBUFFER = (char*)malloc(sizeof(char) * CURL_ERROR_SIZE);
 
     result = curl_easy_setopt(conn->handle,
                               CURLOPT_ERRORBUFFER,
@@ -2712,8 +2721,8 @@ SETOPT_BOOL( PIPEWAIT)
 
 #define MAP(name) { handle_ ## name, "CURLOPT_"#name, Ocaml_##name }
 #define MAP_NO(name) { NULL, "CURLOPT_"#name , Ocaml_##name }
-#define IMM(name) { handle_ ## name, "CURLOPT_"#name, -1 }
-#define IMM_NO(name) { NULL, "CURLOPT_"#name , -1 }
+#define IMM(name) { handle_ ## name, "CURLOPT_"#name, (OcamlValue)(-1) }
+#define IMM_NO(name) { NULL, "CURLOPT_"#name , (OcamlValue)(-1) }
 
 CURLOptionMapping implementedOptionMap[] =
 {
@@ -3092,7 +3101,7 @@ static Connection *duplicateConnection(Connection *original)
     Connection *connection = NULL;
     CURL* h = NULL;
     size_t i = 0;
-    CURLOptionMapping* this = NULL;
+    CURLOptionMapping* self = NULL;
 
     caml_enter_blocking_section();
     h  = curl_easy_duphandle(original->handle);
@@ -3102,11 +3111,11 @@ static Connection *duplicateConnection(Connection *original)
 
     for (i = 0; i < sizeof(implementedOptionMap)/sizeof(CURLOptionMapping); i++)
     {
-      this = &implementedOptionMap[i];
-      if (-1 == this->ocamlValue) continue;
-      if (this->optionHandler && (Field(original->ocamlValues, this->ocamlValue) != Val_unit))
+      self = &implementedOptionMap[i];
+      if (-1 == self->ocamlValue) continue;
+      if (self->optionHandler && (Field(original->ocamlValues, self->ocamlValue) != Val_unit))
       {
-        this->optionHandler(connection, Field(original->ocamlValues, this->ocamlValue));
+        self->optionHandler(connection, Field(original->ocamlValues, self->ocamlValue));
       }
     }
 
@@ -4114,7 +4123,7 @@ CAMLprim value caml_curl_multi_perform_all(value v_multi)
 CAMLprim value helper_curl_easy_strerror(value v_code)
 {
   CAMLparam1(v_code);
-  CAMLreturn(caml_copy_string(curl_easy_strerror(Int_val(v_code))));
+  CAMLreturn(caml_copy_string(curl_easy_strerror((CURLcode)Int_val(v_code))));
 }
 
 /*
@@ -4428,3 +4437,7 @@ CAMLprim value caml_curl_multi_setopt(value v_multi, value option)
 
     CAMLreturn(Val_unit);
 }
+
+#ifdef __cplusplus
+}
+#endif
