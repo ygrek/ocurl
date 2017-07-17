@@ -21,6 +21,7 @@ FLAGS=
 
 CFLAGS=
 CURLINCDIR=$(CURLDIR)/include
+CURLLIBDIR=$(CURLDIR)/lib
 
 # PR#4783
 OCAMLMKLIB=ocamlmklib -v -ocamlc ocamlc -ocamlopt ocamlopt
@@ -30,13 +31,14 @@ CURLOBJS=curl.cmx
 CURLBCOBJS=$(CURLOBJS:.cmx=.cmo)
 
 CURLFLAGS=
-CURLCLIBS=ws2_32.lib
+CURLCLIBS=$(CURLLIBDIR)/libcurl.lib ws2_32.lib
 
 TARGETS=curl.cma curl.cmxa
 
 all:
 		@$(MAKE) -f Makefile.msvc depend
 		@$(MAKE) -f Makefile.msvc targets
+		@$(MAKE) -f Makefile.msvc examples
 
 targets:	$(TARGETS)
 

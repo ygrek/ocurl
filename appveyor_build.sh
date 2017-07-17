@@ -77,4 +77,4 @@ cp config.h.windows config.h
 
 run "Contents of ocurl/Makefile.msvc" cat Makefile.msvc
 
-run "make all" make -f Makefile.msvc targets
+run "make all" make -f Makefile.msvc all
