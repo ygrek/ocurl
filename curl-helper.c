@@ -622,6 +622,13 @@ static char* strdup_ml(value v)
   return p;
 }
 
+static value ml_copy_string(char const* p, size_t size)
+{
+  value v = caml_alloc_string(size);
+  memcpy(&Byte(v,0),p,size);
+  return v;
+}
+
 /* prepends to the beginning of list */
 static struct curl_slist* curl_slist_prepend_ml(struct curl_slist* list, value v)
 {
@@ -920,14 +927,10 @@ static size_t cb_WRITEFUNCTION(char *ptr, size_t size, size_t nmemb, void *data)
     CAMLparam0();
     CAMLlocal2(result, str);
     Connection *conn = (Connection *)data;
-    size_t i;
 
     checkConnection(conn);
 
-    str = caml_alloc_string(size*nmemb);
-
-    for (i = 0; i < size*nmemb; i++)
-        Byte(str, i) = ptr[i];
+    str = ml_copy_string(ptr,size*nmemb);
 
     result = caml_callback_exn(Field(conn->ocamlValues, Ocaml_WRITEFUNCTION), str);
 
@@ -983,14 +986,10 @@ static size_t cb_HEADERFUNCTION(char *ptr, size_t size, size_t nmemb, void *data
     CAMLparam0();
     CAMLlocal2(result,str);
     Connection *conn = (Connection *)data;
-    size_t i;
 
     checkConnection(conn);
 
-    str = caml_alloc_string(size*nmemb);
-
-    for (i = 0; i < size*nmemb; i++)
-        Byte(str, i) = ptr[i];
+    str = ml_copy_string(ptr,size*nmemb);
 
     result = caml_callback_exn(Field(conn->ocamlValues, Ocaml_HEADERFUNCTION), str);
 
@@ -1041,7 +1040,6 @@ static int cb_DEBUGFUNCTION(CURL *debugConnection,
 
     CAMLparam0();
     CAMLlocal3(camlDebugConnection, camlInfoType, camlMessage);
-    size_t i;
     Connection *conn = (Connection *)data;
     (void)debugConnection; /* not used */
 
@@ -1049,10 +1047,7 @@ static int cb_DEBUGFUNCTION(CURL *debugConnection,
 
     camlDebugConnection = (value)conn;
     camlInfoType = Val_long(infoType);
-    camlMessage = caml_alloc_string(bufferLength);
-
-    for (i = 0; i < bufferLength; i++)
-        Byte(camlMessage, i) = buffer[i];
+    camlMessage = ml_copy_string(buffer,bufferLength);
 
     caml_callback3_exn(Field(conn->ocamlValues, Ocaml_DEBUGFUNCTION),
               camlDebugConnection,
