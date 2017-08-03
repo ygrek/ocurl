@@ -1046,8 +1046,8 @@ static int cb_DEBUGFUNCTION(CURL *debugConnection,
     checkConnection(conn);
 
     camlDebugConnection = caml_curl_alloc(conn);
-    camlInfoType = Val_long(infoType);
     camlMessage = ml_copy_string(buffer,bufferLength);
+    camlInfoType = Val_long(infoType <= CURLINFO_SSL_DATA_OUT ? infoType : CURLINFO_END);
 
     caml_callback3_exn(Field(conn->ocamlValues, Ocaml_DEBUGFUNCTION),
               camlDebugConnection,
