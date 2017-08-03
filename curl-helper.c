@@ -1197,7 +1197,7 @@ static int cb_OPENSOCKETFUNCTION(void *data,
  **  curl_global_init helper function
  **/
 
-CAMLprim value helper_curl_global_init(value initOption)
+value helper_curl_global_init(value initOption)
 {
     CAMLparam1(initOption);
 
@@ -1232,7 +1232,7 @@ CAMLprim value helper_curl_global_init(value initOption)
  **  curl_global_cleanup helper function
  **/
 
-CAMLprim value helper_curl_global_cleanup(void)
+value helper_curl_global_cleanup(void)
 {
     CAMLparam0();
 
@@ -1244,7 +1244,7 @@ CAMLprim value helper_curl_global_cleanup(void)
 /**
  ** curl_easy_init helper function
  **/
-CAMLprim value helper_curl_easy_init(void)
+value helper_curl_easy_init(void)
 {
     CAMLparam0();
     CAMLlocal1(result);
@@ -1254,7 +1254,7 @@ CAMLprim value helper_curl_easy_init(void)
     CAMLreturn(result);
 }
 
-CAMLprim value helper_curl_easy_reset(value conn)
+value helper_curl_easy_reset(value conn)
 {
     CAMLparam1(conn);
     Connection *connection = Connection_val(conn);
@@ -3117,7 +3117,7 @@ static Connection *duplicateConnection(Connection *original)
     return connection;
 }
 
-CAMLprim value helper_curl_easy_setopt(value conn, value option)
+value helper_curl_easy_setopt(value conn, value option)
 {
     CAMLparam2(conn, option);
     CAMLlocal1(data);
@@ -3159,7 +3159,7 @@ CAMLprim value helper_curl_easy_setopt(value conn, value option)
  **  curl_easy_perform helper function
  **/
 
-CAMLprim value helper_curl_easy_perform(value conn)
+value helper_curl_easy_perform(value conn)
 {
     CAMLparam1(conn);
     CURLcode result = CURLE_OK;
@@ -3181,7 +3181,7 @@ CAMLprim value helper_curl_easy_perform(value conn)
  **  curl_easy_cleanup helper function
  **/
 
-CAMLprim value helper_curl_easy_cleanup(value conn)
+value helper_curl_easy_cleanup(value conn)
 {
     CAMLparam1(conn);
     Connection *connection = Connection_val(conn);
@@ -3197,7 +3197,7 @@ CAMLprim value helper_curl_easy_cleanup(value conn)
  **  curl_easy_duphandle helper function
  **/
 
-CAMLprim value helper_curl_easy_duphandle(value conn)
+value helper_curl_easy_duphandle(value conn)
 {
     CAMLparam1(conn);
     CAMLlocal1(result);
@@ -3248,7 +3248,7 @@ value convertStringList(struct curl_slist *p)
     CAMLreturn(result);
 }
 
-CAMLprim value helper_curl_easy_getinfo(value conn, value option)
+value helper_curl_easy_getinfo(value conn, value option)
 {
     CAMLparam2(conn, option);
     CAMLlocal3(result, current, next);
@@ -3713,7 +3713,7 @@ CAMLprim value helper_curl_easy_getinfo(value conn, value option)
  **  curl_escape helper function
  **/
 
-CAMLprim value helper_curl_escape(value str)
+value helper_curl_escape(value str)
 {
     CAMLparam1(str);
     CAMLlocal1(result);
@@ -3730,7 +3730,7 @@ CAMLprim value helper_curl_escape(value str)
  **  curl_unescape helper function
  **/
 
-CAMLprim value helper_curl_unescape(value str)
+value helper_curl_unescape(value str)
 {
     CAMLparam1(str);
     CAMLlocal1(result);
@@ -3747,7 +3747,7 @@ CAMLprim value helper_curl_unescape(value str)
  **  curl_getdate helper function
  **/
 
-CAMLprim value helper_curl_getdate(value str, value now)
+value helper_curl_getdate(value str, value now)
 {
     CAMLparam2(str, now);
     CAMLlocal1(result);
@@ -3765,7 +3765,7 @@ CAMLprim value helper_curl_getdate(value str, value now)
  **  curl_version helper function
  **/
 
-CAMLprim value helper_curl_version(void)
+value helper_curl_version(void)
 {
     CAMLparam0();
     CAMLlocal1(result);
@@ -3807,7 +3807,7 @@ struct CURLVersionBitsMapping versionBitsMap[] =
 #endif
 };
 
-CAMLprim value caml_curl_version_info(value unit)
+value caml_curl_version_info(value unit)
 {
   CAMLparam1(unit);
   CAMLlocal4(v, vlist, vnum, vfeatures);
@@ -3852,7 +3852,7 @@ CAMLprim value caml_curl_version_info(value unit)
   CAMLreturn(v);
 }
 
-CAMLprim value caml_curl_pause(value conn, value opts)
+value caml_curl_pause(value conn, value opts)
 {
   CAMLparam2(conn, opts);
   CAMLlocal4(v, vlist, vnum, vfeatures);
@@ -3919,7 +3919,7 @@ static struct custom_operations curl_multi_ops = {
 #endif
 };
 
-CAMLprim value caml_curl_multi_init(value unit)
+value caml_curl_multi_init(value unit)
 {
   CAMLparam1(unit);
   CAMLlocal1(v);
@@ -3942,7 +3942,7 @@ CAMLprim value caml_curl_multi_init(value unit)
   CAMLreturn(v);
 }
 
-CAMLprim value caml_curl_multi_cleanup(value handle)
+value caml_curl_multi_cleanup(value handle)
 {
   CAMLparam1(handle);
   ml_multi_handle* h = Multi_val(handle);
@@ -3982,7 +3982,7 @@ static CURL* curlm_remove_finished(CURLM* multi_handle, CURLcode* result)
   }
 }
 
-CAMLprim value caml_curlm_remove_finished(value v_multi)
+value caml_curlm_remove_finished(value v_multi)
 {
   CAMLparam1(v_multi);
   CAMLlocal2(v_easy, v_tuple);
@@ -4047,7 +4047,7 @@ static int curlm_wait_data(CURLM* multi_handle)
 	return 1;
 }
 
-CAMLprim value caml_curlm_wait_data(value v_multi)
+value caml_curlm_wait_data(value v_multi)
 {
   CAMLparam1(v_multi);
   int ret;
@@ -4060,7 +4060,7 @@ CAMLprim value caml_curlm_wait_data(value v_multi)
   CAMLreturn(Val_bool(0 == ret));
 }
 
-CAMLprim value caml_curl_multi_add_handle(value v_multi, value v_easy)
+value caml_curl_multi_add_handle(value v_multi, value v_easy)
 {
   CAMLparam2(v_multi,v_easy);
   CURLM* multi = CURLM_val(v_multi);
@@ -4083,7 +4083,7 @@ CAMLprim value caml_curl_multi_add_handle(value v_multi, value v_easy)
   CAMLreturn(Val_unit);
 }
 
-CAMLprim value caml_curl_multi_remove_handle(value v_multi, value v_easy)
+value caml_curl_multi_remove_handle(value v_multi, value v_easy)
 {
   CAMLparam2(v_multi,v_easy);
   CURLM* multi = CURLM_val(v_multi);
@@ -4102,7 +4102,7 @@ CAMLprim value caml_curl_multi_remove_handle(value v_multi, value v_easy)
   CAMLreturn(Val_unit);
 }
 
-CAMLprim value caml_curl_multi_perform_all(value v_multi)
+value caml_curl_multi_perform_all(value v_multi)
 {
   CAMLparam1(v_multi);
   int still_running = 0;
@@ -4115,7 +4115,7 @@ CAMLprim value caml_curl_multi_perform_all(value v_multi)
   CAMLreturn(Val_int(still_running));
 }
 
-CAMLprim value helper_curl_easy_strerror(value v_code)
+value helper_curl_easy_strerror(value v_code)
 {
   CAMLparam1(v_code);
   CAMLreturn(caml_copy_string(curl_easy_strerror((CURLcode)Int_val(v_code))));
@@ -4174,7 +4174,7 @@ static void check_mcode(CURLMcode code)
   raise_multi_error(s);
 }
 
-CAMLprim value caml_curl_multi_socket_action(value v_multi, value v_fd, value v_kind)
+value caml_curl_multi_socket_action(value v_multi, value v_fd, value v_kind)
 {
   CAMLparam3(v_multi, v_fd, v_kind);
   CURLM* h = CURLM_val(v_multi);
@@ -4215,7 +4215,7 @@ CAMLprim value caml_curl_multi_socket_action(value v_multi, value v_fd, value v_
   CAMLreturn(Val_int(still_running));
 }
 
-CAMLprim value caml_curl_multi_socket_all(value v_multi)
+value caml_curl_multi_socket_all(value v_multi)
 {
   CAMLparam1(v_multi);
   int still_running = 0;
@@ -4264,7 +4264,7 @@ static int curlm_sock_cb(CURL *e, curl_socket_t sock, int what, void *cbp, void 
   return 0;
 }
 
-CAMLprim value caml_curl_multi_socketfunction(value v_multi, value v_cb)
+value caml_curl_multi_socketfunction(value v_multi, value v_cb)
 {
   CAMLparam2(v_multi, v_cb);
   ml_multi_handle* multi = Multi_val(v_multi);
@@ -4290,7 +4290,7 @@ static int curlm_timer_cb(CURLM *multi, long timeout_ms, void *userp)
   return 0;
 }
 
-CAMLprim value caml_curl_multi_timerfunction(value v_multi, value v_cb)
+value caml_curl_multi_timerfunction(value v_multi, value v_cb)
 {
   CAMLparam2(v_multi, v_cb);
   ml_multi_handle* multi = Multi_val(v_multi);
@@ -4303,7 +4303,7 @@ CAMLprim value caml_curl_multi_timerfunction(value v_multi, value v_cb)
   CAMLreturn(Val_unit);
 }
 
-CAMLprim value caml_curl_multi_timeout(value v_multi)
+value caml_curl_multi_timeout(value v_multi)
 {
   CAMLparam1(v_multi);
   long ms = 0;
@@ -4397,7 +4397,7 @@ CURLMOptionMapping implementedMOptionMap[] = {
 #endif
 };
 
-CAMLprim value caml_curl_multi_setopt(value v_multi, value option)
+value caml_curl_multi_setopt(value v_multi, value option)
 {
     CAMLparam2(v_multi, option);
     CAMLlocal1(data);
