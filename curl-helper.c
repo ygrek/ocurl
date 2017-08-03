@@ -1045,7 +1045,7 @@ static int cb_DEBUGFUNCTION(CURL *debugConnection,
 
     checkConnection(conn);
 
-    camlDebugConnection = (value)conn;
+    camlDebugConnection = caml_curl_alloc(conn);
     camlInfoType = Val_long(infoType);
     camlMessage = ml_copy_string(buffer,bufferLength);
 
