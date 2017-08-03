@@ -4433,6 +4433,41 @@ value caml_curl_multi_setopt(value v_multi, value option)
     CAMLreturn(Val_unit);
 }
 
+struct used_enum
+{
+  int last_used;
+  int last;
+  char const* name;
+};
+
+#define CURL_ENUM(name,last_used) { CURL_ ## name ## _ ## last_used, CURL_ ## name ## _LAST, #name }
+
+struct used_enum check_enums[] = {
+  { CURLINFO_SSL_DATA_OUT, CURLINFO_END, "CURLINFO" },
+#if defined(CURL_HTTP_VERSION_2TLS) /* FIXME */
+  CURL_ENUM(HTTP_VERSION, 2TLS),
+#endif
+};
+
+value caml_curl_outdated_enums(value v_unit)
+{
+  CAMLparam0();
+  CAMLlocal1(v);
+  size_t i;
+
+  v = Val_emptylist;
+
+  for (i = 0; i < sizeof(check_enums) / sizeof(struct used_enum); i++)
+  {
+    if (check_enums[i].last_used + 1 != check_enums[i].last)
+    {
+      v = Val_cons(v, caml_copy_string(check_enums[i].name));
+    }
+  }
+
+  CAMLreturn(v);
+}
+
 #ifdef __cplusplus
 }
 #endif

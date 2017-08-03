@@ -24,6 +24,7 @@ examples/test_cb_exn
 examples/test_lwt
 examples/test_lwt_unit
 examples/test_memory_leaks
+examples/test_unit
 /doc
 /print_ext
 /autom4te.cache
