@@ -4,6 +4,8 @@ dnl
 
 AC_INIT(ocurl,0.7.10)
 
+MIN_LIBCURL_VERSION=7.17.0
+
 AC_PROG_CC()
 
 AC_MSG_CHECKING([for libcurl cflags])
@@ -15,6 +17,12 @@ AC_MSG_CHECKING([for libcurl libs])
 CURLLIBS=`pkg-config libcurl --libs || curl-config --libs`
 AS_IF([ test "$?" -eq 0 ],,[AC_MSG_ERROR([libcurl was not found])] )
 AC_MSG_RESULT([$CURLLIBS])
+
+AC_MSG_CHECKING([for libcurl version >= $MIN_LIBCURL_VERSION])
+LIBCURL_VERSION=`pkg-config libcurl --modversion || curl-config --version`
+(pkg-config libcurl && pkg-config libcurl --atleast-version=${MIN_LIBCURL_VERSION}) || curl-config --checkfor ${MIN_LIBCURL_VERSION}
+AS_IF([ test "$?" -eq 0 ],,[AC_MSG_ERROR([${LIBCURL_VERSION} is too old])])
+AC_MSG_RESULT([${LIBCURL_VERSION}])
 
 AC_PROG_INSTALL()
 AC_PROG_OCAML()

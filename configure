@@ -2047,6 +2047,8 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
+MIN_LIBCURL_VERSION=7.17.0
+
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -2858,6 +2860,18 @@ else
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $CURLLIBS" >&5
 $as_echo "$CURLLIBS" >&6; }
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for libcurl version >= $MIN_LIBCURL_VERSION" >&5
+$as_echo_n "checking for libcurl version >= $MIN_LIBCURL_VERSION... " >&6; }
+LIBCURL_VERSION=`pkg-config libcurl --modversion || curl-config --version`
+(pkg-config libcurl && pkg-config libcurl --atleast-version=${MIN_LIBCURL_VERSION}) || curl-config --checkfor ${MIN_LIBCURL_VERSION}
+if  test "$?" -eq 0 ; then :
+
+else
+  as_fn_error $? "${LIBCURL_VERSION} is too old" "$LINENO" 5
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${LIBCURL_VERSION}" >&5
+$as_echo "${LIBCURL_VERSION}" >&6; }
 
 ac_aux_dir=
 for ac_dir in "$srcdir" "$srcdir/.." "$srcdir/../.."; do

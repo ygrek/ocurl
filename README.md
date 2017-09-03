@@ -11,6 +11,8 @@ supporting HTTP and a multitude of other network protocols.
 This is a continuation of ocurl project by Lars Nilsson,
 previously hosted at http://ocurl.sourceforge.net/
 
+Minimum required libcurl version : 7.17.0
+
 Building on Windows with ocaml/msvc
 ===================================
 
