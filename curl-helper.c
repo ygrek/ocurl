@@ -142,52 +142,16 @@ struct Connection
 
     size_t refcount; /* number of references to this structure */
 
-    char *curl_URL;
-    char *curl_PROXY;
-    char *curl_USERPWD;
-    char *curl_PROXYUSERPWD;
-    char *curl_RANGE;
     char *curl_ERRORBUFFER;
     char *curl_POSTFIELDS;
-    int curl_POSTFIELDSIZE;
-    char *curl_REFERER;
-    char *curl_USERAGENT;
-    char *curl_FTPPORT;
-    char *curl_COOKIE;
     struct curl_slist *curl_HTTPHEADER;
     struct curl_slist *httpPostBuffers;
     struct curl_httppost *httpPostFirst;
     struct curl_httppost *httpPostLast;
     struct curl_slist *curl_RESOLVE;
-    char *curl_SSLCERT;
-    char *curl_SSLCERTTYPE;
-    char *curl_SSLCERTPASSWD;
-    char *curl_SSLKEY;
-    char *curl_SSLKEYTYPE;
-    char *curl_SSLKEYPASSWD;
-    char *curl_SSLENGINE;
     struct curl_slist *curl_QUOTE;
     struct curl_slist *curl_POSTQUOTE;
-    char *curl_COOKIEFILE;
-    char *curl_CUSTOMREQUEST;
-    char *curl_INTERFACE;
-    char *curl_CAINFO;
-    char *curl_CAPATH;
-    char *curl_RANDOM_FILE;
-    char *curl_EGDSOCKET;
-    char *curl_COOKIEJAR;
-    char *curl_SSL_CIPHER_LIST;
     struct curl_slist *curl_HTTP200ALIASES;
-    char *curl_NETRC_FILE;
-    char *curl_FTP_ACCOUNT;
-    char *curl_COOKIELIST;
-    char *curl_FTP_ALTERNATIVE_TO_USER;
-    char *curl_SSH_PUBLIC_KEYFILE;
-    char *curl_SSH_PRIVATE_KEYFILE;
-    char *curl_SSH_HOST_PUBLIC_KEY_MD5;
-    char *curl_COPYPOSTFIELDS;
-    char *curl_DNS_SERVERS;
-    char *curl_MAIL_FROM;
     struct curl_slist *curl_MAIL_RCPT;
 };
 
@@ -708,51 +672,16 @@ static Connection* allocConnection(CURL* h)
 
     connection->refcount = 0;
 
-    connection->curl_URL = NULL;
-    connection->curl_PROXY = NULL;
-    connection->curl_USERPWD = NULL;
-    connection->curl_PROXYUSERPWD = NULL;
-    connection->curl_RANGE = NULL;
     connection->curl_ERRORBUFFER = NULL;
     connection->curl_POSTFIELDS = NULL;
-    connection->curl_POSTFIELDSIZE = -1;
-    connection->curl_REFERER = NULL;
-    connection->curl_USERAGENT = NULL;
-    connection->curl_FTPPORT = NULL;
-    connection->curl_COOKIE = NULL;
     connection->curl_HTTPHEADER = NULL;
     connection->httpPostBuffers = NULL;
     connection->httpPostFirst = NULL;
     connection->httpPostLast = NULL;
-    connection->curl_SSLCERT = NULL;
-    connection->curl_SSLCERTTYPE = NULL;
-    connection->curl_SSLCERTPASSWD = NULL;
-    connection->curl_SSLKEY = NULL;
-    connection->curl_SSLKEYTYPE = NULL;
-    connection->curl_SSLKEYPASSWD = NULL;
-    connection->curl_SSLENGINE = NULL;
     connection->curl_QUOTE = NULL;
     connection->curl_POSTQUOTE = NULL;
-    connection->curl_COOKIEFILE = NULL;
-    connection->curl_CUSTOMREQUEST = NULL;
-    connection->curl_INTERFACE = NULL;
-    connection->curl_CAINFO = NULL;
-    connection->curl_CAPATH = NULL;
-    connection->curl_RANDOM_FILE = NULL;
-    connection->curl_EGDSOCKET = NULL;
-    connection->curl_COOKIEJAR = NULL;
-    connection->curl_SSL_CIPHER_LIST = NULL;
     connection->curl_HTTP200ALIASES = NULL;
-    connection->curl_NETRC_FILE = NULL;
-    connection->curl_FTP_ACCOUNT = NULL;
-    connection->curl_COOKIELIST = NULL;
-    connection->curl_FTP_ALTERNATIVE_TO_USER = NULL;
-    connection->curl_SSH_PUBLIC_KEYFILE = NULL;
-    connection->curl_SSH_PRIVATE_KEYFILE = NULL;
-    connection->curl_COPYPOSTFIELDS = NULL;
     connection->curl_RESOLVE = NULL;
-    connection->curl_DNS_SERVERS = NULL;
-    connection->curl_MAIL_FROM = NULL;
     connection->curl_MAIL_RCPT = NULL;
 
     return connection;
@@ -801,50 +730,16 @@ static void removeConnection(Connection *connection, int finalization)
 
     caml_remove_global_root(&connection->ocamlValues);
 
-    free_if(connection->curl_URL);
-    free_if(connection->curl_PROXY);
-    free_if(connection->curl_USERPWD);
-    free_if(connection->curl_PROXYUSERPWD);
-    free_if(connection->curl_RANGE);
     free_if(connection->curl_ERRORBUFFER);
     free_if(connection->curl_POSTFIELDS);
-    free_if(connection->curl_REFERER);
-    free_if(connection->curl_USERAGENT);
-    free_if(connection->curl_FTPPORT);
-    free_if(connection->curl_COOKIE);
     free_curl_slist(connection->curl_HTTPHEADER);
     free_curl_slist(connection->httpPostBuffers);
     if (connection->httpPostFirst != NULL)
         curl_formfree(connection->httpPostFirst);
     free_curl_slist(connection->curl_RESOLVE);
-    free_if(connection->curl_SSLCERT);
-    free_if(connection->curl_SSLCERTTYPE);
-    free_if(connection->curl_SSLCERTPASSWD);
-    free_if(connection->curl_SSLKEY);
-    free_if(connection->curl_SSLKEYTYPE);
-    free_if(connection->curl_SSLKEYPASSWD);
-    free_if(connection->curl_SSLENGINE);
     free_curl_slist(connection->curl_QUOTE);
     free_curl_slist(connection->curl_POSTQUOTE);
-    free_if(connection->curl_COOKIEFILE);
-    free_if(connection->curl_CUSTOMREQUEST);
-    free_if(connection->curl_INTERFACE);
-    free_if(connection->curl_CAINFO);
-    free_if(connection->curl_CAPATH);
-    free_if(connection->curl_RANDOM_FILE);
-    free_if(connection->curl_EGDSOCKET);
-    free_if(connection->curl_COOKIEJAR);
-    free_if(connection->curl_SSL_CIPHER_LIST);
     free_curl_slist(connection->curl_HTTP200ALIASES);
-    free_if(connection->curl_NETRC_FILE);
-    free_if(connection->curl_FTP_ACCOUNT);
-    free_if(connection->curl_COOKIELIST);
-    free_if(connection->curl_FTP_ALTERNATIVE_TO_USER);
-    free_if(connection->curl_SSH_PUBLIC_KEYFILE);
-    free_if(connection->curl_SSH_PRIVATE_KEYFILE);
-    free_if(connection->curl_COPYPOSTFIELDS);
-    free_if(connection->curl_DNS_SERVERS);
-    free_if(connection->curl_MAIL_FROM);
     free_curl_slist(connection->curl_MAIL_RCPT);
 }
 
@@ -1355,12 +1250,7 @@ static void handle_##name(Connection *conn, value option) \
 \
     Store_field(conn->ocamlValues, Ocaml_##name, option); \
 \
-    if (conn->curl_##name != NULL) \
-        free(conn->curl_##name); \
-\
-    conn->curl_##name = strdup(String_val(option)); \
-\
-    result = curl_easy_setopt(conn->handle, CURLOPT_##name, conn->curl_##name); \
+    result = curl_easy_setopt(conn->handle, CURLOPT_##name, String_val(option)); \
 \
     if (result != CURLE_OK) \
         raiseError(conn, result); \
