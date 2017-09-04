@@ -129,6 +129,8 @@ typedef enum OcamlValues
     Ocaml_MAIL_FROM,
     Ocaml_MAIL_RCPT,
     Ocaml_RESOLVE,
+    Ocaml_USERNAME,
+    Ocaml_PASSWORD,
 
     /* Not used, last for size */
     OcamlValuesSize
@@ -2600,6 +2602,14 @@ SETOPT_SLIST( MAIL_RCPT)
 SETOPT_BOOL( PIPEWAIT)
 #endif
 
+#if HAVE_DECL_CURLOPT_USERNAME
+SETOPT_STRING( USERNAME)
+#endif
+
+#if HAVE_DECL_CURLOPT_PASSWORD
+SETOPT_STRING( PASSWORD)
+#endif
+
 /**
  **  curl_easy_setopt helper function
  **/
@@ -2978,6 +2988,16 @@ CURLOptionMapping implementedOptionMap[] =
   IMM(CERTINFO),
 #else
   IMM_NO(CERTINFO),
+#endif
+#if HAVE_DECL_CURLOPT_USERNAME
+  MAP(USERNAME),
+#else
+  MAP_NO(USERNAME),
+#endif
+#if HAVE_DECL_CURLOPT_PASSWORD
+  MAP(PASSWORD),
+#else
+  MAP_NO(PASSWORD),
 #endif
 };
 

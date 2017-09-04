@@ -831,6 +831,10 @@
    and to 0 if you don't. */
 #undef HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
 
+/* Define to 1 if you have the declaration of `CURLOPT_PASSWORD', and to 0 if
+   you don't. */
+#undef HAVE_DECL_CURLOPT_PASSWORD
+
 /* Define to 1 if you have the declaration of `CURLOPT_PIPEWAIT', and to 0 if
    you don't. */
 #undef HAVE_DECL_CURLOPT_PIPEWAIT
@@ -1062,6 +1066,10 @@
 /* Define to 1 if you have the declaration of `CURLOPT_USERAGENT', and to 0 if
    you don't. */
 #undef HAVE_DECL_CURLOPT_USERAGENT
+
+/* Define to 1 if you have the declaration of `CURLOPT_USERNAME', and to 0 if
+   you don't. */
+#undef HAVE_DECL_CURLOPT_USERNAME
 
 /* Define to 1 if you have the declaration of `CURLOPT_USERPWD', and to 0 if
    you don't. */

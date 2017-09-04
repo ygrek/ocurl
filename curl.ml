@@ -412,6 +412,8 @@ type curlOption =
   | CURLOPT_MAIL_RCPT of string list
   | CURLOPT_PIPEWAIT of bool
   | CURLOPT_CERTINFO of bool
+  | CURLOPT_USERNAME of string
+  | CURLOPT_PASSWORD of string
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -953,6 +955,12 @@ let set_mailrcpt conn l =
 
 let set_pipewait conn b =
   setopt conn (CURLOPT_PIPEWAIT b)
+
+let set_username conn s =
+  setopt conn (CURLOPT_USERNAME s)
+
+let set_password conn s =
+  setopt conn (CURLOPT_PASSWORD s)
 
 let get_effectiveurl conn =
   match (getinfo conn CURLINFO_EFFECTIVE_URL) with

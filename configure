@@ -6697,6 +6697,32 @@ fi
 cat >>confdefs.h <<_ACEOF
 #define HAVE_DECL_CURLOPT_CERTINFO $ac_have_decl
 _ACEOF
+ac_fn_c_check_decl "$LINENO" "CURLOPT_USERNAME" "ac_cv_have_decl_CURLOPT_USERNAME" "
+#include \"curl/curl.h\"
+
+"
+if test "x$ac_cv_have_decl_CURLOPT_USERNAME" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_CURLOPT_USERNAME $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "CURLOPT_PASSWORD" "ac_cv_have_decl_CURLOPT_PASSWORD" "
+#include \"curl/curl.h\"
+
+"
+if test "x$ac_cv_have_decl_CURLOPT_PASSWORD" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_CURLOPT_PASSWORD $ac_have_decl
+_ACEOF
 ac_fn_c_check_decl "$LINENO" "CURLINFO_EFFECTIVE_URL" "ac_cv_have_decl_CURLINFO_EFFECTIVE_URL" "
 #include \"curl/curl.h\"
 

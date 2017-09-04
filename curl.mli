@@ -420,6 +420,8 @@ type curlOption =
   | CURLOPT_MAIL_RCPT of string list
   | CURLOPT_PIPEWAIT of bool
   | CURLOPT_CERTINFO of bool
+  | CURLOPT_USERNAME of string
+  | CURLOPT_PASSWORD of string
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -666,6 +668,10 @@ val set_dns_servers : t -> string list -> unit
 val set_mailfrom : t -> string -> unit
 val set_mailrcpt : t -> string list -> unit
 val set_pipewait : t -> bool -> unit
+val set_username : t -> string -> unit
+(** @since 0.8.0 *)
+val set_password : t -> string -> unit
+(** @since 0.8.0 *)
 
 (** {2 Get transfer properties} *)
 
