@@ -414,6 +414,7 @@ type curlOption =
   | CURLOPT_CERTINFO of bool
   | CURLOPT_USERNAME of string
   | CURLOPT_PASSWORD of string
+  | CURLOPT_LOGIN_OPTIONS of string
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -961,6 +962,9 @@ let set_username conn s =
 
 let set_password conn s =
   setopt conn (CURLOPT_PASSWORD s)
+
+let set_login_options conn s =
+  setopt conn (CURLOPT_LOGIN_OPTIONS s)
 
 let get_effectiveurl conn =
   match (getinfo conn CURLINFO_EFFECTIVE_URL) with

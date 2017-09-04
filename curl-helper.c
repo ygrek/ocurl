@@ -131,6 +131,7 @@ typedef enum OcamlValues
     Ocaml_RESOLVE,
     Ocaml_USERNAME,
     Ocaml_PASSWORD,
+    Ocaml_LOGIN_OPTIONS,
 
     /* Not used, last for size */
     OcamlValuesSize
@@ -2610,6 +2611,10 @@ SETOPT_STRING( USERNAME)
 SETOPT_STRING( PASSWORD)
 #endif
 
+#if HAVE_DECL_CURLOPT_LOGIN_OPTIONS
+SETOPT_STRING( LOGIN_OPTIONS)
+#endif
+
 /**
  **  curl_easy_setopt helper function
  **/
@@ -2998,6 +3003,11 @@ CURLOptionMapping implementedOptionMap[] =
   MAP(PASSWORD),
 #else
   MAP_NO(PASSWORD),
+#endif
+#if HAVE_DECL_CURLOPT_LOGIN_OPTIONS
+  MAP(LOGIN_OPTIONS),
+#else
+  MAP_NO(LOGIN_OPTIONS),
 #endif
 };
 

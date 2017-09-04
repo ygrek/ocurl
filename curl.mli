@@ -422,6 +422,7 @@ type curlOption =
   | CURLOPT_CERTINFO of bool
   | CURLOPT_USERNAME of string
   | CURLOPT_PASSWORD of string
+  | CURLOPT_LOGIN_OPTIONS of string
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -671,6 +672,8 @@ val set_pipewait : t -> bool -> unit
 val set_username : t -> string -> unit
 (** @since 0.8.0 *)
 val set_password : t -> string -> unit
+(** @since 0.8.0 *)
+val set_login_options : t -> string -> unit
 (** @since 0.8.0 *)
 
 (** {2 Get transfer properties} *)

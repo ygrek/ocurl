@@ -759,6 +759,10 @@
    0 if you don't. */
 #undef HAVE_DECL_CURLOPT_LOCALPORTRANGE
 
+/* Define to 1 if you have the declaration of `CURLOPT_LOGIN_OPTIONS', and to
+   0 if you don't. */
+#undef HAVE_DECL_CURLOPT_LOGIN_OPTIONS
+
 /* Define to 1 if you have the declaration of `CURLOPT_LOW_SPEED_LIMIT', and
    to 0 if you don't. */
 #undef HAVE_DECL_CURLOPT_LOW_SPEED_LIMIT
