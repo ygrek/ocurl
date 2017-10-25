@@ -4,7 +4,7 @@
 
 .PHONY:		all targets examples install clean distclean depend release doc build test reinstall
 
-.SUFFIXES:	.ml .mli .cmx .cmi .cmo .cmxa .cma .c @EXT_OBJ@
+.SUFFIXES:	.ml .mli .cmx .cmi .cmo .cmxs .cmxa .cma .c @EXT_OBJ@
 
 INSTALLDIR	= @INSTALLDIR@
 INSTALL		= @INSTALL@
@@ -39,9 +39,9 @@ ifneq (@OCAML_PKG_lwt_unix@,no)
 TARGETS += curl_lwt.cmo
 endif
 ifeq (@OCAMLBEST@,opt)
-TARGETS += curl.cmxa curl.cmx
+TARGETS += curl.cmxa curl.cmx curl.cmxs
 ifneq (@OCAML_PKG_lwt_unix@,no)
-TARGETS += curl_lwt.cmx
+TARGETS += curl_lwt.cmx curl_lwt.cmxs
 endif
 endif
 
@@ -93,11 +93,17 @@ curl.cma:	$(CURLBCOBJS) dllcurl-helper$(EXT_DLL)
 curl.cmxa:	$(CURLOBJS) dllcurl-helper$(EXT_DLL)
 		$(OCAMLMKLIB) -o curl $(CURLOBJS) -oc curl-helper $(CLIBS)
 
+curl.cmxs: curl.cmxa
+	$(OCAMLOPT) -shared -linkall -I . $< -o $@
+
 curl_lwt.cmo: curl_lwt.ml
 	$(FINDLIB) c -package lwt.unix -c $(FLAGS) $< -o $@
 
 curl_lwt.cmx: curl_lwt.ml
 	$(FINDLIB) opt -package lwt.unix -c $(FLAGS) $< -o $@
+
+curl_lwt.cmxs: curl_lwt.cmx
+	$(FINDLIB) opt -shared -linkall -package lwt.unix $< -o $@
 
 curl_lwt.cmi: curl_lwt.mli
 	$(FINDLIB) c -package lwt -c $(FLAGS) $< -o $@
