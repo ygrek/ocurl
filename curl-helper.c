@@ -132,6 +132,7 @@ typedef enum OcamlValues
     Ocaml_USERNAME,
     Ocaml_PASSWORD,
     Ocaml_LOGIN_OPTIONS,
+    Ocaml_CONNECT_TO,
 
     /* Not used, last for size */
     OcamlValuesSize
@@ -156,6 +157,7 @@ struct Connection
     struct curl_slist *curl_POSTQUOTE;
     struct curl_slist *curl_HTTP200ALIASES;
     struct curl_slist *curl_MAIL_RCPT;
+    struct curl_slist *curl_CONNECT_TO;
 };
 
 typedef struct CURLErrorMapping CURLErrorMapping;
@@ -686,6 +688,7 @@ static Connection* allocConnection(CURL* h)
     connection->curl_HTTP200ALIASES = NULL;
     connection->curl_RESOLVE = NULL;
     connection->curl_MAIL_RCPT = NULL;
+    connection->curl_CONNECT_TO = NULL;
 
     return connection;
 }
@@ -744,6 +747,7 @@ static void removeConnection(Connection *connection, int finalization)
     free_curl_slist(connection->curl_POSTQUOTE);
     free_curl_slist(connection->curl_HTTP200ALIASES);
     free_curl_slist(connection->curl_MAIL_RCPT);
+    free_curl_slist(connection->curl_CONNECT_TO);
 }
 
 static Connection* getConnection(CURL* h)
@@ -2615,6 +2619,10 @@ SETOPT_STRING( PASSWORD)
 SETOPT_STRING( LOGIN_OPTIONS)
 #endif
 
+#if HAVE_DECL_CURLOPT_CONNECT_TO
+SETOPT_SLIST( CONNECT_TO)
+#endif
+
 /**
  **  curl_easy_setopt helper function
  **/
@@ -3008,6 +3016,11 @@ CURLOptionMapping implementedOptionMap[] =
   MAP(LOGIN_OPTIONS),
 #else
   MAP_NO(LOGIN_OPTIONS),
+#endif
+#if HAVE_DECL_CURLOPT_CONNECT_TO
+  MAP(CONNECT_TO),
+#else
+  MAP_NO(CONNECT_TO),
 #endif
 };
 

@@ -423,6 +423,7 @@ type curlOption =
   | CURLOPT_USERNAME of string
   | CURLOPT_PASSWORD of string
   | CURLOPT_LOGIN_OPTIONS of string
+  | CURLOPT_CONNECT_TO of string list
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -674,6 +675,8 @@ val set_username : t -> string -> unit
 val set_password : t -> string -> unit
 (** @since 0.8.0 *)
 val set_login_options : t -> string -> unit
+(** @since 0.8.0 *)
+val set_connect_to : t -> string list -> unit
 (** @since 0.8.0 *)
 
 (** {2 Get transfer properties} *)
