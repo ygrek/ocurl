@@ -473,56 +473,19 @@ exception NotImplemented of string
 
 let () = Callback.register_exception "Curl.NotImplemented" (NotImplemented "")
 
-external helper_global_init : initOption -> unit = "helper_curl_global_init"
-external helper_global_cleanup : unit -> unit = "helper_curl_global_cleanup"
-external helper_init : unit -> t = "helper_curl_easy_init"
-external helper_duphandle : t -> t = "helper_curl_easy_duphandle"
-external helper_setopt : t -> curlOption -> unit = "helper_curl_easy_setopt"
-external helper_perform : t -> unit = "helper_curl_easy_perform"
-external helper_cleanup : t -> unit = "helper_curl_easy_cleanup"
-external helper_getinfo : t -> curlInfo -> curlInfoResult = "helper_curl_easy_getinfo"
-external helper_escape : string -> string = "helper_curl_escape"
-external helper_unescape : string -> string = "helper_curl_unescape"
-external helper_getdate : string -> float -> float = "helper_curl_getdate"
-external helper_version : unit -> string = "helper_curl_version"
-
-let init () =
-  helper_init ()
-
-external reset : t -> unit = "helper_curl_easy_reset"
-
-let duphandle conn =
-  helper_duphandle conn
-
-let setopt conn option =
-  helper_setopt conn option
-
-let perform conn =
-  helper_perform conn
-
-let cleanup conn =
-  helper_cleanup conn
-
-let getinfo conn =
-  helper_getinfo conn
-
-let global_init initOption =
-  helper_global_init initOption
-
-let global_cleanup () =
-  helper_global_cleanup ()
-
-let escape str =
-  helper_escape str
-    
-let unescape str =
-  helper_unescape str
-    
-let getdate str now =
-  helper_getdate str now
-    
-let version () =
-  helper_version ()
+external global_init : initOption -> unit = "caml_curl_global_init"
+external global_cleanup : unit -> unit = "caml_curl_global_cleanup"
+external init : unit -> t = "caml_curl_easy_init"
+external reset : t -> unit = "caml_curl_easy_reset"
+external duphandle : t -> t = "caml_curl_easy_duphandle"
+external setopt : t -> curlOption -> unit = "caml_curl_easy_setopt"
+external perform : t -> unit = "caml_curl_easy_perform"
+external cleanup : t -> unit = "caml_curl_easy_cleanup"
+external getinfo : t -> curlInfo -> curlInfoResult = "caml_curl_easy_getinfo"
+external escape : string -> string = "caml_curl_escape"
+external unescape : string -> string = "caml_curl_unescape"
+external getdate : string -> float -> float = "caml_curl_getdate"
+external version : unit -> string = "caml_curl_version"
 
 type version_info = { 
   version : string;
@@ -541,7 +504,7 @@ type version_info = {
 
 external version_info : unit -> version_info = "caml_curl_version_info"
 
-external strerror : curlCode -> string = "helper_curl_easy_strerror"
+external strerror : curlCode -> string = "caml_curl_easy_strerror"
 let errno : curlCode -> int = Obj.magic
 
 type pauseOption = PAUSE_SEND | PAUSE_RECV | PAUSE_ALL

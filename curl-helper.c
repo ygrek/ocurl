@@ -1099,7 +1099,7 @@ static int cb_OPENSOCKETFUNCTION(void *data,
  **  curl_global_init helper function
  **/
 
-value helper_curl_global_init(value initOption)
+value caml_curl_global_init(value initOption)
 {
     CAMLparam1(initOption);
 
@@ -1134,7 +1134,7 @@ value helper_curl_global_init(value initOption)
  **  curl_global_cleanup helper function
  **/
 
-value helper_curl_global_cleanup(void)
+value caml_curl_global_cleanup(void)
 {
     CAMLparam0();
 
@@ -1146,7 +1146,7 @@ value helper_curl_global_cleanup(void)
 /**
  ** curl_easy_init helper function
  **/
-value helper_curl_easy_init(void)
+value caml_curl_easy_init(void)
 {
     CAMLparam0();
     CAMLlocal1(result);
@@ -1156,7 +1156,7 @@ value helper_curl_easy_init(void)
     CAMLreturn(result);
 }
 
-value helper_curl_easy_reset(value conn)
+value caml_curl_easy_reset(value conn)
 {
     CAMLparam1(conn);
     Connection *connection = Connection_val(conn);
@@ -3050,7 +3050,7 @@ static Connection *duplicateConnection(Connection *original)
     return connection;
 }
 
-value helper_curl_easy_setopt(value conn, value option)
+value caml_curl_easy_setopt(value conn, value option)
 {
     CAMLparam2(conn, option);
     CAMLlocal1(data);
@@ -3092,7 +3092,7 @@ value helper_curl_easy_setopt(value conn, value option)
  **  curl_easy_perform helper function
  **/
 
-value helper_curl_easy_perform(value conn)
+value caml_curl_easy_perform(value conn)
 {
     CAMLparam1(conn);
     CURLcode result = CURLE_OK;
@@ -3114,7 +3114,7 @@ value helper_curl_easy_perform(value conn)
  **  curl_easy_cleanup helper function
  **/
 
-value helper_curl_easy_cleanup(value conn)
+value caml_curl_easy_cleanup(value conn)
 {
     CAMLparam1(conn);
     Connection *connection = Connection_val(conn);
@@ -3130,7 +3130,7 @@ value helper_curl_easy_cleanup(value conn)
  **  curl_easy_duphandle helper function
  **/
 
-value helper_curl_easy_duphandle(value conn)
+value caml_curl_easy_duphandle(value conn)
 {
     CAMLparam1(conn);
     CAMLlocal1(result);
@@ -3181,7 +3181,7 @@ value convertStringList(struct curl_slist *p)
     CAMLreturn(result);
 }
 
-value helper_curl_easy_getinfo(value conn, value option)
+value caml_curl_easy_getinfo(value conn, value option)
 {
     CAMLparam2(conn, option);
     CAMLlocal3(result, current, next);
@@ -3646,7 +3646,7 @@ value helper_curl_easy_getinfo(value conn, value option)
  **  curl_escape helper function
  **/
 
-value helper_curl_escape(value str)
+value caml_curl_escape(value str)
 {
     CAMLparam1(str);
     CAMLlocal1(result);
@@ -3663,7 +3663,7 @@ value helper_curl_escape(value str)
  **  curl_unescape helper function
  **/
 
-value helper_curl_unescape(value str)
+value caml_curl_unescape(value str)
 {
     CAMLparam1(str);
     CAMLlocal1(result);
@@ -3680,7 +3680,7 @@ value helper_curl_unescape(value str)
  **  curl_getdate helper function
  **/
 
-value helper_curl_getdate(value str, value now)
+value caml_curl_getdate(value str, value now)
 {
     CAMLparam2(str, now);
     CAMLlocal1(result);
@@ -3698,7 +3698,7 @@ value helper_curl_getdate(value str, value now)
  **  curl_version helper function
  **/
 
-value helper_curl_version(void)
+value caml_curl_version(void)
 {
     CAMLparam0();
     CAMLlocal1(result);
@@ -4048,7 +4048,7 @@ value caml_curl_multi_perform_all(value v_multi)
   CAMLreturn(Val_int(still_running));
 }
 
-value helper_curl_easy_strerror(value v_code)
+value caml_curl_easy_strerror(value v_code)
 {
   CAMLparam1(v_code);
   CAMLreturn(caml_copy_string(curl_easy_strerror((CURLcode)Int_val(v_code))));
