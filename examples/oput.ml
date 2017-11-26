@@ -7,14 +7,15 @@
 let counter = ref 0
 
 let reader file maxBytes =
-  let buffer = String.make maxBytes ' ' in
+  let buffer = Bytes.create maxBytes in
   let readBytes = input file buffer 0 maxBytes in
-    if readBytes = 0 then ""
-    else
-      begin
-	counter := !counter + readBytes;
-	String.sub buffer 0 readBytes
-      end
+  if readBytes = 0 then
+    ""
+  else
+  begin
+    counter := !counter + readBytes;
+	  Bytes.sub_string buffer 0 readBytes
+  end
 
 let _ =
   if Array.length Sys.argv = 3 then

@@ -632,6 +632,7 @@ CURLLIBS
 ac_prefix_program
 OCAML_PKG_lwt_ppx
 OCAML_PKG_lwt_unix
+OCAML_PKG_bytes
 OCAMLFIND
 OCAMLBUILD
 OCAMLDOC
@@ -4091,6 +4092,30 @@ fi
 
 
 
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for OCaml findlib package bytes" >&5
+$as_echo_n "checking for OCaml findlib package bytes... " >&6; }
+
+  unset found
+  unset pkg
+  found=no
+  for pkg in bytes  ; do
+    if $OCAMLFIND query $pkg >/dev/null 2>/dev/null; then
+      { $as_echo "$as_me:${as_lineno-$LINENO}: result: found" >&5
+$as_echo "found" >&6; }
+      OCAML_PKG_bytes=$pkg
+      found=yes
+      break
+    fi
+  done
+  if test "$found" = "no" ; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: not found" >&5
+$as_echo "not found" >&6; }
+    OCAML_PKG_bytes=no
+  fi
+
+
+
+
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for OCaml findlib package lwt.unix" >&5
 $as_echo_n "checking for OCaml findlib package lwt.unix... " >&6; }
 
@@ -4232,6 +4257,7 @@ $as_echo X"$prefix" |
 	  s/.*/./; q'`
   fi
 fi
+
 
 
 

@@ -16,7 +16,10 @@ LFLAGS		= -g -I .. -ccopt -L..
 OCURLLIB	= curl.cma unix.cma threads.cma
 OCURLOPTLIB	= curl.cmxa unix.cmxa threads.cmxa
 
-TARGETS = ocurl oput ominimal ossl ocurl_test_threads opar test_cb_exn test_memory_leaks
+TARGETS = ocurl ominimal ossl ocurl_test_threads opar test_cb_exn test_memory_leaks
+ifneq (@OCAML_PKG_bytes@,no)
+TARGETS += oput
+endif
 ifneq (@OCAML_PKG_lwt_unix@,no)
 TARGETS += test_lwt_unit
 ifneq (@OCAML_PKG_lwt_ppx@,no)
@@ -25,7 +28,10 @@ endif
 endif
 
 ifeq (@OCAMLBEST@,opt)
-TARGETS	+= ocurl.opt oput.opt ominimal.opt ossl.opt ocurl_test_threads.opt opar.opt test_cb_exn.opt test_memory_leaks.opt
+TARGETS	+= ocurl.opt ominimal.opt ossl.opt ocurl_test_threads.opt opar.opt test_cb_exn.opt test_memory_leaks.opt
+ifneq (@OCAML_PKG_bytes@,no)
+TARGETS += oput.opt
+endif
 ifneq (@OCAML_PKG_lwt_unix@,no)
 TARGETS += test_lwt_unit.opt
 ifneq (@OCAML_PKG_lwt_ppx@,no)
@@ -49,6 +55,12 @@ test_lwt_unit: ../curl.cma ../curl_lwt.cmo test_lwt_unit.ml
 
 test_lwt_unit.opt: ../curl.cmxa ../curl_lwt.cmx test_lwt_unit.ml
 	$(FINDLIB) opt $(FINDLIB_LWT_FLAGS) $(LFLAGS) $^ -o $@
+
+oput: ../curl.cma oput.ml
+	$(FINDLIB) c -custom -package bytes -linkpkg $(LFLAGS) $^ -o $@
+
+oput.opt: ../curl.cmxa oput.ml
+	$(FINDLIB) opt -package bytes -linkpkg $(LFLAGS) $^ -o $@
 
 %: %.cmo ../curl.cma
 		$(OCBYTE) -custom $(LFLAGS) $(OCURLLIB) $< -o $@
