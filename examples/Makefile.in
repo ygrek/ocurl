@@ -57,10 +57,10 @@ test_lwt_unit.opt: ../curl.cmxa ../curl_lwt.cmx test_lwt_unit.ml
 	$(FINDLIB) opt $(FINDLIB_LWT_FLAGS) $(LFLAGS) $^ -o $@
 
 oput: ../curl.cma oput.ml
-	$(FINDLIB) c -custom -package bytes -linkpkg $(LFLAGS) $^ -o $@
+	$(FINDLIB) c -custom -package bytes,unix -linkpkg $(LFLAGS) $^ -o $@
 
 oput.opt: ../curl.cmxa oput.ml
-	$(FINDLIB) opt -package bytes -linkpkg $(LFLAGS) $^ -o $@
+	$(FINDLIB) opt -package bytes,unix -linkpkg $(LFLAGS) $^ -o $@
 
 %: %.cmo ../curl.cma
 		$(OCBYTE) -custom $(LFLAGS) $(OCURLLIB) $< -o $@
