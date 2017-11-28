@@ -2,7 +2,7 @@ dnl
 dnl ocurl autoconf input
 dnl
 
-AC_INIT(ocurl,0.7.10)
+AC_INIT(ocurl,0.8.0)
 
 MIN_LIBCURL_VERSION=7.17.0
 

@@ -1,3 +1,13 @@
+0.8.0  - 28 Nov 2017
+
+    * fix build on Windows/msvc (Nicolas Ojeda Bar)
+    * fix debugfunction invocation
+    * require libcurl >= 7.17.0
+    * less mallocs per handle
+    + CURLOPT_USERNAME CURLOPT_PASSWORD CURLOPT_LOGIN_OPTIONS CURLOPT_CONNECT_TO
+    + build cmxs
+    * fix build tests with OCaml 4.06.0
+
 0.7.10 - 12 Jun 2017
 
     + CURL_SSLVERSION_TLSv1_3
