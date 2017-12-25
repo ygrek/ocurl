@@ -30,7 +30,7 @@ AC_PROG_FINDLIB()
 
 AC_CHECK_OCAML_PKG([bytes])
 AC_CHECK_OCAML_PKG([lwt.unix])
-AC_CHECK_OCAML_PKG([lwt.ppx])
+AC_CHECK_OCAML_PKG([lwt_ppx],[lwt.ppx])
 
 INSTALLDIR=$OCAMLLIB/curl
 
