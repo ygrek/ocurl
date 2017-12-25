@@ -15,12 +15,13 @@ let curl_setup_simple h =
   set_timeout h 10;
   set_followlocation h false;
   set_maxredirs h 1;
+  set_ipresolve h IPRESOLVE_V4;
   set_encoding h CURL_ENCODING_ANY
 
 let log_curl h code =
   let open Curl in
   let url = get_effectiveurl h in
-  printfn "%3d %.2f %g URL: %s (%s)%s"
+  printfn "%3d %.2f %5.0fB URL: %s (%s)%s"
     (get_httpcode h)
     (get_totaltime h)
     (get_sizedownload h)
@@ -49,18 +50,24 @@ let get url =
 
 let urls =
   [
-    "www.google.com";
-    "ya.ru";
-    "www.forth.org.ru";
-    "caml.inria.fr";
-    "www.mozart-oz.org";
-    "elm-lang.org";
+    "http://www.forth.org.ru";
+    "http://caml.inria.fr";
+    "https://www.rust-lang.org";
+    "https://ocaml.org";
+    "http://elm-lang.org";
+    "http://www.red-lang.org";
   ]
+
+let wait_one tasks =
+  let%lwt () = Lwt_unix.sleep 0.5 in
+  let%lwt () = Lwt.choose tasks in
+  print_endline "Cancel remaining transfers";
+  Lwt.return ()
 
 let () =
   printfn "Launch %d transfers" (List.length urls);
   let tasks = List.map get urls in
   Lwt_main.run @@ Lwt.pick [
-    Lwt_unix.sleep 0.75 >> Lwt.choose tasks >> Lwt.return (print_endline "Cancel remaining transfers");
+    wait_one tasks;
     Lwt.join tasks
   ]
