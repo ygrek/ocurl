@@ -283,6 +283,13 @@ type curlProto =
 | CURLPROTO_RTMPTS
 | CURLPROTO_GOPHER
 
+(** if flag is not supported by libcurl - enabling it does nothing *)
+type curlPostRedir =
+| REDIR_POST_ALL
+| REDIR_POST_301
+| REDIR_POST_302
+| REDIR_POST_303 (** added in libcurl 7.26.0 *)
+
 type curlOption =
   | CURLOPT_WRITEFUNCTION of (string -> int)
   | CURLOPT_READFUNCTION of (int -> string)
@@ -424,6 +431,7 @@ type curlOption =
   | CURLOPT_PASSWORD of string
   | CURLOPT_LOGIN_OPTIONS of string
   | CURLOPT_CONNECT_TO of string list
+  | CURLOPT_POSTREDIR of curlPostRedir list
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -678,6 +686,8 @@ val set_login_options : t -> string -> unit
 (** @since 0.8.0 *)
 val set_connect_to : t -> string list -> unit
 (** @since 0.8.0 *)
+val set_postredir : t -> curlPostRedir list -> unit
+(** @since 0.8.1 *)
 
 (** {2 Get transfer properties} *)
 

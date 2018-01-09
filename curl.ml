@@ -275,6 +275,13 @@ type curlProto =
 | CURLPROTO_RTMPTS
 | CURLPROTO_GOPHER
 
+(* sync curlPostRedir_table *)
+type curlPostRedir =
+| REDIR_POST_ALL
+| REDIR_POST_301
+| REDIR_POST_302
+| REDIR_POST_303
+
 type curlOption =
   | CURLOPT_WRITEFUNCTION of (string -> int)
   | CURLOPT_READFUNCTION of (int -> string)
@@ -416,6 +423,7 @@ type curlOption =
   | CURLOPT_PASSWORD of string
   | CURLOPT_LOGIN_OPTIONS of string
   | CURLOPT_CONNECT_TO of string list
+  | CURLOPT_POSTREDIR of curlPostRedir list
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -932,6 +940,9 @@ let set_login_options conn s =
 
 let set_connect_to conn l =
   setopt conn (CURLOPT_CONNECT_TO l)
+
+let set_postredir conn l =
+  setopt conn (CURLOPT_POSTREDIR l)
 
 let get_effectiveurl conn =
   match (getinfo conn CURLINFO_EFFECTIVE_URL) with

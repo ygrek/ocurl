@@ -875,6 +875,10 @@
    you don't. */
 #undef HAVE_DECL_CURLOPT_POSTQUOTE
 
+/* Define to 1 if you have the declaration of `CURLOPT_POSTREDIR', and to 0 if
+   you don't. */
+#undef HAVE_DECL_CURLOPT_POSTREDIR
+
 /* Define to 1 if you have the declaration of `CURLOPT_PREQUOTE', and to 0 if
    you don't. */
 #undef HAVE_DECL_CURLOPT_PREQUOTE

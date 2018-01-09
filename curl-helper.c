@@ -133,6 +133,7 @@ typedef enum OcamlValues
     Ocaml_PASSWORD,
     Ocaml_LOGIN_OPTIONS,
     Ocaml_CONNECT_TO,
+    Ocaml_POSTREDIR,
 
     /* Not used, last for size */
     OcamlValuesSize
@@ -2623,6 +2624,44 @@ SETOPT_STRING( LOGIN_OPTIONS)
 SETOPT_SLIST( CONNECT_TO)
 #endif
 
+#if HAVE_DECL_CURLOPT_POSTREDIR
+
+static int curlPostRedir_table[] = {
+ CURL_REDIR_POST_ALL,
+#if defined(CURL_REDIR_POST_301)
+  CURL_REDIR_POST_301,
+#else
+  0,
+#endif
+#if defined(CURL_REDIR_POST_302)
+  CURL_REDIR_POST_302,
+#else
+  0,
+#endif
+#if defined(CURL_REDIR_POST_303)
+  CURL_REDIR_POST_303,
+#else
+  0,
+#endif
+};
+
+static void handle_POSTREDIR(Connection *conn, value option)
+{
+    CAMLparam1(option);
+    CURLcode result = CURLE_OK;
+    long bitmask = caml_convert_flag_list(option, curlPostRedir_table);
+
+    result = curl_easy_setopt(conn->handle,
+                              CURLOPT_POSTREDIR,
+                              bitmask);
+
+    if (result != CURLE_OK)
+        raiseError(conn, result);
+
+    CAMLreturn0;
+}
+#endif
+
 /**
  **  curl_easy_setopt helper function
  **/
@@ -3021,6 +3060,11 @@ CURLOptionMapping implementedOptionMap[] =
   MAP(CONNECT_TO),
 #else
   MAP_NO(CONNECT_TO),
+#endif
+#if HAVE_DECL_CURLOPT_POSTREDIR
+  MAP(POSTREDIR),
+#else
+  MAP_NO(POSTREDIR),
 #endif
 };
 

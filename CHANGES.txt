@@ -1,3 +1,7 @@
+0.8.1  -
+
+    + CURLOPT_POSTREDIR
+
 0.8.0  - 28 Nov 2017
 
     * fix build on Windows/msvc (Nicolas Ojeda Bar)
