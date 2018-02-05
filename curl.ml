@@ -495,7 +495,7 @@ external unescape : string -> string = "caml_curl_unescape"
 external getdate : string -> float -> float = "caml_curl_getdate"
 external version : unit -> string = "caml_curl_version"
 
-type version_info = { 
+type version_info = {
   version : string;
   number : int * int * int;
   host : string;
@@ -1337,7 +1337,7 @@ module Multi = struct
   external create : unit -> mt = "caml_curl_multi_init"
   external add : mt -> t -> unit = "caml_curl_multi_add_handle"
   external perform : mt -> int = "caml_curl_multi_perform_all"
-  external wait : mt -> bool = "caml_curlm_wait_data"
+  external wait : mt -> bool = "caml_curl_multi_wait"
   external remove : mt -> t -> unit = "caml_curl_multi_remove_handle"
   external remove_finished : mt -> (t * curlCode) option = "caml_curlm_remove_finished"
   external cleanup : mt -> unit = "caml_curl_multi_cleanup"
@@ -1360,4 +1360,3 @@ module Multi = struct
 
   external setopt : mt -> curlMultiOption -> unit = "caml_curl_multi_setopt"
 end
-

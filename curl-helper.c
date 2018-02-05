@@ -3995,46 +3995,21 @@ value caml_curlm_remove_finished(value v_multi)
   }
 }
 
-static int curlm_wait_data(CURLM* multi_handle)
-{
-	struct timeval timeout;
-  CURLMcode ret;
-
-	fd_set fdread;
-	fd_set fdwrite;
-	fd_set fdexcep;
-	int maxfd = -1;
-
-	FD_ZERO(&fdread);
-	FD_ZERO(&fdwrite);
-	FD_ZERO(&fdexcep);
-
-	/* set a suitable timeout */
-	timeout.tv_sec = 1;
-	timeout.tv_usec = 0;
-
-	/* get file descriptors from the transfers */
-	ret = curl_multi_fdset(multi_handle, &fdread, &fdwrite, &fdexcep, &maxfd);
-
-	if (ret == CURLM_OK && maxfd >= 0)
-	{
-		int rc = select(maxfd+1, &fdread, &fdwrite, &fdexcep, &timeout);
-		if (-1 != rc) return 0;
-	}
-	return 1;
-}
-
-value caml_curlm_wait_data(value v_multi)
+value caml_curl_multi_wait(value v_multi)
 {
   CAMLparam1(v_multi);
-  int ret;
-  CURLM* h = CURLM_val(v_multi);
+  CURLM *multi_handle = CURLM_val(v_multi);
+  int numfds = -1;
+  CURLMcode ret;
 
   caml_enter_blocking_section();
-  ret = curlm_wait_data(h);
+  ret = curl_multi_wait(multi_handle, NULL, 0, 1000, &numfds);
+  if (ret != CURLM_OK) {
+    caml_leave_blocking_section();
+    caml_failwith("caml_curl_multi_wait");
+  }
   caml_leave_blocking_section();
-
-  CAMLreturn(Val_bool(0 == ret));
+  CAMLreturn(Val_bool(numfds == 0));
 }
 
 value caml_curl_multi_add_handle(value v_multi, value v_easy)
