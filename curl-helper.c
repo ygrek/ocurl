@@ -3997,18 +3997,16 @@ value caml_curlm_remove_finished(value v_multi)
 
 value caml_curl_multi_wait(value v_timeout_ms, value v_multi)
 {
-  CAMLparam1(v_multi);
+  CAMLparam2(v_timeout_ms,v_multi);
   CURLM *multi_handle = CURLM_val(v_multi);
-  int timeout_ms = 1000;
+  int timeout_ms = Int_val(v_timeout_ms);
   int numfds = -1;
   CURLMcode ret;
-
-  if (v_timeout_ms != Val_int(0))
-    timeout_ms = Int_val(Field(0, v_timeout_ms));
 
   caml_enter_blocking_section();
   ret = curl_multi_wait(multi_handle, NULL, 0, timeout_ms, &numfds);
   caml_leave_blocking_section();
+
   if (ret != CURLM_OK) caml_failwith("caml_curl_multi_wait");
 
   CAMLreturn(Val_bool(numfds != 0));
