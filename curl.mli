@@ -122,7 +122,7 @@ type curlHTTPPost =
   | CURLFORM_FILE of string * string * curlContentType
   | CURLFORM_BUFFER of string * string * string * curlContentType
 
-(*      
+(*
 type curlHTTPPost =
   | CURLFORM_COPYNAME of string
   | CURLFORM_PTRNAME of string
@@ -842,7 +842,7 @@ class handle :
     method set_tcpnodelay : bool -> unit
     method set_ftpsslauth : curlFTPSSLAuth -> unit
     method set_ioctlfunction : (t -> curlIOCmd -> curlIOErr) -> unit
-    method set_ftpaccount : string -> unit 
+    method set_ftpaccount : string -> unit
     method set_cookielist : string -> unit
     method set_ignorecontentlength : bool -> unit
     method set_ftpskippasvip : bool -> unit
@@ -948,7 +948,7 @@ module Multi : sig
 
   (** wait till there are some active data transfers on multi stack
       @return whether [perform] should be called *)
-  val wait : mt -> bool
+  val wait : ?timeout_ms:int -> mt -> bool
 
   (** remove finished handle from the multi stack if any. The returned handle may be reused *)
   val remove_finished : mt -> (t * curlCode) option
@@ -957,7 +957,7 @@ module Multi : sig
   val cleanup : mt -> unit
 
   (** events that should be reported for the socket *)
-  type poll = 
+  type poll =
     | POLL_NONE    (** none *)
     | POLL_IN      (** available for reading *)
     | POLL_OUT     (** available for writing *)
@@ -965,7 +965,7 @@ module Multi : sig
     | POLL_REMOVE  (** socket not needed anymore *)
 
   (** socket status *)
-  type fd_status = 
+  type fd_status =
     | EV_AUTO  (** determine socket status automatically (with extra system call) *)
     | EV_IN    (** socket has incoming data *)
     | EV_OUT   (** socket is available for writing *)
@@ -983,12 +983,12 @@ module Multi : sig
 
   (** perform pending data transfers (if any) on all handles currently in multi stack
       (not recommended, {!action} should be used instead)
-      @return the number of handles that still transfer data 
+      @return the number of handles that still transfer data
       @raise Error on errors
   *)
   val action_all : mt -> int
 
-  (** inform libcurl that timeout occured 
+  (** inform libcurl that timeout occured
       @raise Error on errors
   *)
   val action_timeout : mt -> unit

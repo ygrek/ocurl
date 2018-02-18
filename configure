@@ -2048,7 +2048,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-MIN_LIBCURL_VERSION=7.17.0
+MIN_LIBCURL_VERSION=7.28.0
 
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
