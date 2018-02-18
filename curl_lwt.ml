@@ -2,12 +2,7 @@
 
 module M = Curl.Multi
 
-let debug = ref false
 let log fmt = Printf.ksprintf prerr_endline fmt
-
-let set_debug x = debug := x
-
-let int_of_fd : Unix.file_descr -> int = Obj.magic
 
 type multi = {
   mt : Curl.Multi.mt;
@@ -21,12 +16,10 @@ let create () =
   let all_events = Hashtbl.create 32 in
   let wakeners = Hashtbl.create 32 in
   let finished s =
-    if !debug then log "finished %s" s;
     let rec loop n =
       match M.remove_finished mt with
-      | None -> if n > 0 && !debug then log "removed %u handles via %s" n s
+      | None -> ()
       | Some (h,code) ->
-        if !debug then log "wakeup";
         begin try
           let w = Hashtbl.find wakeners h in
           Hashtbl.remove wakeners h;
@@ -39,39 +32,27 @@ let create () =
     loop 0
   in
   let on_readable fd _ =
-    if !debug then log "on_readable fd %d" (int_of_fd fd);
     let (_:int) = M.action mt fd M.EV_IN in
     finished "on_readable";
   in
   let on_writable fd _ =
-    if !debug then log "on_writable fd %d" (int_of_fd fd);
     let (_:int) = M.action mt fd M.EV_OUT in
     finished "on_writable";
   in
   let on_timer _ =
-    if !debug then log "on_timer";
     Lwt_engine.stop_event !timer_event;
     M.action_timeout mt;
     finished "on_timer"
   in
   M.set_timer_function mt begin fun timeout ->
-    if !debug then log "set timeout %d" timeout;
     Lwt_engine.stop_event !timer_event; (* duplicate stop_event is ok *)
     timer_event := Lwt_engine.on_timer (float_of_int timeout /. 1000.) false on_timer
   end;
   M.set_socket_function mt begin fun fd what ->
-    if !debug then log "set socket fd %d %s" (int_of_fd fd)
-      (match what with
-      | M.POLL_NONE -> "none"
-      | M.POLL_REMOVE -> "remove"
-      | M.POLL_IN -> "in"
-      | M.POLL_OUT -> "out"
-      | M.POLL_INOUT -> "inout");
     begin
     try
       List.iter Lwt_engine.stop_event (Hashtbl.find all_events fd);
       Hashtbl.remove all_events fd;
-      if !debug then log "removed handlers for %d" (int_of_fd fd);
     with
       Not_found -> () (* first event for the socket - no association *)
     end;
