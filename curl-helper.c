@@ -4004,12 +4004,10 @@ value caml_curl_multi_wait(value v_multi)
 
   caml_enter_blocking_section();
   ret = curl_multi_wait(multi_handle, NULL, 0, 1000, &numfds);
-  if (ret != CURLM_OK) {
-    caml_leave_blocking_section();
-    caml_failwith("caml_curl_multi_wait");
-  }
   caml_leave_blocking_section();
-  CAMLreturn(Val_bool(numfds == 0));
+  if (ret != CURLM_OK) caml_failwith("caml_curl_multi_wait");
+
+  CAMLreturn(Val_bool(numfds != 0));
 }
 
 value caml_curl_multi_add_handle(value v_multi, value v_easy)
