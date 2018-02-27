@@ -4203,7 +4203,7 @@ static int curlm_sock_cb(CURL *e, curl_socket_t sock, int what, void *cbp, void 
     case CURL_POLL_INOUT  : v_what = Val_int(3); break;
     case CURL_POLL_REMOVE : v_what = Val_int(4); break;
     default:
-      fprintf(stderr, "curlm_sock_cb sock=%d what=%d\n", sock, what);
+      fprintf(stderr, "curlm_sock_cb sock=%lld what=%d\n", (long long)sock, what);
       fflush(stderr);
       raise_multi_error("curlm_sock_cb"); /* FIXME exception from callback */
   }
