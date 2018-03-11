@@ -1,6 +1,8 @@
-0.8.1  -
+0.8.1  - 11 Mar 2018
 
     + CURLOPT_POSTREDIR
+    * fix Multi.wait on windows (Nicolas Ojeda Bar)
+    * require libcurl >= 7.28.0
 
 0.8.0  - 28 Nov 2017
 
