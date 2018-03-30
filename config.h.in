@@ -807,6 +807,10 @@
    and to 0 if you don't. */
 #undef HAVE_DECL_CURLOPT_MAX_SEND_SPEED_LARGE
 
+/* Define to 1 if you have the declaration of `CURLOPT_MIMEPOST', and to 0 if
+   you don't. */
+#undef HAVE_DECL_CURLOPT_MIMEPOST
+
 /* Define to 1 if you have the declaration of `CURLOPT_NETRC', and to 0 if you
    don't. */
 #undef HAVE_DECL_CURLOPT_NETRC
@@ -1102,10 +1106,6 @@
 /* Define to 1 if you have the declaration of `CURLOPT_WRITEINFO', and to 0 if
    you don't. */
 #undef HAVE_DECL_CURLOPT_WRITEINFO
-
-/* Define to 1 if you have the declaration of `CURLOPT_MIMEPOST', and to 0 if
-   you don't. */
-#undef HAVE_DECL_CURLOPT_MIMEPOST
 
 /* Define to 1 if you have the declaration of `CURL_VERSION_NTLM_WB', and to 0
    if you don't. */
