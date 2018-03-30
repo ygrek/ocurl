@@ -245,6 +245,26 @@ type curlProxyType =
   | CURLPROXY_SOCKS4A (** added in 7.18.0 *)
   | CURLPROXY_SOCKS5_HOSTNAME (** added in 7.18.0 *)
 
+type curlMIMEPartData =
+  | CURLMIME_DATA of string
+  | CURLMIME_FILEDATA of string
+
+type curlMIMEEncoding =
+  | CURLMIME_8BIT
+  | CURLMIME_BINARY
+  | CURLMIME_7BIT
+  | CURLMIME_QUOTEDPRINTABLE
+  | CURLMIME_BASE64
+  | CURLMIME_NONE
+
+type curlMIMEPart =
+  {
+    encoding: curlMIMEEncoding;
+    headers: string list;
+    subparts: curlMIMEPart list;
+    data: curlMIMEPartData;
+  }
+
 (** Protocols to enable (via CURLOPT_PROTOCOLS and CURLOPT_REDIR_PROTOCOLS) *)
 type curlProto =
 | CURLPROTO_ALL (** enable everything *)
@@ -424,6 +444,7 @@ type curlOption =
   | CURLOPT_LOGIN_OPTIONS of string
   | CURLOPT_CONNECT_TO of string list
   | CURLOPT_POSTREDIR of curlPostRedir list
+  | CURLOPT_MIMEPOST of curlMIMEPart list
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -944,6 +965,9 @@ let set_connect_to conn l =
 let set_postredir conn l =
   setopt conn (CURLOPT_POSTREDIR l)
 
+let set_mimepost conn part =
+  setopt conn (CURLOPT_MIMEPOST part)
+
 let get_effectiveurl conn =
   match (getinfo conn CURLINFO_EFFECTIVE_URL) with
   | CURLINFO_String s -> s
@@ -1278,6 +1302,7 @@ class handle =
     method set_autoreferer b = set_autoreferer conn b
     method set_opensocketfunction closure = set_opensocketfunction conn closure
     method set_proxytype t = set_proxytype conn t
+    method set_mimepost p = set_mimepost conn p
 
     method get_effectiveurl = get_effectiveurl conn
     method get_redirecturl = get_redirecturl conn

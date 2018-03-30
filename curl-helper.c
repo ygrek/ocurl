@@ -159,6 +159,9 @@ struct Connection
     struct curl_slist *curl_HTTP200ALIASES;
     struct curl_slist *curl_MAIL_RCPT;
     struct curl_slist *curl_CONNECT_TO;
+#if HAVE_DECL_CURLOPT_MIMEPOST
+    curl_mime *curl_MIMEPOST;
+#endif
 };
 
 typedef struct CURLErrorMapping CURLErrorMapping;
@@ -690,6 +693,9 @@ static Connection* allocConnection(CURL* h)
     connection->curl_RESOLVE = NULL;
     connection->curl_MAIL_RCPT = NULL;
     connection->curl_CONNECT_TO = NULL;
+#if HAVE_DECL_CURLOPT_MIMEPOST
+    connection->curl_MIMEPOST = NULL;
+#endif
 
     return connection;
 }
@@ -749,6 +755,9 @@ static void removeConnection(Connection *connection, int finalization)
     free_curl_slist(connection->curl_HTTP200ALIASES);
     free_curl_slist(connection->curl_MAIL_RCPT);
     free_curl_slist(connection->curl_CONNECT_TO);
+#if HAVE_DECL_CURLOPT_MIMEPOST
+    curl_mime_free(connection->curl_MIMEPOST);
+#endif
 }
 
 static Connection* getConnection(CURL* h)
@@ -1284,6 +1293,108 @@ static void func_name(Connection *conn, value option) \
 #define SETOPT_BOOL(name) SETOPT_VAL(name, Bool_val)
 #define SETOPT_LONG(name) SETOPT_VAL(name, Long_val)
 #define SETOPT_INT64(name) SETOPT_VAL(name, Int64_val)
+
+#if HAVE_DECL_CURLOPT_MIMEPOST
+
+static void new_part(Connection* conn, curl_mime* mime, value v_part)
+{
+  value v_encoding = Field(v_part, 0);
+  value v_headers  = Field(v_part, 1);
+  value v_subparts = Field(v_part, 2);
+  value v_data     = Field(v_part, 3);
+  value v_str      = Field(v_data, 0);
+
+  struct curl_slist *headers = NULL;
+  CURLcode result;
+
+  curl_mimepart *part = curl_mime_addpart(mime);
+
+  switch (Int_val(v_encoding)) {
+    case 0:
+      result = curl_mime_encoder(part, "8bit");
+      break;
+    case 1:
+      result = curl_mime_encoder(part, "binary");
+      break;
+    case 2:
+      result = curl_mime_encoder(part, "7bit");
+      break;
+    case 3:
+      result = curl_mime_encoder(part, "quoted-printable");
+      break;
+    case 4:
+      result = curl_mime_encoder(part, "base64");
+      break;
+    case 5:
+      result = CURLE_OK;
+      break;
+  }
+
+  if (result != CURLE_OK) {
+    raiseError(conn, result);
+  }
+
+  while (v_headers != Val_emptylist) {
+    headers = curl_slist_append(headers, String_val(Field(v_headers, 0)));
+    v_headers = Field(v_headers, 1);
+  }
+
+  result = curl_mime_headers(part, headers, 1);
+
+  if (result != CURLE_OK) {
+    raiseError(conn, result);
+  }
+
+  switch (Tag_val(v_data)) {
+    case 0:
+      result = curl_mime_data(part, String_val(v_str), caml_string_length(v_str));
+      break;
+    case 1:
+      result = curl_mime_filedata(part, String_val(v_str));
+      break;
+  }
+
+  if (result != CURLE_OK) {
+    raiseError(conn, result);
+  }
+
+  if (v_subparts != Val_emptylist) {
+    curl_mime *mime = curl_mime_init(conn->handle);
+
+    while (v_subparts != Val_emptylist) {
+      new_part(conn, mime, Field(v_subparts, 0));
+      v_subparts = Field(v_subparts, 1);
+    }
+
+    result = curl_mime_subparts(part, mime);
+
+    if (result != CURLE_OK) {
+      raiseError(conn, result);
+    }
+  }
+}
+
+static void handle_MIMEPOST(Connection* conn, value v_subparts)
+{
+  curl_mime *mime = curl_mime_init(conn->handle);
+  CURLcode result;
+
+  curl_mime_free(conn->curl_MIMEPOST);
+  conn->curl_MIMEPOST = mime;
+
+  while (v_subparts != Val_emptylist) {
+    new_part(conn, mime, Field(v_subparts, 0));
+    v_subparts = Field(v_subparts, 1);
+  }
+
+  result = curl_easy_setopt(conn->handle, CURLOPT_MIMEPOST, mime);
+
+  if (result != CURLE_OK) {
+    raiseError(conn, result);
+  }
+}
+
+#endif
 
 #define SETOPT_SLIST(name) \
 static void handle_##name(Connection* conn, value option) \
@@ -3065,6 +3176,11 @@ CURLOptionMapping implementedOptionMap[] =
   MAP(POSTREDIR),
 #else
   MAP_NO(POSTREDIR),
+#endif
+#if HAVE_DECL_CURLOPT_MIMEPOST
+  IMM(MIMEPOST),
+#else
+  IMM_NO(MIMEPOST),
 #endif
 };
 
