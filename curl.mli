@@ -524,6 +524,9 @@ val unescape : string -> string
 val getdate : string -> float -> float
 val version : unit -> string
 val strerror : curlCode -> string
+val int_of_curlCode : curlCode -> int
+val curlCode_of_int : int -> curlCode option
+(** same as [int_of_curlCode] *)
 val errno : curlCode -> int
 val version_info : unit -> version_info
 val pause : t -> pauseOption list -> unit

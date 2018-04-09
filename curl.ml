@@ -512,8 +512,10 @@ type version_info = {
 
 external version_info : unit -> version_info = "caml_curl_version_info"
 
-external strerror : curlCode -> string = "caml_curl_easy_strerror"
-let errno : curlCode -> int = Obj.magic
+external strerror : curlCode -> string = "caml_curl_strerror"
+external curlCode_of_int : int -> curlCode option = "caml_curl_curlCode_of_int"
+external int_of_curlCode : curlCode -> int = "caml_curl_int_of_curlCode"
+let errno = int_of_curlCode
 
 type pauseOption = PAUSE_SEND | PAUSE_RECV | PAUSE_ALL
 

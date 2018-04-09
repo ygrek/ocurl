@@ -4067,10 +4067,23 @@ value caml_curl_multi_perform_all(value v_multi)
   CAMLreturn(Val_int(still_running));
 }
 
-value caml_curl_easy_strerror(value v_code)
+/* currently curlCode repr tag matches CURLE_ value
+ * this is exploited below, but generally should use errorMap */
+
+value caml_curl_strerror(value v_code)
 {
   CAMLparam1(v_code);
   CAMLreturn(caml_copy_string(curl_easy_strerror((CURLcode)Int_val(v_code))));
+}
+
+value caml_curl_int_of_curlCode(value v_code)
+{
+  return v_code;
+}
+
+value caml_curl_curlCode_of_int(value v)
+{
+  return (Int_val(v) < sizeof(errorMap) / sizeof(errorMap[0]) ? Val_some(v) : Val_none);
 }
 
 /*
