@@ -709,8 +709,8 @@ val set_connect_to : t -> string list -> unit
 (** @since 0.8.0 *)
 val set_postredir : t -> curlPostRedir list -> unit
 (** @since 0.8.1 *)
-
 val set_mimepost : t -> curlMIMEPart list -> unit
+(** @since 0.8.2 *)
 
 (** {2 Get transfer properties} *)
 
