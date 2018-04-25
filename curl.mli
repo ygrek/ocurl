@@ -253,6 +253,26 @@ type curlProxyType =
   | CURLPROXY_SOCKS4A (** since libcurl 7.18.0 *)
   | CURLPROXY_SOCKS5_HOSTNAME (** since libcurl 7.18.0 *)
 
+type curlMIMEPartData =
+  | CURLMIME_DATA of string
+  | CURLMIME_FILEDATA of string
+
+type curlMIMEEncoding =
+  | CURLMIME_8BIT
+  | CURLMIME_BINARY
+  | CURLMIME_7BIT
+  | CURLMIME_QUOTEDPRINTABLE
+  | CURLMIME_BASE64
+  | CURLMIME_NONE
+
+type curlMIMEPart =
+  {
+    encoding: curlMIMEEncoding;
+    headers: string list;
+    subparts: curlMIMEPart list;
+    data: curlMIMEPartData;
+  }
+
 (** Protocols to enable (via CURLOPT_PROTOCOLS and CURLOPT_REDIR_PROTOCOLS) *)
 type curlProto =
 | CURLPROTO_ALL (** enable everything *)
@@ -432,6 +452,7 @@ type curlOption =
   | CURLOPT_LOGIN_OPTIONS of string
   | CURLOPT_CONNECT_TO of string list
   | CURLOPT_POSTREDIR of curlPostRedir list
+  | CURLOPT_MIMEPOST of curlMIMEPart list (* @since libcurl 7.56.0 *)
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -691,6 +712,8 @@ val set_connect_to : t -> string list -> unit
 (** @since 0.8.0 *)
 val set_postredir : t -> curlPostRedir list -> unit
 (** @since 0.8.1 *)
+val set_mimepost : t -> curlMIMEPart list -> unit
+(** @since 0.8.2 *)
 
 (** {2 Get transfer properties} *)
 
@@ -877,6 +900,7 @@ class handle :
     method set_proxytype : curlProxyType -> unit
     method set_resolve : (string * int * string) list -> (string * int) list -> unit
     method set_dns_servers : string list -> unit
+    method set_mimepost : curlMIMEPart list -> unit
 
     method get_effectiveurl : string
     method get_redirecturl : string
