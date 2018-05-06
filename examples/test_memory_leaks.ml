@@ -27,13 +27,16 @@ let rss () =
   with exn -> Printf.eprintf "Error opening %s (%s), ignoring\n%!" path (Printexc.to_string exn); 0
 
 let check test count leak_size =
-  let rss1 = rss () in
-  for i = 0 to pred count do
-    test leak_size;
-    Gc.compact ();
-  done;
-  let rss2 = rss () in
-  Printf.printf "RSS %d -> %d %s\n%!" rss1 rss2 (if rss2 - rss1 < count * leak_size / 10 then "OK" else "LEAKING")
+  try
+    let rss1 = rss () in
+    for i = 0 to pred count do
+      test leak_size;
+      Gc.compact ();
+    done;
+    let rss2 = rss () in
+    Printf.printf "RSS %d -> %d %s\n%!" rss1 rss2 (if rss2 - rss1 < count * leak_size / 10 then "OK" else "LEAKING")
+  with
+    Curl.NotImplemented s -> Printf.printf "skipping test : libcurl doesn't provide %s\n%!" s
 
 let () =
   let mb = 1024 * 1024 in
