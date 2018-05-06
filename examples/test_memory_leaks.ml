@@ -13,7 +13,9 @@ let test2 size =
   let h = init () in
   let s = String.make size 'a' in
   set_mimepost h [{encoding=CURLMIME_BINARY;headers=[];subparts=[];data=CURLMIME_DATA s}];
-  let g = duphandle h in
+  (* doesn't work, see https://github.com/curl/curl/issues/2551 *)
+(*   let g = duphandle h in *)
+  let g = init () in
   cleanup h;
   cleanup g
 
@@ -26,7 +28,7 @@ let rss () =
 
 let check test count leak_size =
   let rss1 = rss () in
-  for i = 0 to count do
+  for i = 0 to pred count do
     test leak_size;
     Gc.compact ();
   done;

@@ -134,6 +134,7 @@ typedef enum OcamlValues
     Ocaml_LOGIN_OPTIONS,
     Ocaml_CONNECT_TO,
     Ocaml_POSTREDIR,
+    Ocaml_MIMEPOST,
 
     /* Not used, last for size */
     OcamlValuesSize
@@ -1376,8 +1377,11 @@ static void new_part(Connection* conn, curl_mime* mime, value v_part)
 
 static void handle_MIMEPOST(Connection* conn, value v_subparts)
 {
+  CAMLparam1(v_subparts);
   curl_mime *mime = curl_mime_init(conn->handle);
   CURLcode result;
+
+  Store_field(conn->ocamlValues, Ocaml_MIMEPOST, v_subparts);
 
   curl_mime_free(conn->curl_MIMEPOST);
   conn->curl_MIMEPOST = mime;
@@ -1392,6 +1396,8 @@ static void handle_MIMEPOST(Connection* conn, value v_subparts)
   if (result != CURLE_OK) {
     raiseError(conn, result);
   }
+
+  CAMLreturn0;
 }
 
 #endif
@@ -3178,9 +3184,9 @@ CURLOptionMapping implementedOptionMap[] =
   MAP_NO(POSTREDIR),
 #endif
 #if HAVE_DECL_CURLOPT_MIMEPOST
-  IMM(MIMEPOST),
+  MAP(MIMEPOST),
 #else
-  IMM_NO(MIMEPOST),
+  MAP_NO(MIMEPOST),
 #endif
 };
 
