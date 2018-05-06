@@ -13,9 +13,8 @@ let test2 size =
   let h = init () in
   let s = String.make size 'a' in
   set_mimepost h [{encoding=CURLMIME_BINARY;headers=[];subparts=[];data=CURLMIME_DATA s}];
-  (* doesn't work, see https://github.com/curl/curl/issues/2551 *)
-(*   let g = duphandle h in *)
-  let g = init () in
+  (* see https://github.com/curl/curl/issues/2551 *)
+  let g = if (version_info ()).number >= (7,58,0) then duphandle h else init () in
   cleanup h;
   cleanup g
 
