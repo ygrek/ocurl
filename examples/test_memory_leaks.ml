@@ -1,16 +1,21 @@
 open Curl
 
-let count1 = 200
-let leak1 = 1024 * 1024
-
-let test1 () =
+let test1 size =
   let h = init () in
-  let s1 = String.make leak1 'd' in
+  let s1 = String.make size 'd' in
   set_private h s1;
-  let s2 = String.make leak1 'c' in
+  let s2 = String.make size 'c' in
   set_httppost h [CURLFORM_CONTENT ("part", s2, DEFAULT)];
   assert (get_private h = s1);
   cleanup h
+
+let test2 size =
+  let h = init () in
+  let s = String.make size 'a' in
+  set_mimepost h [{encoding=CURLMIME_BINARY;headers=[];subparts=[];data=CURLMIME_DATA s}];
+  let g = duphandle h in
+  cleanup h;
+  cleanup g
 
 let rss () =
   let path = Printf.sprintf "/proc/%d/statm" (Unix.getpid ()) in
@@ -19,11 +24,17 @@ let rss () =
     let n = Scanf.fscanf ch "%_d %d" (fun x -> 4*1024*x) in close_in_noerr ch; n
   with exn -> Printf.eprintf "Error opening %s (%s), ignoring\n%!" path (Printexc.to_string exn); 0
 
-let () =
+let check test count leak_size =
   let rss1 = rss () in
-  for i = 0 to count1 do
-    test1 ();
+  for i = 0 to count do
+    test leak_size;
     Gc.compact ();
   done;
   let rss2 = rss () in
-  Printf.printf "RSS %d -> %d %s\n%!" rss1 rss2 (if rss2 - rss1 < count1 * leak1 / 10 then "OK" else "LEAKING")
+  Printf.printf "RSS %d -> %d %s\n%!" rss1 rss2 (if rss2 - rss1 < count * leak_size / 10 then "OK" else "LEAKING")
+
+let () =
+  let mb = 1024 * 1024 in
+  check test1 200 mb;
+  check test2 100 mb;
+  ()
