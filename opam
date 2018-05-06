@@ -25,4 +25,4 @@ depends: [
   "base-unix"
   "conf-libcurl"
 ]
-depopts: ["lwt"]
+depopts: ["lwt" "lwt_ppx"]

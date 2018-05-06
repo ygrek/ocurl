@@ -1329,6 +1329,9 @@ static void new_part(Connection* conn, curl_mime* mime, value v_part)
     case 5:
       result = CURLE_OK;
       break;
+    default:
+      caml_failwith("Invalid MIMEPOST encoding value");
+      break;
   }
 
   if (result != CURLE_OK) {
@@ -1352,6 +1355,9 @@ static void new_part(Connection* conn, curl_mime* mime, value v_part)
       break;
     case 1:
       result = curl_mime_filedata(part, String_val(v_str));
+      break;
+    default:
+      caml_failwith("Invalid MIMEPOST data value");
       break;
   }
 
