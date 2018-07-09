@@ -265,6 +265,17 @@ type curlMIMEPart =
     data: curlMIMEPartData;
   }
 
+type curlKHMatch =
+  | CURLKHMATCH_OK
+  | CURLKHMATCH_MISMATCH of string
+  | CURLKHMATCH_MISSING
+
+type curlKHStat =
+  | CURLKHSTAT_FINE_ADD_TO_FILE
+  | CURLKHSTAT_FINE
+  | CURLKHSTAT_REJECT
+  | CURLKHSTAT_DEFER
+
 (** Protocols to enable (via CURLOPT_PROTOCOLS and CURLOPT_REDIR_PROTOCOLS) *)
 type curlProto =
 | CURLPROTO_ALL (** enable everything *)
@@ -445,6 +456,8 @@ type curlOption =
   | CURLOPT_CONNECT_TO of string list
   | CURLOPT_POSTREDIR of curlPostRedir list
   | CURLOPT_MIMEPOST of curlMIMEPart list
+  | CURLOPT_SSHKNOWNHOSTS of string
+  | CURLOPT_SSHKEYFUNCTION of (curlKHMatch -> string -> curlKHStat)
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -970,6 +983,12 @@ let set_postredir conn l =
 let set_mimepost conn part =
   setopt conn (CURLOPT_MIMEPOST part)
 
+let set_sshknownhosts conn s =
+  setopt conn (CURLOPT_SSHKNOWNHOSTS s)
+
+let set_sshkeyfunction conn f =
+  setopt conn (CURLOPT_SSHKEYFUNCTION f)
+
 let get_effectiveurl conn =
   match (getinfo conn CURLINFO_EFFECTIVE_URL) with
   | CURLINFO_String s -> s
@@ -1305,6 +1324,8 @@ class handle =
     method set_opensocketfunction closure = set_opensocketfunction conn closure
     method set_proxytype t = set_proxytype conn t
     method set_mimepost p = set_mimepost conn p
+    method set_sshknownhosts s = set_sshknownhosts conn s
+    method set_sshkeyfunction f = set_sshkeyfunction conn f
 
     method get_effectiveurl = get_effectiveurl conn
     method get_redirecturl = get_redirecturl conn

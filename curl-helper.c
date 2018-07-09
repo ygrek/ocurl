@@ -135,6 +135,7 @@ typedef enum OcamlValues
     Ocaml_CONNECT_TO,
     Ocaml_POSTREDIR,
     Ocaml_MIMEPOST,
+    Ocaml_SSH_KEYFUNCTION,
 
     /* Not used, last for size */
     OcamlValuesSize
@@ -1106,6 +1107,66 @@ static int cb_OPENSOCKETFUNCTION(void *data,
 }
 #endif
 
+static int cb_SSH_KEYFUNCTION(CURL *easy,
+                              const struct curl_khkey *knownkey,
+                              const struct curl_khkey *foundkey,
+                              enum curl_khmatch match,
+                              void *clientp)
+{
+    caml_leave_blocking_section();
+
+    CAMLparam0();
+    CAMLlocal4(known, found, mismatch, result);
+    Connection *conn = (Connection *)clientp;
+    int res = CURLKHSTAT_REJECT;
+
+    switch (match) {
+      case CURLKHMATCH_OK:
+        found = ml_copy_string(foundkey->key, foundkey->len ? foundkey->len : strlen(foundkey->key));
+        result = caml_callback2_exn(Field(conn->ocamlValues, Ocaml_SSH_KEYFUNCTION), Val_int(0), found);
+        break;
+      case CURLKHMATCH_MISMATCH:
+        found = ml_copy_string(foundkey->key, foundkey->len ? foundkey->len : strlen(foundkey->key));
+        known = ml_copy_string(knownkey->key, knownkey->len ? knownkey->len : strlen(knownkey->key));
+        mismatch = caml_alloc_small(1, 0);
+        Field(mismatch, 0) = found;
+        result = caml_callback2_exn(Field(conn->ocamlValues, Ocaml_SSH_KEYFUNCTION), mismatch, found);
+        break;
+      case CURLKHMATCH_MISSING:
+        found = ml_copy_string(foundkey->key, foundkey->len ? foundkey->len : strlen(foundkey->key));
+        result = caml_callback2_exn(Field(conn->ocamlValues, Ocaml_SSH_KEYFUNCTION), Val_int(1), found);
+        break;
+      default:
+        caml_failwith("Invalid CURL_SSH_KEYFUNCTION argument");
+        break;
+    }
+
+    if (!Is_exception_result(result)) {
+      switch (Int_val(result)) {
+        case 0:
+          res = CURLKHSTAT_FINE_ADD_TO_FILE;
+          break;
+        case 1:
+          res = CURLKHSTAT_FINE;
+          break;
+        case 2:
+          res = CURLKHSTAT_REJECT;
+          break;
+        case 3:
+          res = CURLKHSTAT_DEFER;
+          break;
+        default:
+          caml_failwith("Invalid CURLOPT_SSH_KEYFUNCTION return value");
+          break;
+      }
+    }
+
+    CAMLdrop;
+
+    caml_enter_blocking_section();
+    return res;
+}
+
 /**
  **  curl_global_init helper function
  **/
@@ -1202,6 +1263,7 @@ SETOPT_FUNCTION( READ)
 SETOPT_FUNCTION( HEADER)
 SETOPT_FUNCTION( PROGRESS)
 SETOPT_FUNCTION( DEBUG)
+SETOPT_FUNCTION( SSH_KEY)
 
 #if HAVE_DECL_CURLOPT_SEEKFUNCTION
 SETOPT_FUNCTION( SEEK)
@@ -2785,6 +2847,19 @@ static void handle_POSTREDIR(Connection *conn, value option)
 }
 #endif
 
+static void handle_SSH_KNOWNHOSTS(Connection *conn, value option)
+{
+    CAMLparam1(option);
+    CURLcode result = CURLE_OK;
+
+    result = curl_easy_setopt(conn->handle, CURLOPT_SSH_KNOWNHOSTS, String_val(option));
+
+    if (result != CURLE_OK)
+        raiseError(conn, result);
+
+    CAMLreturn0;
+}
+
 /**
  **  curl_easy_setopt helper function
  **/
@@ -3194,6 +3269,8 @@ CURLOptionMapping implementedOptionMap[] =
 #else
   MAP_NO(MIMEPOST),
 #endif
+  IMM(SSH_KNOWNHOSTS),
+  MAP(SSH_KEYFUNCTION),
 };
 
 static Connection *duplicateConnection(Connection *original)

@@ -273,6 +273,17 @@ type curlMIMEPart =
     data: curlMIMEPartData;
   }
 
+type curlKHMatch =
+  | CURLKHMATCH_OK
+  | CURLKHMATCH_MISMATCH of string (* Base64-encoded *)
+  | CURLKHMATCH_MISSING
+
+type curlKHStat =
+  | CURLKHSTAT_FINE_ADD_TO_FILE
+  | CURLKHSTAT_FINE
+  | CURLKHSTAT_REJECT
+  | CURLKHSTAT_DEFER
+
 (** Protocols to enable (via CURLOPT_PROTOCOLS and CURLOPT_REDIR_PROTOCOLS) *)
 type curlProto =
 | CURLPROTO_ALL (** enable everything *)
@@ -453,6 +464,8 @@ type curlOption =
   | CURLOPT_CONNECT_TO of string list
   | CURLOPT_POSTREDIR of curlPostRedir list
   | CURLOPT_MIMEPOST of curlMIMEPart list (* @since libcurl 7.56.0 *)
+  | CURLOPT_SSHKNOWNHOSTS of string
+  | CURLOPT_SSHKEYFUNCTION of (curlKHMatch -> string (* raw *) -> curlKHStat)
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -717,6 +730,9 @@ val set_postredir : t -> curlPostRedir list -> unit
 val set_mimepost : t -> curlMIMEPart list -> unit
 (** @since 0.8.2 *)
 
+val set_sshknownhosts : t -> string -> unit
+val set_sshkeyfunction : t -> (curlKHMatch -> string -> curlKHStat) -> unit
+
 (** {2 Get transfer properties} *)
 
 val get_effectiveurl : t -> string
@@ -903,6 +919,8 @@ class handle :
     method set_resolve : (string * int * string) list -> (string * int) list -> unit
     method set_dns_servers : string list -> unit
     method set_mimepost : curlMIMEPart list -> unit
+    method set_sshknownhosts : string -> unit
+    method set_sshkeyfunction : (curlKHMatch -> string -> curlKHStat) -> unit
 
     method get_effectiveurl : string
     method get_redirecturl : string
