@@ -2847,18 +2847,7 @@ static void handle_POSTREDIR(Connection *conn, value option)
 }
 #endif
 
-static void handle_SSH_KNOWNHOSTS(Connection *conn, value option)
-{
-    CAMLparam1(option);
-    CURLcode result = CURLE_OK;
-
-    result = curl_easy_setopt(conn->handle, CURLOPT_SSH_KNOWNHOSTS, String_val(option));
-
-    if (result != CURLE_OK)
-        raiseError(conn, result);
-
-    CAMLreturn0;
-}
+SETOPT_VAL( SSH_KNOWNHOSTS, String_val)
 
 /**
  **  curl_easy_setopt helper function
