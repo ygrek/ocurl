@@ -1116,33 +1116,31 @@ static int cb_SSH_KEYFUNCTION(CURL *easy,
     caml_leave_blocking_section();
 
     CAMLparam0();
-    CAMLlocal4(known, found, mismatch, result);
+    CAMLlocal3(v_found, v_match, v_result);
     Connection *conn = (Connection *)clientp;
     int res = CURLKHSTAT_REJECT;
 
     switch (match) {
       case CURLKHMATCH_OK:
-        found = ml_copy_string(foundkey->key, foundkey->len ? foundkey->len : strlen(foundkey->key));
-        result = caml_callback2_exn(Field(conn->ocamlValues, Ocaml_SSH_KEYFUNCTION), Val_int(0), found);
+        v_match = Val_int(0);
         break;
       case CURLKHMATCH_MISMATCH:
-        found = ml_copy_string(foundkey->key, foundkey->len ? foundkey->len : strlen(foundkey->key));
-        known = ml_copy_string(knownkey->key, knownkey->len ? knownkey->len : strlen(knownkey->key));
-        mismatch = caml_alloc_small(1, 0);
-        Field(mismatch, 0) = found;
-        result = caml_callback2_exn(Field(conn->ocamlValues, Ocaml_SSH_KEYFUNCTION), mismatch, found);
+        v_match = caml_alloc_small(1, 0);
+        Field(v_match, 0) = ml_copy_string(knownkey->key, knownkey->len ? knownkey->len : strlen(knownkey->key));
         break;
       case CURLKHMATCH_MISSING:
-        found = ml_copy_string(foundkey->key, foundkey->len ? foundkey->len : strlen(foundkey->key));
-        result = caml_callback2_exn(Field(conn->ocamlValues, Ocaml_SSH_KEYFUNCTION), Val_int(1), found);
+        v_match = Val_int(1);
         break;
       default:
         caml_failwith("Invalid CURL_SSH_KEYFUNCTION argument");
         break;
     }
 
-    if (!Is_exception_result(result)) {
-      switch (Int_val(result)) {
+    v_found = ml_copy_string(foundkey->key, foundkey->len ? foundkey->len : strlen(foundkey->key));
+    v_result = caml_callback2_exn(Field(conn->ocamlValues, Ocaml_SSH_KEYFUNCTION), v_match, v_found);
+
+    if (!Is_exception_result(v_result)) {
+      switch (Int_val(v_result)) {
         case 0:
           res = CURLKHSTAT_FINE_ADD_TO_FILE;
           break;
