@@ -275,7 +275,9 @@ type curlMIMEPart =
 
 type curlKHMatch =
   | CURLKHMATCH_OK
-  | CURLKHMATCH_MISMATCH of string (* Base64-encoded *)
+  | CURLKHMATCH_MISMATCH of string
+  (** Argument consists of the base64-encoded public key of the remote host as
+      as found in the "known hosts" file **)
   | CURLKHMATCH_MISSING
 
 type curlKHStat =
@@ -465,7 +467,10 @@ type curlOption =
   | CURLOPT_POSTREDIR of curlPostRedir list
   | CURLOPT_MIMEPOST of curlMIMEPart list (* @since libcurl 7.56.0 *)
   | CURLOPT_SSHKNOWNHOSTS of string
-  | CURLOPT_SSHKEYFUNCTION of (curlKHMatch -> string (* raw *) -> curlKHStat)
+  | CURLOPT_SSHKEYFUNCTION of (curlKHMatch -> string -> curlKHStat)
+  (** The second argument to the passed function consists of the raw bytes of
+      the public key sent by the remote host. If the function raises an
+      exception the key will be rejected, and the connection will fail.**)
 
 type initOption =
   | CURLINIT_GLOBALALL
