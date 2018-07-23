@@ -2036,11 +2036,7 @@ static void handle_HTTP_VERSION(Connection *conn, value option)
 #endif
       break;
     case 5:
-#if defined(CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE)
       version = CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE;
-#else
-      caml_invalid_argument("CURLOPT_HTTP_VERSION: unsupported version CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE");
-#endif
       break;
     default:
       caml_invalid_argument("CURLOPT_HTTP_VERSION");
