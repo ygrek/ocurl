@@ -2095,6 +2095,9 @@ static void handle_HTTP_VERSION(Connection *conn, value option)
       version = CURL_HTTP_VERSION_2TLS;
 #endif
       break;
+    case 5:
+      version = CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE;
+      break;
     default:
       caml_invalid_argument("CURLOPT_HTTP_VERSION");
       break;

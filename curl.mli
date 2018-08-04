@@ -173,6 +173,7 @@ type curlHTTPVersion =
   | HTTP_VERSION_1_1 (** please use HTTP 1.1 *)
   | HTTP_VERSION_2 (** please use HTTP 2 *)
   | HTTP_VERSION_2TLS (** use version 2 for HTTPS, version 1.1 for HTTP *)
+  | HTTP_VERSION_2_PRIOR_KNOWLEDGE (** Issue non-TLS HTTP requests using HTTP/2 without HTTP/1. *)
 
 type curlDebugType =
   | DEBUGTYPE_TEXT
