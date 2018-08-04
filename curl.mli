@@ -171,9 +171,9 @@ type curlHTTPVersion =
   | HTTP_VERSION_NONE (** libcurl will make the best choice *)
   | HTTP_VERSION_1_0 (** please use HTTP 1.0 *)
   | HTTP_VERSION_1_1 (** please use HTTP 1.1 *)
-  | HTTP_VERSION_2 (** please use HTTP 2 *)
-  | HTTP_VERSION_2TLS (** use version 2 for HTTPS, version 1.1 for HTTP *)
-  | HTTP_VERSION_2_PRIOR_KNOWLEDGE (** Issue non-TLS HTTP requests using HTTP/2 without HTTP/1. *)
+  | HTTP_VERSION_2 (** please use HTTP 2 (requires libcurl >= 7.33.0, otherwise will fallback to libcurl choice) *)
+  | HTTP_VERSION_2TLS (** use version 2 for HTTPS, version 1.1 for HTTP (requires libcurl >= 7.47.0) *)
+  | HTTP_VERSION_2_PRIOR_KNOWLEDGE (** Issue non-TLS HTTP requests using HTTP/2 without HTTP/1 (requires libcurl >= 7.49.0) *)
 
 type curlDebugType =
   | DEBUGTYPE_TEXT

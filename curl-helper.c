@@ -2096,7 +2096,9 @@ static void handle_HTTP_VERSION(Connection *conn, value option)
 #endif
       break;
     case 5:
+#if HAVE_DECL_CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE
       version = CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE;
+#endif
       break;
     default:
       caml_invalid_argument("CURLOPT_HTTP_VERSION");
@@ -4604,8 +4606,8 @@ struct used_enum
 
 struct used_enum check_enums[] = {
   { CURLINFO_SSL_DATA_OUT, CURLINFO_END, "DEBUGFUNCTION curl_infotype" },
-#if HAVE_DECL_CURL_HTTP_VERSION_2TLS
-  CURL_ENUM(HTTP_VERSION, 2TLS),
+#if HAVE_DECL_CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE
+  CURL_ENUM(HTTP_VERSION, 2_PRIOR_KNOWLEDGE),
 #endif
 };
 

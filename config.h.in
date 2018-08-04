@@ -1119,6 +1119,10 @@
    0 if you don't. */
 #undef HAVE_DECL_CURL_HTTP_VERSION_2_0
 
+/* Define to 1 if you have the declaration of
+   `CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE', and to 0 if you don't. */
+#undef HAVE_DECL_CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE
+
 /* Define to 1 if you have the declaration of `CURL_SSLVERSION_TLSv1_0', and
    to 0 if you don't. */
 #undef HAVE_DECL_CURL_SSLVERSION_TLSV1_0
