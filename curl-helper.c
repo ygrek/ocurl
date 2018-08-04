@@ -4615,11 +4615,12 @@ value caml_curl_check_enums(value v_unit)
 {
   CAMLparam0();
   CAMLlocal2(v_r,v);
+  size_t i;
   size_t len = sizeof(check_enums) / sizeof(struct used_enum);
 
   v_r = caml_alloc_tuple(len);
 
-  for (size_t i = 0; i < len; i++)
+  for (i = 0; i < len; i++)
   {
     v = caml_alloc_tuple(3);
     Store_field(v, 0, Val_int(check_enums[i].last_used));
