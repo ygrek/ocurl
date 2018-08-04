@@ -19,7 +19,7 @@ OCURLOPTLIB	= curl.cmxa unix.cmxa threads.cmxa
 LWT_UNIX=@OCAML_PKG_lwt_unix@
 LWT_PPX=@OCAML_PKG_lwt_ppx@
 
-TARGETS = ocurl ominimal ossl ocurl_test_threads opar test_cb_exn test_memory_leaks
+TARGETS = ocurl ominimal ossl ocurl_test_threads opar test_cb_exn test_memory_leaks test_unit
 ifneq (@OCAML_PKG_bytes@,no)
 TARGETS += oput
 endif
@@ -31,7 +31,7 @@ endif
 endif
 
 ifeq (@OCAMLBEST@,opt)
-TARGETS	+= ocurl.opt ominimal.opt ossl.opt ocurl_test_threads.opt opar.opt test_cb_exn.opt test_memory_leaks.opt
+TARGETS	+= ocurl.opt ominimal.opt ossl.opt ocurl_test_threads.opt opar.opt test_cb_exn.opt test_memory_leaks.opt test_unit.opt
 ifneq (@OCAML_PKG_bytes@,no)
 TARGETS += oput.opt
 endif

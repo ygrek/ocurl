@@ -75,6 +75,7 @@ ifneq (@OCAML_PKG_lwt_unix@,no)
 	examples/test_lwt_unit.opt
 endif
 endif
+	examples/test_unit
 
 doc:
 		mkdir -p doc

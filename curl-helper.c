@@ -4600,29 +4600,30 @@ struct used_enum
 #define CURL_ENUM(name,last_used) { CURL_ ## name ## _ ## last_used, CURL_ ## name ## _LAST, #name }
 
 struct used_enum check_enums[] = {
-  { CURLINFO_SSL_DATA_OUT, CURLINFO_END, "CURLINFO" },
+  { CURLINFO_SSL_DATA_OUT, CURLINFO_END, "DEBUGFUNCTION curl_infotype" },
 #if HAVE_DECL_CURL_HTTP_VERSION_2TLS
   CURL_ENUM(HTTP_VERSION, 2TLS),
 #endif
 };
 
-value caml_curl_outdated_enums(value v_unit)
+value caml_curl_check_enums(value v_unit)
 {
   CAMLparam0();
-  CAMLlocal1(v);
-  size_t i;
+  CAMLlocal2(v_r,v);
+  size_t len = sizeof(check_enums) / sizeof(struct used_enum);
 
-  v = Val_emptylist;
+  v_r = caml_alloc_tuple(len);
 
-  for (i = 0; i < sizeof(check_enums) / sizeof(struct used_enum); i++)
+  for (size_t i = 0; i < len; i++)
   {
-    if (check_enums[i].last_used + 1 != check_enums[i].last)
-    {
-      v = Val_cons(v, caml_copy_string(check_enums[i].name));
-    }
+    v = caml_alloc_tuple(3);
+    Store_field(v, 0, Val_int(check_enums[i].last_used));
+    Store_field(v, 1, Val_int(check_enums[i].last));
+    Store_field(v, 2, caml_copy_string(check_enums[i].name));
+    Store_field(v_r, i, v);
   }
 
-  CAMLreturn(v);
+  CAMLreturn(v_r);
 }
 
 #ifdef __cplusplus
