@@ -1875,19 +1875,19 @@ SETOPT_STRING( COOKIEFILE)
 SETOPT_BOOL( CERTINFO)
 #endif
 
-#if !defined(CURL_SSLVERSION_TLSv1_0)
+#if !HAVE_DECL_CURL_SSLVERSION_TLSV1_0
 #define CURL_SSLVERSION_TLSv1_0 CURL_SSLVERSION_TLSv1
 #endif
 
-#if !defined(CURL_SSLVERSION_TLSv1_1)
+#if !HAVE_DECL_CURL_SSLVERSION_TLSV1_1
 #define CURL_SSLVERSION_TLSv1_1 CURL_SSLVERSION_TLSv1
 #endif
 
-#if !defined(CURL_SSLVERSION_TLSv1_2)
+#if !HAVE_DECL_CURL_SSLVERSION_TLSV1_2
 #define CURL_SSLVERSION_TLSv1_2 CURL_SSLVERSION_TLSv1
 #endif
 
-#if !defined(CURL_SSLVERSION_TLSv1_3)
+#if !HAVE_DECL_CURL_SSLVERSION_TLSV1_3
 #define CURL_SSLVERSION_TLSv1_3 CURL_SSLVERSION_TLSv1
 #endif
 
@@ -2084,14 +2084,14 @@ static void handle_HTTP_VERSION(Connection *conn, value option)
     case 1: version = CURL_HTTP_VERSION_1_0; break;
     case 2: version = CURL_HTTP_VERSION_1_1; break;
     case 3:
-#if defined(CURL_HTTP_VERSION_2)
+#if HAVE_DECL_CURL_HTTP_VERSION_2
       version = CURL_HTTP_VERSION_2;
-#elif defined(CURL_HTTP_VERSION_2_0)
+#elif HAVE_DECL_CURL_HTTP_VERSION_2_0
       version = CURL_HTTP_VERSION_2_0;
 #endif
       break;
     case 4:
-#if defined(CURL_HTTP_VERSION_2TLS)
+#if HAVE_DECL_CURL_HTTP_VERSION_2TLS
       version = CURL_HTTP_VERSION_2TLS;
 #endif
       break;
@@ -4601,7 +4601,7 @@ struct used_enum
 
 struct used_enum check_enums[] = {
   { CURLINFO_SSL_DATA_OUT, CURLINFO_END, "CURLINFO" },
-#if defined(CURL_HTTP_VERSION_2TLS) /* FIXME */
+#if HAVE_DECL_CURL_HTTP_VERSION_2TLS
   CURL_ENUM(HTTP_VERSION, 2TLS),
 #endif
 };

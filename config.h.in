@@ -1107,6 +1107,34 @@
    you don't. */
 #undef HAVE_DECL_CURLOPT_WRITEINFO
 
+/* Define to 1 if you have the declaration of `CURL_HTTP_VERSION_2', and to 0
+   if you don't. */
+#undef HAVE_DECL_CURL_HTTP_VERSION_2
+
+/* Define to 1 if you have the declaration of `CURL_HTTP_VERSION_2TLS', and to
+   0 if you don't. */
+#undef HAVE_DECL_CURL_HTTP_VERSION_2TLS
+
+/* Define to 1 if you have the declaration of `CURL_HTTP_VERSION_2_0', and to
+   0 if you don't. */
+#undef HAVE_DECL_CURL_HTTP_VERSION_2_0
+
+/* Define to 1 if you have the declaration of `CURL_SSLVERSION_TLSv1_0', and
+   to 0 if you don't. */
+#undef HAVE_DECL_CURL_SSLVERSION_TLSV1_0
+
+/* Define to 1 if you have the declaration of `CURL_SSLVERSION_TLSv1_1', and
+   to 0 if you don't. */
+#undef HAVE_DECL_CURL_SSLVERSION_TLSV1_1
+
+/* Define to 1 if you have the declaration of `CURL_SSLVERSION_TLSv1_2', and
+   to 0 if you don't. */
+#undef HAVE_DECL_CURL_SSLVERSION_TLSV1_2
+
+/* Define to 1 if you have the declaration of `CURL_SSLVERSION_TLSv1_3', and
+   to 0 if you don't. */
+#undef HAVE_DECL_CURL_SSLVERSION_TLSV1_3
+
 /* Define to 1 if you have the declaration of `CURL_VERSION_NTLM_WB', and to 0
    if you don't. */
 #undef HAVE_DECL_CURL_VERSION_NTLM_WB
