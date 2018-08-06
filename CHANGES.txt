@@ -1,3 +1,11 @@
+0.8.2  -  5 Aug 2018
+
+    * deprecate duphandle
+    + curlCode_of_int
+    + CURLOPT_MIMEPOST
+    + CURLOPT_SSH_KNOWNHOSTS CURLOPT_SSH_KEYFUNCTION
+    + HTTP_VERSION_2_PRIOR_KNOWLEDGE
+
 0.8.1  - 11 Mar 2018
 
     + CURLOPT_POSTREDIR
