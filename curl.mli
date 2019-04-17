@@ -549,13 +549,6 @@ val global_cleanup : unit -> unit
 val init : unit -> t
 val reset : t -> unit
 (** Reset [t] to the default state *)
-val duphandle : t -> t [@@ocaml.deprecated "collect options and apply to fresh handle explicitly instead"]
-(** Create the new handle, copying all the options from the supplied [t].
-Note that it will also copy [set_writefunction] options and alike, as such both
-handles (original and new one) will be referencing the same closures, potentially
-sharing some state, which may lead to surprising results.
-@deprecated collect options and apply to fresh handle explicitly instead, see also https://github.com/ygrek/ocurl/issues/31
-*)
 val setopt : t -> curlOption -> unit
 (** @raise NotImplemented for not implemented option *)
 val perform : t -> unit
@@ -789,7 +782,6 @@ class handle :
     val conn : t
     method handle : t
     method cleanup : unit
-    method duphandle : 'a
     method perform : unit
 
     method set_writefunction : (string -> int) -> unit

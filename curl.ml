@@ -520,7 +520,6 @@ external global_init : initOption -> unit = "caml_curl_global_init"
 external global_cleanup : unit -> unit = "caml_curl_global_cleanup"
 external init : unit -> t = "caml_curl_easy_init"
 external reset : t -> unit = "caml_curl_easy_reset"
-external duphandle : t -> t = "caml_curl_easy_duphandle"
 external setopt : t -> curlOption -> unit = "caml_curl_easy_setopt"
 external perform : t -> unit = "caml_curl_easy_perform"
 external cleanup : t -> unit = "caml_curl_easy_cleanup"
@@ -1189,7 +1188,6 @@ class handle =
   object
     val conn = init ()
     method handle = conn
-    method duphandle = {< conn = duphandle conn >}
     method perform = perform conn
     method cleanup = cleanup conn
     method set_writefunction closure = set_writefunction conn closure
