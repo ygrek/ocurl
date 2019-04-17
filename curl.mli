@@ -324,6 +324,10 @@ type curlPostRedir =
 | REDIR_POST_302
 | REDIR_POST_303 (** added in libcurl 7.26.0 *)
 
+type curlRead =
+| READ_ABORT
+| READ_SUBSTRING_UNSAFE of string * int * int (* offset + size *)
+
 type curlOption =
   | CURLOPT_WRITEFUNCTION of (string -> int)
   | CURLOPT_READFUNCTION of (int -> string)
@@ -472,6 +476,7 @@ type curlOption =
   (** The second argument to the passed function consists of the raw bytes of
       the public key sent by the remote host. If the function raises an
       exception the key will be rejected, and the connection will fail.**)
+  | OCURL_READFUNCTION_SUB of (int -> curlRead)
 
 type initOption =
   | CURLINIT_GLOBALALL

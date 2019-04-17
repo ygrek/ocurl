@@ -314,6 +314,10 @@ type curlPostRedir =
 | REDIR_POST_302
 | REDIR_POST_303
 
+type curlRead =
+| READ_ABORT
+| READ_SUBSTRING_UNSAFE of string * int * int (* offset + size *)
+
 type curlOption =
   | CURLOPT_WRITEFUNCTION of (string -> int)
   | CURLOPT_READFUNCTION of (int -> string)
@@ -459,6 +463,7 @@ type curlOption =
   | CURLOPT_MIMEPOST of curlMIMEPart list
   | CURLOPT_SSHKNOWNHOSTS of string
   | CURLOPT_SSHKEYFUNCTION of (curlKHMatch -> string -> curlKHStat)
+  | OCURL_READFUNCTION_SUB of (int -> curlRead)
 
 type initOption =
   | CURLINIT_GLOBALALL

@@ -842,6 +842,44 @@ static size_t cb_READFUNCTION(void *ptr, size_t size, size_t nmemb, void *data)
     return r;
 }
 
+static size_t cb_READFUNCTION_SUB(void *ptr, size_t size, size_t nmemb, void *data)
+{
+    caml_leave_blocking_section();
+
+    CAMLparam0();
+    CAMLlocal1(result);
+    Connection *conn = (Connection *)data;
+    size_t r;
+
+    checkConnection(conn);
+
+    result = caml_callback_exn(Field(conn->ocamlValues, Ocaml_READFUNCTION), Val_int(size*nmemb));
+
+    if (Is_exception_result(result))
+    {
+      CAMLreturnT(size_t,CURL_READFUNC_ABORT);
+    }
+
+    if (Is_block(result))
+    {
+        r = Int_val(Field(result,2));
+        memcpy(ptr, String_val(Field(result,0)) + Int_val(Field(result,1)), r);
+    }
+    else
+    {
+        r = CURL_READFUNC_ABORT;
+    }
+    /*
+      default:
+        caml_failwith("READFUNCTION_SUB");
+    */
+
+    CAMLdrop;
+
+    caml_enter_blocking_section();
+    return r;
+}
+
 static size_t cb_HEADERFUNCTION(char *ptr, size_t size, size_t nmemb, void *data)
 {
     caml_leave_blocking_section();
@@ -1192,21 +1230,24 @@ value caml_curl_easy_reset(value conn)
  **  curl_easy_setopt helper utility functions
  **/
 
-#define SETOPT_FUNCTION(name) \
-static void handle_##name##FUNCTION(Connection *conn, value option) \
+#define SETOPT_FUNCTION_(name,variant) \
+static void handle_##name##FUNCTION##variant(Connection *conn, value option) \
 { \
     CAMLparam1(option); \
     CURLcode result = CURLE_OK; \
     Store_field(conn->ocamlValues, Ocaml_##name##FUNCTION, option); \
-    result = curl_easy_setopt(conn->handle, CURLOPT_##name##FUNCTION, cb_##name##FUNCTION); \
+    result = curl_easy_setopt(conn->handle, CURLOPT_##name##FUNCTION, cb_##name##FUNCTION##variant); \
     if (result != CURLE_OK) raiseError(conn, result); \
     result = curl_easy_setopt(conn->handle, CURLOPT_##name##DATA, conn); \
     if (result != CURLE_OK) raiseError(conn, result); \
     CAMLreturn0; \
 }
 
+#define SETOPT_FUNCTION(name) SETOPT_FUNCTION_(name,)
+
 SETOPT_FUNCTION( WRITE)
 SETOPT_FUNCTION( READ)
+SETOPT_FUNCTION_( READ, _SUB)
 SETOPT_FUNCTION( HEADER)
 SETOPT_FUNCTION( PROGRESS)
 SETOPT_FUNCTION( DEBUG)
@@ -2797,6 +2838,7 @@ SETOPT_VAL( SSH_KNOWNHOSTS, String_val)
 
 #define CURLOPT(name) { handle_ ## name, "CURLOPT_"#name }
 #define HAVENOT(name) { NULL, "CURLOPT_"#name }
+#define OCURL(name) { handle_ ## name, "OCURL_"#name }
 
 CURLOptionMapping implementedOptionMap[] =
 {
@@ -3200,6 +3242,7 @@ CURLOptionMapping implementedOptionMap[] =
 #endif
   CURLOPT(SSH_KNOWNHOSTS),
   CURLOPT(SSH_KEYFUNCTION),
+  OCURL(READFUNCTION_SUB),
 };
 
 value caml_curl_easy_setopt(value conn, value option)
