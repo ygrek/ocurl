@@ -577,7 +577,7 @@ static void raiseError(Connection *conn, CURLcode code)
 {
     CAMLparam0();
     CAMLlocal1(exceptionData);
-    value *exception;
+    const value *exception;
     char *errorString = "Unknown Error";
     int i;
 
@@ -3208,7 +3208,7 @@ value caml_curl_easy_setopt(value conn, value option)
     CAMLlocal1(data);
     Connection *connection = Connection_val(conn);
     CURLOptionMapping* thisOption = NULL;
-    static value* exception = NULL;
+    static const value* exception = NULL;
 
     checkConnection(connection);
 
@@ -4200,7 +4200,7 @@ value caml_curl_curlCode_of_int(value v)
 
 static void raise_multi_error(char const* msg)
 {
-  static value* exception = NULL;
+  static const value* exception = NULL;
 
   if (NULL == exception)
   {
@@ -4459,7 +4459,7 @@ value caml_curl_multi_setopt(value v_multi, value option)
     CAMLlocal1(data);
     CURLM *handle = Multi_val(v_multi)->handle;
     CURLMOptionMapping* thisOption = NULL;
-    static value* exception = NULL;
+    static const value* exception = NULL;
 
     data = Field(option, 0);
 
