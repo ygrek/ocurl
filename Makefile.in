@@ -2,7 +2,7 @@
 ###	@configure_input@
 ###
 
-.PHONY:		all targets examples install clean distclean depend release doc build test reinstall
+.PHONY:		all targets examples install clean distclean depend release doc build test reinstall gen
 
 .SUFFIXES:	.ml .mli .cmx .cmi .cmo .cmxs .cmxa .cma .c @EXT_OBJ@
 
@@ -75,7 +75,10 @@ ifneq (@OCAML_PKG_lwt_unix@,no)
 	examples/test_lwt_unit.opt
 endif
 endif
-	examples/test_unit
+
+gen: all
+	(cd examples; $(MAKE) test_enum)
+	examples/test_enum
 
 doc:
 		mkdir -p doc
@@ -85,7 +88,7 @@ else
 		ocamldoc -html -d doc curl.mli
 endif
 
-examples:
+examples: all
 		(cd examples; $(MAKE))
 
 curl.cma:	$(CURLBCOBJS) dllcurl-helper$(EXT_DLL)

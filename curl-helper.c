@@ -4506,6 +4506,12 @@ struct used_enum check_enums[] = {
 #if HAVE_DECL_CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE
   CURL_ENUM(HTTP_VERSION, 2_PRIOR_KNOWLEDGE),
 #endif
+#if HAVE_DECL_CURLINFO_CERTINFO
+  { CURLINFO_CERTINFO & CURLINFO_MASK, CURLINFO_LASTONE, "CURLINFO" },
+#endif
+#if HAVE_DECL_CURLE_AGAIN
+  { CURLE_AGAIN, CURL_LAST, "CURLcode" }
+#endif
 };
 
 value caml_curl_check_enums(value v_unit)

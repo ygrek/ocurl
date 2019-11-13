@@ -10,7 +10,9 @@ let () =
     if last_used + 1 <> last then
     begin
       ok := false;
-      printfn "Need update for %s" name
+      printfn "%s : need update : used %d, last %d" name last_used last
     end
+    else
+      printfn "%s : ok" name
   end (check_enums ());
   exit (if !ok then 0 else 1)

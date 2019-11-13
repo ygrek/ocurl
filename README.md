@@ -38,6 +38,7 @@ Compile examples with `make -f Makefile.msvc examples`.
 Making release
 ==============
 
+* Check `make gen` with latest libcurl
 * Update CHANGES.txt
 * Update version in configure.ac
 * autoreconf
