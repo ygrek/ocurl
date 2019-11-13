@@ -3940,7 +3940,10 @@ value caml_curl_pause(value conn, value opts)
     opts = Field(opts,1);
   }
 
+  caml_enter_blocking_section();
   result = curl_easy_pause(connection->handle,bitmask);
+  caml_leave_blocking_section();
+
   if (result != CURLE_OK)
     raiseError(connection, result);
 
