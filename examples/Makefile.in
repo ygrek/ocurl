@@ -46,16 +46,16 @@ endif
 all:	$(TARGETS)
 
 test_lwt: ../curl.cma ../curl_lwt.cmo test_lwt.ml
-	$(FINDLIB) c -custom -linkpkg -package $(LWT_UNIX),$(LWT_PPX) $(LFLAGS) $^ -o $@
+	$(FINDLIB) c -thread -custom -linkpkg -package $(LWT_UNIX),$(LWT_PPX) $(LFLAGS) $^ -o $@
 
 test_lwt.opt: ../curl.cmxa ../curl_lwt.cmx test_lwt.ml
-	$(FINDLIB) opt -linkpkg -package $(LWT_UNIX),$(LWT_PPX) $(LFLAGS) $^ -o $@
+	$(FINDLIB) opt -thread -linkpkg -package $(LWT_UNIX),$(LWT_PPX) $(LFLAGS) $^ -o $@
 
 test_lwt_unit: ../curl.cma ../curl_lwt.cmo test_lwt_unit.ml
-	$(FINDLIB) c -custom -linkpkg -package $(LWT_UNIX) $(LFLAGS) $^ -o $@
+	$(FINDLIB) c -thread -custom -linkpkg -package $(LWT_UNIX) $(LFLAGS) $^ -o $@
 
 test_lwt_unit.opt: ../curl.cmxa ../curl_lwt.cmx test_lwt_unit.ml
-	$(FINDLIB) opt -linkpkg -package $(LWT_UNIX) $(LFLAGS) $^ -o $@
+	$(FINDLIB) opt -thread -linkpkg -package $(LWT_UNIX) $(LFLAGS) $^ -o $@
 
 oput: ../curl.cma oput.ml
 	$(FINDLIB) c -custom -package bytes,unix -linkpkg $(LFLAGS) $^ -o $@
