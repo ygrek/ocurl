@@ -9,7 +9,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include <caml/config.h>
 #ifdef HAS_UNISTD
 #include <unistd.h>
 #endif
@@ -20,6 +19,7 @@
 #ifndef CAML_NAME_SPACE
 #define CAML_NAME_SPACE
 #endif
+#include <caml/config.h>
 #include <caml/alloc.h>
 #include <caml/memory.h>
 #include <caml/mlvalues.h>
