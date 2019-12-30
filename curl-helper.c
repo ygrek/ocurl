@@ -5,10 +5,16 @@
  ***  Copyright (c) 2009, ygrek, <ygrek@autistici.org>
  ***/
 
+#ifndef CAML_NAME_SPACE
+#define CAML_NAME_SPACE
+#endif
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
+
+#include <caml/config.h> /* defines HAS_UNISTD */
 #ifdef HAS_UNISTD
 #include <unistd.h>
 #endif
@@ -16,10 +22,6 @@
 #define CURL_DISABLE_TYPECHECK
 #include <curl/curl.h>
 
-#ifndef CAML_NAME_SPACE
-#define CAML_NAME_SPACE
-#endif
-#include <caml/config.h>
 #include <caml/alloc.h>
 #include <caml/memory.h>
 #include <caml/mlvalues.h>
