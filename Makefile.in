@@ -101,13 +101,13 @@ curl.cmxs: curl.cmxa
 	$(OCAMLOPT) -shared -linkall -I . $< -o $@
 
 curl_lwt.cmo: curl_lwt.ml
-	$(FINDLIB) c -package lwt.unix -c $(FLAGS) $< -o $@
+	$(FINDLIB) c -thread -package lwt.unix -c $(FLAGS) $< -o $@
 
 curl_lwt.cmx: curl_lwt.ml
-	$(FINDLIB) opt -package lwt.unix -c $(FLAGS) $< -o $@
+	$(FINDLIB) opt -thread -package lwt.unix -c $(FLAGS) $< -o $@
 
 curl_lwt.cmxs: curl_lwt.cmx
-	$(FINDLIB) opt -shared -linkall -package lwt.unix $< -o $@
+	$(FINDLIB) opt -thread -shared -linkall -package lwt.unix $< -o $@
 
 curl_lwt.cmi: curl_lwt.mli
 	$(FINDLIB) c -package lwt -c $(FLAGS) $< -o $@
