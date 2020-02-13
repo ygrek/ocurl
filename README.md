@@ -35,6 +35,15 @@ Compile with `make -f Makefile.msvc`.
 Install with `make -f Makefile.msvc install`.
 Compile examples with `make -f Makefile.msvc examples`.
 
+Adding new libcurl symbol
+=========================
+
+* add symbol in configure.ac
+* autoreconf
+* make clean
+* ./configure
+* edit curl-helper.c and curl.ml*
+
 Making release
 ==============
 
