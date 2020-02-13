@@ -174,6 +174,7 @@ type curlHTTPVersion =
   | HTTP_VERSION_2 (** please use HTTP 2 (requires libcurl >= 7.33.0, otherwise will fallback to libcurl choice) *)
   | HTTP_VERSION_2TLS (** use version 2 for HTTPS, version 1.1 for HTTP (requires libcurl >= 7.47.0) *)
   | HTTP_VERSION_2_PRIOR_KNOWLEDGE (** Issue non-TLS HTTP requests using HTTP/2 without HTTP/1 (requires libcurl >= 7.49.0) *)
+  | HTTP_VERSION_3 (** Makes use of explicit HTTP/3 without fallback. Use CURLOPT_ALTSVC to enable HTTP/3 upgrade (requires libcurl >= 7.66.0) *)
 
 type curlDebugType =
   | DEBUGTYPE_TEXT
