@@ -255,9 +255,18 @@ type curlProxyType =
   | CURLPROXY_SOCKS4A (** since libcurl 7.18.0 *)
   | CURLPROXY_SOCKS5_HOSTNAME (** since libcurl 7.18.0 *)
 
+type data_source =
+  | String of string (** Equivalent to `CURLMIME_DATA` *)
+  | File of string  (** Equivalent to `CURLMIME_FILEDATA` *)
+
 type curlMIMEPartData =
   | CURLMIME_DATA of string
   | CURLMIME_FILEDATA of string
+  | CURLMIME_DATA_WITH_NAME of {
+      data: data_source;
+      name: string option;
+      filename: string option;
+    }
 
 type curlMIMEEncoding =
   | CURLMIME_8BIT

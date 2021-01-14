@@ -17,6 +17,23 @@ let test2 size =
   cleanup h;
   cleanup g
 
+let test3 size =
+  let h = init () in
+  let s = String.make size 'a' in
+  set_mimepost
+    h
+    [
+      {
+        encoding=CURLMIME_BINARY;
+        headers=[];
+        subparts=[];
+        data=CURLMIME_DATA_WITH_NAME {data=String s;name=Some "foo";filename=Some "bar"};
+      }
+    ];
+  let g = init () in
+  cleanup h;
+  cleanup g
+
 let rss () =
   let path = Printf.sprintf "/proc/%d/statm" (Unix.getpid ()) in
   try
@@ -40,4 +57,5 @@ let () =
   let mb = 1024 * 1024 in
   check test1 200 mb;
   check test2 100 mb;
+  check test3 100 mb;
   ()

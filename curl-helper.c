@@ -1304,6 +1304,48 @@ static void func_name(Connection *conn, value option) \
 
 #if HAVE_DECL_CURLOPT_MIMEPOST
 
+static void handle_part_with_name(Connection* conn, curl_mimepart* part, value v_part_name_info)
+{
+  value v_data     = Field(v_part_name_info, 0);
+  value v_name     = Field(v_part_name_info, 1);
+  value v_filename = Field(v_part_name_info, 2);
+
+  CURLcode result;
+  value v_str = Field(v_data, 0);
+
+  switch (Tag_val(v_data)) {
+    case 0:
+      result = curl_mime_data(part, String_val(v_str), caml_string_length(v_str));
+      break;
+    case 1:
+      result = curl_mime_filedata(part, String_val(v_str));
+      break;
+    default:
+      caml_failwith("Invalid MIMEPOST data value");
+      break;
+  }
+
+  if (result != CURLE_OK) {
+    raiseError(conn, result);
+  }
+
+  if (Is_block(v_name)) {
+    result = curl_mime_name(part, String_val(Field(v_name, 0)));
+
+    if (result != CURLE_OK) {
+      raiseError(conn, result);
+    }
+  }
+
+  if (Is_block(v_filename)) {
+    result = curl_mime_filename(part, String_val(Field(v_filename, 0)));
+
+    if (result != CURLE_OK) {
+      raiseError(conn, result);
+    }
+  }
+}
+
 static void new_part(Connection* conn, curl_mime* mime, value v_part)
 {
   value v_encoding = Field(v_part, 0);
@@ -1362,6 +1404,9 @@ static void new_part(Connection* conn, curl_mime* mime, value v_part)
       break;
     case 1:
       result = curl_mime_filedata(part, String_val(v_str));
+      break;
+    case 2:
+      handle_part_with_name(conn, part, v_data);
       break;
     default:
       caml_failwith("Invalid MIMEPOST data value");
