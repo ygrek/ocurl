@@ -4042,6 +4042,38 @@ static struct custom_operations curl_multi_ops = {
 #endif
 };
 
+static void raise_multi_error(char const* msg)
+{
+  static const value* exception = NULL;
+
+  if (NULL == exception)
+  {
+    exception = caml_named_value("Curl.Multi.Error");
+    if (NULL == exception) caml_invalid_argument("Curl.Multi.Error");
+  }
+
+  caml_raise_with_string(*exception, msg);
+}
+
+static void check_mcode(CURLMcode code)
+{
+  char const *s = NULL;
+  switch (code)
+  {
+    case CURLM_OK                  : return;
+    case CURLM_CALL_MULTI_PERFORM  : s="CURLM_CALL_MULTI_PERFORM"; break;
+    case CURLM_BAD_HANDLE          : s="CURLM_BAD_HANDLE";         break;
+    case CURLM_BAD_EASY_HANDLE     : s="CURLM_BAD_EASY_HANDLE";    break;
+    case CURLM_OUT_OF_MEMORY       : s="CURLM_OUT_OF_MEMORY";      break;
+    case CURLM_INTERNAL_ERROR      : s="CURLM_INTERNAL_ERROR";     break;
+    case CURLM_UNKNOWN_OPTION      : s="CURLM_UNKNOWN_OPTION";     break;
+    case CURLM_LAST                : s="CURLM_LAST";               break;
+    case CURLM_BAD_SOCKET          : s="CURLM_BAD_SOCKET";         break;
+    default                        : s="CURLM_unknown";            break;
+  }
+  raise_multi_error(s);
+}
+
 value caml_curl_multi_init(value unit)
 {
   CAMLparam1(unit);
@@ -4161,6 +4193,7 @@ value caml_curl_multi_wait(value v_timeout_ms, value v_multi)
 value caml_curl_multi_add_handle(value v_multi, value v_easy)
 {
   CAMLparam2(v_multi,v_easy);
+  CURLMcode rc = CURLM_OK;
   CURLM* multi = CURLM_val(v_multi);
   Connection* conn = Connection_val(v_easy);
 
@@ -4170,11 +4203,12 @@ value caml_curl_multi_add_handle(value v_multi, value v_easy)
 
   /* may invoke callbacks so need to be consistent with locks */
   caml_enter_blocking_section();
-  if (CURLM_OK != curl_multi_add_handle(multi, conn->handle))
+  rc = curl_multi_add_handle(multi, conn->handle);
+  if (CURLM_OK != rc)
   {
     conn->refcount--; /* not added, revert */
     caml_leave_blocking_section();
-    caml_failwith("caml_curl_multi_add_handle");
+    check_mcode(rc);
   }
   caml_leave_blocking_section();
 
@@ -4252,38 +4286,6 @@ value caml_curl_curlCode_of_int(value v)
 #define Val_socket(v) Val_int(v)
 #endif
 #endif  /* _WIN32 */
-
-static void raise_multi_error(char const* msg)
-{
-  static const value* exception = NULL;
-
-  if (NULL == exception)
-  {
-    exception = caml_named_value("Curl.Multi.Error");
-    if (NULL == exception) caml_invalid_argument("Curl.Multi.Error");
-  }
-
-  caml_raise_with_string(*exception, msg);
-}
-
-static void check_mcode(CURLMcode code)
-{
-  char const *s = NULL;
-  switch (code)
-  {
-    case CURLM_OK                  : return;
-    case CURLM_CALL_MULTI_PERFORM  : s="CURLM_CALL_MULTI_PERFORM"; break;
-    case CURLM_BAD_HANDLE          : s="CURLM_BAD_HANDLE";         break;
-    case CURLM_BAD_EASY_HANDLE     : s="CURLM_BAD_EASY_HANDLE";    break;
-    case CURLM_OUT_OF_MEMORY       : s="CURLM_OUT_OF_MEMORY";      break;
-    case CURLM_INTERNAL_ERROR      : s="CURLM_INTERNAL_ERROR";     break;
-    case CURLM_UNKNOWN_OPTION      : s="CURLM_UNKNOWN_OPTION";     break;
-    case CURLM_LAST                : s="CURLM_LAST";               break;
-    case CURLM_BAD_SOCKET          : s="CURLM_BAD_SOCKET";         break;
-    default                        : s="CURLM_unknown";            break;
-  }
-  raise_multi_error(s);
-}
 
 value caml_curl_multi_socket_action(value v_multi, value v_fd, value v_kind)
 {
