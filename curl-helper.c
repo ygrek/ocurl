@@ -69,6 +69,26 @@ static value Val_pair(value v1, value v2)
 
 static value Val_cons(value list, value v) { return Val_pair(v,list); }
 
+/*
+ * Based on curl hiperfifo.c example
+ */
+
+#ifdef _WIN32
+#ifndef Val_socket
+#define Val_socket(v) win_alloc_socket(v)
+#endif
+#ifndef Socket_val
+#error Socket_val not defined in unixsupport.h
+#endif
+#else /* _WIN32 */
+#ifndef Socket_val
+#define Socket_val(v) Long_val(v)
+#endif
+#ifndef Val_socket
+#define Val_socket(v) Val_int(v)
+#endif
+#endif  /* _WIN32 */
+
 typedef struct Connection Connection;
 typedef struct ConnectionList ConnectionList;
 
@@ -3336,7 +3356,7 @@ value caml_curl_easy_cleanup(value conn)
 
 enum GetInfoResultType {
     StringValue, LongValue, DoubleValue, StringListValue, StringListListValue,
-    OCamlValue, /* keep last - no matching OCaml CURLINFO_ constructor */
+    SocketValue, OCamlValue, /* keep last - no matching OCaml CURLINFO_ constructor */
 };
 
 value convertStringList(struct curl_slist *p)
@@ -3378,6 +3398,7 @@ value caml_curl_easy_getinfo(value conn, value option)
     char *strValue = NULL;
     double doubleValue;
     long longValue;
+    curl_socket_t socketValue;
     struct curl_slist *stringListValue = NULL;
 #if HAVE_DECL_CURLINFO_CERTINFO
     int i;
@@ -3786,6 +3807,17 @@ value caml_curl_easy_getinfo(value conn, value option)
 #else
 #pragma message("libcurl does not provide CURLINFO_CERTINFO")
 #endif
+#if HAVE_DECL_CURLINFO_ACTIVESOCKET
+    case 37: /* CURLINFO_ACTIVESOCKET */
+        resultType = SocketValue;
+
+        curlResult = curl_easy_getinfo(connection->handle,
+                                       CURLINFO_ACTIVESOCKET,
+                                       &socketValue);
+        break;
+#else
+#pragma message("libcurl does not provide CURLINFO_ACTIVESOCKET")
+#endif
     default:
         caml_failwith("Invalid CURLINFO Option");
         break;
@@ -3820,6 +3852,11 @@ value caml_curl_easy_getinfo(value conn, value option)
     case StringListListValue:
         result = caml_alloc(1, StringListListValue);
         Store_field(result, 0, current);
+        break;
+
+    case SocketValue:
+        result = caml_alloc(1, SocketValue);
+        Store_field(result, 0, Val_socket(socketValue));
         break;
 
     case OCamlValue:
@@ -4265,27 +4302,6 @@ value caml_curl_curlCode_of_int(value v)
 {
   return (Int_val(v) < sizeof(errorMap) / sizeof(errorMap[0]) ? Val_some(v) : Val_none);
 }
-
-/*
- * Wrappers for the curl_multi_socket_action infrastructure
- * Based on curl hiperfifo.c example
- */
-
-#ifdef _WIN32
-#ifndef Val_socket
-#define Val_socket(v) win_alloc_socket(v)
-#endif
-#ifndef Socket_val
-#error Socket_val not defined in unixsupport.h
-#endif
-#else /* _WIN32 */
-#ifndef Socket_val
-#define Socket_val(v) Long_val(v)
-#endif
-#ifndef Val_socket
-#define Val_socket(v) Val_int(v)
-#endif
-#endif  /* _WIN32 */
 
 value caml_curl_multi_socket_action(value v_multi, value v_fd, value v_kind)
 {

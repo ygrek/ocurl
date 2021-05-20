@@ -7165,6 +7165,19 @@ fi
 cat >>confdefs.h <<_ACEOF
 #define HAVE_DECL_CURLINFO_LASTSOCKET $ac_have_decl
 _ACEOF
+ac_fn_c_check_decl "$LINENO" "CURLINFO_ACTIVESOCKET" "ac_cv_have_decl_CURLINFO_ACTIVESOCKET" "
+#include \"curl/curl.h\"
+
+"
+if test "x$ac_cv_have_decl_CURLINFO_ACTIVESOCKET" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_CURLINFO_ACTIVESOCKET $ac_have_decl
+_ACEOF
 ac_fn_c_check_decl "$LINENO" "CURLINFO_FTP_ENTRY_PATH" "ac_cv_have_decl_CURLINFO_FTP_ENTRY_PATH" "
 #include \"curl/curl.h\"
 

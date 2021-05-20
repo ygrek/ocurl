@@ -527,6 +527,7 @@ type curlInfo =
   | CURLINFO_LOCAL_PORT
   | CURLINFO_CONDITION_UNMET
   | CURLINFO_CERTINFO
+  | CURLINFO_ACTIVESOCKET
 
 type curlInfoResult =
   | CURLINFO_String of string
@@ -534,6 +535,7 @@ type curlInfoResult =
   | CURLINFO_Double of float
   | CURLINFO_StringList of string list
   | CURLINFO_StringListList of string list list
+  | CURLINFO_Socket of Unix.file_descr
 
 type version_info = {
   version : string;
@@ -775,6 +777,7 @@ val get_numconnects : t -> int
 val get_sslengines : t -> string list
 val get_cookielist : t -> string list
 val get_lastsocket : t -> int
+val get_activesocket : t -> Unix.file_descr option
 val get_ftpentrypath : t -> string
 val get_primaryip : t -> string
 val get_localip : t -> string
@@ -961,6 +964,7 @@ class handle :
     method get_sslengines : string list
     method get_cookielist : string list
     method get_lastsocket : int
+    method get_activesocket : Unix.file_descr option
     method get_ftpentrypath : string
     method get_primaryip : string
     method get_localip : string
