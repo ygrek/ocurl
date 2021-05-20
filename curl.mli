@@ -988,6 +988,11 @@ module Multi : sig
   (** exception raised on internal errors *)
   exception Error of string
 
+  type cerror
+
+  (** exception raised on libcurl errors : origin * code * message *)
+  exception CError of string * cerror * string
+
   (** create new multi stack *)
   val create : unit -> mt
 

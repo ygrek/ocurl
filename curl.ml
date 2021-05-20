@@ -1389,7 +1389,12 @@ module Multi = struct
 
   exception Error of string
 
+  type cerror = int
+
+  exception CError of string * cerror * string
+
   let () = Callback.register_exception "Curl.Multi.Error" (Error "")
+  let () = Callback.register_exception "Curl.Multi.CError" (CError ("",0,""))
 
   external create : unit -> mt = "caml_curl_multi_init"
   external add : mt -> t -> unit = "caml_curl_multi_add_handle"
