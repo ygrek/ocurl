@@ -37,8 +37,8 @@ let test3 size =
 let rss () =
   let path = Printf.sprintf "/proc/%d/statm" (Unix.getpid ()) in
   try
-    let ch = open_in path in
-    let n = Scanf.fscanf ch "%_d %d" (fun x -> 4*1024*x) in close_in_noerr ch; n
+    let ch = Scanf.Scanning.open_in path in
+    let n = Scanf.bscanf ch "%_d %d" (fun x -> 4*1024*x) in Scanf.Scanning.close_in ch; n
   with exn -> Printf.eprintf "Error opening %s (%s), ignoring\n%!" path (Printexc.to_string exn); 0
 
 let check test count leak_size =
