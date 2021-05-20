@@ -514,6 +514,7 @@ type curlInfo =
   | CURLINFO_LOCAL_PORT
   | CURLINFO_CONDITION_UNMET
   | CURLINFO_CERTINFO
+  | CURLINFO_ACTIVESOCKET
 
 type curlInfoResult =
   | CURLINFO_String of string
@@ -521,6 +522,7 @@ type curlInfoResult =
   | CURLINFO_Double of float
   | CURLINFO_StringList of string list
   | CURLINFO_StringListList of string list list
+  | CURLINFO_Socket of Unix.file_descr
 
 exception NotImplemented of string
 
@@ -1165,6 +1167,11 @@ let get_lastsocket conn =
   | CURLINFO_Long l -> l
   | _ -> 0
 
+let get_activesocket conn =
+  match (getinfo conn CURLINFO_ACTIVESOCKET) with
+  | CURLINFO_Socket s -> Some s
+  | _ -> None
+
 let get_ftpentrypath conn =
   match (getinfo conn CURLINFO_FTP_ENTRY_PATH) with
   | CURLINFO_String s -> s
@@ -1367,6 +1374,7 @@ class handle =
     method get_sslengines = get_sslengines conn
     method get_cookielist = get_cookielist conn
     method get_lastsocket = get_lastsocket conn
+    method get_activesocket = get_activesocket conn
     method get_ftpentrypath = get_ftpentrypath conn
     method get_primaryip = get_primaryip conn
     method get_localip = get_localip conn
