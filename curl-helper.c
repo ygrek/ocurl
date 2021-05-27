@@ -2863,6 +2863,8 @@ static void handle_POSTREDIR(Connection *conn, value option)
 
 SETOPT_VAL( SSH_KNOWNHOSTS, String_val)
 
+SETOPT_LONG( BUFFERSIZE)
+
 /**
  **  curl_easy_setopt helper function
  **/
@@ -3272,6 +3274,7 @@ CURLOptionMapping implementedOptionMap[] =
 #endif
   CURLOPT(SSH_KNOWNHOSTS),
   CURLOPT(SSH_KEYFUNCTION),
+  CURLOPT(BUFFERSIZE),
 };
 
 value caml_curl_easy_setopt(value conn, value option)
