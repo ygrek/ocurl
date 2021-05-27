@@ -724,7 +724,7 @@ val set_buffersize : t -> int -> unit
 
   @param add is the (host,port,address) list to add to dns mapping
   @param del is the (host,port) list to remove from mapping
- *)
+*)
 val set_resolve : t -> (string * int * string) list -> (string * int) list -> unit
 val set_dns_servers : t -> string list -> unit
 val set_mailfrom : t -> string -> unit
