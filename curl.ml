@@ -469,6 +469,7 @@ type curlOption =
   | CURLOPT_MIMEPOST of curlMIMEPart list
   | CURLOPT_SSHKNOWNHOSTS of string
   | CURLOPT_SSHKEYFUNCTION of (curlKHMatch -> string -> curlKHStat)
+  | CURLOPT_BUFFERSIZE of int
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -1001,6 +1002,9 @@ let set_sshknownhosts conn s =
 let set_sshkeyfunction conn f =
   setopt conn (CURLOPT_SSHKEYFUNCTION f)
 
+let set_buffersize conn buffersize =
+  setopt conn (CURLOPT_BUFFERSIZE buffersize)
+
 let get_effectiveurl conn =
   match (getinfo conn CURLINFO_EFFECTIVE_URL) with
   | CURLINFO_String s -> s
@@ -1342,6 +1346,7 @@ class handle =
     method set_mimepost p = set_mimepost conn p
     method set_sshknownhosts s = set_sshknownhosts conn s
     method set_sshkeyfunction f = set_sshkeyfunction conn f
+    method set_buffersize buffersize = set_buffersize conn buffersize
 
     method get_effectiveurl = get_effectiveurl conn
     method get_redirecturl = get_redirecturl conn

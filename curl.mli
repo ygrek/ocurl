@@ -482,6 +482,7 @@ type curlOption =
   (** The second argument to the passed function consists of the raw bytes of
       the public key sent by the remote host. If the function raises an
       exception the key will be rejected, and the connection will fail.**)
+  | CURLOPT_BUFFERSIZE of int
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -717,6 +718,7 @@ val set_opensocketfunction : t -> (Unix.file_descr -> unit) -> unit
 val set_proxytype : t -> curlProxyType -> unit
 val set_protocols : t -> curlProto list -> unit
 val set_redirprotocols : t -> curlProto list -> unit
+val set_buffersize : t -> int -> unit
 
 (** [set_resolve t add del] adjusts builtin dns mapping
 
@@ -932,6 +934,7 @@ class handle :
     method set_mimepost : curlMIMEPart list -> unit
     method set_sshknownhosts : string -> unit
     method set_sshkeyfunction : (curlKHMatch -> string -> curlKHStat) -> unit
+    method set_buffersize : int -> unit
 
     method get_effectiveurl : string
     method get_redirecturl : string
