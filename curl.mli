@@ -393,6 +393,7 @@ type curlOption =
   | CURLOPT_INTERFACE of string
   | CURLOPT_KRB4LEVEL of curlKRB4Level
   | CURLOPT_PROGRESSFUNCTION of (float -> float -> float -> float -> bool)
+  | CURLOPT_XFERINFOFUNCTION of (float -> float -> float -> float -> bool)
   | CURLOPT_SSLVERIFYPEER of bool
   | CURLOPT_CAINFO of string
   | CURLOPT_CAPATH of string
@@ -645,6 +646,7 @@ val set_customrequest : t -> string -> unit
 val set_interface : t -> string -> unit
 val set_krb4level : t -> curlKRB4Level -> unit
 val set_progressfunction : t -> (float -> float -> float -> float -> bool) -> unit
+val set_xferinfofunction : t -> (float -> float -> float -> float -> bool) -> unit
 val set_sslverifypeer : t -> bool -> unit
 val set_cainfo : t -> string -> unit
 val set_capath : t -> string -> unit
@@ -856,6 +858,8 @@ class handle :
     method set_interface : string -> unit
     method set_krb4level : curlKRB4Level -> unit
     method set_progressfunction :
+      (float -> float -> float -> float -> bool) -> unit
+    method set_xferinfofunction :
       (float -> float -> float -> float -> bool) -> unit
     method set_sslverifypeer : bool -> unit
     method set_cainfo : string -> unit

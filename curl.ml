@@ -383,6 +383,7 @@ type curlOption =
   | CURLOPT_INTERFACE of string
   | CURLOPT_KRB4LEVEL of curlKRB4Level
   | CURLOPT_PROGRESSFUNCTION of (float -> float -> float -> float -> bool)
+  | CURLOPT_XFERINFOFUNCTION of (float -> float -> float -> float -> bool)
   | CURLOPT_SSLVERIFYPEER of bool
   | CURLOPT_CAINFO of string
   | CURLOPT_CAPATH of string
@@ -743,6 +744,9 @@ let set_krb4level conn krb4level =
 
 let set_progressfunction conn closure =
   setopt conn (CURLOPT_PROGRESSFUNCTION closure)
+
+let set_xferinfofunction conn closure =
+  setopt conn (CURLOPT_XFERINFOFUNCTION closure)
 
 let set_sslverifypeer conn flag =
   setopt conn (CURLOPT_SSLVERIFYPEER flag)
@@ -1265,6 +1269,7 @@ class handle =
     method set_interface interface = set_interface conn interface
     method set_krb4level krb4level = set_krb4level conn krb4level
     method set_progressfunction closure = set_progressfunction conn closure
+    method set_xferinfofunction closure = set_xferinfofunction conn closure
     method set_sslverifypeer flag = set_sslverifypeer conn flag
     method set_cainfo cainfo = set_cainfo conn cainfo
     method set_capath capath = set_capath conn capath
