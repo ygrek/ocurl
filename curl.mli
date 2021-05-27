@@ -584,7 +584,12 @@ val pause : t -> pauseOption list -> unit
   Any exception raised in callback function will be silently caught and discared,
   and transfer will be aborted. *)
 
+(* Return this value to pause the write transfers. *)
+val writefunc_pause : int
 val set_writefunction : t -> (string -> int) -> unit
+
+(* Return this value to pause the read transfers. *)
+val readfunc_pause : int
 val set_readfunction : t -> (int -> string) -> unit
 (** [readfunction n] should return string of length at most [n], otherwise
   transfer will be aborted (as if with exception) *)

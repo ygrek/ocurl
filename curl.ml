@@ -567,8 +567,16 @@ type pauseOption = PAUSE_SEND | PAUSE_RECV | PAUSE_ALL
 
 external pause : t -> pauseOption list -> unit = "caml_curl_pause"
 
+external writefunc_pause : unit -> int = "caml_curl_writefunc_pause" 
+
+let writefunc_pause = writefunc_pause ()
+
 let set_writefunction conn closure =
   setopt conn (CURLOPT_WRITEFUNCTION closure)
+
+external readfunc_pause : unit -> int = "caml_curl_readfunc_pause"
+
+let readfunc_pause = readfunc_pause ()
 
 let set_readfunction conn closure =
   setopt conn (CURLOPT_READFUNCTION closure)
