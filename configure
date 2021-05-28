@@ -8519,6 +8519,26 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 
+ac_fn_c_check_decl "$LINENO" "curl_multi_poll" "ac_cv_have_decl_curl_multi_poll" "
+#include \"curl/curl.h\"
+
+"
+if test "x$ac_cv_have_decl_curl_multi_poll" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_CURL_MULTI_POLL $ac_have_decl
+_ACEOF
+if test $ac_have_decl = 1; then :
+
+$as_echo "#define HAVE_CURL_MULTI_POLL 1" >>confdefs.h
+
+fi
+
+
 ac_config_headers="$ac_config_headers config.h"
 
 ac_config_files="$ac_config_files Makefile examples/Makefile"

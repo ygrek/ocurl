@@ -1017,6 +1017,13 @@ module Multi : sig
       @return whether [perform] should be called *)
   val wait : ?timeout_ms:int -> mt -> bool
 
+  (** poll till there are some active data transfers on multi stack.
+      Contrary to [wait], this function does not return immediately
+      when there are no pending transfer but waits for [timeout_ms]
+      The module falls back to [wait] if this function is unavailable.
+      @return whether [perform] should be called *)
+  val poll : ?timeout_ms:int -> mt -> bool
+
   (** remove finished handle from the multi stack if any. The returned handle may be reused *)
   val remove_finished : mt -> (t * curlCode) option
 

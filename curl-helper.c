@@ -4240,6 +4240,27 @@ value caml_curl_multi_wait(value v_timeout_ms, value v_multi)
   CAMLreturn(Val_bool(numfds != 0));
 }
 
+value caml_curl_multi_poll(value v_timeout_ms, value v_multi)
+{
+  CAMLparam2(v_timeout_ms,v_multi);
+  CURLM *multi_handle = CURLM_val(v_multi);
+  int timeout_ms = Int_val(v_timeout_ms);
+  int numfds = -1;
+  CURLMcode rc;
+
+  caml_enter_blocking_section();
+#ifdef HAVE_CURL_MULTI_POLL
+  rc = curl_multi_poll(multi_handle, NULL, 0, timeout_ms, &numfds);
+#else
+  rc = curl_multi_wait(multi_handle, NULL, 0, timeout_ms, &numfds);
+#endif
+  caml_leave_blocking_section();
+
+  check_mcode("curl_multi_poll",rc);
+
+  CAMLreturn(Val_bool(numfds != 0));
+}
+
 value caml_curl_multi_add_handle(value v_multi, value v_easy)
 {
   CAMLparam2(v_multi,v_easy);

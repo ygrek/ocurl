@@ -1414,6 +1414,8 @@ module Multi = struct
   external perform : mt -> int = "caml_curl_multi_perform_all"
   external wait : int -> mt -> bool = "caml_curl_multi_wait"
   let wait ?(timeout_ms=1000) mt = wait timeout_ms mt
+  external poll : int -> mt -> bool = "caml_curl_multi_poll"
+  let poll ?(timeout_ms=1000) mt = poll timeout_ms mt
   external remove : mt -> t -> unit = "caml_curl_multi_remove_handle"
   external remove_finished : mt -> (t * curlCode) option = "caml_curlm_remove_finished"
   external cleanup : mt -> unit = "caml_curl_multi_cleanup"

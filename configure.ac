@@ -194,6 +194,14 @@ CURL_VERSION_TLSAUTH_SRP, CURL_VERSION_NTLM_WB],
 #include "curl/curl.h"
 ])
 
+AC_CHECK_DECLS(
+[curl_multi_poll],
+AC_DEFINE([HAVE_CURL_MULTI_POLL], [1], [Does libcurl define curl_multi_poll]),
+[],
+[
+#include "curl/curl.h"
+])
+
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_FILES([Makefile examples/Makefile])
 

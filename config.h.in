@@ -3,6 +3,9 @@
 /* Define to 1 if you have the <curl/curl.h> header file. */
 #undef HAVE_CURL_CURL_H
 
+/* Does libcurl define curl_multi_poll */
+#undef HAVE_CURL_MULTI_POLL
+
 /* Define to 1 if you have the declaration of `CURLE_ABORTED_BY_CALLBACK', and
    to 0 if you don't. */
 #undef HAVE_DECL_CURLE_ABORTED_BY_CALLBACK
@@ -1130,6 +1133,10 @@
 /* Define to 1 if you have the declaration of `CURL_HTTP_VERSION_3', and to 0
    if you don't. */
 #undef HAVE_DECL_CURL_HTTP_VERSION_3
+
+/* Define to 1 if you have the declaration of `curl_multi_poll', and to 0 if
+   you don't. */
+#undef HAVE_DECL_CURL_MULTI_POLL
 
 /* Define to 1 if you have the declaration of `CURL_SSLVERSION_TLSv1_0', and
    to 0 if you don't. */
