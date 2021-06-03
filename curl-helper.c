@@ -4014,11 +4014,6 @@ value caml_curl_writefunc_pause(value unit) {
   CAMLreturn(Val_int(CURL_WRITEFUNC_PAUSE));
 }
 
-value caml_curl_readfunc_pause(value unit) {
-  CAMLparam0();
-  CAMLreturn(Val_int(CURL_READFUNC_PAUSE));
-}
-
 value caml_curl_pause(value conn, value opts)
 {
   CAMLparam2(conn, opts);

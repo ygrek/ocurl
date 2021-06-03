@@ -334,6 +334,8 @@ type curlPostRedir =
 | REDIR_POST_302
 | REDIR_POST_303 (** added in libcurl 7.26.0 *)
 
+type curlWritefuncOpt = string -> [`Full | `Partial of int | `Pause]
+
 type curlOption =
   | CURLOPT_WRITEFUNCTION of (string -> int)
   | CURLOPT_READFUNCTION of (int -> string)
@@ -584,13 +586,14 @@ val pause : t -> pauseOption list -> unit
   Any exception raised in callback function will be silently caught and discared,
   and transfer will be aborted. *)
 
-(* Return this value to pause the write transfers. *)
-val writefunc_pause : int
 val set_writefunction : t -> (string -> int) -> unit
 
-(* Return this value to pause the read transfers. *)
-val readfunc_pause : int
+(* Alternative API for the write callback that allows to control
+   the execution flow via [`Pause] return value. *)
+val set_writefunction_opt : t -> curlWritefuncOpt -> unit
+
 val set_readfunction : t -> (int -> string) -> unit
+
 (** [readfunction n] should return string of length at most [n], otherwise
   transfer will be aborted (as if with exception) *)
 val set_infilesize : t -> int -> unit
@@ -803,6 +806,7 @@ class handle :
     method perform : unit
 
     method set_writefunction : (string -> int) -> unit
+    method set_writefunction_opt : curlWritefuncOpt -> unit
     method set_readfunction : (int -> string) -> unit
     method set_infilesize : int -> unit
     method set_url : string -> unit
