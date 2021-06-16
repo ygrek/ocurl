@@ -324,6 +324,8 @@ type curlPostRedir =
 | REDIR_POST_302
 | REDIR_POST_303
 
+type curlWritefuncOpt = string -> [`Full | `Partial of int | `Pause]
+
 type curlOption =
   | CURLOPT_WRITEFUNCTION of (string -> int)
   | CURLOPT_READFUNCTION of (int -> string)
@@ -568,7 +570,20 @@ type pauseOption = PAUSE_SEND | PAUSE_RECV | PAUSE_ALL
 
 external pause : t -> pauseOption list -> unit = "caml_curl_pause"
 
+external writefunc_pause : unit -> int = "caml_curl_writefunc_pause" 
+
+let writefunc_pause = writefunc_pause ()
+
 let set_writefunction conn closure =
+  setopt conn (CURLOPT_WRITEFUNCTION closure)
+
+let set_writefunction_opt conn (closure:curlWritefuncOpt) =
+  let closure s =
+    match closure s with
+      | `Full -> String.length s
+      | `Partial n -> n
+      | `Pause -> writefunc_pause
+  in
   setopt conn (CURLOPT_WRITEFUNCTION closure)
 
 let set_readfunction conn closure =
@@ -1212,6 +1227,7 @@ class handle =
     method perform = perform conn
     method cleanup = cleanup conn
     method set_writefunction closure = set_writefunction conn closure
+    method set_writefunction_opt closure = set_writefunction_opt conn closure
     method set_readfunction closure = set_readfunction conn closure
     method set_infilesize size = set_infilesize conn size
     method set_url url = set_url conn url
