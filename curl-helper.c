@@ -1136,6 +1136,181 @@ static int cb_SSH_KEYFUNCTION(CURL *easy,
     return res;
 }
 
+/* Same order as in OCaml */
+curl_sslbackend sslBackendMap[] = {
+#if HAVE_DECL_CURLSSLBACKEND_NONE
+  CURLSSLBACKEND_NONE,
+#else
+  -1,
+#endif
+#if HAVE_DECL_CURLSSLBACKEND_OPENSSL
+  CURLSSLBACKEND_OPENSSL,
+#else
+  -1
+#endif
+#if HAVE_DECL_CURLSSLBACKEND_GNUTLS
+  CURLSSLBACKEND_GNUTLS,
+#else
+  -1,
+#endif
+#if HAVE_DECL_CURLSSLBACKEND_NSS
+  CURLSSLBACKEND_NSS,
+#else
+  -1,
+#endif
+#if HAVE_DECL_CURLSSLBACKEND_GSKIT
+  CURLSSLBACKEND_GSKIT,
+#else
+  -1,
+#endif
+#if HAVE_DECL_CURLSSLBACKEND_WOLFSSL
+  CURLSSLBACKEND_WOLFSSL,
+#else
+  -1,
+#endif
+#if HAVE_DECL_CURLSSLBACKEND_SCHANNEL
+  CURLSSLBACKEND_SCHANNEL,
+#else
+  -1,
+#endif
+#if HAVE_DECL_CURLSSLBACKEND_SECURETRANSPORT
+  CURLSSLBACKEND_SECURETRANSPORT,
+#else
+  -1,
+#endif
+#if HAVE_DECL_CURLSSLBACKEND_MBEDTLS
+  CURLSSLBACKEND_MBEDTLS,
+#else
+  -1,
+#endif
+#if HAVE_DECL_CURLSSLBACKEND_MESALINK
+  CURLSSLBACKEND_MESALINK,
+#else
+  -1,
+#endif
+#if HAVE_DECL_CURLSSLBACKEND_BEARSSL
+  CURLSSLBACKEND_BEARSSL,
+#else
+  -1,
+#endif
+};
+
+#if HAVE_DECL_CURLSSLBACKEND_NONE
+typedef struct CURLsslsetMapping CURLsslsetMapping;
+
+struct CURLsslsetMapping
+{
+  char* name;
+  CURLsslset code;
+};
+
+/* Same order as in OCaml */
+CURLsslsetMapping sslsetMap[] = {
+  {"CURLSSLSET_OK", CURLSSLSET_OK},
+  {"CURLSSLSET_UNKNOWN_BACKEND", CURLSSLSET_UNKNOWN_BACKEND},
+  {"CURLSSLSET_TOO_LATE", CURLSSLSET_TOO_LATE},
+  {"CURLSSLSET_NO_BACKENDS", CURLSSLSET_NO_BACKENDS},
+};
+
+static void raiseSslsetError(CURLsslset err)
+{
+  CAMLparam0();
+  CAMLlocal1(exceptionData);
+  const value *exception;
+  const char *errorString = NULL;
+  int i;
+
+  for (i = 0; i < sizeof(sslsetMap) / sizeof(sslsetMap[0]); i ++) {
+    if (sslsetMap[i].code == err) {
+      errorString = sslsetMap[i].name;
+      break;
+    }
+  }
+
+  if (errorString == NULL)
+    caml_invalid_argument("Unexpected CURLsslset value");
+
+  exceptionData = caml_alloc_tuple(2);
+  Store_field(exceptionData, 0, Val_int(i));
+  Store_field(exceptionData, 1, caml_copy_string(errorString));
+
+  exception = caml_named_value("CurlSslSetException");
+  if (exception == NULL) caml_invalid_argument("CurlSslSetException not registered");
+
+  caml_raise_with_arg(*exception, exceptionData);
+
+  /* Not reached */
+  CAMLreturn0;
+}
+
+value caml_curl_global_sslset(value v_backend)
+{
+  CAMLparam1(v_backend);
+
+  curl_sslbackend backend = sslBackendMap[Int_val(v_backend)];
+  CURLsslset res = curl_global_sslset(backend, NULL, NULL);
+
+  if (res != CURLSSLSET_OK)
+    raiseSslsetError(res);
+
+  CAMLreturn(Val_unit);
+}
+
+value caml_curl_global_sslsetavail(value v_unit)
+{
+  CAMLparam1(v_unit);
+  CAMLlocal2(lst, v);
+  const curl_ssl_backend **backends;
+  CURLsslset res;
+  int i, j, n, found;
+
+  res = curl_global_sslset(-1, NULL, &backends);
+
+  if (res != CURLSSLSET_UNKNOWN_BACKEND)
+    raiseSslsetError(res);
+
+  for (n = 0; backends[n] != NULL; n ++) ;
+
+  lst = Val_emptylist;
+
+  for (i = n - 1; i >= 0; i --) {
+    found = -1;
+
+    for (j = 0; j < sizeof(sslBackendMap) / sizeof(sslBackendMap[0]); j ++) {
+      if (sslBackendMap[j] == backends[i]->id) {
+        found = j;
+        break;
+      }
+    }
+
+    /* If an unknown backend is returned, it is ignored */
+    if (found >= 0) {
+      v = caml_alloc_tuple(2);
+      Store_field(v, 0, Val_long(found));
+      Store_field(v, 1, lst);
+      lst = v;
+    }
+  }
+
+  CAMLreturn(lst);
+}
+#else
+value caml_curl_global_sslset(value v_backend)
+{
+  CAMLparam1(v_backend);
+  const value *exception = caml_named_value("Curl.NotImplemented");
+  if (NULL == exception) caml_invalid_argument("Curl.NotImplemented not registered");
+  caml_raise_with_string(*exception, "curl_global_sslset");
+
+  /* Not reached */
+  CAMLreturn(Val_unit);
+}
+value caml_curl_global_sslsetavail(value v_unit)
+{
+  return caml_curl_global_sslset(Val_int(0));
+}
+#endif
+
 /**
  **  curl_global_init helper function
  **/
@@ -1646,6 +1821,55 @@ SETOPT_LONG( RESUME_FROM)
 SETOPT_STRING( COOKIE)
 
 SETOPT_SLIST( HTTPHEADER)
+
+long sslOptionMap[] = {
+#ifdef CURLSSLOPT_ALLOW_BEAST
+  CURLSSLOPT_ALLOW_BEAST,
+#else
+  0,
+#endif
+#ifdef CURLSSLOPT_NO_REVOKE
+  CURLSSLOPT_NO_REVOKE,
+#else
+  0,
+#endif
+#ifdef CURLSSLOPT_NO_PARTIALCHAIN
+  CURLSSLOPT_NO_PARTIALCHAIN,
+#else
+  0,
+#endif
+#ifdef CURLSSLOPT_REVOKE_BEST_EFFORT
+  CURLSSLOPT_REVOKE_BEST_EFFORT,
+#else
+  0,
+#endif
+#ifdef CURLSSLOPT_NATIVE_CA
+  CURLSSLOPT_NATIVE_CA,
+#else
+  0,
+#endif
+#ifdef CURLSSLOPT_AUTO_CLIENT_CERT
+  CURLSSLOPT_AUTO_CLIENT_CERT,
+#else
+  0,
+#endif
+};
+
+#if HAVE_DECL_CURLOPT_SSL_OPTIONS
+static void handle_SSL_OPTIONS(Connection *conn, value opts)
+{
+  CAMLparam1(opts);
+  CURLcode result = CURLE_OK;
+  long bits = convert_bit_list(sslOptionMap, sizeof(sslOptionMap) / sizeof(sslOptionMap[0]), opts);
+
+  result = curl_easy_setopt(conn->handle, CURLOPT_SSL_OPTIONS, bits);
+
+  if (result != CURLE_OK)
+    raiseError(conn, result);
+
+  CAMLreturn0;
+}
+#endif
 
 static void handle_HTTPPOST(Connection *conn, value option)
 {
@@ -3284,6 +3508,11 @@ CURLOptionMapping implementedOptionMap[] =
   CURLOPT(DOH_URL),
 #else
   HAVENOT(DOH_URL),
+#endif
+#if HAVE_DECL_CURLOPT_SSL_OPTIONS
+  CURLOPT(SSL_OPTIONS),
+#else
+  HAVENOT(SSL_OPTIONS),
 #endif
 };
 

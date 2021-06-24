@@ -324,6 +324,14 @@ type curlPostRedir =
 | REDIR_POST_302
 | REDIR_POST_303
 
+type curlSslOption =
+  | CURLSSLOPT_ALLOW_BEAST
+  | CURLSSLOPT_NO_REVOKE
+  | CURLSSLOPT_NO_PARTIALCHAIN
+  | CURLSSLOPT_REVOKE_BEST_EFFORT
+  | CURLSSLOPT_NATIVE_CA
+  | CURLSSLOPT_AUTO_CLIENT_CERT
+
 type curlOption =
   | CURLOPT_WRITEFUNCTION of (string -> int)
   | CURLOPT_READFUNCTION of (int -> string)
@@ -471,6 +479,7 @@ type curlOption =
   | CURLOPT_SSHKEYFUNCTION of (curlKHMatch -> string -> curlKHStat)
   | CURLOPT_BUFFERSIZE of int
   | CURLOPT_DOH_URL of string
+  | CURLOPT_SSL_OPTIONS of curlSslOption list
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -526,10 +535,37 @@ type curlInfoResult =
   | CURLINFO_StringListList of string list list
   | CURLINFO_Socket of Unix.file_descr
 
+type curlSslBackend =
+  | CURLSSLBACKEND_NONE
+  | CURLSSLBACKEND_OPENSSL
+  | CURLSSLBACKEND_GNUTLS
+  | CURLSSLBACKEND_NSS
+  | CURLSSLBACKEND_GSKIT
+  | CURLSSLBACKEND_WOLFSSL
+  | CURLSSLBACKEND_SCHANNEL
+  | CURLSSLBACKEND_SECURETRANSPORT
+  | CURLSSLBACKEND_MBEDTLS
+  | CURLSSLBACKEND_MESALINK
+  | CURLSSLBACKEND_BEARSSL
+
+type curlSslSet =
+  | CURLSSLSET_OK
+  | CURLSSLSET_UNKNOWN_BACKEND
+  | CURLSSLSET_TOO_LATE
+  | CURLSSLSET_NO_BACKENDS
+
 exception NotImplemented of string
 
 let () = Callback.register_exception "Curl.NotImplemented" (NotImplemented "")
 
+exception CurlSslSetException of (curlSslSet * string)
+
+let () =
+  Callback.register_exception "CurlSslSetException"
+    (CurlSslSetException (CURLSSLSET_OK, ""))
+
+external global_sslset : curlSslBackend -> unit = "caml_curl_global_sslset"
+external global_sslsetavail : unit -> curlSslBackend list = "caml_curl_global_sslsetavail"
 external global_init : initOption -> unit = "caml_curl_global_init"
 external global_cleanup : unit -> unit = "caml_curl_global_cleanup"
 external init : unit -> t = "caml_curl_easy_init"
@@ -1009,6 +1045,9 @@ let set_buffersize conn buffersize =
 let set_doh_url conn url =
   setopt conn (CURLOPT_DOH_URL url)
 
+let set_ssl_options conn opts =
+  setopt conn (CURLOPT_SSL_OPTIONS opts)
+
 let get_effectiveurl conn =
   match (getinfo conn CURLINFO_EFFECTIVE_URL) with
   | CURLINFO_String s -> s
@@ -1352,6 +1391,7 @@ class handle =
     method set_sshkeyfunction f = set_sshkeyfunction conn f
     method set_buffersize buffersize = set_buffersize conn buffersize
     method set_doh_url url = set_doh_url conn url
+    method set_ssl_options opts = set_ssl_options conn opts
 
     method get_effectiveurl = get_effectiveurl conn
     method get_redirecturl = get_redirecturl conn

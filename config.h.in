@@ -1038,6 +1038,10 @@
    to 0 if you don't. */
 #undef HAVE_DECL_CURLOPT_SSL_CIPHER_LIST
 
+/* Define to 1 if you have the declaration of `CURLOPT_SSL_OPTIONS', and to 0
+   if you don't. */
+#undef HAVE_DECL_CURLOPT_SSL_OPTIONS
+
 /* Define to 1 if you have the declaration of `CURLOPT_SSL_SESSIONID_CACHE',
    and to 0 if you don't. */
 #undef HAVE_DECL_CURLOPT_SSL_SESSIONID_CACHE
@@ -1117,6 +1121,50 @@
 /* Define to 1 if you have the declaration of `CURLOPT_WRITEINFO', and to 0 if
    you don't. */
 #undef HAVE_DECL_CURLOPT_WRITEINFO
+
+/* Define to 1 if you have the declaration of `CURLSSLBACKEND_BEARSSL', and to
+   0 if you don't. */
+#undef HAVE_DECL_CURLSSLBACKEND_BEARSSL
+
+/* Define to 1 if you have the declaration of `CURLSSLBACKEND_GNUTLS', and to
+   0 if you don't. */
+#undef HAVE_DECL_CURLSSLBACKEND_GNUTLS
+
+/* Define to 1 if you have the declaration of `CURLSSLBACKEND_GSKIT', and to 0
+   if you don't. */
+#undef HAVE_DECL_CURLSSLBACKEND_GSKIT
+
+/* Define to 1 if you have the declaration of `CURLSSLBACKEND_MBEDTLS', and to
+   0 if you don't. */
+#undef HAVE_DECL_CURLSSLBACKEND_MBEDTLS
+
+/* Define to 1 if you have the declaration of `CURLSSLBACKEND_MESALINK', and
+   to 0 if you don't. */
+#undef HAVE_DECL_CURLSSLBACKEND_MESALINK
+
+/* Define to 1 if you have the declaration of `CURLSSLBACKEND_NONE', and to 0
+   if you don't. */
+#undef HAVE_DECL_CURLSSLBACKEND_NONE
+
+/* Define to 1 if you have the declaration of `CURLSSLBACKEND_NSS', and to 0
+   if you don't. */
+#undef HAVE_DECL_CURLSSLBACKEND_NSS
+
+/* Define to 1 if you have the declaration of `CURLSSLBACKEND_OPENSSL', and to
+   0 if you don't. */
+#undef HAVE_DECL_CURLSSLBACKEND_OPENSSL
+
+/* Define to 1 if you have the declaration of `CURLSSLBACKEND_SCHANNEL', and
+   to 0 if you don't. */
+#undef HAVE_DECL_CURLSSLBACKEND_SCHANNEL
+
+/* Define to 1 if you have the declaration of
+   `CURLSSLBACKEND_SECURETRANSPORT', and to 0 if you don't. */
+#undef HAVE_DECL_CURLSSLBACKEND_SECURETRANSPORT
+
+/* Define to 1 if you have the declaration of `CURLSSLBACKEND_WOLFSSL', and to
+   0 if you don't. */
+#undef HAVE_DECL_CURLSSLBACKEND_WOLFSSL
 
 /* Define to 1 if you have the declaration of `CURL_HTTP_VERSION_2', and to 0
    if you don't. */

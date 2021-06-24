@@ -8504,6 +8504,162 @@ fi
 cat >>confdefs.h <<_ACEOF
 #define HAVE_DECL_CURL_HTTP_VERSION_3 $ac_have_decl
 _ACEOF
+ac_fn_c_check_decl "$LINENO" "CURLSSLBACKEND_NONE" "ac_cv_have_decl_CURLSSLBACKEND_NONE" "
+#include \"curl/curl.h\"
+
+"
+if test "x$ac_cv_have_decl_CURLSSLBACKEND_NONE" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_CURLSSLBACKEND_NONE $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "CURLSSLBACKEND_OPENSSL" "ac_cv_have_decl_CURLSSLBACKEND_OPENSSL" "
+#include \"curl/curl.h\"
+
+"
+if test "x$ac_cv_have_decl_CURLSSLBACKEND_OPENSSL" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_CURLSSLBACKEND_OPENSSL $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "CURLSSLBACKEND_GNUTLS" "ac_cv_have_decl_CURLSSLBACKEND_GNUTLS" "
+#include \"curl/curl.h\"
+
+"
+if test "x$ac_cv_have_decl_CURLSSLBACKEND_GNUTLS" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_CURLSSLBACKEND_GNUTLS $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "CURLSSLBACKEND_NSS" "ac_cv_have_decl_CURLSSLBACKEND_NSS" "
+#include \"curl/curl.h\"
+
+"
+if test "x$ac_cv_have_decl_CURLSSLBACKEND_NSS" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_CURLSSLBACKEND_NSS $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "CURLSSLBACKEND_GSKIT" "ac_cv_have_decl_CURLSSLBACKEND_GSKIT" "
+#include \"curl/curl.h\"
+
+"
+if test "x$ac_cv_have_decl_CURLSSLBACKEND_GSKIT" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_CURLSSLBACKEND_GSKIT $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "CURLSSLBACKEND_WOLFSSL" "ac_cv_have_decl_CURLSSLBACKEND_WOLFSSL" "
+#include \"curl/curl.h\"
+
+"
+if test "x$ac_cv_have_decl_CURLSSLBACKEND_WOLFSSL" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_CURLSSLBACKEND_WOLFSSL $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "CURLSSLBACKEND_SCHANNEL" "ac_cv_have_decl_CURLSSLBACKEND_SCHANNEL" "
+#include \"curl/curl.h\"
+
+"
+if test "x$ac_cv_have_decl_CURLSSLBACKEND_SCHANNEL" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_CURLSSLBACKEND_SCHANNEL $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "CURLSSLBACKEND_SECURETRANSPORT" "ac_cv_have_decl_CURLSSLBACKEND_SECURETRANSPORT" "
+#include \"curl/curl.h\"
+
+"
+if test "x$ac_cv_have_decl_CURLSSLBACKEND_SECURETRANSPORT" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_CURLSSLBACKEND_SECURETRANSPORT $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "CURLSSLBACKEND_MBEDTLS" "ac_cv_have_decl_CURLSSLBACKEND_MBEDTLS" "
+#include \"curl/curl.h\"
+
+"
+if test "x$ac_cv_have_decl_CURLSSLBACKEND_MBEDTLS" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_CURLSSLBACKEND_MBEDTLS $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "CURLSSLBACKEND_MESALINK" "ac_cv_have_decl_CURLSSLBACKEND_MESALINK" "
+#include \"curl/curl.h\"
+
+"
+if test "x$ac_cv_have_decl_CURLSSLBACKEND_MESALINK" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_CURLSSLBACKEND_MESALINK $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "CURLSSLBACKEND_BEARSSL" "ac_cv_have_decl_CURLSSLBACKEND_BEARSSL" "
+#include \"curl/curl.h\"
+
+"
+if test "x$ac_cv_have_decl_CURLSSLBACKEND_BEARSSL" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_CURLSSLBACKEND_BEARSSL $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "CURLOPT_SSL_OPTIONS" "ac_cv_have_decl_CURLOPT_SSL_OPTIONS" "
+#include \"curl/curl.h\"
+
+"
+if test "x$ac_cv_have_decl_CURLOPT_SSL_OPTIONS" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_CURLOPT_SSL_OPTIONS $ac_have_decl
+_ACEOF
 ac_fn_c_check_decl "$LINENO" "CURL_VERSION_TLSAUTH_SRP" "ac_cv_have_decl_CURL_VERSION_TLSAUTH_SRP" "
 #include \"curl/curl.h\"
 
