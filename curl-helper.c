@@ -4107,13 +4107,14 @@ static void raise_multi_cerror(char const* func, CURLMcode code)
     if (NULL == exception) caml_invalid_argument("Curl.Multi.CError");
   }
 
-  data = caml_alloc_tuple(3);
+  data = caml_alloc(4, 0);
 
-  Store_field(data, 0, caml_copy_string(func));
-  Store_field(data, 1, Val_int(code));
-  Store_field(data, 2, caml_copy_string(curl_multi_strerror(code)));
+  Store_field(data, 0, *exception);
+  Store_field(data, 1, caml_copy_string(func));
+  Store_field(data, 2, Val_int(code));
+  Store_field(data, 3, caml_copy_string(curl_multi_strerror(code)));
 
-  caml_raise_with_arg(*exception, data);
+  caml_raise(data);
 
   CAMLreturn0;
 }
