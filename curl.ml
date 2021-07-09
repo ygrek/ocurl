@@ -470,6 +470,7 @@ type curlOption =
   | CURLOPT_SSHKNOWNHOSTS of string
   | CURLOPT_SSHKEYFUNCTION of (curlKHMatch -> string -> curlKHStat)
   | CURLOPT_BUFFERSIZE of int
+  | CURLOPT_DOH_URL of string
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -1005,6 +1006,9 @@ let set_sshkeyfunction conn f =
 let set_buffersize conn buffersize =
   setopt conn (CURLOPT_BUFFERSIZE buffersize)
 
+let set_doh_url conn url =
+  setopt conn (CURLOPT_DOH_URL url)
+
 let get_effectiveurl conn =
   match (getinfo conn CURLINFO_EFFECTIVE_URL) with
   | CURLINFO_String s -> s
@@ -1347,6 +1351,7 @@ class handle =
     method set_sshknownhosts s = set_sshknownhosts conn s
     method set_sshkeyfunction f = set_sshkeyfunction conn f
     method set_buffersize buffersize = set_buffersize conn buffersize
+    method set_doh_url url = set_doh_url conn url
 
     method get_effectiveurl = get_effectiveurl conn
     method get_redirecturl = get_redirecturl conn
