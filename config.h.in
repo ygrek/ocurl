@@ -594,6 +594,10 @@
    and to 0 if you don't. */
 #undef HAVE_DECL_CURLOPT_DNS_USE_GLOBAL_CACHE
 
+/* Define to 1 if you have the declaration of `CURLOPT_DOH_URL', and to 0 if
+   you don't. */
+#undef HAVE_DECL_CURLOPT_DOH_URL
+
 /* Define to 1 if you have the declaration of `CURLOPT_EGDSOCKET', and to 0 if
    you don't. */
 #undef HAVE_DECL_CURLOPT_EGDSOCKET

@@ -2865,6 +2865,11 @@ SETOPT_VAL( SSH_KNOWNHOSTS, String_val)
 
 SETOPT_LONG( BUFFERSIZE)
 
+#if HAVE_DECL_CURLOPT_DOH_URL
+  SETOPT_STRING( DOH_URL)
+#endif
+
+
 /**
  **  curl_easy_setopt helper function
  **/
@@ -3275,6 +3280,11 @@ CURLOptionMapping implementedOptionMap[] =
   CURLOPT(SSH_KNOWNHOSTS),
   CURLOPT(SSH_KEYFUNCTION),
   CURLOPT(BUFFERSIZE),
+#if HAVE_DECL_CURLOPT_DOH_URL
+  CURLOPT(DOH_URL),
+#else
+  HAVENOT(DOH_URL),
+#endif
 };
 
 value caml_curl_easy_setopt(value conn, value option)

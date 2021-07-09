@@ -483,6 +483,7 @@ type curlOption =
       the public key sent by the remote host. If the function raises an
       exception the key will be rejected, and the connection will fail.**)
   | CURLOPT_BUFFERSIZE of int
+  | CURLOPT_DOH_URL of string
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -719,6 +720,7 @@ val set_proxytype : t -> curlProxyType -> unit
 val set_protocols : t -> curlProto list -> unit
 val set_redirprotocols : t -> curlProto list -> unit
 val set_buffersize : t -> int -> unit
+val set_doh_url : t -> string -> unit
 
 (** [set_resolve t add del] adjusts builtin dns mapping
 
@@ -935,7 +937,7 @@ class handle :
     method set_sshknownhosts : string -> unit
     method set_sshkeyfunction : (curlKHMatch -> string -> curlKHStat) -> unit
     method set_buffersize : int -> unit
-
+    method set_doh_url : string -> unit
     method get_effectiveurl : string
     method get_redirecturl : string
     method get_httpcode : int
