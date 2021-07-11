@@ -1259,7 +1259,7 @@ value caml_curl_global_sslset(value v_backend)
 value caml_curl_global_sslsetavail(value v_unit)
 {
   CAMLparam1(v_unit);
-  CAMLlocal2(lst, v);
+  CAMLlocal1(lst);
   const curl_ssl_backend **backends;
   CURLsslset res;
   int i, j, n, found;
@@ -1285,10 +1285,7 @@ value caml_curl_global_sslsetavail(value v_unit)
 
     /* If an unknown backend is returned, it is ignored */
     if (found >= 0) {
-      v = caml_alloc_tuple(2);
-      Store_field(v, 0, Val_long(found));
-      Store_field(v, 1, lst);
-      lst = v;
+      lst = Val_cons(lst, Val_long(found));
     }
   }
 
