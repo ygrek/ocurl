@@ -565,7 +565,9 @@ let () =
     (CurlSslSetException (CURLSSLSET_OK, ""))
 
 external global_sslset : curlSslBackend -> unit = "caml_curl_global_sslset"
+external global_sslset_str : string -> unit = "caml_curl_global_sslset_str"
 external global_sslsetavail : unit -> curlSslBackend list = "caml_curl_global_sslsetavail"
+external global_sslsetavail_str : unit -> string list = "caml_curl_global_sslsetavail_str"
 external global_init : initOption -> unit = "caml_curl_global_init"
 external global_cleanup : unit -> unit = "caml_curl_global_cleanup"
 external init : unit -> t = "caml_curl_easy_init"

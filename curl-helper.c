@@ -1256,6 +1256,18 @@ value caml_curl_global_sslset(value v_backend)
   CAMLreturn(Val_unit);
 }
 
+value caml_curl_global_sslset_str(value v_backend_str)
+{
+  CAMLparam1(v_backend_str);
+
+  CURLsslset res = curl_global_sslset(-1, String_val(v_backend_str), NULL);
+
+  if (res != CURLSSLSET_OK)
+    raiseSslsetError(res);
+
+  CAMLreturn(Val_unit);
+}
+
 value caml_curl_global_sslsetavail(value v_unit)
 {
   CAMLparam1(v_unit);
@@ -1291,20 +1303,54 @@ value caml_curl_global_sslsetavail(value v_unit)
 
   CAMLreturn(lst);
 }
-#else
-value caml_curl_global_sslset(value v_backend)
+
+value caml_curl_global_sslsetavail_str(value v_unit)
 {
-  CAMLparam1(v_backend);
+  CAMLparam1(v_unit);
+  CAMLlocal1(lst);
+  const curl_ssl_backend **backends;
+  CURLsslset res;
+  int i, n;
+
+  res = curl_global_sslset(-1, NULL, &backends);
+
+  if (res != CURLSSLSET_UNKNOWN_BACKEND)
+    raiseSslsetError(res);
+
+  for (n = 0; backends[n] != NULL; n ++) ;
+
+  lst = Val_emptylist;
+
+  for (i = n - 1; i >= 0; i --) {
+    lst = Val_cons(lst, caml_copy_string(backends[i]->name));
+  }
+
+  CAMLreturn(lst);
+}
+#else
+value caml_curl_global_sslset(value v_ignored)
+{
   const value *exception = caml_named_value("Curl.NotImplemented");
   if (NULL == exception) caml_invalid_argument("Curl.NotImplemented not registered");
   caml_raise_with_string(*exception, "curl_global_sslset");
 
   /* Not reached */
-  CAMLreturn(Val_unit);
+  return Val_unit;
 }
-value caml_curl_global_sslsetavail(value v_unit)
+value caml_curl_global_sslset_str(value v_ignored)
 {
-  return caml_curl_global_sslset(Val_int(0));
+  /* Argument is ignored */
+  return caml_curl_global_sslset(Val_unit);
+}
+value caml_curl_global_sslsetavail(value v_ignored)
+{
+  /* Argument is ignored */
+  return caml_curl_global_sslset(Val_unit);
+}
+value caml_curl_global_sslsetavail_str(value v_ignored)
+{
+  /* Argument is ignored */
+  return caml_curl_global_sslset(Val_unit);
 }
 #endif
 

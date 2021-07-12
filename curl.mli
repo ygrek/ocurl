@@ -592,7 +592,13 @@ exception CurlSslSetException of (curlSslSet * string)
 val global_sslset : curlSslBackend -> unit
 (** @since 7.56.0 *)
 
+val global_sslset_str : string -> unit
+(** @since 7.56.0 *)
+
 val global_sslsetavail : unit -> curlSslBackend list
+(** @since 7.56.0 *)
+
+val global_sslsetavail_str : unit -> string list
 (** @since 7.56.0 *)
 
 (** {2 curl_easy API} *)
