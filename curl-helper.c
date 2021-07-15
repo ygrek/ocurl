@@ -1274,18 +1274,16 @@ value caml_curl_global_sslsetavail(value v_unit)
   CAMLlocal1(lst);
   const curl_ssl_backend **backends;
   CURLsslset res;
-  int i, j, n, found;
+  int i, j, found;
 
   res = curl_global_sslset(-1, NULL, &backends);
 
   if (res != CURLSSLSET_UNKNOWN_BACKEND)
     raiseSslsetError(res);
 
-  for (n = 0; backends[n] != NULL; n ++) ;
-
   lst = Val_emptylist;
 
-  for (i = n - 1; i >= 0; i --) {
+  for (i = 0; backends[i] != NULL; i ++) {
     found = -1;
 
     for (j = 0; j < sizeof(sslBackendMap) / sizeof(sslBackendMap[0]); j ++) {
@@ -1310,18 +1308,16 @@ value caml_curl_global_sslsetavail_str(value v_unit)
   CAMLlocal1(lst);
   const curl_ssl_backend **backends;
   CURLsslset res;
-  int i, n;
+  int i;
 
   res = curl_global_sslset(-1, NULL, &backends);
 
   if (res != CURLSSLSET_UNKNOWN_BACKEND)
     raiseSslsetError(res);
 
-  for (n = 0; backends[n] != NULL; n ++) ;
-
   lst = Val_emptylist;
 
-  for (i = n - 1; i >= 0; i --) {
+  for (i = 0; backends[i] != NULL; i ++) {
     lst = Val_cons(lst, caml_copy_string(backends[i]->name));
   }
 
