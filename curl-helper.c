@@ -1196,48 +1196,34 @@ curl_sslbackend sslBackendMap[] = {
 };
 
 #if HAVE_DECL_CURLSSLBACKEND_NONE
-typedef struct CURLsslsetMapping CURLsslsetMapping;
-
-struct CURLsslsetMapping
-{
-  char* name;
-  CURLsslset code;
-};
-
 /* Same order as in OCaml */
-CURLsslsetMapping sslsetMap[] = {
-  {"CURLSSLSET_OK", CURLSSLSET_OK},
-  {"CURLSSLSET_UNKNOWN_BACKEND", CURLSSLSET_UNKNOWN_BACKEND},
-  {"CURLSSLSET_TOO_LATE", CURLSSLSET_TOO_LATE},
-  {"CURLSSLSET_NO_BACKENDS", CURLSSLSET_NO_BACKENDS},
+CURLsslset sslsetMap[] = {
+  CURLSSLSET_OK,
+  CURLSSLSET_UNKNOWN_BACKEND,
+  CURLSSLSET_TOO_LATE,
+  CURLSSLSET_NO_BACKENDS,
 };
 
 static void raiseSslsetError(CURLsslset err)
 {
   CAMLparam0();
-  CAMLlocal1(exceptionData);
   const value *exception;
-  const char *errorString = NULL;
-  int i;
+  int i, found;
 
-  for (i = 0; i < sizeof(sslsetMap) / sizeof(sslsetMap[0]); i ++) {
-    if (sslsetMap[i].code == err) {
-      errorString = sslsetMap[i].name;
+  for (i = 0, found = -1; i < sizeof(sslsetMap) / sizeof(sslsetMap[0]); i ++) {
+    if (sslsetMap[i] == err) {
+      found = i;
       break;
     }
   }
 
-  if (errorString == NULL)
+  if (found < 0)
     caml_invalid_argument("Unexpected CURLsslset value");
-
-  exceptionData = caml_alloc_tuple(2);
-  Store_field(exceptionData, 0, Val_int(i));
-  Store_field(exceptionData, 1, caml_copy_string(errorString));
 
   exception = caml_named_value("CurlSslSetException");
   if (exception == NULL) caml_invalid_argument("CurlSslSetException not registered");
 
-  caml_raise_with_arg(*exception, exceptionData);
+  caml_raise_with_arg(*exception, Val_int(found));
 
   /* Not reached */
   CAMLreturn0;

@@ -558,11 +558,11 @@ exception NotImplemented of string
 
 let () = Callback.register_exception "Curl.NotImplemented" (NotImplemented "")
 
-exception CurlSslSetException of (curlSslSet * string)
+exception CurlSslSetException of curlSslSet
 
 let () =
   Callback.register_exception "CurlSslSetException"
-    (CurlSslSetException (CURLSSLSET_OK, ""))
+    (CurlSslSetException CURLSSLSET_OK)
 
 external global_sslset : curlSslBackend -> unit = "caml_curl_global_sslset"
 external global_sslset_str : string -> unit = "caml_curl_global_sslset_str"

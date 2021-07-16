@@ -587,7 +587,7 @@ type pauseOption = PAUSE_SEND | PAUSE_RECV | PAUSE_ALL
 
 (** {2 MultiSSL mode } *)
 
-exception CurlSslSetException of (curlSslSet * string)
+exception CurlSslSetException of curlSslSet
 
 val global_sslset : curlSslBackend -> unit
 (** @since libcurl 7.56.0 *)
