@@ -1079,7 +1079,6 @@ static int cb_OPENSOCKETFUNCTION(void *data,
 }
 #endif
 
-#if HAVE_DECL_CURLOPT_CLOSESOCKETFUNCTION
 static int cb_CLOSESOCKETFUNCTION(void *data,
                          curl_socket_t socket)
 {
@@ -1100,7 +1099,6 @@ static int cb_CLOSESOCKETFUNCTION(void *data,
     caml_enter_blocking_section();
     return result;
 }
-#endif
 
 static int cb_SSH_KEYFUNCTION(CURL *easy,
                               const struct curl_khkey *knownkey,
@@ -1470,9 +1468,7 @@ SETOPT_FUNCTION( IOCTL)
 SETOPT_FUNCTION( OPENSOCKET)
 #endif
 
-#if HAVE_DECL_CURLOPT_CLOSESOCKETFUNCTION
 SETOPT_FUNCTION( CLOSESOCKET)
-#endif
 
 static void handle_slist(Connection *conn, struct curl_slist** slist, CURLoption curl_option, value option)
 {
@@ -3479,11 +3475,7 @@ CURLOptionMapping implementedOptionMap[] =
 #else
   HAVENOT(OPENSOCKETFUNCTION),
 #endif
-#if HAVE_DECL_CURLOPT_CLOSESOCKETFUNCTION
   CURLOPT(CLOSESOCKETFUNCTION),
-#else
-  HAVENOT(CLOSESOCKETFUNCTION),
-#endif
 #if HAVE_DECL_CURLOPT_PROXYTYPE
   CURLOPT(PROXYTYPE),
 #else
