@@ -104,6 +104,7 @@ typedef enum OcamlValues
     Ocaml_IOCTLFUNCTION,
     Ocaml_SEEKFUNCTION,
     Ocaml_OPENSOCKETFUNCTION,
+    Ocaml_CLOSESOCKETFUNCTION,
     Ocaml_SSH_KEYFUNCTION,
 
     Ocaml_ERRORBUFFER,
@@ -1078,6 +1079,29 @@ static int cb_OPENSOCKETFUNCTION(void *data,
 }
 #endif
 
+#if HAVE_DECL_CURLOPT_CLOSESOCKETFUNCTION
+static int cb_CLOSESOCKETFUNCTION(void *data,
+                         curl_socket_t socket)
+{
+    caml_leave_blocking_section();
+
+    CAMLparam0();
+    CAMLlocal1(camlResult);
+    Connection *conn = (Connection *)data;
+    int result = 0;
+
+    camlResult = caml_callback_exn(Field(conn->ocamlValues, Ocaml_CLOSESOCKETFUNCTION), Val_int(socket));
+    if (Is_exception_result(camlResult))
+    {
+      result = 1;
+    }
+    CAMLdrop;
+
+    caml_enter_blocking_section();
+    return result;
+}
+#endif
+
 static int cb_SSH_KEYFUNCTION(CURL *easy,
                               const struct curl_khkey *knownkey,
                               const struct curl_khkey *foundkey,
@@ -1444,6 +1468,10 @@ SETOPT_FUNCTION( IOCTL)
 
 #if HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
 SETOPT_FUNCTION( OPENSOCKET)
+#endif
+
+#if HAVE_DECL_CURLOPT_CLOSESOCKETFUNCTION
+SETOPT_FUNCTION( CLOSESOCKET)
 #endif
 
 static void handle_slist(Connection *conn, struct curl_slist** slist, CURLoption curl_option, value option)
@@ -3450,6 +3478,11 @@ CURLOptionMapping implementedOptionMap[] =
   CURLOPT(OPENSOCKETFUNCTION),
 #else
   HAVENOT(OPENSOCKETFUNCTION),
+#endif
+#if HAVE_DECL_CURLOPT_CLOSESOCKETFUNCTION
+  CURLOPT(CLOSESOCKETFUNCTION),
+#else
+  HAVENOT(CLOSESOCKETFUNCTION),
 #endif
 #if HAVE_DECL_CURLOPT_PROXYTYPE
   CURLOPT(PROXYTYPE),
