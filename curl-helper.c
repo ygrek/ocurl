@@ -1047,7 +1047,6 @@ static int cb_SEEKFUNCTION(void *data,
 }
 #endif
 
-#if HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
 static int cb_OPENSOCKETFUNCTION(void *data,
                         curlsocktype purpose,
                         struct curl_sockaddr *addr)
@@ -1077,7 +1076,6 @@ static int cb_OPENSOCKETFUNCTION(void *data,
     caml_enter_blocking_section();
     return ((sock == -1) ? CURL_SOCKET_BAD : sock);
 }
-#endif
 
 static int cb_CLOSESOCKETFUNCTION(void *data,
                          curl_socket_t socket)
@@ -1464,10 +1462,7 @@ SETOPT_FUNCTION( SEEK)
 SETOPT_FUNCTION( IOCTL)
 #endif
 
-#if HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
 SETOPT_FUNCTION( OPENSOCKET)
-#endif
-
 SETOPT_FUNCTION( CLOSESOCKET)
 
 static void handle_slist(Connection *conn, struct curl_slist** slist, CURLoption curl_option, value option)
@@ -3470,11 +3465,7 @@ CURLOptionMapping implementedOptionMap[] =
 #else
   HAVENOT(AUTOREFERER),
 #endif
-#if HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
   CURLOPT(OPENSOCKETFUNCTION),
-#else
-  HAVENOT(OPENSOCKETFUNCTION),
-#endif
   CURLOPT(CLOSESOCKETFUNCTION),
 #if HAVE_DECL_CURLOPT_PROXYTYPE
   CURLOPT(PROXYTYPE),

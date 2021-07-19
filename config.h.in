@@ -526,10 +526,6 @@
    if you don't. */
 #undef HAVE_DECL_CURLOPT_CLOSEPOLICY
 
-/* Define to 1 if you have the declaration of `CURLOPT_CLOSESOCKETFUNCTION',
-   and to 0 if you don't. */
-#undef HAVE_DECL_CURLOPT_CLOSESOCKETFUNCTION
-
 /* Define to 1 if you have the declaration of `CURLOPT_CONNECTTIMEOUT', and to
    0 if you don't. */
 #undef HAVE_DECL_CURLOPT_CONNECTTIMEOUT
@@ -853,10 +849,6 @@
 /* Define to 1 if you have the declaration of `CURLOPT_NOSIGNAL', and to 0 if
    you don't. */
 #undef HAVE_DECL_CURLOPT_NOSIGNAL
-
-/* Define to 1 if you have the declaration of `CURLOPT_OPENSOCKETFUNCTION',
-   and to 0 if you don't. */
-#undef HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION
 
 /* Define to 1 if you have the declaration of `CURLOPT_PASSWORD', and to 0 if
    you don't. */

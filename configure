@@ -6606,19 +6606,6 @@ fi
 cat >>confdefs.h <<_ACEOF
 #define HAVE_DECL_CURLOPT_SEEKFUNCTION $ac_have_decl
 _ACEOF
-ac_fn_c_check_decl "$LINENO" "CURLOPT_OPENSOCKETFUNCTION" "ac_cv_have_decl_CURLOPT_OPENSOCKETFUNCTION" "
-#include \"curl/curl.h\"
-
-"
-if test "x$ac_cv_have_decl_CURLOPT_OPENSOCKETFUNCTION" = xyes; then :
-  ac_have_decl=1
-else
-  ac_have_decl=0
-fi
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_DECL_CURLOPT_OPENSOCKETFUNCTION $ac_have_decl
-_ACEOF
 ac_fn_c_check_decl "$LINENO" "CURLOPT_PROTOCOLS" "ac_cv_have_decl_CURLOPT_PROTOCOLS" "
 #include \"curl/curl.h\"
 
@@ -6826,19 +6813,6 @@ fi
 
 cat >>confdefs.h <<_ACEOF
 #define HAVE_DECL_CURLOPT_DOH_URL $ac_have_decl
-_ACEOF
-ac_fn_c_check_decl "$LINENO" "CURLOPT_CLOSESOCKETFUNCTION" "ac_cv_have_decl_CURLOPT_CLOSESOCKETFUNCTION" "
-#include \"curl/curl.h\"
-
-"
-if test "x$ac_cv_have_decl_CURLOPT_CLOSESOCKETFUNCTION" = xyes; then :
-  ac_have_decl=1
-else
-  ac_have_decl=0
-fi
-
-cat >>confdefs.h <<_ACEOF
-#define HAVE_DECL_CURLOPT_CLOSESOCKETFUNCTION $ac_have_decl
 _ACEOF
 ac_fn_c_check_decl "$LINENO" "CURLINFO_EFFECTIVE_URL" "ac_cv_have_decl_CURLINFO_EFFECTIVE_URL" "
 #include \"curl/curl.h\"
