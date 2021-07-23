@@ -429,6 +429,7 @@ type curlOption =
   | CURLOPT_FTPSSL of curlFTPSSL
   | CURLOPT_POSTFIELDSIZELARGE of int64
   | CURLOPT_TCPNODELAY of bool
+  | CURLOPT_TCP_FASTOPEN of bool
   | CURLOPT_FTPSSLAUTH of curlFTPSSLAuth
   | CURLOPT_IOCTLFUNCTION of (t -> curlIOCmd -> curlIOErr)
   | CURLOPT_FTPACCOUNT of string
@@ -899,6 +900,9 @@ let set_postfieldsizelarge conn size =
 let set_tcpnodelay conn flag =
   setopt conn (CURLOPT_TCPNODELAY flag)
 
+let set_tcpfastopen conn flag =
+  setopt conn (CURLOPT_TCP_FASTOPEN flag)
+
 let set_ftpsslauth conn auth =
   setopt conn (CURLOPT_FTPSSLAUTH auth)
 
@@ -1358,6 +1362,7 @@ class handle =
     method set_postfieldsize size = set_postfieldsize conn size
     method set_postfieldsizelarge size = set_postfieldsizelarge conn size
     method set_tcpnodelay flag = set_tcpnodelay conn flag
+    method set_tcpfastopen flag = set_tcpfastopen conn flag
     method set_ftpsslauth flag = set_ftpsslauth conn flag
     method set_ioctlfunction closure = set_ioctlfunction conn closure
     method set_ftpaccount account = set_ftpaccount conn account

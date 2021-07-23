@@ -1050,6 +1050,10 @@
    0 if you don't. */
 #undef HAVE_DECL_CURLOPT_SSL_VERIFYPEER
 
+/* Define to 1 if you have the declaration of `CURLOPT_TCP_FASTOPEN', and to 0
+   if you don't. */
+#undef HAVE_DECL_CURLOPT_TCP_FASTOPEN
+
 /* Define to 1 if you have the declaration of `CURLOPT_TCP_NODELAY', and to 0
    if you don't. */
 #undef HAVE_DECL_CURLOPT_TCP_NODELAY

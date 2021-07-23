@@ -440,6 +440,7 @@ type curlOption =
   | CURLOPT_FTPSSL of curlFTPSSL
   | CURLOPT_POSTFIELDSIZELARGE of int64
   | CURLOPT_TCPNODELAY of bool
+  | CURLOPT_TCP_FASTOPEN of bool
   | CURLOPT_FTPSSLAUTH of curlFTPSSLAuth
   | CURLOPT_IOCTLFUNCTION of (t -> curlIOCmd -> curlIOErr)
   | CURLOPT_FTPACCOUNT of string
@@ -731,6 +732,7 @@ val set_netrcfile : t -> string -> unit
 val set_ftpssl : t -> curlFTPSSL -> unit
 val set_postfieldsizelarge : t -> int64 -> unit
 val set_tcpnodelay : t -> bool -> unit
+val set_tcpfastopen : t -> bool -> unit
 val set_ftpsslauth : t -> curlFTPSSLAuth -> unit
 val set_ioctlfunction : t -> (t -> curlIOCmd -> curlIOErr) -> unit
 val set_ftpaccount : t -> string -> unit
@@ -947,6 +949,7 @@ class handle :
     method set_ftpssl : curlFTPSSL -> unit
     method set_postfieldsizelarge : int64 -> unit
     method set_tcpnodelay : bool -> unit
+    method set_tcpfastopen : bool -> unit
     method set_ftpsslauth : curlFTPSSLAuth -> unit
     method set_ioctlfunction : (t -> curlIOCmd -> curlIOErr) -> unit
     method set_ftpaccount : string -> unit
