@@ -8,20 +8,29 @@ MIN_LIBCURL_VERSION=7.28.0
 
 AC_PROG_CC()
 
+AC_ARG_VAR([CURLCFLAGS], [libcurl C flags])
+
 AC_MSG_CHECKING([for libcurl cflags])
-CURLCFLAGS=`pkg-config libcurl --cflags || curl-config --cflags`
-AS_IF([ test "$?" -eq 0 ],,[AC_MSG_ERROR([libcurl was not found])] )
+AS_IF([test -z "$CURLCFLAGS"],
+  [CURLCFLAGS=`pkg-config libcurl --cflags || curl-config --cflags`
+   AS_IF([ test "$?" -eq 0 ],,[AC_MSG_ERROR([libcurl was not found])])])
 AC_MSG_RESULT([$CURLCFLAGS])
 
+AC_ARG_VAR([CURLLIBS], [libcurl library flags])
+
 AC_MSG_CHECKING([for libcurl libs])
-CURLLIBS=`pkg-config libcurl --libs || curl-config --libs`
-AS_IF([ test "$?" -eq 0 ],,[AC_MSG_ERROR([libcurl was not found])] )
+AS_IF([test -z "$CURLLIBS"],
+  [CURLLIBS=`pkg-config libcurl --libs || curl-config --libs`
+   AS_IF([ test "$?" -eq 0 ],,[AC_MSG_ERROR([libcurl was not found])])])
 AC_MSG_RESULT([$CURLLIBS])
 
+AC_ARG_VAR([LIBCURL_VERSION], [libcurl version])
+
 AC_MSG_CHECKING([for libcurl version >= $MIN_LIBCURL_VERSION])
-LIBCURL_VERSION=`pkg-config libcurl --modversion || curl-config --version`
-(pkg-config libcurl && pkg-config libcurl --atleast-version=${MIN_LIBCURL_VERSION}) || curl-config --checkfor ${MIN_LIBCURL_VERSION}
-AS_IF([ test "$?" -eq 0 ],,[AC_MSG_ERROR([${LIBCURL_VERSION} is too old])])
+AS_IF([test -z "$LIBCURL_VERSION"],
+  [LIBCURL_VERSION=`pkg-config libcurl --modversion || curl-config --version`
+   (pkg-config libcurl && pkg-config libcurl --atleast-version=${MIN_LIBCURL_VERSION}) || curl-config --checkfor ${MIN_LIBCURL_VERSION}
+   AS_IF([ test "$?" -eq 0 ],,[AC_MSG_ERROR([${LIBCURL_VERSION} is too old])])])
 AC_MSG_RESULT([${LIBCURL_VERSION}])
 
 AC_PROG_INSTALL()

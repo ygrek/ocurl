@@ -628,7 +628,6 @@ EXT_LIB
 EXT_DLL
 OCAML_HAS_BIN_ANNOT
 INSTALLDIR
-CURLLIBS
 ac_prefix_program
 OCAML_PKG_lwt_ppx
 OCAML_PKG_lwt_unix
@@ -650,6 +649,9 @@ OCAMLC
 INSTALL_DATA
 INSTALL_SCRIPT
 INSTALL_PROGRAM
+LIBCURL_VERSION
+CURLLIBS
+CURLCFLAGS
 OBJEXT
 EXEEXT
 ac_ct_CC
@@ -708,6 +710,9 @@ CFLAGS
 LDFLAGS
 LIBS
 CPPFLAGS
+CURLCFLAGS
+CURLLIBS
+LIBCURL_VERSION
 CPP'
 
 
@@ -1333,6 +1338,10 @@ Some influential environment variables:
   LIBS        libraries to pass to the linker, e.g. -l<library>
   CPPFLAGS    (Objective) C/C++ preprocessor flags, e.g. -I<include dir> if
               you have headers in a nonstandard directory <include dir>
+  CURLCFLAGS  libcurl C flags
+  CURLLIBS    libcurl library flags
+  LIBCURL_VERSION
+              libcurl version
   CPP         C preprocessor
 
 Use these variables to override the choices made by `configure' or to help
@@ -2840,36 +2849,48 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libcurl cflags" >&5
 $as_echo_n "checking for libcurl cflags... " >&6; }
-CURLCFLAGS=`pkg-config libcurl --cflags || curl-config --cflags`
-if  test "$?" -eq 0 ; then :
+if test -z "$CURLCFLAGS"; then :
+  CURLCFLAGS=`pkg-config libcurl --cflags || curl-config --cflags`
+   if  test "$?" -eq 0 ; then :
 
 else
   as_fn_error $? "libcurl was not found" "$LINENO" 5
+fi
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $CURLCFLAGS" >&5
 $as_echo "$CURLCFLAGS" >&6; }
 
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libcurl libs" >&5
 $as_echo_n "checking for libcurl libs... " >&6; }
-CURLLIBS=`pkg-config libcurl --libs || curl-config --libs`
-if  test "$?" -eq 0 ; then :
+if test -z "$CURLLIBS"; then :
+  CURLLIBS=`pkg-config libcurl --libs || curl-config --libs`
+   if  test "$?" -eq 0 ; then :
 
 else
   as_fn_error $? "libcurl was not found" "$LINENO" 5
 fi
+fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $CURLLIBS" >&5
 $as_echo "$CURLLIBS" >&6; }
 
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for libcurl version >= $MIN_LIBCURL_VERSION" >&5
 $as_echo_n "checking for libcurl version >= $MIN_LIBCURL_VERSION... " >&6; }
-LIBCURL_VERSION=`pkg-config libcurl --modversion || curl-config --version`
-(pkg-config libcurl && pkg-config libcurl --atleast-version=${MIN_LIBCURL_VERSION}) || curl-config --checkfor ${MIN_LIBCURL_VERSION}
-if  test "$?" -eq 0 ; then :
+if test -z "$LIBCURL_VERSION"; then :
+  LIBCURL_VERSION=`pkg-config libcurl --modversion || curl-config --version`
+   (pkg-config libcurl && pkg-config libcurl --atleast-version=${MIN_LIBCURL_VERSION}) || curl-config --checkfor ${MIN_LIBCURL_VERSION}
+   if  test "$?" -eq 0 ; then :
 
 else
   as_fn_error $? "${LIBCURL_VERSION} is too old" "$LINENO" 5
+fi
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${LIBCURL_VERSION}" >&5
 $as_echo "${LIBCURL_VERSION}" >&6; }
