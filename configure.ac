@@ -33,55 +33,6 @@ AS_IF([test -z "$LIBCURL_VERSION"],
    AS_IF([ test "$?" -eq 0 ],,[AC_MSG_ERROR([${LIBCURL_VERSION} is too old])])])
 AC_MSG_RESULT([${LIBCURL_VERSION}])
 
-AC_PROG_INSTALL()
-AC_PROG_OCAML()
-AC_PROG_FINDLIB()
-
-AC_CHECK_OCAML_PKG([bytes])
-AC_CHECK_OCAML_PKG([lwt.unix])
-AC_CHECK_OCAML_PKG([lwt_ppx],[lwt.ppx])
-
-INSTALLDIR=$OCAMLLIB/curl
-
-AC_PREFIX_PROGRAM(ocamlc)
-
-AC_SUBST(CURLLIBS)
-AC_SUBST(OCAMLLIB)
-AC_SUBST(INSTALLDIR)
-AC_SUBST(OCAMLFIND)
-AC_SUBST(OCAML_PKG_bytes)
-AC_SUBST(OCAML_PKG_lwt_unix)
-AC_SUBST(OCAML_PKG_lwt_ppx)
-
-AS_IF([test "$OCAMLFIND" == "no"],
-[$OCAMLC -I +compiler-libs ocamlcommon.cma print_ext.ml -o print_ext],
-[$OCAMLFIND c -linkpkg -package compiler-libs.common print_ext.ml -o print_ext])
-
-AC_MSG_CHECKING([for bin-annot support])
-AS_IF([test "$OCAMLVERSION" \> "4"],[OCAML_HAS_BIN_ANNOT=yes],[OCAML_HAS_BIN_ANNOT=no])
-AC_MSG_RESULT([$OCAML_HAS_BIN_ANNOT])
-
-AC_SUBST(OCAML_HAS_BIN_ANNOT)
-
-AC_MSG_CHECKING([for ext_dll])
-EXT_DLL=`./print_ext dll || $OCAMLC -config | fgrep ext_dll | sed -e "s/.*: //"`
-AS_IF([ test "$?" -eq 0 ],,[AC_MSG_ERROR([failed])] )
-AC_MSG_RESULT([$EXT_DLL])
-
-AC_MSG_CHECKING([for ext_lib])
-EXT_LIB=`./print_ext lib || $OCAMLC -config | fgrep ext_lib | sed -e "s/.*: //"`
-AS_IF([ test "$?" -eq 0 ],,[AC_MSG_ERROR([failed])] )
-AC_MSG_RESULT([$EXT_LIB])
-
-AC_MSG_CHECKING([for ext_obj])
-EXT_OBJ=`./print_ext obj || $OCAMLC -config | fgrep ext_obj | sed -e "s/.*: //"`
-AS_IF([ test "$?" -eq 0 ],,[AC_MSG_ERROR([failed])] )
-AC_MSG_RESULT([$EXT_OBJ])
-
-AC_SUBST(EXT_DLL)
-AC_SUBST(EXT_LIB)
-AC_SUBST(EXT_OBJ)
-
 # set CFLAGS for tests below
 CFLAGS="$CFLAGS $CURLCFLAGS"
 
@@ -219,6 +170,8 @@ AC_DEFINE([HAVE_CURL_MULTI_POLL], [1], [Does libcurl define curl_multi_poll]),
 ])
 
 AC_CONFIG_HEADERS(config.h)
-AC_CONFIG_FILES([Makefile examples/Makefile])
+AC_CONFIG_FILES([clibs.sexp])
+AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([dune-project])
 
 AC_OUTPUT

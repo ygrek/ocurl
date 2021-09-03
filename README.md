@@ -1,4 +1,3 @@
-
 ocurl - OCaml libcurl bindings
 ==============================
 
@@ -13,28 +12,6 @@ previously hosted at http://ocurl.sourceforge.net/
 
 Minimum supported libcurl version : 7.28.0
 
-Building on Windows with ocaml/msvc
-===================================
-
-Requirements
-------------
-
-  * libcurl devel for msvc <http://curl.haxx.se/latest.cgi?curl=win32-ssl-devel-msvc>
-  * working ocaml/msvc setup (ocaml and msvc tools in PATH)
-  * ocamlfind
-  * GNU make
-
-Build
------
-
-Edit `Makefile.msvc` and make CURLDIR variable point
-to the root directory of libcurl installation.
-Copy `config.h.windows` to `config.h`.
-
-Compile with `make -f Makefile.msvc`.
-Install with `make -f Makefile.msvc install`.
-Compile examples with `make -f Makefile.msvc examples`.
-
 Adding new libcurl symbol
 =========================
 
@@ -44,15 +21,14 @@ Adding new libcurl symbol
 * ./configure
 * edit curl-helper.c and curl.ml*
 
-Making release
-==============
+Making release to OPAM
+======================
 
 * Check `make gen` with latest libcurl
-* Update CHANGES.txt
-* Update version in configure.ac
+* Update CHANGES.md: replace the first heading by release number
 * autoreconf
 * commit
-* ./configure && make release
+* ./configure && make && make release
 
 ----
  ygrek at autistici dot org

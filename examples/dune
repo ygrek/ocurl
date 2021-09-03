@@ -1,0 +1,43 @@
+(executables
+ (names
+  ocurl
+  ominimal
+  ossl
+  test_cb_exn
+  test_memory_leaks
+  test_enum)
+ (libraries ocurl unix)
+ (modules
+  ocurl
+  ominimal
+  ossl
+  test_cb_exn
+  test_memory_leaks
+  test_enum))
+
+(executables
+ (names
+  opar
+  ocurl_test_threads)
+ (libraries ocurl threads)
+ (modules
+  opar
+  ocurl_test_threads))
+
+(executables
+ (names
+  test_lwt
+  test_lwt_unit)
+ (libraries ocurl.lwt)
+ (preprocess (pps lwt_ppx))
+ (modules
+  test_lwt
+  test_lwt_unit))
+
+(rule
+ (alias runtest)
+ (action (run ./test_cb_exn.exe)))
+
+(rule
+ (alias runtest)
+ (action (run ./test_memory_leaks.exe)))

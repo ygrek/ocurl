@@ -1,0 +1,11 @@
+(lang dune 2.8)
+
+(name ocurl)
+
+(version @PACKAGE_VERSION@)
+
+(use_standard_c_and_cxx_flags true)
+
+(package
+ (name ocurl)
+ (deprecated_package_names curl))

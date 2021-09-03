@@ -1,0 +1,25 @@
+(library
+ (public_name ocurl)
+ (wrapped false)
+ (foreign_stubs
+  (language c)
+  (flags -DHAVE_CONFIG_H :standard)
+  (names curl-helper))
+ (c_library_flags (:include clibs.sexp))
+ (modules curl))
+
+(deprecated_library_name
+ (old_public_name curl)
+ (new_public_name ocurl))
+
+(library
+ (name ocurl_lwt)
+ (public_name ocurl.lwt)
+ (optional)
+ (wrapped false)
+ (libraries ocurl lwt.unix)
+ (modules curl_lwt))
+
+(deprecated_library_name
+ (old_public_name curl.lwt)
+ (new_public_name ocurl.lwt))

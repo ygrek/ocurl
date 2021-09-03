@@ -2,8 +2,6 @@
 
 module M = Curl.Multi
 
-let log fmt = Printf.ksprintf prerr_endline fmt
-
 type multi = {
   mt : Curl.Multi.mt;
   all_events : (Unix.file_descr, Lwt_engine.event list) Hashtbl.t;
@@ -15,7 +13,7 @@ let create () =
   let timer_event = ref Lwt_engine.fake_event in
   let all_events = Hashtbl.create 32 in
   let wakeners = Hashtbl.create 32 in
-  let finished s =
+  let finished _ =
     let rec loop n =
       match M.remove_finished mt with
       | None -> ()

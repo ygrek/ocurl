@@ -4,22 +4,28 @@ maintainer: "ygrek@autistici.org"
 homepage: "https://ygrek.org.ua/p/ocurl"
 license: "MIT"
 authors: [ "Lars Nilsson" "ygrek" ]
-doc: ["https://ygrek.org.ua/p/ocurl/api/index.html"]
-dev-repo: "git://github.com/ygrek/ocurl.git"
+doc: "https://ygrek.org.ua/p/ocurl/api/index.html"
+dev-repo: "git+https://github.com/ygrek/ocurl.git"
 bug-reports: "https://github.com/ygrek/ocurl/issues"
 tags: ["org:ygrek" "clib:curl"]
 build: [
   ["./configure"]
-  [make]
-  [make "doc"] {with-doc}
-  [make "test"] {with-test}
-]
-install: [
-  [make "install"]
+  [
+    "dune"
+    "build"
+    "-p"
+    name
+    "-j"
+    jobs
+    "@install"
+    "@runtest" {with-test}
+    "@doc" {with-doc}
+  ]
 ]
 depends: [
-  "ocaml" {>= "4.02.0"}
-  "ocamlfind" {build}
+  "ocaml" {>= "4.02.3"}
+  "dune" {>= "2.8"}
+  "odoc" {with-doc}
   "base-unix"
   "conf-libcurl"
 ]
