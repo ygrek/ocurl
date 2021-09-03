@@ -1,177 +1,68 @@
-###
-###	@configure_input@
-###
-
-.PHONY:		all targets examples install clean distclean depend release doc build test reinstall gen
-
-.SUFFIXES:	.ml .mli .cmx .cmi .cmo .cmxs .cmxa .cma .c @EXT_OBJ@
-
-INSTALLDIR	= @INSTALLDIR@
-INSTALL		= @INSTALL@
-INSTALLDATA	= @INSTALL_DATA@
-
-FINDLIB = @OCAMLFIND@
-OCAMLC = @OCAMLC@
-OCAMLOPT = @OCAMLOPT@
-OCAMLDEP = @OCAMLDEP@
-OCAMLMKLIB = @OCAMLMKLIB@
-
-EXT_LIB = @EXT_LIB@
-EXT_OBJ = @EXT_OBJ@
-EXT_DLL = @EXT_DLL@
-
-FLAGS		= -g
-ifeq (@OCAML_HAS_BIN_ANNOT@,yes)
-FLAGS		+= -bin-annot
-endif
-LIBS		=
-
-CFLAGS		= @CFLAGS@ @DEFS@ -Wall -Wundef
-
-CURLHELPEROBJS	= curl-helper$(EXT_OBJ)
-CURLOBJS	= curl.cmx
-CURLBCOBJS	= $(CURLOBJS:.cmx=.cmo)
-
-CLIBS = @CURLLIBS@
-
-TARGETS := curl.cma libcurl-helper$(EXT_LIB) dllcurl-helper$(EXT_DLL)
-ifneq (@OCAML_PKG_lwt_unix@,no)
-TARGETS += curl_lwt.cmo
-endif
-ifeq (@OCAMLBEST@,opt)
-TARGETS += curl.cmxa curl.cmx curl.cmxs
-ifneq (@OCAML_PKG_lwt_unix@,no)
-TARGETS += curl_lwt.cmx curl_lwt.cmxs
-endif
-endif
-
-INSTALL_TARGETS = curl$(EXT_LIB) curl.cmi curl.mli $(TARGETS)
-ifeq (@OCAML_HAS_BIN_ANNOT@,yes)
-INSTALL_TARGETS += curl.cmt curl.cmti
-endif
-ifneq (@OCAML_PKG_lwt_unix@,no)
-INSTALL_TARGETS += curl_lwt.cmi curl_lwt.mli curl_lwt$(EXT_OBJ)
-ifeq (@OCAML_HAS_BIN_ANNOT@,yes)
-INSTALL_TARGETS += curl_lwt.cmt curl_lwt.cmti
-endif
-endif
-
+.PHONY: all
 all:
-		@$(MAKE) depend
-		@$(MAKE) $(TARGETS)
+	dune build @all
 
-build: all
+.PHONY: test
+test:
+	dune runtest
 
-test: examples
-	examples/test_cb_exn
-	examples/test_memory_leaks
-ifneq (@OCAML_PKG_lwt_unix@,no)
-	examples/test_lwt_unit
-endif
-ifeq (@OCAMLBEST@,opt)
-	examples/test_cb_exn.opt
-	examples/test_memory_leaks.opt
-ifneq (@OCAML_PKG_lwt_unix@,no)
-	examples/test_lwt_unit.opt
-endif
-endif
-
-gen: all
-	(cd examples; $(MAKE) test_enum)
-	examples/test_enum
-
+.PHONY: doc
 doc:
-		mkdir -p doc
-ifneq (@OCAML_PKG_lwt_unix@,no)
-		ocamlfind ocamldoc -html -d doc -package lwt curl.mli curl_lwt.mli
-else
-		ocamldoc -html -d doc curl.mli
-endif
+	dune build @doc
 
-examples: all
-		(cd examples; $(MAKE))
+PREFIX_ARG := $(if $(PREFIX),--prefix $(PREFIX),)
+LIBDIR_ARG := $(if $(LIBDIR),--libdir $(LIBDIR),)
+DESTDIR_ARG := $(if $(DESTDIR),--destdir $(DESTDIR),)
+INSTALL_ARGS := $(PREFIX_ARG) $(LIBDIR_ARG) $(DESTDIR_ARG)
 
-curl.cma:	$(CURLBCOBJS) dllcurl-helper$(EXT_DLL)
-		$(OCAMLMKLIB) -o curl $(CURLBCOBJS) -oc curl-helper $(CLIBS)
-
-curl.cmxa:	$(CURLOBJS) dllcurl-helper$(EXT_DLL)
-		$(OCAMLMKLIB) -o curl $(CURLOBJS) -oc curl-helper $(CLIBS)
-
-curl.cmxs: curl.cmxa
-	$(OCAMLOPT) -shared -linkall -I . $< -o $@
-
-curl_lwt.cmo: curl_lwt.ml
-	$(FINDLIB) c -thread -package lwt.unix -c $(FLAGS) $< -o $@
-
-curl_lwt.cmx: curl_lwt.ml
-	$(FINDLIB) opt -thread -package lwt.unix -c $(FLAGS) $< -o $@
-
-curl_lwt.cmxs: curl_lwt.cmx
-	$(FINDLIB) opt -thread -shared -linkall -package lwt.unix $< -o $@
-
-curl_lwt.cmi: curl_lwt.mli
-	$(FINDLIB) c -package lwt -c $(FLAGS) $< -o $@
-
-.ml.cmx:
-		$(OCAMLOPT) -c $(FLAGS) $< -o $@
-
-.mli.cmi:
-		$(OCAMLC) -c $(FLAGS) $< -o $@
-
-.ml.cmo:
-		$(OCAMLC) -c $(FLAGS) $< -o $@
-
-libcurl-helper$(EXT_LIB) dllcurl-helper$(EXT_DLL):	$(CURLHELPEROBJS)
-		$(OCAMLMKLIB) -oc curl-helper $(CURLHELPEROBJS) $(CLIBS)
-
-.c$(EXT_OBJ):
-		$(OCAMLC) -c -ccopt "$(CFLAGS)" $<
-
+.PHONY: install
 install:
-ifneq (@OCAMLFIND@,no)
-		$(FINDLIB) install -patch-version @PACKAGE_VERSION@ -ldconf ignore curl META $(INSTALL_TARGETS)
-else
-		mkdir -p $(INSTALLDIR)
-		$(INSTALLDATA) curl.cma $(INSTALLDIR)
-ifeq (@OCAMLBEST@,opt)
-		$(INSTALLDATA) curl.cmxa $(INSTALLDIR)
-endif
-		$(INSTALLDATA) curl.mli curl.cmi $(INSTALLDIR)
-		$(INSTALLDATA) curl$(EXT_LIB) libcurl-helper$(EXT_LIB) $(INSTALLDIR)
-endif
+	dune install $(INSTALL_ARGS)
 
+.PHONY: uninstall
 uninstall:
-ifneq (@OCAMLFIND@,no)
-		$(FINDLIB) remove curl
-else
-		(cd $(INSTALLDIR) && rm -f curl.cma curl.cmxa curl.mli curl.cmi curl$(EXT_LIB) libcurl-helper$(EXT_LIB))
-		rmdir $(INSTALLDIR)
-endif
+	dune uninstall $(INSTALL_ARGS)
 
-reinstall:
-	$(MAKE) uninstall
-	$(MAKE) install
+.PHONY: reinstall
+reinstall: uninstall install
 
-NAME=@PACKAGE_NAME@-@PACKAGE_VERSION@
+.PHONY: clean
+clean:
+	dune clean
 
+.PHONY: distclean
+distclean: clean
+	@rm -f config.log config.status config.h clibs.sexp
+
+.PHONY: gen
+gen:
+	dune exec -- examples/test_enum.exe
+
+PACKAGE_NAME=@PACKAGE_NAME@
+PACKAGE_VERSION=@PACKAGE_VERSION@
+NAME=$(PACKAGE_NAME)-$(PACKAGE_VERSION)
+
+.PHONY: release
 release:
-	git tag -a -m @PACKAGE_VERSION@ @PACKAGE_VERSION@
-	git archive --prefix=$(NAME)/ @PACKAGE_VERSION@ | gzip > $(NAME).tar.gz
+	git tag -a -m $(PACKAGE_VERSION) $(PACKAGE_VERSION)
+	git archive --prefix=$(NAME)/ $(PACKAGE_VERSION) | gzip > $(NAME).tar.gz
 	gpg -a -b $(NAME).tar.gz -o $(NAME).tar.gz.asc
 
-clean:
-		@rm -f $(TARGETS) *~ *.cm* *$(EXT_OBJ) *$(EXT_LIB) *$(EXT_DLL) .depend core
-		@(cd examples; $(MAKE) clean)
 
-distclean: clean
-		@rm -f config.log config.status config.h examples/Makefile
-		@rm -f Makefile
+TODAY=$(shell date '+%d %b %Y')
 
-depend:
-		@$(OCAMLDEP) *.mli $(filter-out errors.ml print_ext.ml, $(wildcard *.ml)) > .depend
+.PHONY: distrib
+dune-distrib:
+	sed -i 's;## Working version;## $(PACKAGE_VERSION) - $(TODAY);' CHANGES.md
+	git commit -m "$(PACKAGE_VERSION)" CHANGES.md
+	dune-release tag
+	dune-release --skip-build
 
-ifeq ($(wildcard .depend),.depend)
-ifneq ($(MAKECMDGOALS),clean)
-include .depend
-endif
-endif
+.PHONY: publish
+dune-publish: dune-distrib
+	dune-release publish distrib
+
+.PHONY: release
+dune-release: dune-publish
+	dune-release opam pkg
+	dune-release opam submit

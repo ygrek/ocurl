@@ -1,0 +1,15 @@
+opam-version: "2.0"
+name: "ocurl"
+maintainer: "ygrek@autistici.org"
+homepage: "https://ygrek.org/p/ocurl"
+license: "MIT"
+authors: [ "Lars Nilsson" "ygrek" ]
+dev-repo: "git+https://github.com/ygrek/ocurl.git"
+bug-reports: "https://github.com/ygrek/ocurl/issues"
+build: [
+]
+depends: [
+  "curl" {= version}
+]
+synopsis: "Transitional dummy package: ocurl -> curl"
+description: "Use `opam install curl`"

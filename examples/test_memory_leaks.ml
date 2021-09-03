@@ -44,7 +44,7 @@ let rss () =
 let check test count leak_size =
   try
     let rss1 = rss () in
-    for i = 0 to pred count do
+    for _i = 0 to pred count do
       test leak_size;
       Gc.compact ();
     done;

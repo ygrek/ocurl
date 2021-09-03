@@ -332,8 +332,6 @@ type curlSslOption =
   | CURLSSLOPT_NATIVE_CA
   | CURLSSLOPT_AUTO_CLIENT_CERT
 
-type curlWritefuncOpt = string -> [`Full | `Partial of int | `Pause]
-
 type 'a xfer_result = Proceed of 'a | Pause | Abort
 
 type write_result = unit xfer_result

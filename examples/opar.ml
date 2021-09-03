@@ -11,8 +11,8 @@ let show_progress fname conn =
   and total = Curl.get_contentlengthdownload conn in
     printf "%s : %.2f%%\n" fname (bytes /. total *. 100.0);
     flush stdout
-  
-let writer fname conn accum data =
+
+let writer _fname _conn accum data =
   (* show_progress fname conn; *)
   Buffer.add_string accum data;
   String.length data
@@ -31,7 +31,7 @@ let get fname url () =
     Curl.perform conn;
     Curl.cleanup conn;
     save fname result
-    
+
 let thread_get fname url =
   Thread.create (get fname url) ()
 

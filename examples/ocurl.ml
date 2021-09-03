@@ -38,7 +38,7 @@ let _ =
 	showInfo connection;
 	Curl.cleanup connection
     with
-      | Curl.CurlException (reason, code, str) ->
+      | Curl.CurlException (_reason, _code, _str) ->
 	  Printf.fprintf stderr "Error: %s\n" !errorBuffer
       | Failure s ->
 	  Printf.fprintf stderr "Caught exception: %s\n" s
