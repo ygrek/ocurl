@@ -1456,6 +1456,7 @@ module Multi = struct
     | CURLMOPT_MAXCONNECTS of int
     | CURLMOPT_MAX_PIPELINE_LENGTH of int
     | CURLMOPT_MAX_HOST_CONNECTIONS of int
+    | CURLMOPT_MAX_TOTAL_CONNECTIONS of int
 
   exception Error of string
 

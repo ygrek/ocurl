@@ -4819,6 +4819,10 @@ SETMOPT_LONG( MAX_PIPELINE_LENGTH)
 SETMOPT_LONG( MAX_HOST_CONNECTIONS)
 #endif
 
+#if HAVE_DECL_CURLMOPT_MAX_TOTAL_CONNECTIONS
+SETMOPT_LONG( MAX_TOTAL_CONNECTIONS)
+#endif
+
 typedef struct CURLMOptionMapping CURLMOptionMapping;
 #define OPT(name) { handle_multi_## name, "CURLMOPT_"#name}
 #define NO_OPT(name) { NULL, "CURLMOPT_"#name}
@@ -4845,6 +4849,11 @@ CURLMOptionMapping implementedMOptionMap[] = {
   OPT( MAX_HOST_CONNECTIONS),
 #else
   NO_OPT( MAX_HOST_CONNECTIONS),
+#endif
+#if HAVE_DECL_CURLMOPT_MAX_TOTAL_CONNECTIONS
+  OPT( MAX_TOTAL_CONNECTIONS),
+#else
+  NO_OPT( MAX_TOTAL_CONNECTIONS),
 #endif
 };
 

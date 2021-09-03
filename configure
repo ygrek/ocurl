@@ -8408,6 +8408,19 @@ fi
 cat >>confdefs.h <<_ACEOF
 #define HAVE_DECL_CURLMOPT_MAX_HOST_CONNECTIONS $ac_have_decl
 _ACEOF
+ac_fn_c_check_decl "$LINENO" "CURLMOPT_MAX_TOTAL_CONNECTIONS" "ac_cv_have_decl_CURLMOPT_MAX_TOTAL_CONNECTIONS" "
+#include \"curl/curl.h\"
+
+"
+if test "x$ac_cv_have_decl_CURLMOPT_MAX_TOTAL_CONNECTIONS" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_CURLMOPT_MAX_TOTAL_CONNECTIONS $ac_have_decl
+_ACEOF
 ac_fn_c_check_decl "$LINENO" "CURL_SSLVERSION_TLSv1_0" "ac_cv_have_decl_CURL_SSLVERSION_TLSv1_0" "
 #include \"curl/curl.h\"
 

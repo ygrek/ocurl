@@ -482,6 +482,10 @@
    and to 0 if you don't. */
 #undef HAVE_DECL_CURLMOPT_MAX_PIPELINE_LENGTH
 
+/* Define to 1 if you have the declaration of
+   `CURLMOPT_MAX_TOTAL_CONNECTIONS', and to 0 if you don't. */
+#undef HAVE_DECL_CURLMOPT_MAX_TOTAL_CONNECTIONS
+
 /* Define to 1 if you have the declaration of `CURLMOPT_PIPELINING', and to 0
    if you don't. */
 #undef HAVE_DECL_CURLMOPT_PIPELINING
