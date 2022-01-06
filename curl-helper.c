@@ -2504,6 +2504,31 @@ static void handle_HTTP_VERSION(Connection *conn, value option)
     CAMLreturn0;
 }
 
+static long ocaml_HTTP_VERSION(long curl_version)
+{
+    switch (curl_version)
+    {
+    case CURL_HTTP_VERSION_NONE: return 0;
+    case CURL_HTTP_VERSION_1_0: return 1;
+    case CURL_HTTP_VERSION_1_1: return 2;
+#if HAVE_DECL_CURL_HTTP_VERSION_2
+    case CURL_HTTP_VERSION_2: return 3;
+#elif HAVE_DECL_CURL_HTTP_VERSION_2_0
+    case CURL_HTTP_VERSION_2_0: return 3;
+#endif
+#if HAVE_DECL_CURL_HTTP_VERSION_2TLS
+    case CURL_HTTP_VERSION_2TLS: return 4;
+#endif
+#if HAVE_DECL_CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE
+    case CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE: return 5;
+#endif
+#if HAVE_DECL_CURL_HTTP_VERSION_3
+    case CURL_HTTP_VERSION_3: return 6;
+#endif
+    default: return 0;
+    }
+}
+
 SETOPT_BOOL( FTP_USE_EPSV)
 SETOPT_LONG( DNS_CACHE_TIMEOUT)
 SETOPT_BOOL( DNS_USE_GLOBAL_CACHE)
@@ -4224,6 +4249,20 @@ value caml_curl_easy_getinfo(value conn, value option)
         break;
 #else
 #pragma message("libcurl does not provide CURLINFO_ACTIVESOCKET")
+#endif
+#if HAVE_DECL_CURLINFO_HTTP_VERSION
+    case 38: /* CURLINFO_HTTP_VERSION */
+        resultType = LongValue;
+
+        curlResult = curl_easy_getinfo(connection->handle,
+                                       CURLINFO_HTTP_VERSION,
+                                       &longValue);
+
+        longValue = ocaml_HTTP_VERSION(longValue);
+
+        break;
+#else
+#pragma message("libcurl does not provide CURLINFO_HTTP_VERSION")
 #endif
     default:
         caml_failwith("Invalid CURLINFO Option");

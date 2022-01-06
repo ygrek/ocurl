@@ -382,6 +382,10 @@
    to 0 if you don't. */
 #undef HAVE_DECL_CURLINFO_HTTP_CONNECTCODE
 
+/* Define to 1 if you have the declaration of `CURLINFO_HTTP_VERSION', and to
+   0 if you don't. */
+#undef HAVE_DECL_CURLINFO_HTTP_VERSION
+
 /* Define to 1 if you have the declaration of `CURLINFO_LASTSOCKET', and to 0
    if you don't. */
 #undef HAVE_DECL_CURLINFO_LASTSOCKET

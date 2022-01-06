@@ -540,6 +540,7 @@ type curlInfo =
   | CURLINFO_CONDITION_UNMET
   | CURLINFO_CERTINFO
   | CURLINFO_ACTIVESOCKET
+  | CURLINFO_HTTP_VERSION
 
 type curlInfoResult =
   | CURLINFO_String of string
@@ -548,6 +549,7 @@ type curlInfoResult =
   | CURLINFO_StringList of string list
   | CURLINFO_StringListList of string list list
   | CURLINFO_Socket of Unix.file_descr
+  | CURLINFO_Version of curlHTTPVersion
 
 type curlSslBackend =
   | CURLSSLBACKEND_NONE
@@ -1275,6 +1277,11 @@ let get_conditionunmet conn =
   | CURLINFO_Long n -> n <> 0
   | _ -> assert false
 
+let get_http_version conn =
+  match (getinfo conn CURLINFO_HTTP_VERSION) with
+  | CURLINFO_Version v -> v
+  | _ -> assert false
+
 let () =
   Callback.register_exception "CurlException"
     (CurlException (CURLE_OK, 0, ""))
@@ -1467,6 +1474,7 @@ class handle =
     method get_localport = get_localport conn
     method get_conditionunmet = get_conditionunmet conn
     method get_certinfo = get_certinfo conn
+    method get_http_version = get_http_version conn
 end
 
 module Multi = struct

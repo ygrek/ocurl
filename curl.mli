@@ -551,6 +551,7 @@ type curlInfo =
   | CURLINFO_CONDITION_UNMET
   | CURLINFO_CERTINFO
   | CURLINFO_ACTIVESOCKET
+  | CURLINFO_HTTP_VERSION
 
 type curlInfoResult =
   | CURLINFO_String of string
@@ -559,6 +560,7 @@ type curlInfoResult =
   | CURLINFO_StringList of string list
   | CURLINFO_StringListList of string list list
   | CURLINFO_Socket of Unix.file_descr
+  | CURLINFO_Version of curlHTTPVersion
 
 type curlSslBackend =
   | CURLSSLBACKEND_NONE
@@ -865,6 +867,8 @@ val get_localport : t -> int
 val get_conditionunmet : t -> bool
 (** @since 0.6.1 (libcurl 7.19.4) *)
 val get_certinfo : t -> string list list
+(** @since 0.9.3 *)
+val get_http_version : t -> curlHTTPVersion
 
 (** {2 Object interface} *)
 
@@ -1058,6 +1062,7 @@ class handle :
     method get_localport : int
     method get_conditionunmet : bool
     method get_certinfo : string list list
+    method get_http_version : curlHTTPVersion
   end
 
 (** {2 curl_multi API} *)
