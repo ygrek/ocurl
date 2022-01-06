@@ -2392,6 +2392,47 @@ static void handle_HTTP_VERSION(Connection *conn, value option)
     CAMLreturn0;
 }
 
+static long ocaml_HTTP_VERSION(long curl_version) {
+    long version = CURL_HTTP_VERSION_NONE;
+
+    switch (curl_version)
+    {
+    case CURL_HTTP_VERSION_NONE: version = 0; break;
+    case CURL_HTTP_VERSION_1_0: version = 1; break;
+    case CURL_HTTP_VERSION_1_1: version = 2; break;
+#if HAVE_DECL_CURL_HTTP_VERSION_2
+    case CURL_HTTP_VERSION_2:
+      version = 3;
+      break;
+#elif HAVE_DECL_CURL_HTTP_VERSION_2_0
+    case CURL_HTTP_VERSION_2_0:
+      version = 3;
+      break;
+#endif
+      break;
+    case CURL_HTTP_VERSION_2TLS:
+#if HAVE_DECL_CURL_HTTP_VERSION_2TLS
+      version = 4;
+#endif
+      break;
+    case CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE:
+#if HAVE_DECL_CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE
+      version = 5;
+#endif
+      break;
+    case CURL_HTTP_VERSION_3:
+#if HAVE_DECL_CURL_HTTP_VERSION_3
+      version = 6;
+#endif
+      break;
+    default:
+      version = 0;
+      break;
+    }
+
+    return version;
+}
+
 SETOPT_BOOL( FTP_USE_EPSV)
 SETOPT_LONG( DNS_CACHE_TIMEOUT)
 SETOPT_BOOL( DNS_USE_GLOBAL_CACHE)
@@ -3648,7 +3689,8 @@ value caml_curl_easy_cleanup(value conn)
 
 enum GetInfoResultType {
     StringValue, LongValue, DoubleValue, StringListValue, StringListListValue,
-    SocketValue, OCamlValue, /* keep last - no matching OCaml CURLINFO_ constructor */
+    SocketValue, HttpVersionValue,
+    OCamlValue, /* keep last - no matching OCaml CURLINFO_ constructor */
 };
 
 value convertStringList(struct curl_slist *p)
@@ -4105,7 +4147,18 @@ value caml_curl_easy_getinfo(value conn, value option)
 
         curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_ACTIVESOCKET,
-                                       &socketValue);
+                                       &doubleValue);
+        break;
+#else
+#pragma message("libcurl does not provide CURLINFO_ACTIVESOCKET")
+#endif
+#if HAVE_DECL_CURLINFO_HTTP_VERSION
+    case 38: /* CURLINFO_HTTP_VERSION */
+        resultType = HttpVersionValue;
+
+        curlResult = curl_easy_getinfo(connection->handle,
+                                       CURLINFO_HTTP_VERSION,
+                                       &longValue);
         break;
 #else
 #pragma message("libcurl does not provide CURLINFO_ACTIVESOCKET")
@@ -4128,6 +4181,11 @@ value caml_curl_easy_getinfo(value conn, value option)
     case LongValue:
         result = caml_alloc(1, LongValue);
         Store_field(result, 0, Val_long(longValue));
+        break;
+
+    case HttpVersionValue:
+        result = caml_alloc(1, LongValue);
+        Store_field(result, 0, Val_long(ocaml_HTTP_VERSION(doubleValue)));
         break;
 
     case DoubleValue:

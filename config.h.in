@@ -470,6 +470,10 @@
    if you don't. */
 #undef HAVE_DECL_CURLINFO_TOTAL_TIME
 
+/* Define to 1 if you have the declaration of `CURLINFO_HTTP_VERSION', and to 0
+   if you don't. */
+#undef HAVE_DECL_CURLINFO_HTTP_VERSION
+
 /* Define to 1 if you have the declaration of `CURLMOPT_MAXCONNECTS', and to 0
    if you don't. */
 #undef HAVE_DECL_CURLMOPT_MAXCONNECTS
