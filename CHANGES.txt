@@ -1,3 +1,20 @@
+0.9.2  -  7 Jan 2022
+
+    + CURLINFO_HTTP_VERSION (Rudi Grinberg)
+    + CURLOPT_XFERINFOFUNCTION
+    + alternative READFUNCTION2/WRITEFUNCTION2 with an ability to pause transfer
+    * fix READFUNCTION deadlock on exception
+    + CURLMOPT_MAX_TOTAL_CONNECTIONS (Nicolas Ojeda Bar)
+    * configure: allow setting CURLCFLAGS, CURLLIBS, LIBCURL_VERSION (Nicolas Ojeda Bar)
+    + CURLOPT_TCP_FASTOPEN (Daniel Woelfel)
+    + Add support for MultiSSL mode (Nicolas Ojeda Bar)
+    + CURLOPT_DOH_URL (Daniel Woelfel)
+    + Curl.Multi.poll (Romain Beauxis)
+    + CURLOPT_BUFFERSIZE (Daniel Woelfel)
+    + CURLINFO_ACTIVESOCKET (Romain Beauxis)
+    * Multi: more useful errors
+    + Make it possible to add a name to a MIME part (Bertrand Bonnefoy-Claudet)
+
 0.9.1  - 13 Feb 2020
 
     + HTTP_VERSION_3

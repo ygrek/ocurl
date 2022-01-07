@@ -157,7 +157,7 @@ NAME=@PACKAGE_NAME@-@PACKAGE_VERSION@
 release:
 	git tag -a -m @PACKAGE_VERSION@ @PACKAGE_VERSION@
 	git archive --prefix=$(NAME)/ @PACKAGE_VERSION@ | gzip > $(NAME).tar.gz
-	gpg -a -b $(NAME).tar.gz
+	gpg -a -b $(NAME).tar.gz -o $(NAME).tar.gz.asc
 
 clean:
 		@rm -f $(TARGETS) *~ *.cm* *$(EXT_OBJ) *$(EXT_LIB) *$(EXT_DLL) .depend core
