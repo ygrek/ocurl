@@ -100,6 +100,7 @@ typedef enum OcamlValues
     Ocaml_READFUNCTION,
     Ocaml_HEADERFUNCTION,
     Ocaml_PROGRESSFUNCTION,
+    Ocaml_XFERINFOFUNCTION,
     Ocaml_DEBUGFUNCTION,
     Ocaml_IOCTLFUNCTION,
     Ocaml_SEEKFUNCTION,
@@ -991,6 +992,36 @@ static int cb_PROGRESSFUNCTION(void *data,
     return r;
 }
 
+static int cb_XFERINFOFUNCTION(void *data,
+                              curl_off_t dlTotal,
+                              curl_off_t dlNow,
+                              curl_off_t ulTotal,
+                              curl_off_t ulNow)
+{
+    caml_leave_blocking_section();
+
+    CAMLparam0();
+    CAMLlocal1(result);
+    CAMLlocalN(callbackData, 4);
+    Connection *conn = (Connection *)data;
+
+    checkConnection(conn);
+
+    callbackData[0] = caml_copy_int64(dlTotal);
+    callbackData[1] = caml_copy_int64(dlNow);
+    callbackData[2] = caml_copy_int64(ulTotal);
+    callbackData[3] = caml_copy_int64(ulNow);
+
+    result = caml_callbackN_exn(Field(conn->ocamlValues, Ocaml_XFERINFOFUNCTION),
+                       4, callbackData);
+
+    int r = Is_exception_result(result) ? 1 : Bool_val(result);
+    CAMLdrop;
+
+    caml_enter_blocking_section();
+    return r;
+}
+
 static int cb_DEBUGFUNCTION(CURL *debugConnection,
                          curl_infotype infoType,
                          char *buffer,
@@ -1531,6 +1562,7 @@ SETOPT_FUNCTION( READ)
 SETOPT_FUNCTION2( READ)
 SETOPT_FUNCTION( HEADER)
 SETOPT_FUNCTION( PROGRESS)
+SETOPT_FUNCTION( XFERINFO)
 SETOPT_FUNCTION( DEBUG)
 SETOPT_FUNCTION( SSH_KEY)
 
@@ -3646,6 +3678,7 @@ CURLOptionMapping implementedOptionMap[] =
 #endif
   HAVE(WRITEFUNCTION2),
   HAVE(READFUNCTION2),
+  HAVE(XFERINFOFUNCTION),
 };
 
 value caml_curl_easy_setopt(value conn, value option)

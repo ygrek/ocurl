@@ -504,6 +504,7 @@ type curlOption =
   | CURLOPT_SSL_OPTIONS of curlSslOption list
   | CURLOPT_WRITEFUNCTION2 of (string -> write_result)
   | CURLOPT_READFUNCTION2 of (int -> read_result)
+  | CURLOPT_XFERINFOFUNCTION of (int64 -> int64 -> int64 -> int64 -> bool)
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -716,6 +717,7 @@ val set_krb4level : t -> curlKRB4Level -> unit
 
 (** callback returns whether transfer should be interrupted, ie return false to continue transfering *)
 val set_progressfunction : t -> (float -> float -> float -> float -> bool) -> unit
+val set_xferinfofunction : t -> (int64 -> int64 -> int64 -> int64 -> bool) -> unit
 val set_sslverifypeer : t -> bool -> unit
 val set_cainfo : t -> string -> unit
 val set_capath : t -> string -> unit
@@ -935,6 +937,8 @@ class handle :
     method set_krb4level : curlKRB4Level -> unit
     method set_progressfunction :
       (float -> float -> float -> float -> bool) -> unit
+    method set_xferinfofunction :
+      (int64 -> int64 -> int64 -> int64 -> bool) -> unit
     method set_sslverifypeer : bool -> unit
     method set_cainfo : string -> unit
     method set_capath : string -> unit
