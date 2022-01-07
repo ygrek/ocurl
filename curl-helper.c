@@ -841,24 +841,19 @@ static size_t cb_READFUNCTION(void *ptr, size_t size, size_t nmemb, void *data)
     result = caml_callback_exn(Field(conn->ocamlValues, Ocaml_READFUNCTION),
                       Val_int(size*nmemb));
 
-    if (Is_exception_result(result))
+    size_t r = CURL_READFUNC_ABORT;
+
+    if (!Is_exception_result(result))
     {
-      CAMLreturnT(size_t,CURL_READFUNC_ABORT);
+      length = caml_string_length(result);
+
+      if (length <= size*nmemb)
+      {
+        memcpy(ptr, String_val(result), length);
+        r = length;
+      }
     }
 
-    length = caml_string_length(result);
-
-    size_t r;
-
-    if (length <= size*nmemb)
-    {
-      memcpy(ptr, String_val(result), length);
-      r = length;
-    }
-    else
-    {
-      r = CURL_READFUNC_ABORT;
-    }
     CAMLdrop;
 
     caml_enter_blocking_section();
