@@ -1,11 +1,11 @@
 opam-version: "2.0"
 name: "ocurl"
 maintainer: "ygrek@autistici.org"
-homepage: "https://ygrek.org.ua/p/ocurl"
+homepage: "https://ygrek.org/p/ocurl"
 license: "MIT"
 authors: [ "Lars Nilsson" "ygrek" ]
-doc: ["https://ygrek.org.ua/p/ocurl/api/index.html"]
-dev-repo: "git://github.com/ygrek/ocurl.git"
+doc: ["https://ygrek.org/p/ocurl/api/index.html"]
+dev-repo: "git+https://github.com/ygrek/ocurl.git"
 bug-reports: "https://github.com/ygrek/ocurl/issues"
 tags: ["org:ygrek" "clib:curl"]
 build: [
@@ -18,7 +18,7 @@ install: [
   [make "install"]
 ]
 depends: [
-  "ocaml" {>= "4.02.0"}
+  "ocaml" {>= "4.03.0"}
   "ocamlfind" {build}
   "base-unix"
   "conf-libcurl"

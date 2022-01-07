@@ -4,7 +4,7 @@ ocurl - OCaml libcurl bindings
 
 [![Build Status](https://travis-ci.org/ygrek/ocurl.svg?branch=master)](https://travis-ci.org/ygrek/ocurl) [![Build status](https://ci.appveyor.com/api/projects/status/b20uqxaeyarwy2s4/branch/master?svg=true)](https://ci.appveyor.com/project/ygrek/ocurl/branch/master)
 
-Homepage: https://ygrek.org.ua/p/ocurl
+Homepage: https://ygrek.org/p/ocurl
 
 OCaml bindings to libcurl - client-side URL transfer library,
 supporting HTTP and a multitude of other network protocols.
