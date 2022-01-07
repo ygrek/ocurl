@@ -551,6 +551,7 @@ CURLErrorMapping errorMap[] =
 #else
     {"CURLE_AGAIN", -1},
 #endif
+    /* sync check_enums */
     {NULL, (CURLcode)0}
 };
 
@@ -1039,7 +1040,7 @@ static int cb_DEBUGFUNCTION(CURL *debugConnection,
 
     camlDebugConnection = caml_curl_alloc(conn);
     camlMessage = ml_copy_string(buffer,bufferLength);
-    camlInfoType = Val_long(infoType <= CURLINFO_SSL_DATA_OUT ? infoType : CURLINFO_END);
+    camlInfoType = Val_long(infoType <= CURLINFO_SSL_DATA_OUT /* sync check_enums */ ? infoType : CURLINFO_END);
 
     caml_callback3_exn(Field(conn->ocamlValues, Ocaml_DEBUGFUNCTION),
               camlDebugConnection,
@@ -2493,6 +2494,7 @@ static void handle_HTTP_VERSION(Connection *conn, value option)
       version = CURL_HTTP_VERSION_3;
 #endif
       break;
+    /* sync check_enums */
     default:
       caml_invalid_argument("CURLOPT_HTTP_VERSION");
       break;
@@ -2527,6 +2529,7 @@ static long ocaml_HTTP_VERSION(long curl_version)
 #if HAVE_DECL_CURL_HTTP_VERSION_3
     case CURL_HTTP_VERSION_3: return 6;
 #endif
+    /* sync check_enums */
     default: return 0;
     }
 }
@@ -4266,6 +4269,7 @@ value caml_curl_easy_getinfo(value conn, value option)
 #else
 #pragma message("libcurl does not provide CURLINFO_HTTP_VERSION")
 #endif
+    /* sync check_enums */
     default:
         caml_failwith("Invalid CURLINFO Option");
         break;
@@ -5063,9 +5067,7 @@ struct used_enum check_enums[] = {
 #if HAVE_DECL_CURL_HTTP_VERSION_3
   CURL_ENUM(HTTP_VERSION, 3),
 #endif
-#if HAVE_DECL_CURLINFO_CERTINFO
-  { CURLINFO_CERTINFO & CURLINFO_MASK, CURLINFO_LASTONE, "CURLINFO" },
-#endif
+  { 38, CURLINFO_LASTONE, "CURLINFO" },
 #if HAVE_DECL_CURLE_AGAIN
   { CURLE_AGAIN, CURL_LAST, "CURLcode" }
 #endif
