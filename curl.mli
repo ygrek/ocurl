@@ -633,6 +633,8 @@ val curlCode_of_int : int -> curlCode option
 (** same as [int_of_curlCode] *)
 val errno : curlCode -> int
 val version_info : unit -> version_info
+
+(** flags set the new state, ie to unpause - pass empty list *)
 val pause : t -> pauseOption list -> unit
 
 (** {2 Set transfer options}
@@ -643,7 +645,9 @@ val pause : t -> pauseOption list -> unit
 
 val set_writefunction : t -> (string -> int) -> unit
 
-(* Alternative API for the write callback that allows to pause download *)
+(* Alternative API for the write callback that allows to pause download
+   NB to unpause - call [Curl.pause h \[\]] from progressfunction callback (which is called every second at least),
+   do not try to call unpause from another thread, see libcurl documentation for details *)
 val set_writefunction2 : t -> (string -> write_result) -> unit
 
 (** [readfunction n] should return string of length at most [n], otherwise
@@ -709,6 +713,8 @@ val set_timevalue : t -> int32 -> unit
 val set_customrequest : t -> string -> unit
 val set_interface : t -> string -> unit
 val set_krb4level : t -> curlKRB4Level -> unit
+
+(** callback returns whether transfer should be interrupted, ie return false to continue transfering *)
 val set_progressfunction : t -> (float -> float -> float -> float -> bool) -> unit
 val set_sslverifypeer : t -> bool -> unit
 val set_cainfo : t -> string -> unit
