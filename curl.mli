@@ -334,7 +334,6 @@ type curlPostRedir =
 | REDIR_POST_302
 | REDIR_POST_303 (** added in libcurl 7.26.0 *)
 
-
 type curlSslOption =
   | CURLSSLOPT_ALLOW_BEAST
   | CURLSSLOPT_NO_REVOKE
@@ -342,6 +341,13 @@ type curlSslOption =
   | CURLSSLOPT_REVOKE_BEST_EFFORT
   | CURLSSLOPT_NATIVE_CA
   | CURLSSLOPT_AUTO_CLIENT_CERT
+
+type 'a xfer_result = Proceed of 'a | Pause | Abort
+
+type write_result = unit xfer_result
+type read_result = string xfer_result
+
+val proceed : write_result
 
 type curlOption =
   | CURLOPT_WRITEFUNCTION of (string -> int)
@@ -496,6 +502,8 @@ type curlOption =
   | CURLOPT_BUFFERSIZE of int
   | CURLOPT_DOH_URL of string
   | CURLOPT_SSL_OPTIONS of curlSslOption list
+  | CURLOPT_WRITEFUNCTION2 of (string -> write_result)
+  | CURLOPT_READFUNCTION2 of (int -> read_result)
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -634,9 +642,17 @@ val pause : t -> pauseOption list -> unit
   and transfer will be aborted. *)
 
 val set_writefunction : t -> (string -> int) -> unit
-val set_readfunction : t -> (int -> string) -> unit
+
+(* Alternative API for the write callback that allows to pause download *)
+val set_writefunction2 : t -> (string -> write_result) -> unit
+
 (** [readfunction n] should return string of length at most [n], otherwise
   transfer will be aborted (as if with exception) *)
+val set_readfunction : t -> (int -> string) -> unit
+
+(* Alternative API for the read callback that allows to pause upload *)
+val set_readfunction2 : t -> (int -> read_result) -> unit
+
 val set_infilesize : t -> int -> unit
 val set_url : t -> string -> unit
 val set_proxy : t -> string -> unit
@@ -852,7 +868,9 @@ class handle :
     method perform : unit
 
     method set_writefunction : (string -> int) -> unit
+    method set_writefunction2 : (string -> write_result) -> unit
     method set_readfunction : (int -> string) -> unit
+    method set_readfunction2 : (int -> read_result) -> unit
     method set_infilesize : int -> unit
     method set_url : string -> unit
     method set_proxy : string -> unit

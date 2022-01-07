@@ -332,6 +332,15 @@ type curlSslOption =
   | CURLSSLOPT_NATIVE_CA
   | CURLSSLOPT_AUTO_CLIENT_CERT
 
+type curlWritefuncOpt = string -> [`Full | `Partial of int | `Pause]
+
+type 'a xfer_result = Proceed of 'a | Pause | Abort
+
+type write_result = unit xfer_result
+type read_result = string xfer_result
+
+let proceed = Proceed ()
+
 type curlOption =
   | CURLOPT_WRITEFUNCTION of (string -> int)
   | CURLOPT_READFUNCTION of (int -> string)
@@ -482,6 +491,8 @@ type curlOption =
   | CURLOPT_BUFFERSIZE of int
   | CURLOPT_DOH_URL of string
   | CURLOPT_SSL_OPTIONS of curlSslOption list
+  | CURLOPT_WRITEFUNCTION2 of (string -> write_result)
+  | CURLOPT_READFUNCTION2 of (int -> read_result)
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -612,8 +623,14 @@ external pause : t -> pauseOption list -> unit = "caml_curl_pause"
 let set_writefunction conn closure =
   setopt conn (CURLOPT_WRITEFUNCTION closure)
 
+let set_writefunction2 conn closure =
+  setopt conn (CURLOPT_WRITEFUNCTION2 closure)
+
 let set_readfunction conn closure =
   setopt conn (CURLOPT_READFUNCTION closure)
+
+let set_readfunction2 conn closure =
+  setopt conn (CURLOPT_READFUNCTION2 closure)
 
 let set_infilesize conn size =
   setopt conn (CURLOPT_INFILESIZE size)
@@ -1265,7 +1282,9 @@ class handle =
     method perform = perform conn
     method cleanup = cleanup conn
     method set_writefunction closure = set_writefunction conn closure
+    method set_writefunction2 closure = set_writefunction2 conn closure
     method set_readfunction closure = set_readfunction conn closure
+    method set_readfunction2 closure = set_readfunction2 conn closure
     method set_infilesize size = set_infilesize conn size
     method set_url url = set_url conn url
     method set_proxy proxy = set_proxy conn proxy

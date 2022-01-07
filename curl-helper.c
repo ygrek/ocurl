@@ -827,6 +827,42 @@ static size_t cb_WRITEFUNCTION(char *ptr, size_t size, size_t nmemb, void *data)
     return r;
 }
 
+static size_t cb_WRITEFUNCTION2(char *ptr, size_t size, size_t nmemb, void *data)
+{
+    caml_leave_blocking_section();
+
+    CAMLparam0();
+    CAMLlocal2(result, str);
+    Connection *conn = (Connection *)data;
+
+    checkConnection(conn);
+
+    str = ml_copy_string(ptr,size*nmemb);
+
+    result = caml_callback_exn(Field(conn->ocamlValues, Ocaml_WRITEFUNCTION), str);
+
+    size_t r = 0;
+
+    if (!Is_exception_result(result))
+    {
+      if (Is_block(result)) /* Proceed */
+      {
+        r = size * nmemb;
+      }
+      else
+      {
+        if (0 == Int_val(result)) /* Pause */
+          r = CURL_WRITEFUNC_PAUSE;
+        /* else 1 = Abort */
+      }
+    }
+
+    CAMLdrop;
+
+    caml_enter_blocking_section();
+    return r;
+}
+
 static size_t cb_READFUNCTION(void *ptr, size_t size, size_t nmemb, void *data)
 {
     caml_leave_blocking_section();
@@ -851,6 +887,50 @@ static size_t cb_READFUNCTION(void *ptr, size_t size, size_t nmemb, void *data)
       {
         memcpy(ptr, String_val(result), length);
         r = length;
+      }
+    }
+
+    CAMLdrop;
+
+    caml_enter_blocking_section();
+    return r;
+}
+
+static size_t cb_READFUNCTION2(void *ptr, size_t size, size_t nmemb, void *data)
+{
+    caml_leave_blocking_section();
+
+    CAMLparam0();
+    CAMLlocal1(result);
+    Connection *conn = (Connection *)data;
+    size_t length;
+
+    checkConnection(conn);
+
+    result = caml_callback_exn(Field(conn->ocamlValues, Ocaml_READFUNCTION),
+                      Val_int(size*nmemb));
+
+    size_t r = CURL_READFUNC_ABORT;
+
+    if (!Is_exception_result(result))
+    {
+      if (Is_block(result)) /* Proceed */
+      {
+        result = Field(result,0);
+
+        length = caml_string_length(result);
+
+        if (length <= size*nmemb)
+        {
+          memcpy(ptr, String_val(result), length);
+          r = length;
+        }
+      }
+      else
+      {
+        if (0 == Int_val(result)) /* Pause */
+          r = CURL_READFUNC_PAUSE;
+        /* else 1 = Abort */
       }
     }
 
@@ -1429,21 +1509,26 @@ value caml_curl_easy_reset(value conn)
  **  curl_easy_setopt helper utility functions
  **/
 
-#define SETOPT_FUNCTION(name) \
-static void handle_##name##FUNCTION(Connection *conn, value option) \
+#define SETOPT_FUNCTION_(name,suffix) \
+static void handle_##name##suffix(Connection *conn, value option) \
 { \
     CAMLparam1(option); \
     CURLcode result = CURLE_OK; \
     Store_field(conn->ocamlValues, Ocaml_##name##FUNCTION, option); \
-    result = curl_easy_setopt(conn->handle, CURLOPT_##name##FUNCTION, cb_##name##FUNCTION); \
+    result = curl_easy_setopt(conn->handle, CURLOPT_##name##FUNCTION, cb_##name##suffix); \
     if (result != CURLE_OK) raiseError(conn, result); \
     result = curl_easy_setopt(conn->handle, CURLOPT_##name##DATA, conn); \
     if (result != CURLE_OK) raiseError(conn, result); \
     CAMLreturn0; \
 }
 
+#define SETOPT_FUNCTION(name) SETOPT_FUNCTION_(name,FUNCTION)
+#define SETOPT_FUNCTION2(name) SETOPT_FUNCTION_(name,FUNCTION2)
+
 SETOPT_FUNCTION( WRITE)
+SETOPT_FUNCTION2( WRITE)
 SETOPT_FUNCTION( READ)
+SETOPT_FUNCTION2( READ)
 SETOPT_FUNCTION( HEADER)
 SETOPT_FUNCTION( PROGRESS)
 SETOPT_FUNCTION( DEBUG)
@@ -3559,6 +3644,8 @@ CURLOptionMapping implementedOptionMap[] =
 #else
   HAVENOT(SSL_OPTIONS),
 #endif
+  HAVE(WRITEFUNCTION2),
+  HAVE(READFUNCTION2),
 };
 
 value caml_curl_easy_setopt(value conn, value option)
