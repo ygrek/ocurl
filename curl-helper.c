@@ -1324,7 +1324,7 @@ curl_sslbackend sslBackendMap[] = {
 #endif
 };
 
-#if HAVE_DECL_CURLSSLBACKEND_NONE
+#if HAVE_CURL_GLOBAL_SSLSET
 /* Same order as in OCaml */
 CURLsslset sslsetMap[] = {
   CURLSSLSET_OK,

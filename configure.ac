@@ -219,6 +219,14 @@ AC_DEFINE([HAVE_CURL_MULTI_POLL], [1], [Does libcurl define curl_multi_poll]),
 #include "curl/curl.h"
 ])
 
+AC_CHECK_DECLS(
+[curl_global_sslset],
+AC_DEFINE([HAVE_CURL_GLOBAL_SSLSET], [1], [Does libcurl define curl_global_sslset]),
+[],
+[
+#include "curl/curl.h"
+])
+
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_FILES([Makefile examples/Makefile])
 
