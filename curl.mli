@@ -717,8 +717,9 @@ val set_customrequest : t -> string -> unit
 val set_interface : t -> string -> unit
 val set_krb4level : t -> curlKRB4Level -> unit
 
-(** callback returns whether transfer should be interrupted, ie return false to continue transfering *)
+(** deprecated in favor of xferinfofunction since libcurl 7.32.0 *)
 val set_progressfunction : t -> (float -> float -> float -> float -> bool) -> unit
+(** callback returns whether transfer should be interrupted, ie return false to continue transfering *)
 val set_xferinfofunction : t -> (int64 -> int64 -> int64 -> int64 -> bool) -> unit
 val set_sslverifypeer : t -> bool -> unit
 val set_cainfo : t -> string -> unit
