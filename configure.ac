@@ -88,7 +88,7 @@ CFLAGS="$CFLAGS $CURLCFLAGS"
 AC_CHECK_HEADERS([curl/curl.h],[],[AC_MSG_ERROR([libcurl header file missing])])
 
 AC_CHECK_DECLS([CURLMOPT_TIMERFUNCTION, CURLMOPT_TIMERDATA, CURLMOPT_SOCKETFUNCTION, CURLMOPT_SOCKETDATA],
-[], [AC_MSG_ERROR([multi API is too old, need libcurl >= 7.16.0])],
+[], [AC_MSG_ERROR([multi API is too old, need libcurl >= ${MIN_LIBCURL_VERSION}])],
 [
 #include "curl/curl.h"
 ])
@@ -211,18 +211,8 @@ CURL_VERSION_TLSAUTH_SRP, CURL_VERSION_NTLM_WB],
 #include "curl/curl.h"
 ])
 
-AC_CHECK_DECLS(
-[curl_multi_poll],
-AC_DEFINE([HAVE_CURL_MULTI_POLL], [1], [Does libcurl define curl_multi_poll]),
-[],
-[
-#include "curl/curl.h"
-])
-
-AC_CHECK_DECLS(
-[curl_global_sslset],
-AC_DEFINE([HAVE_CURL_GLOBAL_SSLSET], [1], [Does libcurl define curl_global_sslset]),
-[],
+AC_CHECK_DECLS([curl_multi_poll, curl_global_sslset],
+[], [],
 [
 #include "curl/curl.h"
 ])

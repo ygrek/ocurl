@@ -4775,7 +4775,7 @@ _ACEOF
 if test $ac_have_decl = 1; then :
 
 else
-  as_fn_error $? "multi API is too old, need libcurl >= 7.16.0" "$LINENO" 5
+  as_fn_error $? "multi API is too old, need libcurl >= ${MIN_LIBCURL_VERSION}" "$LINENO" 5
 fi
 ac_fn_c_check_decl "$LINENO" "CURLMOPT_TIMERDATA" "ac_cv_have_decl_CURLMOPT_TIMERDATA" "
 #include \"curl/curl.h\"
@@ -4793,7 +4793,7 @@ _ACEOF
 if test $ac_have_decl = 1; then :
 
 else
-  as_fn_error $? "multi API is too old, need libcurl >= 7.16.0" "$LINENO" 5
+  as_fn_error $? "multi API is too old, need libcurl >= ${MIN_LIBCURL_VERSION}" "$LINENO" 5
 fi
 ac_fn_c_check_decl "$LINENO" "CURLMOPT_SOCKETFUNCTION" "ac_cv_have_decl_CURLMOPT_SOCKETFUNCTION" "
 #include \"curl/curl.h\"
@@ -4811,7 +4811,7 @@ _ACEOF
 if test $ac_have_decl = 1; then :
 
 else
-  as_fn_error $? "multi API is too old, need libcurl >= 7.16.0" "$LINENO" 5
+  as_fn_error $? "multi API is too old, need libcurl >= ${MIN_LIBCURL_VERSION}" "$LINENO" 5
 fi
 ac_fn_c_check_decl "$LINENO" "CURLMOPT_SOCKETDATA" "ac_cv_have_decl_CURLMOPT_SOCKETDATA" "
 #include \"curl/curl.h\"
@@ -4829,7 +4829,7 @@ _ACEOF
 if test $ac_have_decl = 1; then :
 
 else
-  as_fn_error $? "multi API is too old, need libcurl >= 7.16.0" "$LINENO" 5
+  as_fn_error $? "multi API is too old, need libcurl >= ${MIN_LIBCURL_VERSION}" "$LINENO" 5
 fi
 
 
@@ -8761,13 +8761,6 @@ fi
 cat >>confdefs.h <<_ACEOF
 #define HAVE_DECL_CURL_MULTI_POLL $ac_have_decl
 _ACEOF
-if test $ac_have_decl = 1; then :
-
-$as_echo "#define HAVE_CURL_MULTI_POLL 1" >>confdefs.h
-
-fi
-
-
 ac_fn_c_check_decl "$LINENO" "curl_global_sslset" "ac_cv_have_decl_curl_global_sslset" "
 #include \"curl/curl.h\"
 
@@ -8781,11 +8774,6 @@ fi
 cat >>confdefs.h <<_ACEOF
 #define HAVE_DECL_CURL_GLOBAL_SSLSET $ac_have_decl
 _ACEOF
-if test $ac_have_decl = 1; then :
-
-$as_echo "#define HAVE_CURL_GLOBAL_SSLSET 1" >>confdefs.h
-
-fi
 
 
 ac_config_headers="$ac_config_headers config.h"
