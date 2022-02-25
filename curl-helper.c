@@ -1324,7 +1324,7 @@ curl_sslbackend sslBackendMap[] = {
 #endif
 };
 
-#ifdef HAVE_DECL_CURL_GLOBAL_SSLSET
+#if HAVE_DECL_CURL_GLOBAL_SSLSET
 /* Same order as in OCaml */
 CURLsslset sslsetMap[] = {
   CURLSSLSET_OK,
@@ -4699,7 +4699,7 @@ value caml_curl_multi_poll(value v_timeout_ms, value v_multi)
   CURLMcode rc;
 
   caml_enter_blocking_section();
-#ifdef HAVE_DECL_CURL_MULTI_POLL
+#if HAVE_DECL_CURL_MULTI_POLL
   rc = curl_multi_poll(multi_handle, NULL, 0, timeout_ms, &numfds);
 #else
   rc = curl_multi_wait(multi_handle, NULL, 0, timeout_ms, &numfds);
