@@ -1265,6 +1265,8 @@ static int cb_SSH_KEYFUNCTION(CURL *easy,
     return res;
 }
 
+#if HAVE_DECL_CURL_GLOBAL_SSLSET
+
 /* Same order as in OCaml */
 curl_sslbackend sslBackendMap[] = {
 #if HAVE_DECL_CURLSSLBACKEND_NONE
@@ -1324,7 +1326,6 @@ curl_sslbackend sslBackendMap[] = {
 #endif
 };
 
-#if HAVE_DECL_CURL_GLOBAL_SSLSET
 /* Same order as in OCaml */
 CURLsslset sslsetMap[] = {
   CURLSSLSET_OK,
