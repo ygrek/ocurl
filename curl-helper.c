@@ -101,6 +101,7 @@ typedef enum OcamlValues
     Ocaml_HEADERFUNCTION,
     Ocaml_PROGRESSFUNCTION,
     Ocaml_XFERINFOFUNCTION,
+    Ocaml_PREREQFUNCTION,
     Ocaml_DEBUGFUNCTION,
     Ocaml_IOCTLFUNCTION,
     Ocaml_SEEKFUNCTION,
@@ -1023,6 +1024,38 @@ static int cb_XFERINFOFUNCTION(void *data,
     return r;
 }
 
+#if HAVE_DECL_CURLOPT_PREREQFUNCTION
+static int cb_PREREQFUNCTION(void *data,
+                             char *conn_primary_ip,
+                             char *conn_local_ip,
+                             int conn_primary_port,
+                             int conn_local_port)
+{
+    caml_leave_blocking_section();
+
+    CAMLparam0();
+    CAMLlocal1(result);
+    CAMLlocalN(callbackData, 4);
+    Connection *conn = (Connection *)data;
+
+    checkConnection(conn);
+
+    callbackData[0] = caml_copy_string(conn_primary_ip);
+    callbackData[1] = caml_copy_string(conn_local_ip);
+    callbackData[2] = Val_int(conn_primary_port);
+    callbackData[3] = Val_int(conn_local_port);
+
+    result = caml_callbackN_exn(Field(conn->ocamlValues, Ocaml_PREREQFUNCTION),
+                       4, callbackData);
+
+    int r = Is_exception_result(result) ? 1 : Bool_val(result);
+    CAMLdrop;
+
+    caml_enter_blocking_section();
+    return r;
+}
+#endif
+
 static int cb_DEBUGFUNCTION(CURL *debugConnection,
                          curl_infotype infoType,
                          char *buffer,
@@ -1568,6 +1601,9 @@ SETOPT_FUNCTION( HEADER)
 SETOPT_FUNCTION( PROGRESS)
 #if HAVE_DECL_CURLOPT_XFERINFOFUNCTION
 SETOPT_FUNCTION( XFERINFO)
+#endif
+#if HAVE_DECL_CURLOPT_PREREQFUNCTION
+SETOPT_FUNCTION( PREREQ)
 #endif
 SETOPT_FUNCTION( DEBUG)
 SETOPT_FUNCTION( SSH_KEY)
@@ -3715,6 +3751,11 @@ CURLOptionMapping implementedOptionMap[] =
   HAVE(XFERINFOFUNCTION),
 #else
   HAVENOT(XFERINFOFUNCTION),
+#endif
+#if HAVE_DECL_CURLOPT_PREREQFUNCTION
+  HAVE(PREREQFUNCTION),
+#else
+  HAVENOT(PREREQFUNCTION),
 #endif
 };
 

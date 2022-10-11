@@ -32,6 +32,10 @@ let log_curl h code =
 let download h =
   let b = Buffer.create 16 in
   Curl.set_writefunction h (fun s -> Buffer.add_string b s; String.length s);
+  Curl.set_prereqfunction h (fun conn_primary_ip conn_local_ip conn_primary_port conn_local_port ->
+    printfn "Making request %s:%d -> %s:%d"
+      conn_local_ip conn_local_port conn_primary_ip conn_primary_port;
+    false);
   Lwt.bind (Curl_lwt.perform h) (fun code -> Lwt.return (code, Buffer.contents b))
 
 let get url =

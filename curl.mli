@@ -505,6 +505,7 @@ type curlOption =
   | CURLOPT_WRITEFUNCTION2 of (string -> write_result)
   | CURLOPT_READFUNCTION2 of (int -> read_result)
   | CURLOPT_XFERINFOFUNCTION of (int64 -> int64 -> int64 -> int64 -> bool)
+  | CURLOPT_PREREQFUNCTION of (string -> string -> int -> int -> bool)
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -725,6 +726,9 @@ val set_progressfunction : t -> (float -> float -> float -> float -> bool) -> un
 
 (** callback returns whether transfer should be interrupted, ie return false to continue transfering *)
 val set_xferinfofunction : t -> (int64 -> int64 -> int64 -> int64 -> bool) -> unit
+
+(** callback returns whether transfer should be interrupted, ie return false to continue transfering *)
+val set_prereqfunction : t -> (string -> string -> int -> int -> bool) -> unit
 
 val set_sslverifypeer : t -> bool -> unit
 val set_cainfo : t -> string -> unit
@@ -962,6 +966,8 @@ class handle :
       (float -> float -> float -> float -> bool) -> unit
     method set_xferinfofunction :
       (int64 -> int64 -> int64 -> int64 -> bool) -> unit
+    method set_prereqfunction :
+      (string -> string -> int -> int -> bool) -> unit
     method set_sslverifypeer : bool -> unit
     method set_cainfo : string -> unit
     method set_capath : string -> unit

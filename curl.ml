@@ -492,6 +492,7 @@ type curlOption =
   | CURLOPT_WRITEFUNCTION2 of (string -> write_result)
   | CURLOPT_READFUNCTION2 of (int -> read_result)
   | CURLOPT_XFERINFOFUNCTION of (int64 -> int64 -> int64 -> int64 -> bool)
+  | CURLOPT_PREREQFUNCTION of (string -> string -> int -> int -> bool)
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -806,6 +807,9 @@ let set_progressfunction conn closure =
 
 let set_xferinfofunction conn closure =
   setopt conn (CURLOPT_XFERINFOFUNCTION closure)
+
+let set_prereqfunction conn closure =
+  setopt conn (CURLOPT_PREREQFUNCTION closure)
 
 let set_sslverifypeer conn flag =
   setopt conn (CURLOPT_SSLVERIFYPEER flag)
@@ -1353,6 +1357,7 @@ class handle =
     method set_krb4level krb4level = set_krb4level conn krb4level
     method set_progressfunction closure = set_progressfunction conn closure
     method set_xferinfofunction closure = set_xferinfofunction conn closure
+    method set_prereqfunction closure = set_prereqfunction conn closure
     method set_sslverifypeer flag = set_sslverifypeer conn flag
     method set_cainfo cainfo = set_cainfo conn cainfo
     method set_capath capath = set_capath conn capath
