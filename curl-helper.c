@@ -3322,6 +3322,10 @@ SETOPT_LONG( BUFFERSIZE)
   SETOPT_STRING( DOH_URL)
 #endif
 
+#if HAVE_DECL_CURLOPT_AWS_SIGV4
+  SETOPT_STRING( AWS_SIGV4)
+#endif
+
 
 /**
  **  curl_easy_setopt helper function
@@ -3756,6 +3760,11 @@ CURLOptionMapping implementedOptionMap[] =
   HAVE(PREREQFUNCTION),
 #else
   HAVENOT(PREREQFUNCTION),
+#endif
+#if HAVE_DECL_CURLOPT_AWS_SIGV4
+  HAVE(AWS_SIGV4),
+#else
+  HAVENOT(AWS_SIGV4),
 #endif
 };
 

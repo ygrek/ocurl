@@ -511,6 +511,10 @@
    if you don't. */
 #undef HAVE_DECL_CURLOPT_AUTOREFERER
 
+/* Define to 1 if you have the declaration of `CURLOPT_AWS_SIGV4', and to 0 if
+   you don't. */
+#undef HAVE_DECL_CURLOPT_AWS_SIGV4
+
 /* Define to 1 if you have the declaration of `CURLOPT_BUFFERSIZE', and to 0
    if you don't. */
 #undef HAVE_DECL_CURLOPT_BUFFERSIZE
