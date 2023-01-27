@@ -1086,8 +1086,8 @@ let set_doh_url conn url =
 let set_ssl_options conn opts =
   setopt conn (CURLOPT_SSL_OPTIONS opts)
 
-let set_aws_sigv4 conn url =
-  setopt conn (CURLOPT_AWS_SIGV4 url)
+let set_aws_sigv4 conn param =
+  setopt conn (CURLOPT_AWS_SIGV4 param)
 
 let get_effectiveurl conn =
   match (getinfo conn CURLINFO_EFFECTIVE_URL) with
@@ -1444,7 +1444,7 @@ class handle =
     method set_buffersize buffersize = set_buffersize conn buffersize
     method set_doh_url url = set_doh_url conn url
     method set_ssl_options opts = set_ssl_options conn opts
-    method set_aws_sigv4 url = set_aws_sigv4 conn url
+    method set_aws_sigv4 param = set_aws_sigv4 conn param
 
     method get_effectiveurl = get_effectiveurl conn
     method get_redirecturl = get_redirecturl conn
