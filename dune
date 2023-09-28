@@ -5,7 +5,7 @@
  (wrapped false)
  (foreign_stubs
   (language c)
-  (flags -DHAVE_CONFIG_H :standard)
+  (flags -DHAVE_CONFIG_H :standard (:include cflags.sexp))
   (names curl-helper))
  (c_library_flags (:include clibs.sexp))
  (libraries unix)

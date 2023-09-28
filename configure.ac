@@ -170,6 +170,7 @@ AC_CHECK_DECLS([curl_multi_poll, curl_global_sslset],
 
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_FILES([clibs.sexp])
+AC_CONFIG_FILES([cflags.sexp])
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([dune-project])
 

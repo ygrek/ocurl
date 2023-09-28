@@ -6832,6 +6832,8 @@ ac_config_headers="$ac_config_headers config.h"
 
 ac_config_files="$ac_config_files clibs.sexp"
 
+ac_config_files="$ac_config_files cflags.sexp"
+
 ac_config_files="$ac_config_files Makefile"
 
 ac_config_files="$ac_config_files dune-project"
@@ -7523,6 +7525,7 @@ do
   case $ac_config_target in
     "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
     "clibs.sexp") CONFIG_FILES="$CONFIG_FILES clibs.sexp" ;;
+    "cflags.sexp") CONFIG_FILES="$CONFIG_FILES cflags.sexp" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "dune-project") CONFIG_FILES="$CONFIG_FILES dune-project" ;;
 
