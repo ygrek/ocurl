@@ -495,8 +495,8 @@ type curlOption =
   | CURLOPT_PREREQFUNCTION of (string -> string -> int -> int -> bool)
   | CURLOPT_AWS_SIGV4 of string
   | CURLOPT_TCP_KEEPALIVE of bool
-  | CURLOPT_TCP_KEEPIDLE of int64
-  | CURLOPT_TCP_KEEPINTVL of int64
+  | CURLOPT_TCP_KEEPIDLE of int
+  | CURLOPT_TCP_KEEPINTVL of int
 
 type initOption =
   | CURLINIT_GLOBALALL
