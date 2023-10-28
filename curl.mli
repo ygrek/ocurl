@@ -1115,6 +1115,8 @@ module Multi : sig
 
   type cerror
 
+  val int_of_cerror: cerror -> int
+
   (** exception raised on libcurl errors : origin * code * message *)
   exception CError of string * cerror * string
 
@@ -1131,16 +1133,27 @@ module Multi : sig
       @return the number of handles that still transfer data *)
   val perform : mt -> int
 
+  type waitfd_event =
+    | CURL_WAIT_POLLIN
+    | CURL_WAIT_POLLPRI
+    | CURL_WAIT_POLLOUT
+
+  type waitfd
+
+  val waitfd: Unix.file_descr -> waitfd_event list -> waitfd
+  val waitfd_fd: waitfd -> Unix.file_descr
+  val waitfd_isset: waitfd -> waitfd_event -> bool
+
   (** wait till there are some active data transfers on multi stack
       @return whether [perform] should be called *)
-  val wait : ?timeout_ms:int -> mt -> bool
+  val wait : ?timeout_ms:int -> ?extra_fds:waitfd list -> mt -> bool
 
   (** poll till there are some active data transfers on multi stack.
       Contrary to [wait], this function does not return immediately
       when there are no pending transfer but waits for [timeout_ms]
       The module falls back to [wait] if this function is unavailable.
       @return whether [perform] should be called *)
-  val poll : ?timeout_ms:int -> mt -> bool
+  val poll : ?timeout_ms:int -> ?extra_fds:waitfd list -> mt -> bool
 
   (** remove finished handle from the multi stack if any. The returned handle may be reused *)
   val remove_finished : mt -> (t * curlCode) option
