@@ -1519,18 +1519,35 @@ module Multi = struct
 
   type cerror = int
 
+  let int_of_cerror err = err
+
   exception CError of string * cerror * string
 
   let () = Callback.register_exception "Curl.Multi.Error" (Error "")
   let () = Callback.register_exception "Curl.Multi.CError" (CError ("",0,""))
 
+  type waitfd_event =
+    | CURL_WAIT_POLLIN
+    | CURL_WAIT_POLLPRI
+    | CURL_WAIT_POLLOUT
+
+  type waitfd = {
+    fd: Unix.file_descr;
+    events: waitfd_event list;
+    mutable revents: waitfd_event list;
+  }
+
+  let waitfd fd events = {fd; events; revents = []}
+  let waitfd_fd fd = fd.fd
+  let waitfd_isset fd event = List.mem event fd.revents
+
   external create : unit -> mt = "caml_curl_multi_init"
   external add : mt -> t -> unit = "caml_curl_multi_add_handle"
   external perform : mt -> int = "caml_curl_multi_perform_all"
-  external wait : int -> mt -> bool = "caml_curl_multi_wait"
-  let wait ?(timeout_ms=1000) mt = wait timeout_ms mt
-  external poll : int -> mt -> bool = "caml_curl_multi_poll"
-  let poll ?(timeout_ms=1000) mt = poll timeout_ms mt
+  external wait : int -> waitfd list -> mt -> bool = "caml_curl_multi_wait"
+  let wait ?(timeout_ms=1000) ?(extra_fds = []) mt = wait timeout_ms extra_fds mt
+  external poll : int -> waitfd list -> mt -> bool = "caml_curl_multi_poll"
+  let poll ?(timeout_ms=1000) ?(extra_fds = []) mt = poll timeout_ms extra_fds mt
   external remove : mt -> t -> unit = "caml_curl_multi_remove_handle"
   external remove_finished : mt -> (t * curlCode) option = "caml_curlm_remove_finished"
   external cleanup : mt -> unit = "caml_curl_multi_cleanup"
