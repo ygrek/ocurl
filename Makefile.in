@@ -32,7 +32,7 @@ clean:
 
 .PHONY: distclean
 distclean: clean
-	@rm -f config.log config.status config.h clibs.sexp
+	rm -f config.log config.status config.h Makefile dune-project clibs.sexp cflags.sexp # AC_CONFIG_FILES
 
 .PHONY: gen
 gen:
