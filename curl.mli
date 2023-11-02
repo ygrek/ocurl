@@ -507,6 +507,9 @@ type curlOption =
   | CURLOPT_XFERINFOFUNCTION of (int64 -> int64 -> int64 -> int64 -> bool)
   | CURLOPT_PREREQFUNCTION of (string -> string -> int -> int -> bool)
   | CURLOPT_AWS_SIGV4 of string
+  | CURLOPT_TCP_KEEPALIVE of bool
+  | CURLOPT_TCP_KEEPIDLE of int
+  | CURLOPT_TCP_KEEPINTVL of int
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -801,6 +804,9 @@ val set_proxytransfermode : t -> bool -> unit
 val set_seekfunction : t -> (int64 -> curlSeek -> curlSeekResult) -> unit
 val set_autoreferer : t -> bool -> unit
 val set_opensocketfunction : t -> (Unix.file_descr -> unit) -> unit
+val set_tcpkeepalive : t -> bool -> unit
+val set_tcpkeepidle : t -> int -> unit
+val set_tcpkeepintvl : t -> int -> unit
 
 (** current implementation is faulty
     ref https://github.com/ygrek/ocurl/issues/58
@@ -1051,6 +1057,9 @@ class handle :
     method set_doh_url : string -> unit
     method set_ssl_options : curlSslOption list -> unit
     method set_aws_sigv4 : string -> unit
+    method set_tcpkeepalive : bool -> unit
+    method set_tcpkeepidle : int -> unit
+    method set_tcpkeepintvl : int -> unit
 
     method get_effectiveurl : string
     method get_redirecturl : string

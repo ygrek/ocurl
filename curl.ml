@@ -494,6 +494,9 @@ type curlOption =
   | CURLOPT_XFERINFOFUNCTION of (int64 -> int64 -> int64 -> int64 -> bool)
   | CURLOPT_PREREQFUNCTION of (string -> string -> int -> int -> bool)
   | CURLOPT_AWS_SIGV4 of string
+  | CURLOPT_TCP_KEEPALIVE of bool
+  | CURLOPT_TCP_KEEPIDLE of int
+  | CURLOPT_TCP_KEEPINTVL of int
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -928,6 +931,15 @@ let set_tcpnodelay conn flag =
 
 let set_tcpfastopen conn flag =
   setopt conn (CURLOPT_TCP_FASTOPEN flag)
+
+let set_tcpkeepalive conn flag =
+  setopt conn (CURLOPT_TCP_KEEPALIVE flag)
+
+let set_tcpkeepidle conn seconds =
+  setopt conn (CURLOPT_TCP_KEEPIDLE seconds)
+
+let set_tcpkeepintvl conn seconds =
+  setopt conn (CURLOPT_TCP_KEEPINTVL seconds)
 
 let set_ftpsslauth conn auth =
   setopt conn (CURLOPT_FTPSSLAUTH auth)
@@ -1445,6 +1457,9 @@ class handle =
     method set_doh_url url = set_doh_url conn url
     method set_ssl_options opts = set_ssl_options conn opts
     method set_aws_sigv4 param = set_aws_sigv4 conn param
+    method set_tcpkeepalive flag = set_tcpkeepalive conn flag
+    method set_tcpkeepidle seconds = set_tcpkeepidle conn seconds
+    method set_tcpkeepintvl seconds = set_tcpkeepintvl conn seconds
 
     method get_effectiveurl = get_effectiveurl conn
     method get_redirecturl = get_redirecturl conn

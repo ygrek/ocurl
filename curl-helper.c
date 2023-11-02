@@ -3326,6 +3326,11 @@ SETOPT_LONG( BUFFERSIZE)
   SETOPT_STRING( AWS_SIGV4)
 #endif
 
+SETOPT_BOOL( TCP_KEEPALIVE)
+
+SETOPT_LONG( TCP_KEEPIDLE)
+
+SETOPT_LONG( TCP_KEEPINTVL)
 
 /**
  **  curl_easy_setopt helper function
@@ -3766,6 +3771,9 @@ CURLOptionMapping implementedOptionMap[] =
 #else
   HAVENOT(AWS_SIGV4),
 #endif
+HAVE(TCP_KEEPALIVE),
+HAVE(TCP_KEEPIDLE),
+HAVE(TCP_KEEPINTVL),
 };
 
 value caml_curl_easy_setopt(value conn, value option)

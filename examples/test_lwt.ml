@@ -18,6 +18,12 @@ let curl_setup_simple h =
   set_ipresolve h IPRESOLVE_V4;
   set_encoding h CURL_ENCODING_ANY
 
+let curl_setup_tcp h =
+  let open Curl in
+  set_tcpkeepalive h true;
+  set_tcpkeepidle h 10;
+  set_tcpkeepintvl h 10
+
 let log_curl h code =
   let open Curl in
   let url = get_effectiveurl h in
@@ -42,6 +48,7 @@ let get url =
   let h = Curl.init () in
   Curl.set_url h url;
   curl_setup_simple h;
+  curl_setup_tcp h;
   begin try%lwt (* e.g. Canceled *)
     let%lwt (code,_body) = download h in
     log_curl h code;
