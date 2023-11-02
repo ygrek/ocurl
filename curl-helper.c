@@ -3771,21 +3771,9 @@ CURLOptionMapping implementedOptionMap[] =
 #else
   HAVENOT(AWS_SIGV4),
 #endif
-#if HAVE_DECL_CURLOPT_TCP_KEEPALIVE
-  HAVE(TCP_KEEPALIVE),
-#else
-  HAVENOT(TCP_KEEPALIVE),
-#endif
-#if HAVE_DECL_CURLOPT_TCP_KEEPIDLE
-  HAVE(TCP_KEEPIDLE),
-#else
-  HAVENOT(TCP_KEEPIDLE),
-#endif
-#if HAVE_DECL_CURLOPT_TCP_KEEPINTVL
-  HAVE(TCP_KEEPINTVL),
-#else
-  HAVENOT(TCP_KEEPINTVL),
-#endif
+HAVE(TCP_KEEPALIVE),
+HAVE(TCP_KEEPIDLE),
+HAVE(TCP_KEEPINTVL),
 };
 
 value caml_curl_easy_setopt(value conn, value option)
