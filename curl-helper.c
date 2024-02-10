@@ -4754,20 +4754,21 @@ static int list_length(value v)
   return n;
 }
 
-static struct curl_waitfd *convert_extra_fds(value v_extra_fds, int *extra_nfds)
+static struct curl_waitfd *convert_extra_fds(value v_extra_fds, int *nr_extra_fds)
 {
-  struct curl_waitfd *extra_fds = NULL;
+  /* NB this function doesn't trigger GC so can avoid registering local roots */
   value v_extra_fd;
-  int i, nfds;
 
-  nfds = *extra_nfds = list_length(v_extra_fds);
+  int nfds = list_length(v_extra_fds);
+  *nr_extra_fds = nfds;
 
   if (nfds == 0) return NULL;
 
-  extra_fds = caml_stat_alloc(sizeof(extra_fds[0]) * nfds);
+  struct curl_waitfd *extra_fds = caml_stat_alloc(sizeof(extra_fds[0]) * nfds);
 
-  i = 0;
-  while (v_extra_fds != Val_emptylist) {
+  int i = 0;
+  while (v_extra_fds != Val_emptylist)
+  {
     v_extra_fd = Field(v_extra_fds, 0);
     extra_fds[i].fd = Socket_val(Field(v_extra_fd, 0));
     extra_fds[i].events = caml_convert_flag_list(Field(v_extra_fd, 1), curlWait_table);
@@ -4784,12 +4785,14 @@ static void update_extra_fds(value v_extra_fds, struct curl_waitfd *extra_fds)
 {
   CAMLparam1(v_extra_fds);
   CAMLlocal2(v_extra_fd, lst);
-  int i, j;
 
-  i = 0;
-  while (v_extra_fds != Val_emptylist) {
+  int i = 0;
+  while (v_extra_fds != Val_emptylist)
+  {
     v_extra_fd = Field(v_extra_fds, 0);
-    for (j = 0, lst = Val_emptylist; j < sizeof(curlWait_table)/sizeof(curlWait_table[0]); j ++) {
+    lst = Val_emptylist;
+    for (int j = 0; j < sizeof(curlWait_table)/sizeof(curlWait_table[0]); j ++)
+    {
       if (curlWait_table[j] & extra_fds[i].revents)
         lst = Val_cons(Val_int(j), lst);
     }
@@ -4807,12 +4810,12 @@ value caml_curl_multi_wait(value v_timeout_ms, value v_extra_fds, value v_multi)
   CURLM *multi_handle = CURLM_val(v_multi);
   int timeout_ms = Int_val(v_timeout_ms);
   int numfds = -1;
-  int extra_nfds = 0;
-  struct curl_waitfd *extra_fds = convert_extra_fds(v_extra_fds, &extra_nfds);
+  int nr_extra_fds = 0;
+  struct curl_waitfd *extra_fds = convert_extra_fds(v_extra_fds, &nr_extra_fds);
   CURLMcode rc;
 
   caml_enter_blocking_section();
-  rc = curl_multi_wait(multi_handle, extra_fds, extra_nfds, timeout_ms, &numfds);
+  rc = curl_multi_wait(multi_handle, extra_fds, nr_extra_fds, timeout_ms, &numfds);
   caml_leave_blocking_section();
 
   if (extra_fds != NULL) {
@@ -4831,15 +4834,15 @@ value caml_curl_multi_poll(value v_timeout_ms, value v_extra_fds, value v_multi)
   CURLM *multi_handle = CURLM_val(v_multi);
   int timeout_ms = Int_val(v_timeout_ms);
   int numfds = -1;
-  int extra_nfds = 0;
-  struct curl_waitfd *extra_fds = convert_extra_fds(v_extra_fds, &extra_nfds);
+  int nr_extra_fds = 0;
+  struct curl_waitfd *extra_fds = convert_extra_fds(v_extra_fds, &nr_extra_fds);
   CURLMcode rc;
 
   caml_enter_blocking_section();
 #if HAVE_DECL_CURL_MULTI_POLL
-  rc = curl_multi_poll(multi_handle, extra_fds, extra_nfds, timeout_ms, &numfds);
+  rc = curl_multi_poll(multi_handle, extra_fds, nr_extra_fds, timeout_ms, &numfds);
 #else
-  rc = curl_multi_wait(multi_handle, extra_fds, extra_nfds, timeout_ms, &numfds);
+  rc = curl_multi_wait(multi_handle, extra_fds, nr_extra_fds, timeout_ms, &numfds);
 #endif
   caml_leave_blocking_section();
 
