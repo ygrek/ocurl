@@ -4794,7 +4794,7 @@ static void update_extra_fds(value v_extra_fds, struct curl_waitfd *extra_fds)
     for (int j = 0; j < sizeof(curlWait_table)/sizeof(curlWait_table[0]); j ++)
     {
       if (curlWait_table[j] & extra_fds[i].revents)
-        lst = Val_cons(Val_int(j), lst);
+        lst = Val_cons(lst, Val_int(j));
     }
     Store_field(v_extra_fd, 2, lst);
     i ++;
