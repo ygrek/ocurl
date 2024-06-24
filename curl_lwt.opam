@@ -1,5 +1,5 @@
 opam-version: "2.0"
-name: "curl"
+name: "curl_lwt"
 maintainer: "ygrek@autistici.org"
 homepage: "https://ygrek.org/p/ocurl"
 license: "MIT"
@@ -9,7 +9,6 @@ dev-repo: "git+https://github.com/ygrek/ocurl.git"
 bug-reports: "https://github.com/ygrek/ocurl/issues"
 tags: ["org:ygrek" "clib:curl"]
 build: [
-  ["./configure"]
   [
     "dune"
     "build"
@@ -27,7 +26,9 @@ depends: [
   "dune" {>= "2.8"}
   "odoc" {with-doc}
   "base-unix"
-  "conf-libcurl"
+  "curl" {= version}
+  "lwt"
+  "lwt_ppx"
 ]
-synopsis: "Bindings to libcurl"
+synopsis: "Bindings to Ltw"
 description: "libcurl is a client-side URL transfer library, supporting HTTP and a multitude of other network protocols (FTP/SMTP/RTSP/etc). This library wrap easy synchronous API (Curl), synchronous parallel and generic asynchronous API (Curl.Multi), and provides an Lwt-enabled asynchronous interface (Curl_lwt)."
