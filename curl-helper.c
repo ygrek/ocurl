@@ -2829,6 +2829,9 @@ SETOPT_INT64( POSTFIELDSIZE_LARGE)
 SETOPT_VAL_( handle_TCP_NODELAY, CURLOPT_TCP_NODELAY, Bool_val)
 #endif
 
+/* windows headers define TCP_FASTOPEN and there is no (sane) way to prevent macro expansion of the symbol below */
+#undef TCP_FASTOPEN
+
 #if HAVE_DECL_CURLOPT_TCP_FASTOPEN
 SETOPT_BOOL( TCP_FASTOPEN)
 #endif
