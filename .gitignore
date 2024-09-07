@@ -2,7 +2,4 @@
 /*.install
 /config.*
 /autom4te.cache
-/clibs.sexp
-/cflags.sexp
 /Makefile
-/dune-project
