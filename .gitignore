@@ -1,5 +1,2 @@
 /_build
 /*.install
-/config.*
-/autom4te.cache
-/Makefile
