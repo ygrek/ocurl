@@ -3313,6 +3313,12 @@ SETOPT_LONG( BUFFERSIZE)
   SETOPT_STRING( AWS_SIGV4)
 #endif
 
+/* windows headers define these symbols and there is no (sane) way to prevent macro expansion */
+
+#undef TCP_KEEPALIVE
+#undef TCP_KEEPIDLE
+#undef TCP_KEEPINTVL
+
 SETOPT_BOOL( TCP_KEEPALIVE)
 
 SETOPT_LONG( TCP_KEEPIDLE)
