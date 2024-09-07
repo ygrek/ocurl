@@ -36,8 +36,6 @@ jobs:
 
       - run: opam install lwt lwt_ppx # optional deps
 
-      - run: ./configure
-
       - run: opam exec -- dune build
 
       - run: opam exec -- dune runtest
