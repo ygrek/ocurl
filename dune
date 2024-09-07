@@ -7,7 +7,7 @@
   (language c)
   (flags -DHAVE_CONFIG_H :standard (:include cflags.sexp))
   (names curl-helper))
- (c_library_flags (:include clibs.sexp))
+ (c_library_flags :standard (:include clibs.sexp))
  (libraries unix)
  (modules curl))
 
