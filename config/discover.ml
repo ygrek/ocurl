@@ -374,7 +374,7 @@ let main c =
   in
   C.C_define.gen_header_file c ~fname:"config.h" (extract_declarations c ~cflags ~libs);
   C.Flags.write_sexp "cflags.sexp" cflags;
-  C.Flags.write_sexp "clibs.sexp" libs
+  C.Flags.write_sexp "clibs.sexp" (libs @ extra_libs)
 
 let () =
   C.main ~name:"ocurl" main
