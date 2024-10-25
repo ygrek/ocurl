@@ -38,8 +38,8 @@ distclean: clean
 gen:
 	dune exec -- examples/test_enum.exe
 
-PACKAGE_NAME=@PACKAGE_NAME@
-PACKAGE_VERSION=@PACKAGE_VERSION@
+PACKAGE_NAME=ocurl
+PACKAGE_VERSION=$(shell sed -n 's#(version \([0-9.]+\))#\1#p' dune-project)
 NAME=$(PACKAGE_NAME)-$(PACKAGE_VERSION)
 
 .PHONY: release

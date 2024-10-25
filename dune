@@ -21,3 +21,7 @@
 (deprecated_library_name
  (old_public_name curl.lwt)
  (new_public_name curl_lwt))
+
+(rule
+ (targets config.h cflags.sexp clibs.sexp)
+ (action (run config/discover.exe)))
