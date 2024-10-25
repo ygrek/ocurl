@@ -366,7 +366,7 @@ let main c =
        | Ok c ->  c
        | Error err -> C.die "%s" err)
   in
-  let cflags =
+  let cflags, extra_libs =
     match C.ocaml_config_var c "ccomp_type" with
     | Some "cc" -> "-Wno-deprecated-declarations" :: cflags, []
     | Some "msvc" -> cflags, ["-defaultlib"; "ws2_32.lib"]
