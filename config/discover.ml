@@ -370,7 +370,7 @@ let main c =
     match C.ocaml_config_var c "ccomp_type" with
     | Some "cc" -> "-Wno-deprecated-declarations" :: cflags, []
     | Some "msvc" -> cflags, ["-defaultlib"; "ws2_32.lib"]
-    | _ -> cflags
+    | _ -> cflags, []
   in
   C.C_define.gen_header_file c ~fname:"config.h" (extract_declarations c ~cflags ~libs);
   C.Flags.write_sexp "cflags.sexp" cflags;
