@@ -478,7 +478,6 @@ type curlOption =
   | CURLOPT_SEEKFUNCTION of (int64 -> curlSeek -> curlSeekResult)
   | CURLOPT_AUTOREFERER of bool
   | CURLOPT_OPENSOCKETFUNCTION of (Unix.file_descr -> unit)
-(*   | CURLOPT_CLOSESOCKETFUNCTION of (Unix.file_descr -> unit) *)
   | CURLOPT_PROXYTYPE of curlProxyType
   | CURLOPT_PROTOCOLS of curlProto list
   | CURLOPT_REDIR_PROTOCOLS of curlProto list
@@ -808,11 +807,6 @@ val set_opensocketfunction : t -> (Unix.file_descr -> unit) -> unit
 val set_tcpkeepalive : t -> bool -> unit
 val set_tcpkeepidle : t -> int -> unit
 val set_tcpkeepintvl : t -> int -> unit
-
-(** current implementation is faulty
-    ref https://github.com/ygrek/ocurl/issues/58
-val set_closesocketfunction : t -> (Unix.file_descr -> unit) -> unit
-*)
 val set_proxytype : t -> curlProxyType -> unit
 val set_protocols : t -> curlProto list -> unit
 val set_redirprotocols : t -> curlProto list -> unit
@@ -1048,7 +1042,6 @@ class handle :
     method set_seekfunction : (int64 -> curlSeek -> curlSeekResult) -> unit
     method set_autoreferer : bool -> unit
     method set_opensocketfunction : (Unix.file_descr -> unit) -> unit
-(*     method set_closesocketfunction : (Unix.file_descr -> unit) -> unit *)
     method set_proxytype : curlProxyType -> unit
     method set_resolve : (string * int * string) list -> (string * int) list -> unit
     method set_dns_servers : string list -> unit
@@ -1197,6 +1190,14 @@ module Multi : sig
 
       NB {!action_timeout} should be called when timeout occurs *)
   val set_timer_function : mt -> (int -> unit) -> unit
+
+  (** set a function to be called to close a socket.
+
+      The underlying callback is a property of the easy handle, but cannot be stored there
+      in these bindings because libcurl's use of this callback may occur outside the
+      lifetime of the easy handle. This means that all easy handles added to a multi
+      handle must use the same closesocket function. *)
+  val set_closesocket_function : mt -> (Unix.file_descr -> unit) -> unit
 
   (** perform pending data transfers (if any) on all handles currently in multi stack
       (not recommended, {!action} should be used instead)

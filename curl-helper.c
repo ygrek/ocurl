@@ -106,7 +106,6 @@ typedef enum OcamlValues
     Ocaml_IOCTLFUNCTION,
     Ocaml_SEEKFUNCTION,
     Ocaml_OPENSOCKETFUNCTION,
-    /* Ocaml_CLOSESOCKETFUNCTION, */
     Ocaml_SSH_KEYFUNCTION,
 
     Ocaml_ERRORBUFFER,
@@ -1217,29 +1216,6 @@ static int cb_OPENSOCKETFUNCTION(void *data,
     return ((sock == -1) ? CURL_SOCKET_BAD : sock);
 }
 
-/*
-static int cb_CLOSESOCKETFUNCTION(void *data,
-                         curl_socket_t socket)
-{
-    caml_leave_blocking_section();
-
-    CAMLparam0();
-    CAMLlocal1(camlResult);
-    Connection *conn = (Connection *)data;
-    int result = 0;
-
-    camlResult = caml_callback_exn(Field(conn->ocamlValues, Ocaml_CLOSESOCKETFUNCTION), Val_int(socket));
-    if (Is_exception_result(camlResult))
-    {
-      result = 1;
-    }
-    CAMLdrop;
-
-    caml_enter_blocking_section();
-    return result;
-}
-*/
-
 static int cb_SSH_KEYFUNCTION(CURL *easy,
                               const struct curl_khkey *knownkey,
                               const struct curl_khkey *foundkey,
@@ -1617,7 +1593,6 @@ SETOPT_FUNCTION( IOCTL)
 #endif
 
 SETOPT_FUNCTION( OPENSOCKET)
-/* SETOPT_FUNCTION( CLOSESOCKET) */
 
 static void handle_slist(Connection *conn, struct curl_slist** slist, CURLoption curl_option, value option)
 {
@@ -3683,7 +3658,6 @@ CURLOptionMapping implementedOptionMap[] =
   HAVENOT(AUTOREFERER),
 #endif
   HAVE(OPENSOCKETFUNCTION),
-  /*HAVE(CLOSESOCKETFUNCTION),*/
 #if HAVE_DECL_CURLOPT_PROXYTYPE
   HAVE(PROXYTYPE),
 #else
@@ -4597,6 +4571,7 @@ enum
 {
   curlmopt_socket_function,
   curlmopt_timer_function,
+  curlmopt_closesocket_function,
 
   /* last, not used */
   multi_values_total
@@ -4879,12 +4854,43 @@ value caml_curl_multi_poll(value v_timeout_ms, value v_extra_fds, value v_multi)
   CAMLreturn(Val_bool(numfds != 0));
 }
 
+static int curlm_closesocket_cb(void *data, curl_socket_t socket)
+{
+  caml_leave_blocking_section();
+
+  CAMLparam0();
+  CAMLlocal1(camlResult);
+
+  ml_multi_handle* multi = (ml_multi_handle*)data;
+  int result = 0;
+  camlResult = caml_callback_exn(Field(multi->values, curlmopt_closesocket_function), Val_socket(socket));
+  if (Is_exception_result(camlResult))
+  {
+    result = 1;
+  }
+  CAMLdrop;
+
+  caml_enter_blocking_section();
+  return result;
+}
+
 value caml_curl_multi_add_handle(value v_multi, value v_easy)
 {
   CAMLparam2(v_multi,v_easy);
   CURLMcode rc = CURLM_OK;
   CURLM* multi = CURLM_val(v_multi);
   Connection* conn = Connection_val(v_easy);
+
+  if (Field(Multi_val(v_multi)->values, curlmopt_closesocket_function) != Val_unit)
+  {
+    CURLcode result = CURLE_OK;
+    result = curl_easy_setopt(conn->handle, CURLOPT_CLOSESOCKETDATA, Multi_val(v_multi));
+    if (result != CURLE_OK)
+      raiseError(conn, result);
+    result = curl_easy_setopt(conn->handle, CURLOPT_CLOSESOCKETFUNCTION, curlm_closesocket_cb);
+    if (result != CURLE_OK)
+      raiseError(conn, result);
+  }
 
   /* prevent collection of OCaml value while the easy handle is used
    and may invoke callbacks registered on OCaml side */
@@ -5078,6 +5084,16 @@ value caml_curl_multi_timerfunction(value v_multi, value v_cb)
 
   curl_multi_setopt(multi->handle, CURLMOPT_TIMERFUNCTION, curlm_timer_cb);
   curl_multi_setopt(multi->handle, CURLMOPT_TIMERDATA, multi);
+
+  CAMLreturn(Val_unit);
+}
+
+value caml_curl_multi_closesocketfunction(value v_multi, value v_cb)
+{
+  CAMLparam2(v_multi, v_cb);
+  ml_multi_handle* multi = Multi_val(v_multi);
+
+  Store_field(multi->values, curlmopt_closesocket_function, v_cb);
 
   CAMLreturn(Val_unit);
 }

@@ -1565,6 +1565,7 @@ module Multi = struct
 
   external set_socket_function : mt -> (Unix.file_descr -> poll -> unit) -> unit = "caml_curl_multi_socketfunction"
   external set_timer_function : mt -> (int -> unit) -> unit = "caml_curl_multi_timerfunction"
+  external set_closesocket_function : mt -> (Unix.file_descr -> unit) -> unit = "caml_curl_multi_closesocketfunction"
   external action_all : mt -> int = "caml_curl_multi_socket_all"
   external socket_action : mt -> Unix.file_descr option -> fd_status -> int = "caml_curl_multi_socket_action"
 
