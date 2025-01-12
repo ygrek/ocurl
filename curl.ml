@@ -489,6 +489,7 @@ type curlOption =
   | CURLOPT_BUFFERSIZE of int
   | CURLOPT_DOH_URL of string
   | CURLOPT_SSL_OPTIONS of curlSslOption list
+  | CURLOPT_PROXY_SSL_OPTIONS of curlSslOption list
   | CURLOPT_WRITEFUNCTION2 of (string -> write_result)
   | CURLOPT_READFUNCTION2 of (int -> read_result)
   | CURLOPT_XFERINFOFUNCTION of (int64 -> int64 -> int64 -> int64 -> bool)
@@ -1101,6 +1102,9 @@ let set_ssl_options conn opts =
 let set_aws_sigv4 conn param =
   setopt conn (CURLOPT_AWS_SIGV4 param)
 
+let set_proxy_ssl_options conn opts =
+  setopt conn (CURLOPT_PROXY_SSL_OPTIONS opts)
+
 let get_effectiveurl conn =
   match (getinfo conn CURLINFO_EFFECTIVE_URL) with
   | CURLINFO_String s -> s
@@ -1456,6 +1460,7 @@ class handle =
     method set_buffersize buffersize = set_buffersize conn buffersize
     method set_doh_url url = set_doh_url conn url
     method set_ssl_options opts = set_ssl_options conn opts
+    method set_proxy_ssl_options opts = set_proxy_ssl_options conn opts
     method set_aws_sigv4 param = set_aws_sigv4 conn param
     method set_tcpkeepalive flag = set_tcpkeepalive conn flag
     method set_tcpkeepidle seconds = set_tcpkeepidle conn seconds
