@@ -2053,19 +2053,31 @@ long sslOptionMap[] = {
 #endif
 };
 
-#if HAVE_DECL_CURLOPT_SSL_OPTIONS
-static void handle_SSL_OPTIONS(Connection *conn, value opts)
+static void handle_SSL_OPTIONS_(CURLoption opt, Connection *conn, value opts)
 {
   CAMLparam1(opts);
   CURLcode result = CURLE_OK;
   long bits = convert_bit_list(sslOptionMap, sizeof(sslOptionMap) / sizeof(sslOptionMap[0]), opts);
 
-  result = curl_easy_setopt(conn->handle, CURLOPT_SSL_OPTIONS, bits);
+  result = curl_easy_setopt(conn->handle, opt, bits);
 
   if (result != CURLE_OK)
     raiseError(conn, result);
 
   CAMLreturn0;
+}
+
+#if HAVE_DECL_CURLOPT_SSL_OPTIONS
+static void handle_SSL_OPTIONS(Connection *conn, value opts)
+{
+  handle_SSL_OPTIONS_(CURLOPT_SSL_OPTIONS, conn, opts);
+}
+#endif
+
+#if HAVE_DECL_CURLOPT_PROXY_SSL_OPTIONS
+static void handle_PROXY_SSL_OPTIONS(Connection *conn, value opts)
+{
+  handle_SSL_OPTIONS_(CURLOPT_PROXY_SSL_OPTIONS, conn, opts);
 }
 #endif
 
@@ -3753,6 +3765,11 @@ CURLOptionMapping implementedOptionMap[] =
   HAVE(SSL_OPTIONS),
 #else
   HAVENOT(SSL_OPTIONS),
+#endif
+#if HAVE_DECL_CURLOPT_PROXY_SSL_OPTIONS
+  HAVE(PROXY_SSL_OPTIONS),
+#else
+  HAVENOT(PROXY_SSL_OPTIONS),
 #endif
   HAVE(WRITEFUNCTION2),
   HAVE(READFUNCTION2),

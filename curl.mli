@@ -502,6 +502,7 @@ type curlOption =
   | CURLOPT_BUFFERSIZE of int
   | CURLOPT_DOH_URL of string
   | CURLOPT_SSL_OPTIONS of curlSslOption list
+  | CURLOPT_PROXY_SSL_OPTIONS of curlSslOption list
   | CURLOPT_WRITEFUNCTION2 of (string -> write_result)
   | CURLOPT_READFUNCTION2 of (int -> read_result)
   | CURLOPT_XFERINFOFUNCTION of (int64 -> int64 -> int64 -> int64 -> bool)
@@ -818,6 +819,7 @@ val set_redirprotocols : t -> curlProto list -> unit
 val set_buffersize : t -> int -> unit
 val set_doh_url : t -> string -> unit
 val set_ssl_options : t -> curlSslOption list -> unit
+val set_proxy_ssl_options : t -> curlSslOption list -> unit
 val set_aws_sigv4 : t -> string -> unit
 
 (** [set_resolve t add del] adjusts builtin dns mapping
@@ -1056,6 +1058,7 @@ class handle :
     method set_buffersize : int -> unit
     method set_doh_url : string -> unit
     method set_ssl_options : curlSslOption list -> unit
+    method set_proxy_ssl_options : curlSslOption list -> unit
     method set_aws_sigv4 : string -> unit
     method set_tcpkeepalive : bool -> unit
     method set_tcpkeepidle : int -> unit
