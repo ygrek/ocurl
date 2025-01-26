@@ -9,6 +9,7 @@ dev-repo: "git+https://github.com/ygrek/ocurl.git"
 bug-reports: "https://github.com/ygrek/ocurl/issues"
 tags: ["org:ygrek" "clib:curl"]
 build: [
+  ["./configure"]
   [
     "dune"
     "build"
