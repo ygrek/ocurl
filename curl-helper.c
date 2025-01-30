@@ -2907,6 +2907,7 @@ static void handle_FTP_FILEMETHOD(Connection *conn, value option)
         result = curl_easy_setopt(conn->handle,
                                   CURLOPT_FTP_FILEMETHOD,
                                   CURLFTPMETHOD_SINGLECWD);
+        break;
 
     default:
         caml_failwith("Invalid FTP_FILEMETHOD value");
