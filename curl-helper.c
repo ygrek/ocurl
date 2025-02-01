@@ -30,6 +30,7 @@
 #include <caml/unixsupport.h>
 #include <caml/custom.h>
 #include <caml/threads.h>
+#include <caml/bigarray.h>
 
 #ifndef CAMLdrop
 #define CAMLdrop caml_local_roots = caml__frame
@@ -109,6 +110,7 @@ typedef enum OcamlValues
     Ocaml_SSH_KEYFUNCTION,
 
     Ocaml_ERRORBUFFER,
+    Ocaml_CALLBACKBUFFER,
     Ocaml_PRIVATE,
 
     /* Not used, last for size */
@@ -641,7 +643,8 @@ static void resetOcamlValues(Connection* connection)
     int i;
 
     for (i = 0; i < OcamlValuesSize; i++)
-        Store_field(connection->ocamlValues, i, Val_unit);
+      if (i != Ocaml_CALLBACKBUFFER)
+            Store_field(connection->ocamlValues, i, Val_unit);
 }
 
 static Connection* allocConnection(CURL* h)
@@ -649,6 +652,7 @@ static Connection* allocConnection(CURL* h)
     Connection* connection = (Connection *)malloc(sizeof(Connection));
 
     connection->ocamlValues = caml_alloc(OcamlValuesSize, 0);
+    Store_field(connection->ocamlValues, Ocaml_CALLBACKBUFFER, caml_ba_alloc_dims(CAML_BA_UINT8 | CAML_BA_C_LAYOUT | CAML_BA_EXTERNAL, 1, NULL, 0));
     resetOcamlValues(connection);
     caml_register_global_root(&connection->ocamlValues);
 
@@ -863,6 +867,44 @@ static size_t cb_WRITEFUNCTION2(char *ptr, size_t size, size_t nmemb, void *data
 
     caml_enter_blocking_section();
     return r;
+}
+
+static size_t cb_WRITEFUNCTION_BUF(char *ptr, size_t size, size_t nmemb, void *data)
+{
+  caml_leave_blocking_section();
+
+  CAMLparam0();
+  CAMLlocal2(result, buf);
+  Connection *conn = (Connection *)data;
+
+  checkConnection(conn);
+
+  buf = Field(conn->ocamlValues, Ocaml_CALLBACKBUFFER);
+  struct caml_ba_array* ba = Caml_ba_array_val(buf);
+  ba->dim[0]=size*nmemb;
+  ba->data=ptr;
+  result = caml_callback_exn(Field(conn->ocamlValues, Ocaml_WRITEFUNCTION), buf);
+
+  size_t r = 0;
+
+  if (!Is_exception_result(result))
+    {
+      if (Is_block(result)) /* Proceed */
+        {
+          r = size * nmemb;
+        }
+      else
+        {
+          if (0 == Int_val(result)) /* Pause */
+            r = CURL_WRITEFUNC_PAUSE;
+          /* else 1 = Abort */
+        }
+    }
+
+  CAMLdrop;
+
+  caml_enter_blocking_section();
+  return r;
 }
 
 static size_t cb_READFUNCTION(void *ptr, size_t size, size_t nmemb, void *data)
@@ -1568,9 +1610,11 @@ static void handle_##name##suffix(Connection *conn, value option) \
 
 #define SETOPT_FUNCTION(name) SETOPT_FUNCTION_(name,FUNCTION)
 #define SETOPT_FUNCTION2(name) SETOPT_FUNCTION_(name,FUNCTION2)
+#define SETOPT_FUNCTION_BUF(name) SETOPT_FUNCTION_(name,FUNCTION_BUF)
 
 SETOPT_FUNCTION( WRITE)
 SETOPT_FUNCTION2( WRITE)
+SETOPT_FUNCTION_BUF( WRITE)
 SETOPT_FUNCTION( READ)
 SETOPT_FUNCTION2( READ)
 SETOPT_FUNCTION( HEADER)
@@ -3753,6 +3797,7 @@ CURLOptionMapping implementedOptionMap[] =
   HAVENOT(PROXY_SSL_OPTIONS),
 #endif
   HAVE(WRITEFUNCTION2),
+  HAVE(WRITEFUNCTION_BUF),
   HAVE(READFUNCTION2),
 #if HAVE_DECL_CURLOPT_XFERINFOFUNCTION
   HAVE(XFERINFOFUNCTION),

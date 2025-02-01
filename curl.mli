@@ -346,6 +346,7 @@ type 'a xfer_result = Proceed of 'a | Pause | Abort
 
 type write_result = unit xfer_result
 type read_result = string xfer_result
+type bigstring = (char, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array1.t
 
 val proceed : write_result
 
@@ -503,6 +504,7 @@ type curlOption =
   | CURLOPT_SSL_OPTIONS of curlSslOption list
   | CURLOPT_PROXY_SSL_OPTIONS of curlSslOption list
   | CURLOPT_WRITEFUNCTION2 of (string -> write_result)
+  | CURLOPT_WRITEFUNCTION_BUF of (bigstring -> write_result)
   | CURLOPT_READFUNCTION2 of (int -> read_result)
   | CURLOPT_XFERINFOFUNCTION of (int64 -> int64 -> int64 -> int64 -> bool)
   | CURLOPT_PREREQFUNCTION of (string -> string -> int -> int -> bool)
@@ -651,8 +653,8 @@ val pause : t -> pauseOption list -> unit
 (** {2 Set transfer options}
 
   All callback functions shouldn't raise exceptions.
-  Any exception raised in callback function will be silently caught and discared,
-  and transfer will be aborted. *)
+  Any exception raised in callback function will be silently caught and discarded,
+  and the transfer will be aborted. *)
 
 val set_writefunction : t -> (string -> int) -> unit
 
@@ -660,6 +662,14 @@ val set_writefunction : t -> (string -> int) -> unit
    NB to unpause - call [Curl.pause h \[\]] from progressfunction callback (which is called every second at least),
    do not try to call unpause from another thread, see libcurl documentation for details *)
 val set_writefunction2 : t -> (string -> write_result) -> unit
+
+(** A write callback that provides direct access to curl's receive buffer. The provided
+    buffer may only be read within the callback. It is illegal for the buffer to escape
+    the scope of the callback.
+
+    This function provides better performance than string-based variants by avoiding an
+    intermediate copy. *)
+val set_writefunction_buf : t -> (bigstring -> write_result) -> unit
 
 (** [readfunction n] should return string of length at most [n], otherwise
   transfer will be aborted (as if with exception) *)
