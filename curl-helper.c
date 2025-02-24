@@ -4670,7 +4670,9 @@ value caml_curl_multi_cleanup(value handle)
 
   caml_remove_generational_global_root(&h->values);
 
+  caml_enter_blocking_section();
   CURLcode rc = curl_multi_cleanup(h->handle);
+  caml_leave_blocking_section();
 
   caml_stat_free(h);
   Multi_val(handle) = (ml_multi_handle*)NULL;
