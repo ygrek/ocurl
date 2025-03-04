@@ -1,8 +1,8 @@
 ocurl - OCaml libcurl bindings
 ==============================
 
-[![Build Status](https://github.com/ygrek/ocurl/actions/workflows/main.yml/badge.svg)](https://github.com/ygrek/ocurl/actions/workflows/main.yml)
-[![Build Status](https://ci.appveyor.com/api/projects/status/b20uqxaeyarwy2s4/branch/master?svg=true)](https://ci.appveyor.com/project/ygrek/ocurl/branch/master)
+[![Build Status](https://github.com/ygrek/ocurl/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/ygrek/ocurl/actions/workflows/main.yml?branch=master)
+[![OCaml-CI Build Status](https://img.shields.io/endpoint?url=https%3A%2F%2Focaml.ci.dev%2Fbadge%2Fygrek%2Focurl%2Fmaster&logo=ocaml)](https://ocaml.ci.dev/github/ygrek/ocurl)
 
 Homepage: https://ygrek.org/p/ocurl
 
