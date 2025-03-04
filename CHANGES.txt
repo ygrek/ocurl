@@ -1,3 +1,24 @@
+## unreleased
+
+* Remove the Autoconf build to fully use Dune instead.
+  (Nicolás Ojeda Bär, Jonah Beckford, Antonin Décimo)
+* Build fixes. Bug fixes.
+  (David Allsopp, ygrek, Nicolás Ojeda Bär, Luke Palmer)
++ Support CURLOPT_CLOSESOCKETFUNCTION.
+  (Luke Palmer)
++ Support CURLOPT_PROXY_SSL_OPTIONS.
+  (Nicolás Ojeda Bär)
++ Add support for TCP_KEEPALIVE, TCP_KEEPIDLE, TCP_KEEPINTVL options.
+  (Sewen Thy)
++ Support CURLOPT_PREREQFUNCTION. Support CURLOPT_AWS_SIGV4.
+  (Albert Peschar)
+* Add missing dependency on Unix.
+  (David Allsopp)
++ Check for CURLOPT_XFERINFOFUNCTION.
+  (ygrek)
++ Check for curl_global_sslset.
+  (Nicolás Ojeda Bär)
+
 ## 0.9.2 - 7 Jan 2022
 
 + CURLINFO_HTTP_VERSION (Rudi Grinberg)
