@@ -336,6 +336,7 @@ type 'a xfer_result = Proceed of 'a | Pause | Abort
 
 type write_result = unit xfer_result
 type read_result = string xfer_result
+type bigstring = (char, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array1.t
 
 let proceed = Proceed ()
 
@@ -491,6 +492,7 @@ type curlOption =
   | CURLOPT_SSL_OPTIONS of curlSslOption list
   | CURLOPT_PROXY_SSL_OPTIONS of curlSslOption list
   | CURLOPT_WRITEFUNCTION2 of (string -> write_result)
+  | CURLOPT_WRITEFUNCTION_BUF of (bigstring -> write_result)
   | CURLOPT_READFUNCTION2 of (int -> read_result)
   | CURLOPT_XFERINFOFUNCTION of (int64 -> int64 -> int64 -> int64 -> bool)
   | CURLOPT_PREREQFUNCTION of (string -> string -> int -> int -> bool)
@@ -625,6 +627,7 @@ let errno = int_of_curlCode
 
 type pauseOption = PAUSE_SEND | PAUSE_RECV | PAUSE_ALL
 
+
 external pause : t -> pauseOption list -> unit = "caml_curl_pause"
 
 let set_writefunction conn closure =
@@ -632,6 +635,9 @@ let set_writefunction conn closure =
 
 let set_writefunction2 conn closure =
   setopt conn (CURLOPT_WRITEFUNCTION2 closure)
+
+let set_writefunction_buf conn closure =
+  setopt conn (CURLOPT_WRITEFUNCTION_BUF closure)
 
 let set_readfunction conn closure =
   setopt conn (CURLOPT_READFUNCTION closure)
