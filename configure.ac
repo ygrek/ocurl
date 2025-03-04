@@ -37,6 +37,7 @@ AC_MSG_RESULT([${LIBCURL_VERSION}])
 CFLAGS="$CFLAGS $CURLCFLAGS"
 
 AC_CHECK_HEADERS([curl/curl.h],[],[AC_MSG_ERROR([libcurl header file missing])])
+AC_CHECK_HEADERS([curl/header.h],[],[],[#include "curl/curl.h"])
 
 AC_CHECK_DECLS([CURLMOPT_TIMERFUNCTION, CURLMOPT_TIMERDATA, CURLMOPT_SOCKETFUNCTION, CURLMOPT_SOCKETDATA],
 [], [AC_MSG_ERROR([multi API is too old, need libcurl >= ${MIN_LIBCURL_VERSION}])],
