@@ -1,5 +1,18 @@
 module C = Configurator.V1
 
+module List = struct
+  (* Compatibility with OCaml < 4.10 *)
+  let rec concat_map f = function
+    | [] -> []
+    | x::xs -> prepend_concat_map (f x) f xs
+  and prepend_concat_map ys f xs =
+    match ys with
+    | [] -> concat_map f xs
+    | y :: ys -> y :: prepend_concat_map ys f xs
+
+  include List
+end
+
 let declarations = [
   "CURLE_ABORTED_BY_CALLBACK";
   "CURLE_AGAIN";
@@ -324,7 +337,7 @@ let extract_declarations c ~cflags ~libs =
     let lines =
       [
         "#include <curl/curl.h>";
-        "int main()";
+        "int main(void)";
         "{";
       ]
       @
@@ -368,8 +381,8 @@ let main c =
   in
   let cflags, extra_libs =
     match C.ocaml_config_var c "ccomp_type" with
-    | Some "cc" -> "-Wno-deprecated-declarations" :: cflags, []
-    | Some "msvc" -> cflags, ["-defaultlib"; "ws2_32.lib"]
+    | Some "cc" -> "-Wall" :: "-Wno-deprecated-declarations" :: cflags, []
+    | Some "msvc" -> "-W2":: cflags, ["-defaultlib"; "ws2_32.lib"]
     | _ -> cflags, []
   in
   C.C_define.gen_header_file c ~fname:"config.h" (extract_declarations c ~cflags ~libs);
