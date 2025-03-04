@@ -26,17 +26,5 @@ Adding new libcurl symbol
 * add symbol in config/discover.ml
 * edit curl-helper.c and curl.ml*
 
-Making release
-==============
-
-* Check `make gen` with latest libcurl
-* Update CHANGES.txt
-* Update version in dune-project
-* commit
-* make && make release
-
-TODO:
-use dune-release (Update CHANGES.md: replace the first heading by release number)
-
 ----
  ygrek at autistici dot org
