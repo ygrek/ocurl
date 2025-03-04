@@ -34,7 +34,8 @@
   (ocaml (>= "4.03.0"))
   base-unix
   (curl (= :version))
-  lwt)
+  lwt
+  (lwt_ppx :with-dev-setup))
  (tags (org:ygrek clib:curl)))
 
 (package
