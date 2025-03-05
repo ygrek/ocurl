@@ -22,6 +22,10 @@
 #define CURL_DISABLE_TYPECHECK
 #include <curl/curl.h>
 
+#if HAVE_DECL_CURL_EASY_NEXTHEADER
+#include <curl/header.h>
+#endif
+
 #include <caml/alloc.h>
 #include <caml/memory.h>
 #include <caml/mlvalues.h>
@@ -4588,6 +4592,54 @@ value caml_curl_pause(value conn, value opts)
 
   CAMLreturn(Val_unit);
 }
+
+#if HAVE_DECL_CURL_EASY_NEXTHEADER
+value caml_curl_get_headers_rev(value conn, value opts, value request)
+{
+  CAMLparam3(conn, opts, request);
+  CAMLlocal3(headers, next_headers, tuple);
+  Connection *connection = Connection_val(conn);
+
+  int origin = 0;
+  while (Val_emptylist != opts)
+    {
+      switch (Int_val(Field(opts, 0)))
+        {
+        case 0: origin |= CURLH_HEADER; break;
+        case 1: origin |= CURLH_TRAILER; break;
+        case 2: origin |= CURLH_CONNECT; break;
+        case 3: origin |= CURLH_1XX; break;
+        case 4: origin |= CURLH_PSEUDO; break;
+        default: caml_failwith("wrong headerOrigin");
+        }
+      opts = Field(opts, 1);
+    }
+
+  headers = Val_emptylist;
+  struct curl_header *header = NULL;
+  while ((header = curl_easy_nextheader(connection->handle, origin, Int_val(request), header))) {
+    next_headers = headers;
+    tuple = caml_alloc_tuple(2);
+    Store_field(tuple, 0, caml_copy_string(header->name));
+    Store_field(tuple, 1, caml_copy_string(header->value));
+    headers = caml_alloc_tuple(2);
+    Store_field(headers, 0, tuple);
+    Store_field(headers, 1, next_headers);
+  }
+
+  CAMLreturn(headers);
+}
+#else
+value caml_curl_get_headers_rev(value v_ignored)
+{
+  const value *exception = caml_named_value("Curl.NotImplemented");
+  if (NULL == exception) caml_invalid_argument("Curl.NotImplemented not registered");
+  caml_raise_with_string(*exception, "curl_easy_nextheader");
+
+  /* Not reached */
+  return Val_unit;
+}
+#endif
 
 /*
  * Curl multi stack support

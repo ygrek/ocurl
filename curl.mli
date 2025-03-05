@@ -605,6 +605,21 @@ type version_info = {
 
 type pauseOption = PAUSE_SEND | PAUSE_RECV | PAUSE_ALL
 
+type headerOrigin =
+  | CURLH_HEADER
+  | CURLH_TRAILER
+  | CURLH_CONNECT
+  | CURLH_1XX
+  | CURLH_PSEUDO
+
+(** Get a list of headers that result from repeatedly calling [curl_easy_nextheader] with
+    the supplied origins and request. Typical usage is:
+    [get_headers [ CURLH_HEADER ] ~request:(-1)]
+
+    @since libcurl 7.83.0
+*)
+val get_headers : t -> headerOrigin list -> request:int -> (string * string) list
+
 (** {2 MultiSSL mode } *)
 
 exception CurlSslSetException of curlSslSet
