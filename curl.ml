@@ -627,8 +627,18 @@ let errno = int_of_curlCode
 
 type pauseOption = PAUSE_SEND | PAUSE_RECV | PAUSE_ALL
 
-
 external pause : t -> pauseOption list -> unit = "caml_curl_pause"
+
+type headerOrigin =
+  | CURLH_HEADER
+  | CURLH_TRAILER
+  | CURLH_CONNECT
+  | CURLH_1XX
+  | CURLH_PSEUDO
+
+external get_headers_rev: t -> headerOrigin list -> int -> (string * string) list = "caml_curl_get_headers_rev"
+
+let get_headers t origins ~request = get_headers_rev t origins request |> List.rev
 
 let set_writefunction conn closure =
   setopt conn (CURLOPT_WRITEFUNCTION closure)
