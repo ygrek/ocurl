@@ -1881,6 +1881,7 @@ static void handle_##name(Connection* conn, value option) \
 SETOPT_STRING( URL)
 SETOPT_LONG( INFILESIZE)
 SETOPT_STRING( PROXY)
+SETOPT_STRING( NOPROXY)
 SETOPT_LONG( PROXYPORT)
 SETOPT_BOOL( HTTPPROXYTUNNEL)
 SETOPT_BOOL( VERBOSE)
@@ -3807,6 +3808,7 @@ CURLOptionMapping implementedOptionMap[] =
 HAVE(TCP_KEEPALIVE),
 HAVE(TCP_KEEPIDLE),
 HAVE(TCP_KEEPINTVL),
+HAVE(NOPROXY),
 };
 
 value caml_curl_easy_setopt(value conn, value option)
