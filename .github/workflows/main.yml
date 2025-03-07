@@ -32,10 +32,19 @@ jobs:
         with:
           ocaml-compiler: ${{ matrix.ocaml-compiler }}
 
-      - run: opam install . --deps-only --with-test
+      - run: |
+          # work around https://github.com/ocaml/setup-ocaml/issues/899
+          opam install conf-pkg-config
+          opam install . --deps-only --with-test
 
       - run: opam install lwt lwt_ppx # optional deps
 
-      - run: opam exec -- dune build
+      - env:
+          PKG_CONFIG_PATH: /usr/x86_64-w64-mingw32/sys-root/mingw/lib/pkgconfig
+        run: opam exec -- dune build
 
-      - run: opam exec -- dune runtest
+      - env:
+          PATH: D:\cygwin\usr\x86_64-w64-mingw32\sys-root\mingw\bin;${{ env.PATH }}
+        run: |
+          Get-Item Env:PATH
+          opam exec -- dune runtest
