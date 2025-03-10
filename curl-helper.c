@@ -4772,7 +4772,7 @@ value caml_curlm_remove_finished(value v_multi)
     conn->refcount--;
     /* NB: same handle, but different block */
     v_easy = caml_curl_alloc(conn);
-    v_tuple = caml_alloc(2, 0);
+    v_tuple = caml_alloc_tuple(2);
     Store_field(v_tuple,0,v_easy);
     Store_field(v_tuple,1,Val_int(result)); /* CURLcode */
     CAMLreturn(caml_alloc_some(v_tuple));
