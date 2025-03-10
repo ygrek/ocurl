@@ -4617,7 +4617,7 @@ value caml_curl_get_headers_rev(value conn, value opts, value request)
 
   headers = Val_emptylist;
   struct curl_header *header = NULL;
-  while ((header = curl_easy_nextheader(connection->handle, origin, Int_val(request), header))) {
+  while (NULL != (header = curl_easy_nextheader(connection->handle, origin, Int_val(request), header))) {
     next_headers = headers;
     tuple = caml_alloc_tuple(2);
     Store_field(tuple, 0, caml_copy_string(header->name));
@@ -4632,6 +4632,7 @@ value caml_curl_get_headers_rev(value conn, value opts, value request)
 #else
 value caml_curl_get_headers_rev(value v_ignored)
 {
+  (void)v_ignored; /* not used */
   const value *exception = caml_named_value("Curl.NotImplemented");
   if (NULL == exception) caml_invalid_argument("Curl.NotImplemented not registered");
   caml_raise_with_string(*exception, "curl_easy_nextheader");
