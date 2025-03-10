@@ -500,6 +500,7 @@ type curlOption =
   | CURLOPT_TCP_KEEPALIVE of bool
   | CURLOPT_TCP_KEEPIDLE of int
   | CURLOPT_TCP_KEEPINTVL of int
+  | CURLOPT_NOPROXY of string
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -1111,6 +1112,9 @@ let set_aws_sigv4 conn param =
 let set_proxy_ssl_options conn opts =
   setopt conn (CURLOPT_PROXY_SSL_OPTIONS opts)
 
+let set_noproxy conn s =
+  setopt conn (CURLOPT_NOPROXY s)
+
 let get_effectiveurl conn =
   match (getinfo conn CURLINFO_EFFECTIVE_URL) with
   | CURLINFO_String s -> s
@@ -1471,6 +1475,7 @@ class handle =
     method set_tcpkeepalive flag = set_tcpkeepalive conn flag
     method set_tcpkeepidle seconds = set_tcpkeepidle conn seconds
     method set_tcpkeepintvl seconds = set_tcpkeepintvl conn seconds
+    method set_noproxy s = set_noproxy conn s
 
     method get_effectiveurl = get_effectiveurl conn
     method get_redirecturl = get_redirecturl conn
