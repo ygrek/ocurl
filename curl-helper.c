@@ -4597,7 +4597,7 @@ value caml_curl_pause(value conn, value opts)
 value caml_curl_get_headers_rev(value conn, value opts, value request)
 {
   CAMLparam3(conn, opts, request);
-  CAMLlocal3(headers, next_headers, tuple);
+  CAMLlocal2(headers, tuple);
   Connection *connection = Connection_val(conn);
 
   int origin = 0;
@@ -4618,13 +4618,10 @@ value caml_curl_get_headers_rev(value conn, value opts, value request)
   headers = Val_emptylist;
   struct curl_header *header = NULL;
   while (NULL != (header = curl_easy_nextheader(connection->handle, origin, Int_val(request), header))) {
-    next_headers = headers;
     tuple = caml_alloc_tuple(2);
     Store_field(tuple, 0, caml_copy_string(header->name));
     Store_field(tuple, 1, caml_copy_string(header->value));
-    headers = caml_alloc_tuple(2);
-    Store_field(headers, 0, tuple);
-    Store_field(headers, 1, next_headers);
+    headers = Val_cons(headers, tuple);
   }
 
   CAMLreturn(headers);
