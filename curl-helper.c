@@ -4631,9 +4631,11 @@ value caml_curl_get_headers_rev(value conn, value opts, value request)
   CAMLreturn(headers);
 }
 #else
-value caml_curl_get_headers_rev(value v_ignored)
+value caml_curl_get_headers_rev(value conn, value opts, value request)
 {
-  (void)v_ignored; /* not used */
+  (void)conn; /* not used */
+  (void)opts; /* not used */
+  (void)request; /* not used */
   const value *exception = caml_named_value("Curl.NotImplemented");
   if (NULL == exception) caml_invalid_argument("Curl.NotImplemented not registered");
   caml_raise_with_string(*exception, "curl_easy_nextheader");
