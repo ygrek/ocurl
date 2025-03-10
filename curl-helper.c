@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
+#include <caml/version.h>
 #include <caml/config.h> /* defines HAS_UNISTD */
 #ifdef HAS_UNISTD
 #include <unistd.h>
@@ -42,21 +43,25 @@
 #pragma message("No config file given.")
 #endif
 
+#if OCAML_VERSION < 41200
+#define Val_none Val_int(0)
+#define Some_val(v) Field(v, 0)
+#define Tag_some 0
+#define Is_none(v) ((v) == Val_none)
+#define Is_some(v) Is_block(v)
+
+static inline value caml_alloc_some(value v)
+{
+  CAMLparam1(v);
+  value some = caml_alloc_small(1, Tag_some);
+  Field(some, 0) = v;
+  CAMLreturn(some);
+}
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define Val_none Val_int(0)
-
-static __inline value
-Val_some( value v )
-{
-    CAMLparam1( v );
-    CAMLlocal1( some );
-    some = caml_alloc(1, 0);
-    Store_field( some, 0, v );
-    CAMLreturn( some );
-}
 
 static value Val_pair(value v1, value v2)
 {
@@ -4549,8 +4554,8 @@ value caml_curl_version_info(value unit)
   Store_field(v,1,vnum);
   Store_field(v,2,caml_copy_string(data->host));
   Store_field(v,3,vfeatures);
-  Store_field(v,4,data->ssl_version ? Val_some(caml_copy_string(data->ssl_version)) : Val_none);
-  Store_field(v,5,data->libz_version ? Val_some(caml_copy_string(data->libz_version)) : Val_none);
+  Store_field(v,4,data->ssl_version ? caml_alloc_some(caml_copy_string(data->ssl_version)) : Val_none);
+  Store_field(v,5,data->libz_version ? caml_alloc_some(caml_copy_string(data->libz_version)) : Val_none);
   Store_field(v,6,vlist);
   Store_field(v,7,caml_copy_string((data->age >= 1 && data->ares) ? data->ares : ""));
   Store_field(v,8,Val_int((data->age >= 1) ? data->ares_num : 0));
@@ -4770,7 +4775,7 @@ value caml_curlm_remove_finished(value v_multi)
     v_tuple = caml_alloc(2, 0);
     Store_field(v_tuple,0,v_easy);
     Store_field(v_tuple,1,Val_int(result)); /* CURLcode */
-    CAMLreturn(Val_some(v_tuple));
+    CAMLreturn(caml_alloc_some(v_tuple));
   }
 }
 
@@ -4994,7 +4999,7 @@ value caml_curl_int_of_curlCode(value v_code)
 
 value caml_curl_curlCode_of_int(value v)
 {
-  return (Int_val(v) < sizeof(errorMap) / sizeof(errorMap[0]) ? Val_some(v) : Val_none);
+  return (Int_val(v) < sizeof(errorMap) / sizeof(errorMap[0]) ? caml_alloc_some(v) : Val_none);
 }
 
 value caml_curl_multi_socket_action(value v_multi, value v_fd, value v_kind)
