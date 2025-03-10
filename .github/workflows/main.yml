@@ -36,9 +36,7 @@ jobs:
         run: |
           # Work around https://github.com/ocaml/setup-ocaml/issues/899
           opam install conf-pkg-config
-          opam install . --deps-only --with-test
-
-      - run: opam install lwt lwt_ppx # optional deps
+          opam install . --deps-only --with-test --with-dev-setup
 
       - env:
           PKG_CONFIG_PATH: /usr/x86_64-w64-mingw32/sys-root/mingw/lib/pkgconfig
