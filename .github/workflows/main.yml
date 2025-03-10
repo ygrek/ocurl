@@ -42,7 +42,8 @@ jobs:
           PKG_CONFIG_PATH: /usr/x86_64-w64-mingw32/sys-root/mingw/lib/pkgconfig
         run: opam exec -- dune build
 
-      # Pinning OpenSSL to 1.1.1w-0.1 doesn't work with new packages
-      # expecting OpenSSL 3
-      # https://github.com/ocaml/setup-ocaml/issues/947
-      # - run: opam exec -- dune runtest
+      - run: opam exec -- dune runtest
+        if: ${{ runner.os != 'Windows' }}
+        # Pinning OpenSSL to 1.1.1w-0.1 doesn't work with new packages
+        # expecting OpenSSL 3
+        # https://github.com/ocaml/setup-ocaml/issues/947
