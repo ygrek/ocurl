@@ -611,9 +611,8 @@ static void raiseError(Connection *conn, CURLcode code)
     CAMLlocal1(exceptionData);
     const value *exception;
     char *errorString = "Unknown Error";
-    int i;
 
-    for (i = 0; errorMap[i].name != NULL; i++)
+    for (int i = 0; errorMap[i].name != NULL; i++)
     {
         if (errorMap[i].error == code)
         {
@@ -645,9 +644,7 @@ static void raiseError(Connection *conn, CURLcode code)
 
 static void resetOcamlValues(Connection* connection)
 {
-    int i;
-
-    for (i = 0; i < OcamlValuesSize; i++)
+    for (int i = 0; i < OcamlValuesSize; i++)
         Store_field(connection->ocamlValues, i, Val_unit);
 }
 
@@ -1401,7 +1398,7 @@ static void raiseSslsetError(CURLsslset err)
   const value *exception;
   int i, found;
 
-  for (i = 0, found = -1; i < sizeof(sslsetMap) / sizeof(sslsetMap[0]); i ++) {
+  for (i = 0, found = -1; i < (int)(sizeof(sslsetMap) / sizeof(sslsetMap[0])); i ++) {
     if (sslsetMap[i] == err) {
       found = i;
       break;
@@ -1451,7 +1448,7 @@ value caml_curl_global_sslsetavail(value v_unit)
   CAMLlocal1(lst);
   const curl_ssl_backend **backends;
   CURLsslset res;
-  int i, j, found;
+  int found;
 
   res = curl_global_sslset(-1, NULL, &backends);
 
@@ -1460,10 +1457,10 @@ value caml_curl_global_sslsetavail(value v_unit)
 
   lst = Val_emptylist;
 
-  for (i = 0; backends[i] != NULL; i ++) {
+  for (int i = 0; backends[i] != NULL; i ++) {
     found = -1;
 
-    for (j = 0; j < sizeof(sslBackendMap) / sizeof(sslBackendMap[0]); j ++) {
+    for (int j = 0; j < (int)(sizeof(sslBackendMap) / sizeof(sslBackendMap[0])); j ++) {
       if (sslBackendMap[j] == backends[i]->id) {
         found = j;
         break;
@@ -1485,7 +1482,6 @@ value caml_curl_global_sslsetavail_str(value v_unit)
   CAMLlocal1(lst);
   const curl_ssl_backend **backends;
   CURLsslset res;
-  int i;
 
   res = curl_global_sslset(-1, NULL, &backends);
 
@@ -1494,7 +1490,7 @@ value caml_curl_global_sslsetavail_str(value v_unit)
 
   lst = Val_emptylist;
 
-  for (i = 0; backends[i] != NULL; i ++) {
+  for (int i = 0; backends[i] != NULL; i ++) {
     lst = Val_cons(lst, caml_copy_string(backends[i]->name));
   }
 
@@ -3946,7 +3942,6 @@ value caml_curl_easy_getinfo(value conn, value option)
     curl_socket_t socketValue;
     struct curl_slist *stringListValue = NULL;
 #if HAVE_DECL_CURLINFO_CERTINFO
-    int i;
     union {
       struct curl_slist    *to_info;
       struct curl_certinfo *to_certinfo;
@@ -4342,7 +4337,7 @@ value caml_curl_easy_getinfo(value conn, value option)
         if (curlResult != CURLE_OK || !ptr.to_info)
           break;
 
-        for (i = 0; i < ptr.to_certinfo->num_of_certs; i++) {
+        for (int i = 0; i < ptr.to_certinfo->num_of_certs; i++) {
           next = caml_alloc_tuple(2);
           Store_field(next, 0, convertStringList(ptr.to_certinfo->certinfo[i]));
           Store_field(next, 1, current);
@@ -4528,20 +4523,18 @@ value caml_curl_version_info(value unit)
 {
   CAMLparam1(unit);
   CAMLlocal4(v, vlist, vnum, vfeatures);
-  const char* const* p = NULL;
-  size_t i = 0;
 
   curl_version_info_data* data = curl_version_info(CURLVERSION_NOW);
   if (NULL == data) caml_failwith("curl_version_info");
 
   vlist = Val_emptylist;
-  for (p = data->protocols; NULL != *p; p++)
+  for (const char* const* p = data->protocols; NULL != *p; p++)
   {
     vlist = Val_cons(vlist, caml_copy_string(*p));
   }
 
   vfeatures = Val_emptylist;
-  for (i = 0; i < sizeof(versionBitsMap)/sizeof(versionBitsMap[0]); i++)
+  for (size_t i = 0; i < sizeof(versionBitsMap)/sizeof(versionBitsMap[0]); i++)
   {
     if (0 != (versionBitsMap[i].code & data->features))
       vfeatures = Val_cons(vfeatures, caml_copy_string(versionBitsMap[i].name));
@@ -4833,12 +4826,12 @@ static void update_extra_fds(value v_extra_fds, struct curl_waitfd *extra_fds)
   CAMLparam1(v_extra_fds);
   CAMLlocal2(v_extra_fd, lst);
 
-  int i = 0;
+  size_t i = 0;
   while (v_extra_fds != Val_emptylist)
   {
     v_extra_fd = Field(v_extra_fds, 0);
     lst = Val_emptylist;
-    for (int j = 0; j < sizeof(curlWait_table)/sizeof(curlWait_table[0]); j ++)
+    for (size_t j = 0; j < sizeof(curlWait_table)/sizeof(curlWait_table[0]); j ++)
     {
       if (curlWait_table[j] & extra_fds[i].revents)
         lst = Val_cons(lst, Val_int(j));
@@ -5005,7 +4998,7 @@ value caml_curl_int_of_curlCode(value v_code)
 
 value caml_curl_curlCode_of_int(value v)
 {
-  return (Int_val(v) < sizeof(errorMap) / sizeof(errorMap[0]) ? caml_alloc_some(v) : Val_none);
+  return (Int_val(v) < (int)(sizeof(errorMap) / sizeof(errorMap[0])) ? caml_alloc_some(v) : Val_none);
 }
 
 value caml_curl_multi_socket_action(value v_multi, value v_fd, value v_kind)
@@ -5310,12 +5303,11 @@ value caml_curl_check_enums(value v_unit)
 {
   CAMLparam0();
   CAMLlocal2(v_r,v);
-  size_t i;
   size_t len = sizeof(check_enums) / sizeof(struct used_enum);
 
   v_r = caml_alloc_tuple(len);
 
-  for (i = 0; i < len; i++)
+  for (size_t i = 0; i < len; i++)
   {
     v = caml_alloc_tuple(3);
     Store_field(v, 0, Val_int(check_enums[i].last_used));
