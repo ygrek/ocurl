@@ -1,2 +1,2 @@
-install-sh eol=lf
-configure eol=lf
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text=auto

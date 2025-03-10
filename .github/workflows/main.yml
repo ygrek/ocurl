@@ -19,7 +19,7 @@ jobs:
           - 5
         include:
           - os: ubuntu-latest
-            ocaml-compiler: 4.08
+            ocaml-compiler: 4.11
 
     runs-on: ${{ matrix.os }}
 
@@ -32,10 +32,18 @@ jobs:
         with:
           ocaml-compiler: ${{ matrix.ocaml-compiler }}
 
-      - run: opam install . --deps-only --with-test
+      - name: Install opam dependencies
+        run: |
+          # Work around https://github.com/ocaml/setup-ocaml/issues/899
+          opam install conf-pkg-config
+          opam install . --deps-only --with-test --with-dev-setup
 
-      - run: opam install lwt lwt_ppx # optional deps
-
-      - run: opam exec -- dune build
+      - env:
+          PKG_CONFIG_PATH: /usr/x86_64-w64-mingw32/sys-root/mingw/lib/pkgconfig
+        run: opam exec -- dune build
 
       - run: opam exec -- dune runtest
+        if: ${{ runner.os != 'Windows' }}
+        # Pinning OpenSSL to 1.1.1w-0.1 doesn't work with new packages
+        # expecting OpenSSL 3
+        # https://github.com/ocaml/setup-ocaml/issues/947

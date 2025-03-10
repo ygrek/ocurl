@@ -12,7 +12,8 @@ doc: "https://ygrek.org/p/ocurl/api/index.html"
 bug-reports: "https://github.com/ygrek/ocurl/issues"
 depends: [
   "dune" {>= "3.0"}
-  "ocaml" {>= "4.03.0"}
+  "ocaml" {>= "4.11"}
+  "base-bigarray"
   "base-unix"
   "conf-libcurl"
   "odoc" {with-doc}

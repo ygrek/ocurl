@@ -18,6 +18,8 @@
   (ygrek)
 + Check for curl_global_sslset.
   (Nicolás Ojeda Bär)
++ Support CURL_NOPROXY.
+  (Luke Palmer)
 + Get a list of headers with [get_headers] that result from repeatedly calling
   [curl_easy_nextheader] with the supplied origins and request.
   (Luke Palmer)
