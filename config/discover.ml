@@ -13,7 +13,7 @@ module List = struct
   include List
 end
 
-let declarations = [
+let curl_h_declarations = [
   "CURLE_ABORTED_BY_CALLBACK";
   "CURLE_AGAIN";
   "CURLE_BAD_CALLING_ORDER";
@@ -333,34 +333,40 @@ let declarations = [
   "curl_global_sslset";
 ]
 
-let extract_declarations c ~cflags ~libs =
-  let c_source decls =
-    let lines =
-      [
-        "#include <curl/curl.h>";
-        "int main(void)";
-        "{";
-      ]
-      @
-      List.concat_map (fun s -> [ "#ifndef " ^ s; "(void)" ^ s ^ ";"; "#endif" ]) decls
-      @
-      [
-        "return 0;";
-        "}";
-      ]
-    in
-    String.concat "\n" lines
+let header_h_declarations = [
+  "curl_easy_nextheader"
+]
+
+let c_source ~declarations ~includes =
+  let lines =
+    includes
+    @
+    [
+      "int main(void)";
+      "{";
+    ]
+    @
+    List.concat_map (fun s -> [ "#ifndef " ^ s; "(void)" ^ s ^ ";"; "#endif" ]) declarations
+    @
+    [
+      "return 0;";
+      "}";
+    ]
   in
+  String.concat "\n" lines
+
+
+let extract_declarations c ~cflags ~libs ~declarations ~includes =
   let decls =
     (* As an optimization, first we check if *all* declarations are supported;
        this is much faster than checking one by one. *)
-    let c_code = c_source declarations in
+    let c_code = c_source ~declarations ~includes in
     if C.c_test c ~c_flags:cflags ~link_flags:libs c_code then
       List.map (fun decl -> decl, true) declarations
     else
       (* Otherwise, we check one by one. *)
       let check decl =
-        let c_code = c_source [ decl ] in
+        let c_code = c_source ~declarations:[ decl ] ~includes in
         decl, C.c_test c ~c_flags:cflags ~link_flags:libs c_code
       in
       List.map check declarations
@@ -369,6 +375,10 @@ let extract_declarations c ~cflags ~libs =
       "HAVE_DECL_" ^ String.uppercase_ascii decl,
       C.C_define.Value.Int (if exists then 1 else 0)
     ) decls
+
+let extract_all_declarations c ~cflags ~libs =
+  extract_declarations c ~cflags ~libs ~declarations:curl_h_declarations ~includes:[ "#include <curl/curl.h>" ]
+  @ extract_declarations c ~cflags ~libs ~declarations:header_h_declarations ~includes:[ "#include <curl/curl.h>"; "#include <curl/header.h>" ]
 
 let main c =
   let {C.Pkg_config.cflags; libs} =
@@ -386,7 +396,7 @@ let main c =
     | Some "msvc" -> "-W2":: cflags, ["-defaultlib"; "ws2_32.lib"]
     | _ -> cflags, []
   in
-  C.C_define.gen_header_file c ~fname:"config.h" (extract_declarations c ~cflags ~libs);
+  C.C_define.gen_header_file c ~fname:"config.h" (extract_all_declarations c ~cflags ~libs);
   C.Flags.write_sexp "cflags.sexp" cflags;
   C.Flags.write_sexp "clibs.sexp" (libs @ extra_libs)
 
