@@ -1277,6 +1277,7 @@ static int cb_SSH_KEYFUNCTION(CURL *easy,
     CAMLlocal3(v_found, v_match, v_result);
     Connection *conn = (Connection *)clientp;
     int res = CURLKHSTAT_REJECT;
+    (void)easy; /* not used */
 
     switch (match) {
       case CURLKHMATCH_OK:
@@ -5304,6 +5305,7 @@ value caml_curl_check_enums(value v_unit)
   CAMLparam0();
   CAMLlocal2(v_r,v);
   size_t len = sizeof(check_enums) / sizeof(struct used_enum);
+  (void)v_unit; /* not used */
 
   v_r = caml_alloc_tuple(len);
 
