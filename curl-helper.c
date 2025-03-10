@@ -1329,7 +1329,7 @@ static int cb_SSH_KEYFUNCTION(CURL *easy,
 #if HAVE_DECL_CURL_GLOBAL_SSLSET
 
 /* Same order as in OCaml */
-curl_sslbackend sslBackendMap[] = {
+static const curl_sslbackend sslBackendMap[] = {
 #if HAVE_DECL_CURLSSLBACKEND_NONE
   CURLSSLBACKEND_NONE,
 #else
@@ -1388,7 +1388,7 @@ curl_sslbackend sslBackendMap[] = {
 };
 
 /* Same order as in OCaml */
-CURLsslset sslsetMap[] = {
+static const CURLsslset sslsetMap[] = {
   CURLSSLSET_OK,
   CURLSSLSET_UNKNOWN_BACKEND,
   CURLSSLSET_TOO_LATE,
@@ -1671,7 +1671,7 @@ static void handle_slist(Connection *conn, struct curl_slist** slist, CURLoption
     CAMLreturn0;
 }
 
-static long convert_bit_list(long *map, size_t map_size, value option)
+static long convert_bit_list(long const *map, size_t map_size, value option)
 {
     CAMLparam1(option);
     long bits = 0;
@@ -2050,7 +2050,7 @@ SETOPT_STRING( COOKIE)
 
 SETOPT_SLIST( HTTPHEADER)
 
-long sslOptionMap[] = {
+static const long sslOptionMap[] = {
 #ifdef CURLSSLOPT_ALLOW_BEAST
   CURLSSLOPT_ALLOW_BEAST,
 #else
@@ -3308,7 +3308,7 @@ SETOPT_SLIST( CONNECT_TO)
 
 #if HAVE_DECL_CURLOPT_POSTREDIR
 
-static int curlPostRedir_table[] = {
+static const int curlPostRedir_table[] = {
  CURL_REDIR_POST_ALL,
 #if defined(CURL_REDIR_POST_301)
   CURL_REDIR_POST_301,
@@ -4785,7 +4785,7 @@ value caml_curlm_remove_finished(value v_multi)
   }
 }
 
-static int curlWait_table[] = {
+static const int curlWait_table[] = {
   CURL_WAIT_POLLIN,
   CURL_WAIT_POLLPRI,
   CURL_WAIT_POLLOUT,
@@ -5226,7 +5226,7 @@ struct CURLMOptionMapping
     char *name;
 };
 
-CURLMOptionMapping implementedMOptionMap[] = {
+static const CURLMOptionMapping implementedMOptionMap[] = {
   OPT( PIPELINING),
 #if HAVE_DECL_CURLMOPT_MAXCONNECTS
   OPT( MAXCONNECTS),
@@ -5255,7 +5255,7 @@ value caml_curl_multi_setopt(value v_multi, value option)
     CAMLparam2(v_multi, option);
     CAMLlocal1(data);
     CURLM *handle = Multi_val(v_multi)->handle;
-    CURLMOptionMapping* thisOption = NULL;
+    const CURLMOptionMapping* thisOption = NULL;
     static const value* exception = NULL;
 
     data = Field(option, 0);
@@ -5295,7 +5295,7 @@ struct used_enum
 
 #define CURL_ENUM(name,last_used) { CURL_ ## name ## _ ## last_used, CURL_ ## name ## _LAST, #name }
 
-struct used_enum check_enums[] = {
+static const struct used_enum check_enums[] = {
   { CURLINFO_SSL_DATA_OUT, CURLINFO_END, "DEBUGFUNCTION curl_infotype" },
 #if HAVE_DECL_CURL_HTTP_VERSION_3
   CURL_ENUM(HTTP_VERSION, 3),
