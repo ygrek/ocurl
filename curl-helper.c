@@ -805,6 +805,9 @@ static struct custom_operations curl_easy_ops = {
 #if defined(custom_compare_ext_default)
   custom_compare_ext_default,
 #endif
+#if defined(custom_fixed_length_default)
+  custom_fixed_length_default,
+#endif
 };
 
 value caml_curl_alloc(Connection* conn)
@@ -4634,6 +4637,9 @@ static struct custom_operations curl_multi_ops = {
   custom_deserialize_default,
 #if defined(custom_compare_ext_default)
   custom_compare_ext_default,
+#endif
+#if defined(custom_fixed_length_default)
+  custom_fixed_length_default,
 #endif
 };
 
