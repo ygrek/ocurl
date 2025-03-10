@@ -36,7 +36,8 @@
 
 (rule
  (alias runtest)
- (action (run ./test_cb_exn.exe)))
+ (action (run ./test_cb_exn.exe))
+ (enabled_if (<> %{env:OCAMLCI=false} true)))
 
 (rule
  (alias runtest)
