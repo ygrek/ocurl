@@ -44,6 +44,5 @@ jobs:
 
       - run: opam exec -- dune runtest
         if: ${{ runner.os != 'Windows' }}
-        # Pinning OpenSSL to 1.1.1w-0.1 doesn't work with new packages
-        # expecting OpenSSL 3
-        # https://github.com/ocaml/setup-ocaml/issues/947
+        # libcurl (and prob. others) need a rebuild after the OpenSSL 3 upgrade
+        # https://cygwin.com/pipermail/cygwin/2025-March/257664.html
