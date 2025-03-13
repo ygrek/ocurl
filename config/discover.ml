@@ -381,24 +381,24 @@ let extract_all_declarations c ~cflags ~libs =
   @ extract_declarations c ~cflags ~libs ~declarations:header_h_declarations ~includes:[ "#include <curl/curl.h>"; "#include <curl/header.h>" ]
 
 let main c =
-  let {C.Pkg_config.cflags; libs} =
-    match C.Pkg_config.get c with
-    | None ->
-      { C.Pkg_config.libs = [ "-lcurl" ]; cflags = [] }
-    | Some pc ->
-      (match C.Pkg_config.query_expr_err pc ~package:"libcurl" ~expr:"libcurl >= 7.28.0" with
-       | Ok c ->  c
-       | Error err -> C.die "%s" err)
-  in
-  let cflags, extra_libs =
+  let cflags, libs =
     match C.ocaml_config_var c "ccomp_type" with
-    | Some "cc" -> "-Wall" :: "-Wno-deprecated-declarations" :: cflags, []
-    | Some "msvc" -> "-W2":: cflags, ["-defaultlib"; "ws2_32.lib"]
-    | _ -> cflags, []
+    | Some "cc" ->
+       let {C.Pkg_config.cflags; libs} =
+         match C.Pkg_config.get c with
+         | None -> { cflags = []; C.Pkg_config.libs = [ "-lcurl" ]}
+         | Some pc ->
+            (match C.Pkg_config.query_expr_err pc ~package:"libcurl" ~expr:"libcurl >= 7.28.0" with
+            | Ok c ->  c
+            | Error err -> C.die "%s" err)
+       in
+       "-Wall" :: "-Wno-deprecated-declarations" :: cflags, libs
+    | Some "msvc" -> ["-W2"], []
+    | _ -> [], []
   in
   C.C_define.gen_header_file c ~fname:"config.h" (extract_all_declarations c ~cflags ~libs);
   C.Flags.write_sexp "cflags.sexp" cflags;
-  C.Flags.write_sexp "clibs.sexp" (libs @ extra_libs)
+  C.Flags.write_sexp "clibs.sexp" libs
 
 let () =
   C.main ~name:"ocurl" main
