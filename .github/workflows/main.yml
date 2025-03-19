@@ -16,10 +16,10 @@ jobs:
           - macos-latest
           - windows-latest
         ocaml-compiler:
-          - 5
+          - '5'
         include:
           - os: ubuntu-latest
-            ocaml-compiler: 4.11
+            ocaml-compiler: '4.11'
 
     runs-on: ${{ matrix.os }}
 
