@@ -1,5 +1,10 @@
 depends: [
-  "curl" {= version}
+  "curl"
 ]
 build: [
+]
+flags: deprecated
+post-messages: [
+  "ocurl has been renamed and the ocurl package is now a transition \
+   package. Use the curl package instead."
 ]

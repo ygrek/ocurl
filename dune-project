@@ -26,6 +26,8 @@
   base-bigarray
   base-unix  
   conf-libcurl)
+ (conflicts
+  (ocurl (<> "transition")))
  (tags (org:ygrek clib:curl)))
 
 (package
@@ -42,8 +44,7 @@
 
 (package
  (name ocurl)
- (synopsis "Transitional dummy package: ocurl -> curl")
- (description "Use `opam install curl`")
- (depends
-  (curl (= :version)))
- (allow_empty))
+ (synopsis "This is a transition package, ocurl is now named curl. Use the curl package instead")
+ (description "This is a transition package, ocurl is now named curl. Use the curl package instead.")
+ (allow_empty)
+ (version transition))
