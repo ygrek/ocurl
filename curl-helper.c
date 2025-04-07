@@ -713,7 +713,7 @@ static void removeConnection(Connection *connection, int finalization)
       {
         fin_url = "unknown";
       }
-      fprintf(stderr,"Curl: handle %p leaked, conn %p, url %s\n", connection->handle, connection, fin_url);
+      fprintf(stderr,"Curl: handle %p leaked, conn %p, url %s\n", connection->handle, (void *) connection, fin_url);
       fflush(stderr);
     }
     else
