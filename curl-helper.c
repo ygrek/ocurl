@@ -15,8 +15,7 @@
 #include <stdarg.h>
 
 #include <caml/version.h>
-#include <caml/config.h> /* defines HAS_UNISTD */
-#ifdef HAS_UNISTD
+#ifndef _WIN32
 #include <unistd.h>
 #endif
 /* suppress false gcc warning on seekFunction */
