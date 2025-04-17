@@ -13,7 +13,7 @@ bug-reports: "https://github.com/ygrek/ocurl/issues"
 depends: [
   "dune" {>= "3.0"}
   "ocaml" {>= "4.11"}
-  "dune-configurator"
+  "dune-configurator" {>= "3.18.1"}
   "base-bigarray"
   "base-unix"
   "conf-libcurl"
