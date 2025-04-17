@@ -43,9 +43,7 @@ jobs:
           opam install conf-pkg-config
           opam install . --deps-only --with-test --with-dev-setup
 
-      - env:
-          PKG_CONFIG_PATH: /usr/x86_64-w64-mingw32/sys-root/mingw/lib/pkgconfig
-        run: opam exec -- dune build
+      - run: opam exec -- dune build
 
       - run: opam exec -- dune runtest
         if: ${{ runner.os != 'Windows' }}
