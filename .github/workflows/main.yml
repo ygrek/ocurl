@@ -32,6 +32,11 @@ jobs:
         with:
           ocaml-compiler: ${{ matrix.ocaml-compiler }}
 
+      - name: Fix Cygwin
+        if: runner.os == 'Windows'
+        shell: bash -eo pipefail -o igncr {0}
+        run: sed -i -e 's/binary/noacl,&/' /etc/fstab
+
       - name: Install opam dependencies
         run: |
           # Work around https://github.com/ocaml/setup-ocaml/issues/899
