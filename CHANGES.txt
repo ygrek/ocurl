@@ -1,5 +1,17 @@
-## unreleased
+## 0.10.0 - 14 May 2025
 
+* Transition from the ocurl package name to curl.
+  (Nicolás Ojeda Bär, ygrek)
+* Split curl_lwt into its own package. The new library name is curl.lwt.
+  (Rudi Grinberg, kit-ty-kate, ygrek)
+
+* Fix handling of the runtime lock when calling curl multi callback cleanups.
+  (Malcolm, review by ygrek, Nicolás Ojeda Bär, and Antonin Décimo)
++ Support CURL_NOPROXY.
+  (Luke Palmer)
++ Get a list of headers with [get_headers] that result from repeatedly calling
+  [curl_easy_nextheader] with the supplied origins and request.
+  (Luke Palmer)
 * Remove the Autoconf build to fully use Dune instead.
   (Nicolás Ojeda Bär, Jonah Beckford, Antonin Décimo)
 * Build fixes. Bug fixes.
@@ -7,6 +19,8 @@
 + Support CURLOPT_CLOSESOCKETFUNCTION.
   (Luke Palmer)
 + Support CURLOPT_PROXY_SSL_OPTIONS.
+  (Nicolás Ojeda Bär)
++ Bind extra_fds argument to curl_multi_wait and curl_multi_poll.
   (Nicolás Ojeda Bär)
 + Add support for TCP_KEEPALIVE, TCP_KEEPIDLE, TCP_KEEPINTVL options.
   (Sewen Thy)
@@ -18,13 +32,6 @@
   (ygrek)
 + Check for curl_global_sslset.
   (Nicolás Ojeda Bär)
-+ Support CURL_NOPROXY.
-  (Luke Palmer)
-+ Get a list of headers with [get_headers] that result from repeatedly calling
-  [curl_easy_nextheader] with the supplied origins and request.
-  (Luke Palmer)
-* Fix handling of the runtime lock when calling curl multi callback cleanups.
-  (Malcolm, review by ygrek, Nicolás Ojeda Bär, and Antonin Décimo)
 
 ## 0.9.2 - 7 Jan 2022
 
