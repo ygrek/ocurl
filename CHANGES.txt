@@ -23,6 +23,8 @@
 + Get a list of headers with [get_headers] that result from repeatedly calling
   [curl_easy_nextheader] with the supplied origins and request.
   (Luke Palmer)
+* Fix handling of the runtime lock when calling curl multi callback cleanups.
+  (Malcolm, review by ygrek, Nicolás Ojeda Bär, and Antonin Décimo)
 
 ## 0.9.2 - 7 Jan 2022
 
