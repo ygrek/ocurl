@@ -2,7 +2,7 @@
 
 * Transition from the ocurl package name to curl.
   (Nicolás Ojeda Bär, ygrek)
-* Split curl_lwt into its own package. The new library name is curl.lwt.
+* Split curl-lwt into its own package. The new library name is curl-lwt.
   (Rudi Grinberg, kit-ty-kate, ygrek)
 
 * Fix handling of the runtime lock when calling curl multi callback cleanups.

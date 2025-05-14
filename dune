@@ -13,14 +13,14 @@
 
 (library
  (name curl_lwt)
- (public_name curl_lwt)
+ (public_name curl-lwt)
  (wrapped false)
  (libraries curl lwt.unix)
  (modules curl_lwt))
 
 (deprecated_library_name
  (old_public_name curl.lwt)
- (new_public_name curl_lwt))
+ (new_public_name curl-lwt))
 
 (rule
  (targets config.h cflags.sexp clibs.sexp)

@@ -1,6 +1,6 @@
 depends: [
   "curl"
-  "curl_lwt"
+  "curl-lwt"
 ]
 build: [
 ]
