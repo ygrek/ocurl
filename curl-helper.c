@@ -687,9 +687,9 @@ static Connection *newConnection(void)
 {
     CURL* h;
 
-    caml_enter_blocking_section();
+    caml_release_runtime_system();
     h = curl_easy_init();
-    caml_leave_blocking_section();
+    caml_acquire_runtime_system();
 
     return allocConnection(h);
 }
@@ -717,9 +717,9 @@ static void removeConnection(Connection *connection, int finalization)
     }
     else
     {
-      caml_enter_blocking_section();
+      caml_release_runtime_system();
       curl_easy_cleanup(connection->handle);
-      caml_leave_blocking_section();
+      caml_acquire_runtime_system();
     }
 
     connection->handle = NULL;
@@ -820,7 +820,7 @@ value caml_curl_alloc(Connection* conn)
 
 static size_t cb_WRITEFUNCTION(char *ptr, size_t size, size_t nmemb, void *data)
 {
-    caml_leave_blocking_section();
+    caml_acquire_runtime_system();
 
     CAMLparam0();
     CAMLlocal2(result, str);
@@ -835,13 +835,13 @@ static size_t cb_WRITEFUNCTION(char *ptr, size_t size, size_t nmemb, void *data)
     size_t r = Is_exception_result(result) ? 0 : Int_val(result);
     CAMLdrop;
 
-    caml_enter_blocking_section();
+    caml_release_runtime_system();
     return r;
 }
 
 static size_t cb_WRITEFUNCTION2(char *ptr, size_t size, size_t nmemb, void *data)
 {
-    caml_leave_blocking_section();
+    caml_acquire_runtime_system();
 
     CAMLparam0();
     CAMLlocal2(result, str);
@@ -871,13 +871,13 @@ static size_t cb_WRITEFUNCTION2(char *ptr, size_t size, size_t nmemb, void *data
 
     CAMLdrop;
 
-    caml_enter_blocking_section();
+    caml_release_runtime_system();
     return r;
 }
 
 static size_t cb_WRITEFUNCTION_BUF(char *ptr, size_t size, size_t nmemb, void *data)
 {
-  caml_leave_blocking_section();
+  caml_acquire_runtime_system();
 
   CAMLparam0();
   CAMLlocal2(result, buf);
@@ -913,13 +913,13 @@ static size_t cb_WRITEFUNCTION_BUF(char *ptr, size_t size, size_t nmemb, void *d
 
   CAMLdrop;
 
-  caml_enter_blocking_section();
+  caml_release_runtime_system();
   return r;
 }
 
 static size_t cb_READFUNCTION(void *ptr, size_t size, size_t nmemb, void *data)
 {
-    caml_leave_blocking_section();
+    caml_acquire_runtime_system();
 
     CAMLparam0();
     CAMLlocal1(result);
@@ -946,13 +946,13 @@ static size_t cb_READFUNCTION(void *ptr, size_t size, size_t nmemb, void *data)
 
     CAMLdrop;
 
-    caml_enter_blocking_section();
+    caml_release_runtime_system();
     return r;
 }
 
 static size_t cb_READFUNCTION2(void *ptr, size_t size, size_t nmemb, void *data)
 {
-    caml_leave_blocking_section();
+    caml_acquire_runtime_system();
 
     CAMLparam0();
     CAMLlocal1(result);
@@ -990,13 +990,13 @@ static size_t cb_READFUNCTION2(void *ptr, size_t size, size_t nmemb, void *data)
 
     CAMLdrop;
 
-    caml_enter_blocking_section();
+    caml_release_runtime_system();
     return r;
 }
 
 static size_t cb_HEADERFUNCTION(char *ptr, size_t size, size_t nmemb, void *data)
 {
-    caml_leave_blocking_section();
+    caml_acquire_runtime_system();
 
     CAMLparam0();
     CAMLlocal2(result,str);
@@ -1011,7 +1011,7 @@ static size_t cb_HEADERFUNCTION(char *ptr, size_t size, size_t nmemb, void *data
     size_t r = Is_exception_result(result) ? 0 : Int_val(result);
     CAMLdrop;
 
-    caml_enter_blocking_section();
+    caml_release_runtime_system();
     return r;
 }
 
@@ -1021,7 +1021,7 @@ static int cb_PROGRESSFUNCTION(void *data,
                             double ulTotal,
                             double ulNow)
 {
-    caml_leave_blocking_section();
+    caml_acquire_runtime_system();
 
     CAMLparam0();
     CAMLlocal1(result);
@@ -1041,7 +1041,7 @@ static int cb_PROGRESSFUNCTION(void *data,
     int r = Is_exception_result(result) ? 1 : Bool_val(result);
     CAMLdrop;
 
-    caml_enter_blocking_section();
+    caml_release_runtime_system();
     return r;
 }
 
@@ -1051,7 +1051,7 @@ static int cb_XFERINFOFUNCTION(void *data,
                               curl_off_t ulTotal,
                               curl_off_t ulNow)
 {
-    caml_leave_blocking_section();
+    caml_acquire_runtime_system();
 
     CAMLparam0();
     CAMLlocal1(result);
@@ -1071,7 +1071,7 @@ static int cb_XFERINFOFUNCTION(void *data,
     int r = Is_exception_result(result) ? 1 : Bool_val(result);
     CAMLdrop;
 
-    caml_enter_blocking_section();
+    caml_release_runtime_system();
     return r;
 }
 
@@ -1082,7 +1082,7 @@ static int cb_PREREQFUNCTION(void *data,
                              int conn_primary_port,
                              int conn_local_port)
 {
-    caml_leave_blocking_section();
+    caml_acquire_runtime_system();
 
     CAMLparam0();
     CAMLlocal1(result);
@@ -1102,7 +1102,7 @@ static int cb_PREREQFUNCTION(void *data,
     int r = Is_exception_result(result) ? 1 : Bool_val(result);
     CAMLdrop;
 
-    caml_enter_blocking_section();
+    caml_release_runtime_system();
     return r;
 }
 #endif
@@ -1113,7 +1113,7 @@ static int cb_DEBUGFUNCTION(CURL *debugConnection,
                          size_t bufferLength,
                          void *data)
 {
-    caml_leave_blocking_section();
+    caml_acquire_runtime_system();
 
     CAMLparam0();
     CAMLlocal3(camlDebugConnection, camlInfoType, camlMessage);
@@ -1133,7 +1133,7 @@ static int cb_DEBUGFUNCTION(CURL *debugConnection,
 
     CAMLdrop;
 
-    caml_enter_blocking_section();
+    caml_release_runtime_system();
     return 0;
 }
 
@@ -1141,7 +1141,7 @@ static curlioerr cb_IOCTLFUNCTION(CURL *ioctl,
                                int cmd,
                                void *data)
 {
-    caml_leave_blocking_section();
+    caml_acquire_runtime_system();
 
     CAMLparam0();
     CAMLlocal3(camlResult, camlConnection, camlCmd);
@@ -1189,7 +1189,7 @@ static curlioerr cb_IOCTLFUNCTION(CURL *ioctl,
     }
     CAMLdrop;
 
-    caml_enter_blocking_section();
+    caml_release_runtime_system();
     return result;
 }
 
@@ -1198,7 +1198,7 @@ static int cb_SEEKFUNCTION(void *data,
                         curl_off_t offset,
                         int origin)
 {
-    caml_leave_blocking_section();
+    caml_acquire_runtime_system();
 
     CAMLparam0();
     CAMLlocal3(camlResult, camlOffset, camlOrigin);
@@ -1233,7 +1233,7 @@ static int cb_SEEKFUNCTION(void *data,
     }
     CAMLdrop;
 
-    caml_enter_blocking_section();
+    caml_release_runtime_system();
     return result;
 }
 #endif
@@ -1242,7 +1242,7 @@ static int cb_OPENSOCKETFUNCTION(void *data,
                         curlsocktype purpose,
                         struct curl_sockaddr *addr)
 {
-    caml_leave_blocking_section();
+    caml_acquire_runtime_system();
 
     CAMLparam0();
     CAMLlocal1(result);
@@ -1264,7 +1264,7 @@ static int cb_OPENSOCKETFUNCTION(void *data,
     }
     CAMLdrop;
 
-    caml_enter_blocking_section();
+    caml_release_runtime_system();
     return ((sock == -1) ? CURL_SOCKET_BAD : sock);
 }
 
@@ -1274,7 +1274,7 @@ static int cb_SSH_KEYFUNCTION(CURL *easy,
                               enum curl_khmatch match,
                               void *clientp)
 {
-    caml_leave_blocking_section();
+    caml_acquire_runtime_system();
 
     CAMLparam0();
     CAMLlocal3(v_found, v_match, v_result);
@@ -1323,7 +1323,7 @@ static int cb_SSH_KEYFUNCTION(CURL *easy,
 
     CAMLdrop;
 
-    caml_enter_blocking_section();
+    caml_release_runtime_system();
     return res;
 }
 
@@ -3869,9 +3869,9 @@ value caml_curl_easy_perform(value conn)
 
     checkConnection(connection);
 
-    caml_enter_blocking_section();
+    caml_release_runtime_system();
     result = curl_easy_perform(connection->handle);
-    caml_leave_blocking_section();
+    caml_acquire_runtime_system();
 
     if (result != CURLE_OK)
         raiseError(connection, result);
@@ -4586,9 +4586,9 @@ value caml_curl_pause(value conn, value opts)
     opts = Field(opts,1);
   }
 
-  caml_enter_blocking_section();
+  caml_release_runtime_system();
   result = curl_easy_pause(connection->handle,bitmask);
-  caml_leave_blocking_section();
+  caml_acquire_runtime_system();
 
   if (result != CURLE_OK)
     raiseError(connection, result);
@@ -4805,9 +4805,9 @@ value caml_curlm_remove_finished(value v_multi)
 
   multi_handle = CURLM_val(v_multi);
 
-  caml_enter_blocking_section();
+  caml_release_runtime_system();
   handle = curlm_remove_finished(multi_handle,&result);
-  caml_leave_blocking_section();
+  caml_acquire_runtime_system();
 
   if (NULL == handle)
   {
@@ -4906,9 +4906,9 @@ value caml_curl_multi_wait(value v_timeout_ms, value v_extra_fds, value v_multi)
   struct curl_waitfd *extra_fds = convert_extra_fds(v_extra_fds, &nr_extra_fds);
   CURLMcode rc;
 
-  caml_enter_blocking_section();
+  caml_release_runtime_system();
   rc = curl_multi_wait(multi_handle, extra_fds, nr_extra_fds, timeout_ms, &numfds);
-  caml_leave_blocking_section();
+  caml_acquire_runtime_system();
 
   if (extra_fds != NULL) {
     update_extra_fds(v_extra_fds, extra_fds);
@@ -4930,13 +4930,13 @@ value caml_curl_multi_poll(value v_timeout_ms, value v_extra_fds, value v_multi)
   struct curl_waitfd *extra_fds = convert_extra_fds(v_extra_fds, &nr_extra_fds);
   CURLMcode rc;
 
-  caml_enter_blocking_section();
+  caml_release_runtime_system();
 #if HAVE_DECL_CURL_MULTI_POLL
   rc = curl_multi_poll(multi_handle, extra_fds, nr_extra_fds, timeout_ms, &numfds);
 #else
   rc = curl_multi_wait(multi_handle, extra_fds, nr_extra_fds, timeout_ms, &numfds);
 #endif
-  caml_leave_blocking_section();
+  caml_acquire_runtime_system();
 
   if (extra_fds != NULL) {
     update_extra_fds(v_extra_fds, extra_fds);
@@ -4950,7 +4950,7 @@ value caml_curl_multi_poll(value v_timeout_ms, value v_extra_fds, value v_multi)
 
 static int curlm_closesocket_cb(void *data, curl_socket_t socket)
 {
-  caml_leave_blocking_section();
+  caml_acquire_runtime_system();
 
   CAMLparam0();
   CAMLlocal1(camlResult);
@@ -4964,7 +4964,7 @@ static int curlm_closesocket_cb(void *data, curl_socket_t socket)
   }
   CAMLdrop;
 
-  caml_enter_blocking_section();
+  caml_release_runtime_system();
   return result;
 }
 
@@ -4991,15 +4991,15 @@ value caml_curl_multi_add_handle(value v_multi, value v_easy)
   conn->refcount++;
 
   /* may invoke callbacks so need to be consistent with locks */
-  caml_enter_blocking_section();
+  caml_release_runtime_system();
   rc = curl_multi_add_handle(multi, conn->handle);
   if (CURLM_OK != rc)
   {
     conn->refcount--; /* not added, revert */
-    caml_leave_blocking_section();
+    caml_acquire_runtime_system();
     check_mcode("curl_multi_add_handle",rc);
   }
-  caml_leave_blocking_section();
+  caml_acquire_runtime_system();
 
   CAMLreturn(Val_unit);
 }
@@ -5012,10 +5012,10 @@ value caml_curl_multi_remove_handle(value v_multi, value v_easy)
   Connection* conn = Connection_val(v_easy);
 
   /* may invoke callbacks so need to be consistent with locks */
-  caml_enter_blocking_section();
+  caml_release_runtime_system();
   rc = curl_multi_remove_handle(multi, conn->handle);
   conn->refcount--;
-  caml_leave_blocking_section();
+  caml_acquire_runtime_system();
   check_mcode("curl_multi_remove_handle",rc);
 
   CAMLreturn(Val_unit);
@@ -5027,9 +5027,9 @@ value caml_curl_multi_perform_all(value v_multi)
   int still_running = 0;
   CURLM* h = CURLM_val(v_multi);
 
-  caml_enter_blocking_section();
+  caml_release_runtime_system();
   while (CURLM_CALL_MULTI_PERFORM == curl_multi_perform(h, &still_running));
-  caml_leave_blocking_section();
+  caml_acquire_runtime_system();
 
   CAMLreturn(Val_int(still_running));
 }
@@ -5083,11 +5083,11 @@ value caml_curl_multi_socket_action(value v_multi, value v_fd, value v_kind)
 
 /*  fprintf(stdout,"fd %u kind %u\n",socket, kind); fflush(stdout); */
 
-  caml_enter_blocking_section();
+  caml_release_runtime_system();
   do {
     rc = curl_multi_socket_action(h, socket, kind, &still_running);
   } while (rc == CURLM_CALL_MULTI_PERFORM);
-  caml_leave_blocking_section();
+  caml_acquire_runtime_system();
 
   check_mcode("curl_multi_socket_action",rc);
 
@@ -5101,11 +5101,11 @@ value caml_curl_multi_socket_all(value v_multi)
   CURLMcode rc = CURLM_OK;
   CURLM* h = CURLM_val(v_multi);
 
-  caml_enter_blocking_section();
+  caml_release_runtime_system();
   do {
     rc = curl_multi_socket_all(h, &still_running);
   } while (rc == CURLM_CALL_MULTI_PERFORM);
-  caml_leave_blocking_section();
+  caml_acquire_runtime_system();
 
   check_mcode("curl_multi_socket_all",rc);
 
@@ -5114,7 +5114,7 @@ value caml_curl_multi_socket_all(value v_multi)
 
 static int curlm_sock_cb(CURL *e, curl_socket_t sock, int what, void *cbp, void *sockp)
 {
-  caml_leave_blocking_section();
+  caml_acquire_runtime_system();
 
   CAMLparam0();
   CAMLlocal2(v_what,csock);
@@ -5139,7 +5139,7 @@ static int curlm_sock_cb(CURL *e, curl_socket_t sock, int what, void *cbp, void 
                  csock, v_what);
   CAMLdrop;
 
-  caml_enter_blocking_section();
+  caml_release_runtime_system();
   return 0;
 }
 
@@ -5158,14 +5158,14 @@ value caml_curl_multi_socketfunction(value v_multi, value v_cb)
 
 static int curlm_timer_cb(CURLM *multi, long timeout_ms, void *userp)
 {
-  caml_leave_blocking_section();
+  caml_acquire_runtime_system();
 
   CAMLparam0();
   (void)multi;
   caml_callback(Field(((ml_multi_handle*)userp)->values,curlmopt_timer_function), Val_long(timeout_ms));
   CAMLdrop;
 
-  caml_enter_blocking_section();
+  caml_release_runtime_system();
   return 0;
 }
 
