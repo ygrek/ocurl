@@ -641,6 +641,26 @@ external get_headers_rev: t -> headerOrigin list -> int -> (string * string) lis
 
 let get_headers t origins ~request = get_headers_rev t origins request |> List.rev
 
+(** WebSocket support *)
+type curlWSFlag =
+  | CURLWS_TEXT
+  | CURLWS_BINARY
+  | CURLWS_CONT
+  | CURLWS_CLOSE
+  | CURLWS_PING
+  | CURLWS_PONG
+  | CURLWS_OFFSET
+
+type curlWSFrame = {
+  age: int;
+  flags: curlWSFlag list;
+  offset: int64;
+  bytesleft: int64;
+}
+
+external ws_meta : t -> curlWSFrame option = "caml_curl_ws_meta"
+external ws_send : t -> string -> curlWSFlag list -> int = "caml_curl_ws_send"
+
 let set_writefunction conn closure =
   setopt conn (CURLOPT_WRITEFUNCTION closure)
 
@@ -1526,6 +1546,8 @@ class handle =
     method get_conditionunmet = get_conditionunmet conn
     method get_certinfo = get_certinfo conn
     method get_http_version = get_http_version conn
+    method ws_meta = ws_meta conn
+    method ws_send = ws_send conn
 end
 
 module Multi = struct

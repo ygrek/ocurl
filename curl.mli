@@ -621,6 +621,26 @@ type headerOrigin =
 *)
 val get_headers : t -> headerOrigin list -> request:int -> (string * string) list
 
+(** {2 WebSocket support} *)
+
+(** WebSocket frame flags *)
+type curlWSFlag =
+  | CURLWS_TEXT    (** The buffer contains text data. Note that this makes a difference to WebSocket but libcurl itself will not make any verification of the content or precautions that you actually receive valid UTF-8 content. *)
+  | CURLWS_BINARY  (** This is binary data. *)
+  | CURLWS_CONT    (** This is not the final fragment of the message, it implies that there is another fragment coming as part of the same message. *)
+  | CURLWS_CLOSE   (** This is a close message. No more data follows. *)
+  | CURLWS_PING    (** This is a ping message. *)
+  | CURLWS_PONG    (** This is a pong message. *)
+  | CURLWS_OFFSET  (** The provided data is only a partial frame and there is more coming in a following call to ws_send. *)
+
+(** WebSocket frame information structure *)
+type curlWSFrame = {
+  age: int;              (** zero *)
+  flags: curlWSFlag list;(** options for the frame *)
+  offset: int64;         (** the offset of this data into the frame *)
+  bytesleft: int64;      (** number of pending bytes left of the payload *)
+}
+
 (** {2 MultiSSL mode } *)
 
 exception CurlSslSetException of curlSslSet
@@ -924,6 +944,12 @@ val get_certinfo : t -> string list list
 val get_http_version : t -> curlHTTPVersion
 (** @since 0.9.2 *)
 
+val ws_meta : t -> curlWSFrame option
+(** Get WebSocket frame information. Returns None if no WebSocket frame info is available. Raises an exception if the operation not supported (libcurl version < 7.86.0). *)
+
+val ws_send : t -> string -> curlWSFlag list -> int
+(** Send WebSocket data. Returns the number of bytes sent. Raises an exception if the operation not supported (libcurl version < 7.86.0).  *)
+
 (** {2 Object interface} *)
 
 class handle :
@@ -1124,6 +1150,8 @@ class handle :
     method get_conditionunmet : bool
     method get_certinfo : string list list
     method get_http_version : curlHTTPVersion
+    method ws_meta : curlWSFrame option
+    method ws_send : string -> curlWSFlag list -> int
   end
 
 (** {2 curl_multi API} *)

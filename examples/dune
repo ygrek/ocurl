@@ -18,21 +18,25 @@
 (executables
  (names
   opar
-  ocurl_test_threads)
+  ocurl_test_threads
+  test_ws)
  (libraries curl threads)
  (modules
   opar
-  ocurl_test_threads))
+  ocurl_test_threads
+  test_ws))
 
 (executables
  (names
   test_lwt
-  test_lwt_unit)
+  test_lwt_unit
+  test_lwt_ws)
  (libraries curl.lwt)
  (preprocess (pps lwt_ppx))
  (modules
   test_lwt
-  test_lwt_unit))
+  test_lwt_unit
+  test_lwt_ws))
 
 (rule
  (alias runtest)
