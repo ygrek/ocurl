@@ -7,6 +7,41 @@
 
 type t
 
+module Share = struct
+
+  type st
+
+  type curlShareCode=
+    | CURLSHE_OK
+    | CURLSHE_BAD_OPTION
+    | CURLSHE_IN_USE
+    | CURLSHE_INVALID
+    | CURLSHE_NOMEM
+    | CURLSHE_NOT_BUILT_IN
+
+  type curlShareData =
+    | CURLSHOPT_SHARE_COOKIE
+    | CURLSHOPT_SHARE_DNS
+    | CURLSHOPT_SHARE_SSL_SESSION
+    | CURLSHOPT_SHARE_CONNECT
+
+  type curlShareOption = 
+    | CURLSHOPT_SHARE of curlShareData
+    | CURLSHOPT_UNSHARE of curlShareData
+
+  exception ShareError of (curlShareCode*int*string)  (**  error code variant * error code int * error_message *)
+
+  let () = 
+      Callback.register_exception "Curl.Share.Error" 
+        (ShareError (CURLSHE_OK, 0, ""))
+
+  external init : unit -> st= "caml_curl_share_init"
+  external cleanup : st -> unit = "caml_curl_share_cleanup"
+  external setopt : st -> curlShareOption -> unit = "caml_curl_share_setopt"
+  external strerror : int -> string = "caml_curl_share_strerror"
+
+end
+
 type curlCode =
   | CURLE_OK
   | CURLE_UNSUPPORTED_PROTOCOL
@@ -501,6 +536,7 @@ type curlOption =
   | CURLOPT_TCP_KEEPIDLE of int
   | CURLOPT_TCP_KEEPINTVL of int
   | CURLOPT_NOPROXY of string
+  | CURLOPT_SHARE of Share.st
 
 type initOption =
   | CURLINIT_GLOBALALL

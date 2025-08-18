@@ -577,7 +577,7 @@ static char* strdup_ml(value v)
 {
   char* p = NULL;
   p = (char*)malloc(caml_string_length(v)+1);
-  memcpy(p,String_val(v),caml_string_length(v)+1); // caml strings have terminating zero
+  memcpy(p,String_val(v),caml_string_length(v)+1); /* caml strings have terminating zero */
   return p;
 }
 
@@ -3372,6 +3372,32 @@ SETOPT_LONG( TCP_KEEPIDLE)
 
 SETOPT_LONG( TCP_KEEPINTVL)
 
+struct ml_share_handle
+{
+  CURLSH* handle;
+};
+
+typedef struct ml_share_handle ml_share_handle;
+
+#define CURLSH_val(v) (Share_val(v)->handle)
+
+#define Share_val(v) (*(ml_share_handle**)Data_custom_val(v))
+
+static void handle_SHARE(Connection *conn, value option)
+{
+    CAMLparam1(option);
+    CURLcode result = CURLE_OK;
+    
+    ml_share_handle* share = Share_val(option);
+    
+    result = curl_easy_setopt(conn->handle, CURLOPT_SHARE, share->handle);
+    
+    if (result != CURLE_OK)
+        raiseError(conn, result);
+    
+    CAMLreturn0;
+}
+
 /**
  **  curl_easy_setopt helper function
  **/
@@ -3820,6 +3846,7 @@ HAVE(TCP_KEEPALIVE),
 HAVE(TCP_KEEPIDLE),
 HAVE(TCP_KEEPINTVL),
 HAVE(NOPROXY),
+HAVE(SHARE),
 };
 
 value caml_curl_easy_setopt(value conn, value option)
@@ -5336,6 +5363,7 @@ value caml_curl_multi_setopt(value v_multi, value option)
     CAMLreturn(Val_unit);
 }
 
+
 struct used_enum
 {
   int last_used;
@@ -5375,6 +5403,196 @@ value caml_curl_check_enums(value v_unit)
   }
 
   CAMLreturn(v_r);
+}
+
+/*
+* Curl share support
+*/
+
+static void raise_share_error( CURLSHcode code)
+{
+    CAMLparam0();
+    CAMLlocal1(exceptionData);
+    static const value* exception = NULL;
+
+    if (NULL == exception)
+    {
+        exception = caml_named_value("Curl.Share.Error");
+        if (NULL == exception) caml_invalid_argument("Curl.Share.Error exception thrown but not registered");
+    }
+
+    /* Create structured exception data: (function_name, error_code, error_message) */
+    exceptionData = caml_alloc_tuple(3);
+    Store_field(exceptionData, 0, Val_int(code));
+    Store_field(exceptionData, 1, Val_int(code));
+    Store_field(exceptionData, 2, caml_copy_string(curl_share_strerror(code)));
+
+    caml_raise_with_arg(*exception, exceptionData);
+    CAMLreturn0;
+}
+
+value caml_curl_share_strerror(value code)
+{
+    CAMLparam1(code);
+    CURLSHcode c = (CURLSHcode)Int_val(code);
+    CAMLreturn(caml_copy_string(curl_share_strerror(c)));
+}
+
+static void op_curl_share_finalize(value v)
+{
+    ml_share_handle* h = Share_val(v);
+    if (h && h->handle) {
+        /* Don't throw exceptions during finalization */
+        CURLSHcode rc = curl_share_cleanup(h->handle);
+        if (rc != CURLSHE_OK) {
+            fprintf(stderr, "Warning: curl_share_cleanup failed during finalization with code %d: %s\n", 
+                    rc, curl_share_strerror(rc));
+        }
+        h->handle = NULL;
+    }
+    caml_stat_free(h);
+}
+
+static void check_share_code( CURLSHcode code)
+{
+    if (code != CURLSHE_OK) {
+        raise_share_error( code);
+    }
+}
+
+
+static int op_curl_share_compare(value v1, value v2)
+{
+  size_t p1 = (size_t)Share_val(v1);
+  size_t p2 = (size_t)Share_val(v2);
+  return (p1 == p2 ? 0 : (p1 > p2 ? 1 : -1));
+}
+
+static intnat op_curl_share_hash(value v)
+{
+  return (size_t)Share_val(v);
+}
+static struct custom_operations curl_share_ops = {
+  "ygrek.curl_share",
+  op_curl_share_finalize,
+  op_curl_share_compare,
+  op_curl_share_hash,
+  custom_serialize_default,
+  custom_deserialize_default,
+#if defined(custom_compare_ext_default)
+  custom_compare_ext_default,
+#endif
+#if defined(custom_fixed_length_default)
+  custom_fixed_length_default,
+#endif
+};
+
+value caml_curl_share_init(value unit)
+{
+    CAMLparam1(unit);
+    CAMLlocal1(v);
+    ml_share_handle* share = (ml_share_handle*)caml_stat_alloc(sizeof(ml_share_handle));
+    CURLSH* h = curl_share_init();
+
+    if (!h)
+    {
+        caml_stat_free(share);
+        raise_share_error( CURLSHE_NOMEM);
+    }
+
+    share->handle = h;
+
+    v = caml_alloc_custom(&curl_share_ops, sizeof(ml_share_handle*), 0, 1);
+    Share_val(v) = share;
+
+    CAMLreturn(v);
+}
+
+value caml_curl_share_cleanup(value handle)
+{
+    CAMLparam1(handle);
+    ml_share_handle* h = Share_val(handle);
+
+    if (NULL == h || NULL == h->handle)
+        CAMLreturn(Val_unit);
+
+    CURLSHcode rc = curl_share_cleanup(h->handle);
+    
+    // Only set to NULL if cleanup succeeded
+    if (rc == CURLSHE_OK) {
+        h->handle = NULL;
+    }
+
+    check_share_code( rc);
+
+    CAMLreturn(Val_unit);
+}
+
+value caml_curl_share_setopt(value v_share, value option)
+{
+    CAMLparam2(v_share, option);
+    CAMLlocal1(data);
+    CURLSH *handle = Share_val(v_share)->handle;
+    CURLSHcode result = CURLSHE_OK;
+
+    if (NULL == handle) {
+        raise_share_error( CURLSHE_INVALID);
+    }
+
+    data = Field(option, 0);
+
+    switch (Tag_val(option))
+    {
+        case 0: /* CURLSHOPT_SHARE */
+            switch (Long_val(data))
+            {
+                case 0: /* CURLSHOPT_SHARE_COOKIE */
+                    result = curl_share_setopt(handle, CURLSHOPT_SHARE, CURL_LOCK_DATA_COOKIE);
+                    break;
+                case 1: /* CURLSHOPT_SHARE_DNS */
+                    result = curl_share_setopt(handle, CURLSHOPT_SHARE, CURL_LOCK_DATA_DNS);
+                    break;
+                case 2: /* CURLSHOPT_SHARE_SSL_SESSION */
+                    result = curl_share_setopt(handle, CURLSHOPT_SHARE, CURL_LOCK_DATA_SSL_SESSION);
+                    break;
+                case 3: /* CURLSHOPT_SHARE_CONNECT */
+                    result = curl_share_setopt(handle, CURLSHOPT_SHARE, CURL_LOCK_DATA_CONNECT);
+                    break;
+                default:
+                    caml_invalid_argument("Invalid CURLSHOPT_SHARE value");
+                    break;
+            }
+            break;
+
+        case 1: /* CURLSHOPT_UNSHARE */
+            switch (Long_val(data))
+            {
+                case 0: /* CURLSHOPT_SHARE_COOKIE */
+                    result = curl_share_setopt(handle, CURLSHOPT_UNSHARE, CURL_LOCK_DATA_COOKIE);
+                    break;
+                case 1: /* CURLSHOPT_SHARE_DNS */
+                    result = curl_share_setopt(handle, CURLSHOPT_UNSHARE, CURL_LOCK_DATA_DNS);
+                    break;
+                case 2: /* CURLSHOPT_SHARE_SSL_SESSION */
+                    result = curl_share_setopt(handle, CURLSHOPT_UNSHARE, CURL_LOCK_DATA_SSL_SESSION);
+                    break;
+                case 3: /* CURLSHOPT_SHARE_CONNECT */
+                    result = curl_share_setopt(handle, CURLSHOPT_UNSHARE, CURL_LOCK_DATA_CONNECT);
+                    break;
+                default:
+                    caml_invalid_argument("Invalid CURLSHOPT_UNSHARE value");
+                    break;
+            }
+            break;
+
+        default:
+            caml_invalid_argument("Invalid CURLSHOPT Option");
+            break;
+    }
+
+    check_share_code( result);
+
+    CAMLreturn(Val_unit);
 }
 
 #ifdef __cplusplus

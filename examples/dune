@@ -3,17 +3,21 @@
   ocurl
   ominimal
   ossl
+  oshare
   test_cb_exn
   test_memory_leaks
-  test_enum)
+  test_enum
+  test_share)
  (libraries curl unix)
  (modules
   ocurl
   ominimal
   ossl
+  oshare
   test_cb_exn
   test_memory_leaks
-  test_enum))
+  test_enum
+  test_share))
 
 (executables
  (names
@@ -42,3 +46,8 @@
 (rule
  (alias runtest)
  (action (run ./test_memory_leaks.exe)))
+
+(rule
+ (alias runtest)
+ (action (run ./test_share.exe))
+ (enabled_if (<> %{env:OCAMLCI=false} true)))
