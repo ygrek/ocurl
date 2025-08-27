@@ -5377,7 +5377,6 @@ value caml_curl_check_enums(value v_unit)
   CAMLreturn(v_r);
 }
 
-#if LIBCURL_VERSION_NUM >= 0x075600
 /* WebSocket flags mapping: same order as OCaml variant */
 static const long wsFlags[] = {
   CURLWS_TEXT,    /* 0 */
@@ -5388,7 +5387,6 @@ static const long wsFlags[] = {
   CURLWS_PONG,    /* 5 */
   CURLWS_OFFSET   /* 6 */
 };
-#endif
 
 static value curlWSFlag_list_of_int(int flags)
 {
@@ -5397,13 +5395,11 @@ static value curlWSFlag_list_of_int(int flags)
 
   result = Val_emptylist;
 
-#if LIBCURL_VERSION_NUM >= 0x075600
   for (int i = 0; i < (int)(sizeof(wsFlags) / sizeof(wsFlags[0])); i++) {
     if (flags & wsFlags[i]) {
       result = Val_cons(Val_int(i), result);
     }
   }
-#endif
 
   CAMLreturn(result);
 }
@@ -5412,13 +5408,9 @@ static value curlWSFlag_list_of_int(int flags)
 static int curlWSFlag_list_to_int(value flag_list)
 {
   CAMLparam1(flag_list);
-
-#if LIBCURL_VERSION_NUM >= 0x075600
   long flags = convert_bit_list(wsFlags, sizeof(wsFlags) / sizeof(wsFlags[0]), flag_list);
+
   CAMLreturn((int)flags);
-#else
-  CAMLreturn(0);
-#endif
 }
 
 value caml_curl_ws_meta(value conn_v)
@@ -5428,8 +5420,7 @@ value caml_curl_ws_meta(value conn_v)
   Connection *conn = Connection_val(conn_v);
   const struct curl_ws_frame* frame;
 
-  // Check if curl_ws_meta is available (added in libcurl 7.86.0)
-#if LIBCURL_VERSION_NUM >= 0x075600
+#if HAVE_DECL_CURL_WS_META
   caml_release_runtime_system();
   frame = curl_ws_meta(conn->handle);
   caml_acquire_runtime_system();
@@ -5459,8 +5450,7 @@ value caml_curl_ws_send(value conn_v, value buffer_v, value flags_v)
   size_t sent;
   CURLcode result;
 
-  // Check if curl_ws_send is available (added in libcurl 7.86.0)
-#if LIBCURL_VERSION_NUM >= 0x075600
+#if HAVE_DECL_CURL_WS_SEND
   const char* buffer = strdup_ml(buffer_v);
   size_t buffer_len = caml_string_length(buffer_v);
   int flags = curlWSFlag_list_to_int(flags_v);
