@@ -5393,7 +5393,7 @@ static const long wsFlags[] = {
 static value curlWSFlag_list_of_int(int flags)
 {
   CAMLparam0();
-  CAMLlocal2(result, current);
+  CAMLlocal1(result);
 
   result = Val_emptylist;
 
@@ -5424,7 +5424,7 @@ static int curlWSFlag_list_to_int(value flag_list)
 value caml_curl_ws_meta(value conn_v)
 {
   CAMLparam1(conn_v);
-  CAMLlocal2(result, frame_record);
+  CAMLlocal1(frame_record);
   Connection *conn = Connection_val(conn_v);
   const struct curl_ws_frame* frame;
 
