@@ -5430,9 +5430,9 @@ value caml_curl_ws_meta(value conn_v)
 
   // Check if curl_ws_meta is available (added in libcurl 7.86.0)
 #if LIBCURL_VERSION_NUM >= 0x075600
-  caml_enter_blocking_section();
+  caml_release_runtime_system();
   frame = curl_ws_meta(conn->handle);
-  caml_leave_blocking_section();
+  caml_acquire_runtime_system();
 
   if (frame == NULL) {
     // No WebSocket frame information available
