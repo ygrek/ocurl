@@ -5397,7 +5397,7 @@ static value curlWSFlag_list_of_int(int flags)
 
   for (int i = 0; i < (int)(sizeof(wsFlags) / sizeof(wsFlags[0])); i++) {
     if (flags & wsFlags[i]) {
-      result = Val_cons(Val_int(i), result);
+      result = Val_cons(result, Val_int(i));
     }
   }
 
@@ -5451,7 +5451,7 @@ value caml_curl_ws_send(value conn_v, value buffer_v, value flags_v)
   CURLcode result;
 
 #if HAVE_DECL_CURL_WS_SEND
-  const char* buffer = strdup_ml(buffer_v);
+  char* buffer = strdup_ml(buffer_v);
   size_t buffer_len = caml_string_length(buffer_v);
   int flags = curlWSFlag_list_to_int(flags_v);
 
