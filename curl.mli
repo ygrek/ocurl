@@ -637,8 +637,8 @@ type curlWSFlag =
 type curlWSFrame = {
   age: int;              (** zero *)
   flags: curlWSFlag list;(** options for the frame *)
-  offset: int64;         (** the offset of this data into the frame *)
-  bytesleft: int64;      (** number of pending bytes left of the payload *)
+  offset: int;           (** the offset of this data into the frame *)
+  bytesleft: int;        (** number of pending bytes left of the payload *)
 }
 
 (** {2 MultiSSL mode } *)

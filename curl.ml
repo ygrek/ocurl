@@ -654,8 +654,8 @@ type curlWSFlag =
 type curlWSFrame = {
   age: int;
   flags: curlWSFlag list;
-  offset: int64;
-  bytesleft: int64;
+  offset: int;
+  bytesleft: int;
 }
 
 external ws_meta : t -> curlWSFrame option = "caml_curl_ws_meta"

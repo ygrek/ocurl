@@ -5395,15 +5395,12 @@ static value curlWSFlag_list_of_int(int flags)
   CAMLparam0();
   CAMLlocal2(result, current);
 
-  result = Val_int(0); // empty list
+  result = Val_emptylist;
 
 #if LIBCURL_VERSION_NUM >= 0x075600
   for (int i = 0; i < (int)(sizeof(wsFlags) / sizeof(wsFlags[0])); i++) {
     if (flags & wsFlags[i]) {
-      current = caml_alloc_small(2, 0);
-      Field(current, 0) = Val_int(i);
-      Field(current, 1) = result;
-      result = current;
+      result = Val_cons(Val_int(i), result);
     }
   }
 #endif
@@ -5446,14 +5443,10 @@ value caml_curl_ws_meta(value conn_v)
   frame_record = caml_alloc(4, 0);
   Store_field(frame_record, 0, Val_int(frame->age));
   Store_field(frame_record, 1, curlWSFlag_list_of_int(frame->flags));
-  Store_field(frame_record, 2, caml_copy_int64(frame->offset));
-  Store_field(frame_record, 3, caml_copy_int64(frame->bytesleft));
+  Store_field(frame_record, 2, Val_int(frame->offset));
+  Store_field(frame_record, 3, Val_int(frame->bytesleft));
 
-  // Wrap in Some()
-  result = caml_alloc_small(1, 0);
-  Store_field(result, 0, frame_record);
-
-  CAMLreturn(result);
+  CAMLreturn(caml_alloc_some(frame_record));
 #else
   caml_failwith("WebSocket support not available in this libcurl version");
 #endif
@@ -5468,13 +5461,15 @@ value caml_curl_ws_send(value conn_v, value buffer_v, value flags_v)
 
   // Check if curl_ws_send is available (added in libcurl 7.86.0)
 #if LIBCURL_VERSION_NUM >= 0x075600
-  const char* buffer = String_val(buffer_v);
+  const char* buffer = strdup_ml(buffer_v);
   size_t buffer_len = caml_string_length(buffer_v);
   int flags = curlWSFlag_list_to_int(flags_v);
 
-  caml_enter_blocking_section();
+  caml_release_runtime_system();
   result = curl_ws_send(conn->handle, buffer, buffer_len, &sent, 0, flags);
-  caml_leave_blocking_section();
+  caml_acquire_runtime_system();
+
+  free(buffer);
 
   if (result != CURLE_OK) {
     raiseError(conn, result);
