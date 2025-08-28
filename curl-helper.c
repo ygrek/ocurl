@@ -5377,6 +5377,7 @@ value caml_curl_check_enums(value v_unit)
   CAMLreturn(v_r);
 }
 
+#if HAVE_DECL_CURL_WS_META
 /* WebSocket flags mapping: same order as OCaml variant */
 static const long wsFlags[] = {
   CURLWS_TEXT,    /* 0 */
@@ -5404,13 +5405,12 @@ static value curlWSFlag_list_of_int(int flags)
   CAMLreturn(result);
 }
 
-
 static int curlWSFlag_list_to_int(value flag_list)
 {
   CAMLparam1(flag_list);
   long flags = convert_bit_list(wsFlags, sizeof(wsFlags) / sizeof(wsFlags[0]), flag_list);
 
-  CAMLreturn((int)flags);
+  CAMLreturnT(int, flags);
 }
 
 value caml_curl_ws_meta(value conn_v)
@@ -5420,7 +5420,6 @@ value caml_curl_ws_meta(value conn_v)
   Connection *conn = Connection_val(conn_v);
   const struct curl_ws_frame* frame;
 
-#if HAVE_DECL_CURL_WS_META
   caml_release_runtime_system();
   frame = curl_ws_meta(conn->handle);
   caml_acquire_runtime_system();
@@ -5438,9 +5437,6 @@ value caml_curl_ws_meta(value conn_v)
   Store_field(frame_record, 3, Val_int(frame->bytesleft));
 
   CAMLreturn(caml_alloc_some(frame_record));
-#else
-  caml_failwith("WebSocket support not available in this libcurl version");
-#endif
 }
 
 value caml_curl_ws_send(value conn_v, value buffer_v, value flags_v)
@@ -5450,7 +5446,6 @@ value caml_curl_ws_send(value conn_v, value buffer_v, value flags_v)
   size_t sent;
   CURLcode result;
 
-#if HAVE_DECL_CURL_WS_SEND
   char* buffer = strdup_ml(buffer_v);
   size_t buffer_len = caml_string_length(buffer_v);
   int flags = curlWSFlag_list_to_int(flags_v);
@@ -5466,10 +5461,18 @@ value caml_curl_ws_send(value conn_v, value buffer_v, value flags_v)
   }
 
   CAMLreturn(Val_long(sent));
-#else
-  caml_failwith("WebSocket support not available in this libcurl version");
-#endif
 }
+#else
+value caml_curl_ws_meta(value conn_v)
+{
+  caml_failwith("WebSocket support not available");
+}
+
+value caml_curl_ws_send(value conn_v, value buffer_v, value flags_v)
+{
+  caml_failwith("WebSocket support not available");
+}
+#endif
 
 #ifdef __cplusplus
 }
