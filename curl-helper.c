@@ -5407,10 +5407,7 @@ static value curlWSFlag_list_of_int(int flags)
 
 static int curlWSFlag_list_to_int(value flag_list)
 {
-  CAMLparam1(flag_list);
-  long flags = convert_bit_list(wsFlags, sizeof(wsFlags) / sizeof(wsFlags[0]), flag_list);
-
-  CAMLreturnT(int, flags);
+  return convert_bit_list(wsFlags, sizeof(wsFlags) / sizeof(wsFlags[0]), flag_list);
 }
 
 value caml_curl_ws_meta(value conn_v)
