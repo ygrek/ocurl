@@ -5443,15 +5443,14 @@ value caml_curl_ws_send(value conn_v, value buffer_v, value flags_v)
   size_t sent;
   CURLcode result;
 
-  char* buffer = strdup_ml(buffer_v);
+  char* buffer = caml_stat_strdup(String_val(buffer_v));
   size_t buffer_len = caml_string_length(buffer_v);
   int flags = curlWSFlag_list_to_int(flags_v);
 
   caml_release_runtime_system();
   result = curl_ws_send(conn->handle, buffer, buffer_len, &sent, 0, flags);
+  caml_stat_free(buffer);
   caml_acquire_runtime_system();
-
-  free(buffer);
 
   if (result != CURLE_OK) {
     raiseError(conn, result);
