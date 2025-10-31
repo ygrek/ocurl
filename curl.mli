@@ -493,7 +493,7 @@ type curlOption =
   | CURLOPT_SEEKFUNCTION of (int64 -> curlSeek -> curlSeekResult)
   | CURLOPT_AUTOREFERER of bool
   | CURLOPT_OPENSOCKETFUNCTION of (Unix.file_descr -> unit)
-  | CURLOPT_OPENSOCKETFUNCTION2 of (curlSockType -> curlSockAddr -> Unix.file_descr)
+  | CURLOPT_OPENSOCKETFUNCTION2 of (curlSockType -> curlSockAddr -> Unix.file_descr option)
   | CURLOPT_PROXYTYPE of curlProxyType
   | CURLOPT_PROTOCOLS of curlProto list
   | CURLOPT_REDIR_PROTOCOLS of curlProto list
@@ -865,7 +865,7 @@ val set_proxytransfermode : t -> bool -> unit
 val set_seekfunction : t -> (int64 -> curlSeek -> curlSeekResult) -> unit
 val set_autoreferer : t -> bool -> unit
 val set_opensocketfunction : t -> (Unix.file_descr -> unit) -> unit
-val set_opensocketfunction2 : t -> (curlSockType -> curlSockAddr -> Unix.file_descr) -> unit
+val set_opensocketfunction2 : t -> (curlSockType -> curlSockAddr -> Unix.file_descr option) -> unit
 val set_tcpkeepalive : t -> bool -> unit
 val set_tcpkeepidle : t -> int -> unit
 val set_tcpkeepintvl : t -> int -> unit
@@ -1111,7 +1111,7 @@ class handle :
     method set_seekfunction : (int64 -> curlSeek -> curlSeekResult) -> unit
     method set_autoreferer : bool -> unit
     method set_opensocketfunction : (Unix.file_descr -> unit) -> unit
-    method set_opensocketfunction2 : (curlSockType -> curlSockAddr -> Unix.file_descr) -> unit
+    method set_opensocketfunction2 : (curlSockType -> curlSockAddr -> Unix.file_descr option) -> unit
     method set_proxytype : curlProxyType -> unit
     method set_resolve : (string * int * string) list -> (string * int) list -> unit
     method set_dns_servers : string list -> unit

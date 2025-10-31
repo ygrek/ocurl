@@ -1337,7 +1337,10 @@ static int cb_OPENSOCKETFUNCTION2(void *data,
 
     if (!Is_exception_result(result))
     {
-        sock = Socket_val(result);
+        if (Is_some(result))
+        {
+            sock = Socket_val(Some_val(result));
+        }
     }
 
     CAMLdrop;

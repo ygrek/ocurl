@@ -483,7 +483,7 @@ type curlOption =
   | CURLOPT_SEEKFUNCTION of (int64 -> curlSeek -> curlSeekResult)
   | CURLOPT_AUTOREFERER of bool
   | CURLOPT_OPENSOCKETFUNCTION of (Unix.file_descr -> unit)
-  | CURLOPT_OPENSOCKETFUNCTION2 of (curlSockType -> curlSockAddr -> Unix.file_descr)
+  | CURLOPT_OPENSOCKETFUNCTION2 of (curlSockType -> curlSockAddr -> Unix.file_descr option)
 (*   | CURLOPT_CLOSESOCKETFUNCTION of (Unix.file_descr -> unit) *)
   | CURLOPT_PROXYTYPE of curlProxyType
   | CURLOPT_PROTOCOLS of curlProto list
