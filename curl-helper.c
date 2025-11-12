@@ -1288,7 +1288,7 @@ static curl_socket_t cb_OPENSOCKETFUNCTION2(void *data,
             v_sock_purpose = Val_int(0);
             break;
         default:
-            return CURL_SOCKET_BAD;
+            goto cleanup;
     }
 
     switch (addr->family) {
@@ -1302,7 +1302,7 @@ static curl_socket_t cb_OPENSOCKETFUNCTION2(void *data,
             v_sockdomain = Val_int(2); /* PF_INET6 */
             break;
         default:
-            return CURL_SOCKET_BAD;
+            goto cleanup;
     }
 
     switch (addr->socktype) {
@@ -1319,7 +1319,7 @@ static curl_socket_t cb_OPENSOCKETFUNCTION2(void *data,
             v_socktype = Val_int(3); /* SOCK_SEQPACKET */
             break;
         default:
-            return CURL_SOCKET_BAD;
+            goto cleanup;
     }
 
     union sock_addr_union sock_addr;
@@ -1340,6 +1340,7 @@ static curl_socket_t cb_OPENSOCKETFUNCTION2(void *data,
         sock = Socket_val(Some_val(result));
     }
 
+cleanup:
     CAMLdrop;
 
     caml_release_runtime_system();
