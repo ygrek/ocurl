@@ -1242,7 +1242,7 @@ static int cb_SEEKFUNCTION(void *data,
 }
 #endif
 
-static int cb_OPENSOCKETFUNCTION(void *data,
+static curl_socket_t cb_OPENSOCKETFUNCTION(void *data,
                         curlsocktype purpose,
                         struct curl_sockaddr *addr)
 {
@@ -1251,28 +1251,28 @@ static int cb_OPENSOCKETFUNCTION(void *data,
     CAMLparam0();
     CAMLlocal1(result);
     Connection *conn = (Connection *)data;
-    int sock = -1;
+    curl_socket_t sock = CURL_SOCKET_BAD;
     (void)purpose; /* not used */
 
     sock = socket(addr->family, addr->socktype, addr->protocol);
 
-    if (-1 != sock)
+    if (CURL_SOCKET_BAD != sock)
     {
       /* FIXME windows */
       result = caml_callback_exn(Field(conn->ocamlValues, Ocaml_OPENSOCKETFUNCTION), Val_int(sock));
       if (Is_exception_result(result))
       {
         close(sock);
-        sock = -1;
+        sock = CURL_SOCKET_BAD;
       }
     }
     CAMLdrop;
 
     caml_release_runtime_system();
-    return ((sock == -1) ? CURL_SOCKET_BAD : sock);
+    return sock;
 }
 
-static int cb_OPENSOCKETFUNCTION2(void *data,
+static curl_socket_t cb_OPENSOCKETFUNCTION2(void *data,
                         curlsocktype purpose,
                         struct curl_sockaddr *addr)
 {
@@ -1281,7 +1281,7 @@ static int cb_OPENSOCKETFUNCTION2(void *data,
     CAMLparam0();
     CAMLlocal5(result, v_sock_purpose, v_sockdomain, v_socktype, v_sockaddr_record);
     Connection *conn = (Connection *)data;
-    int sock = -1;
+    curl_socket_t sock = CURL_SOCKET_BAD;
 
     switch (purpose) {
         case CURLSOCKTYPE_IPCXN:
@@ -1335,18 +1335,15 @@ static int cb_OPENSOCKETFUNCTION2(void *data,
     result = caml_callback2_exn(Field(conn->ocamlValues, Ocaml_OPENSOCKETFUNCTION),
                                 v_sock_purpose, v_sockaddr_record);
 
-    if (!Is_exception_result(result))
+    if (!Is_exception_result(result) && Is_some(result))
     {
-        if (Is_some(result))
-        {
-            sock = Socket_val(Some_val(result));
-        }
+        sock = Socket_val(Some_val(result));
     }
 
     CAMLdrop;
 
     caml_release_runtime_system();
-    return ((sock == -1) ? CURL_SOCKET_BAD : sock);
+    return sock;
 }
 
 static int cb_SSH_KEYFUNCTION(CURL *easy,
