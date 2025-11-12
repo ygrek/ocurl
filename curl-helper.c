@@ -1288,7 +1288,7 @@ static int cb_OPENSOCKETFUNCTION2(void *data,
             v_sock_purpose = Val_int(0);
             break;
         default:
-            caml_failwith("Invalid socket purpose");
+            return CURL_SOCKET_BAD;
     }
 
     switch (addr->family) {
@@ -1302,7 +1302,7 @@ static int cb_OPENSOCKETFUNCTION2(void *data,
             v_sockdomain = Val_int(2); /* PF_INET6 */
             break;
         default:
-            caml_failwith("Invalid socket domain");
+            return CURL_SOCKET_BAD;
     }
 
     switch (addr->socktype) {
@@ -1319,7 +1319,7 @@ static int cb_OPENSOCKETFUNCTION2(void *data,
             v_socktype = Val_int(3); /* SOCK_SEQPACKET */
             break;
         default:
-            caml_failwith("Invalid socket type");
+            return CURL_SOCKET_BAD;
     }
 
     union sock_addr_union sock_addr;
