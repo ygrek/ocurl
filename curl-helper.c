@@ -1323,8 +1323,10 @@ static curl_socket_t cb_OPENSOCKETFUNCTION2(void *data,
     }
 
     union sock_addr_union sock_addr;
-    memcpy(&sock_addr, &(addr->addr), addr->addrlen < sizeof(sock_addr) ? addr->addrlen : sizeof(sock_addr));
-    value v_unix_sockaddr = alloc_sockaddr(&sock_addr, addr->addrlen, -1);
+    socklen_t addrlen = addr->addrlen;
+    if (addrlen > sizeof(sock_addr)) addrlen = sizeof(sock_addr);
+    memcpy(&sock_addr.s_gen, &(addr->addr), addrlen);
+    value v_unix_sockaddr = alloc_sockaddr(&sock_addr, addrlen, -1);
 
     v_sockaddr_record = caml_alloc(4, 0);
     Store_field(v_sockaddr_record, 0, v_sockdomain);
