@@ -32,6 +32,7 @@
 #include <caml/callback.h>
 #include <caml/fail.h>
 #include <caml/unixsupport.h>
+#include <caml/socketaddr.h>
 #include <caml/custom.h>
 #include <caml/threads.h>
 #include <caml/bigarray.h>
@@ -1241,7 +1242,7 @@ static int cb_SEEKFUNCTION(void *data,
 }
 #endif
 
-static int cb_OPENSOCKETFUNCTION(void *data,
+static curl_socket_t cb_OPENSOCKETFUNCTION(void *data,
                         curlsocktype purpose,
                         struct curl_sockaddr *addr)
 {
@@ -1250,25 +1251,104 @@ static int cb_OPENSOCKETFUNCTION(void *data,
     CAMLparam0();
     CAMLlocal1(result);
     Connection *conn = (Connection *)data;
-    int sock = -1;
+    curl_socket_t sock = CURL_SOCKET_BAD;
     (void)purpose; /* not used */
 
     sock = socket(addr->family, addr->socktype, addr->protocol);
 
-    if (-1 != sock)
+    if (CURL_SOCKET_BAD != sock)
     {
       /* FIXME windows */
       result = caml_callback_exn(Field(conn->ocamlValues, Ocaml_OPENSOCKETFUNCTION), Val_int(sock));
       if (Is_exception_result(result))
       {
         close(sock);
-        sock = -1;
+        sock = CURL_SOCKET_BAD;
       }
     }
     CAMLdrop;
 
     caml_release_runtime_system();
-    return ((sock == -1) ? CURL_SOCKET_BAD : sock);
+    return sock;
+}
+
+static curl_socket_t cb_OPENSOCKETFUNCTION2(void *data,
+                        curlsocktype purpose,
+                        struct curl_sockaddr *addr)
+{
+    caml_acquire_runtime_system();
+
+    CAMLparam0();
+    CAMLlocal5(result, v_sock_purpose, v_sockdomain, v_socktype, v_sockaddr_record);
+    Connection *conn = (Connection *)data;
+    curl_socket_t sock = CURL_SOCKET_BAD;
+
+    switch (purpose) {
+        case CURLSOCKTYPE_IPCXN:
+            v_sock_purpose = Val_int(0);
+            break;
+        default:
+            goto cleanup;
+    }
+
+    switch (addr->family) {
+        case AF_UNIX:
+            v_sockdomain = Val_int(0); /* PF_UNIX */
+            break;
+        case AF_INET:
+            v_sockdomain = Val_int(1); /* PF_INET */
+            break;
+        case AF_INET6:
+            v_sockdomain = Val_int(2); /* PF_INET6 */
+            break;
+        default:
+            goto cleanup;
+    }
+
+    switch (addr->socktype) {
+        case SOCK_STREAM:
+            v_socktype = Val_int(0); /* SOCK_STREAM */
+            break;
+        case SOCK_DGRAM:
+            v_socktype = Val_int(1); /* SOCK_DGRAM */
+            break;
+        case SOCK_RAW:
+            v_socktype = Val_int(2); /* SOCK_RAW */
+            break;
+        case SOCK_SEQPACKET:
+            v_socktype = Val_int(3); /* SOCK_SEQPACKET */
+            break;
+        default:
+            goto cleanup;
+    }
+
+    union sock_addr_union sock_addr;
+    if (addr->addrlen > sizeof(sock_addr))
+    {
+        goto cleanup;
+    }
+    memcpy(&sock_addr.s_gen, &(addr->addr), addr->addrlen);
+    value v_unix_sockaddr = alloc_sockaddr(&sock_addr, addr->addrlen, -1);
+
+    v_sockaddr_record = caml_alloc(4, 0);
+    Store_field(v_sockaddr_record, 0, v_sockdomain);
+    Store_field(v_sockaddr_record, 1, v_socktype);
+    Store_field(v_sockaddr_record, 2, Val_int(addr->protocol));
+    Store_field(v_sockaddr_record, 3, v_unix_sockaddr);
+
+    result = caml_callback2_exn(Field(conn->ocamlValues, Ocaml_OPENSOCKETFUNCTION),
+                                v_sock_purpose, v_sockaddr_record);
+
+    if (!Is_exception_result(result) && Is_some(result))
+    {
+        sock = Socket_val(Some_val(result));
+    }
+
+cleanup:
+    CAMLdrop;
+
+    caml_release_runtime_system();
+    return sock;
 }
 
 static int cb_SSH_KEYFUNCTION(CURL *easy,
@@ -1650,6 +1730,7 @@ SETOPT_FUNCTION( IOCTL)
 #endif
 
 SETOPT_FUNCTION( OPENSOCKET)
+SETOPT_FUNCTION2( OPENSOCKET)
 
 static void handle_slist(Connection *conn, struct curl_slist** slist, CURLoption curl_option, value option)
 {
@@ -3718,6 +3799,7 @@ CURLOptionMapping implementedOptionMap[] =
   HAVENOT(AUTOREFERER),
 #endif
   HAVE(OPENSOCKETFUNCTION),
+  HAVE(OPENSOCKETFUNCTION2),
 #if HAVE_DECL_CURLOPT_PROXYTYPE
   HAVE(PROXYTYPE),
 #else
