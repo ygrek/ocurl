@@ -5,7 +5,7 @@ synopsis:
   "This is a transition package, ocurl is now named curl. Use the curl package instead"
 description:
   "This is a transition package, ocurl is now named curl. Use the curl package instead."
-maintainer: ["ygrek@autistici.org" "Antonin Décimo <antonin@tarides.com>"]
+maintainer: ["root@ygrek.org" "Antonin Décimo <antonin@tarides.com>"]
 authors: ["Lars Nilsson" "ygrek"]
 license: "MIT"
 homepage: "https://ygrek.org/p/ocurl"

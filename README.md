@@ -31,4 +31,4 @@ make
    [`curl.mli`](./curl.mli) accordingly.
 
 ----
- ygrek at autistici dot org
+ root@ygrek.org

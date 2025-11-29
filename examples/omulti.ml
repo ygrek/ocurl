@@ -1,7 +1,7 @@
 (*
  * omulti.ml
  *
- * Copyright (c) 2009, ygrek, <ygrek@autistici.org>
+ * Copyright (c) 2009, <root@ygrek.org>
  *)
 
 module M = Curl.Multi
@@ -94,14 +94,14 @@ let input_lines file =
 let () =
   let module A = Array in
   let func = ref None in
-  let urls = 
+  let urls =
     let urls = ref [] in
     let n = ref 10 in
-    let args = Arg.align 
+    let args = Arg.align
       ["-n",Arg.Set_int n,"<N> ";
        "-i",Arg.String (fun s -> urls := input_lines s @ !urls),"<file> read urls from file";
        "-l",Arg.String (fun s -> urls := s :: !urls),"<url> fetch url";
-       "-m",Arg.String (function 
+       "-m",Arg.String (function
            | "wait" -> func := Some loop_wait
            | "event" -> func := Some loop_async
            | "select" -> func := Some loop_select
@@ -140,4 +140,3 @@ let () =
   match !func with
   | None -> test loop_wait; test loop_select; test loop_async
   | Some f -> test f
-

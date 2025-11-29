@@ -5,7 +5,7 @@
 (generate_opam_files true)
 
 (maintainers
- "ygrek@autistici.org"
+ "root@ygrek.org"
  "Antonin Décimo <antonin@tarides.com>")
 (authors
  "Lars Nilsson"
@@ -25,7 +25,7 @@
   (ocaml (>= "4.11"))
   (dune-configurator (>= "3.18.1"))
   base-bigarray
-  base-unix  
+  base-unix
   conf-libcurl)
  (conflicts
   (ocurl (<> "transition")))
