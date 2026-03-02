@@ -1280,9 +1280,19 @@ module Multi : sig
   val action_all : mt -> int
 
   (** inform libcurl that timeout occured
+      @return the number of handles still active
       @raise Error on errors
   *)
-  val action_timeout : mt -> unit
+  val action_timeout' : mt -> int
+
+  (** inform libcurl that timeout occured
+      @deprecated since 0.10.1.
+      This function may finish {!type:Curl.t} handles.
+      Therefore it should return the possibly changed number of still active
+      handles. Use {!val:action_timeout'} instead.
+      @raise Error on errors
+  *)
+  val action_timeout : mt -> unit [@@ocaml.deprecated "Use action_timeout' instead"]
 
   (** [action mt fd status] informs libcurl about event on the specified socket.
       [status] specifies socket status. Perform pending data transfers.
