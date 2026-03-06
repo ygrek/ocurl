@@ -1631,7 +1631,8 @@ module Multi = struct
   external action_all : mt -> int = "caml_curl_multi_socket_all"
   external socket_action : mt -> Unix.file_descr option -> fd_status -> int = "caml_curl_multi_socket_action"
 
-  let action_timeout mt = ignore (socket_action mt None EV_AUTO)
+  let action_timeout' mt = socket_action mt None EV_AUTO
+  let action_timeout mt = ignore (action_timeout' mt)
   let action mt fd status = socket_action mt (Some fd) status
 
   external timeout : mt -> int = "caml_curl_multi_timeout"
