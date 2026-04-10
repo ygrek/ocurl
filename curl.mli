@@ -530,6 +530,7 @@ type curlOption =
   | CURLOPT_TCP_KEEPIDLE of int
   | CURLOPT_TCP_KEEPINTVL of int
   | CURLOPT_NOPROXY of string
+  | CURLOPT_UNIX_SOCKET_PATH of string (* @since libcurl 7.40.0 *)
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -911,6 +912,7 @@ val set_mimepost : t -> curlMIMEPart list -> unit
 val set_sshknownhosts : t -> string -> unit
 val set_sshkeyfunction : t -> (curlKHMatch -> string -> curlKHStat) -> unit
 val set_noproxy : t -> string -> unit
+val set_unix_socket_path : t -> string -> unit
 
 (** {2 Get transfer properties} *)
 
@@ -1129,6 +1131,7 @@ class handle :
     method set_tcpkeepidle : int -> unit
     method set_tcpkeepintvl : int -> unit
     method set_noproxy : string -> unit
+    method set_unix_socket_path : string -> unit
 
     method get_effectiveurl : string
     method get_redirecturl : string

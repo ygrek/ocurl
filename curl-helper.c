@@ -3459,6 +3459,10 @@ SETOPT_LONG( BUFFERSIZE)
   SETOPT_STRING( AWS_SIGV4)
 #endif
 
+#if HAVE_DECL_CURLOPT_UNIX_SOCKET_PATH
+  SETOPT_STRING( UNIX_SOCKET_PATH)
+#endif
+
 /* Windows headers define these symbols and there is no (sane) way to
  * prevent macro expansion */
 
@@ -3921,6 +3925,11 @@ HAVE(TCP_KEEPALIVE),
 HAVE(TCP_KEEPIDLE),
 HAVE(TCP_KEEPINTVL),
 HAVE(NOPROXY),
+#if HAVE_DECL_CURLOPT_UNIX_SOCKET_PATH
+  HAVE(UNIX_SOCKET_PATH),
+#else
+  HAVENOT(UNIX_SOCKET_PATH),
+#endif
 };
 
 value caml_curl_easy_setopt(value conn, value option)
