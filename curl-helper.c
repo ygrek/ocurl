@@ -3243,8 +3243,14 @@ static void handle_PROXYTYPE(Connection *conn, value option)
       case 3: proxy_type = CURLPROXY_SOCKS5; break;
       case 4: proxy_type = CURLPROXY_SOCKS4A; break;
       case 5: proxy_type = CURLPROXY_SOCKS5_HOSTNAME; break;
+#if HAVE_DECL_CURLPROXY_HTTPS
+      case 6: proxy_type = CURLPROXY_HTTPS; break;
+#endif
+#if HAVE_DECL_CURLPROXY_HTTPS2
+      case 7: proxy_type = CURLPROXY_HTTPS2; break;
+#endif
       default:
-        caml_failwith("Invalid curl proxy type");
+        caml_failwith("Unsupported curl proxy type");
     }
 
     result = curl_easy_setopt(conn->handle,
