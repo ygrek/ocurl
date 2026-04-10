@@ -252,12 +252,14 @@ type curlSeek =
   | SEEK_END
 
 type curlProxyType =
-  | CURLPROXY_HTTP
+  | CURLPROXY_HTTP (** since libcurl 7.10 *)
   | CURLPROXY_HTTP_1_0 (** since libcurl 7.19.4 *)
   | CURLPROXY_SOCKS4 (** since libcurl 7.15.2 *)
-  | CURLPROXY_SOCKS5
+  | CURLPROXY_SOCKS5 (** since libcurl 7.10 *)
   | CURLPROXY_SOCKS4A (** since libcurl 7.18.0 *)
   | CURLPROXY_SOCKS5_HOSTNAME (** since libcurl 7.18.0 *)
+  | CURLPROXY_HTTPS (** since libcurl 7.52.0 *)
+  | CURLPROXY_HTTPS2 (** since libcurl 8.1.0 *)
 
 type curlSockType =
   | CURLSOCKTYPE_IPCXN

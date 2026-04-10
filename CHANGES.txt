@@ -1,3 +1,8 @@
+## unreleased
+
+* Add support for proxy types CURLPROXY_HTTPS and CURLPROXY_HTTPS2.
+  (Volker Diels-Grabsch)
+
 ## 0.10.0 - 14 May 2025
 
 * Transition from the ocurl package name to curl.
