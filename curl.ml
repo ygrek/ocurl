@@ -518,6 +518,7 @@ type curlOption =
   | CURLOPT_TCP_KEEPIDLE of int
   | CURLOPT_TCP_KEEPINTVL of int
   | CURLOPT_NOPROXY of string
+  | CURLOPT_UNIX_SOCKET_PATH of string
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -1165,6 +1166,9 @@ let set_proxy_ssl_options conn opts =
 let set_noproxy conn s =
   setopt conn (CURLOPT_NOPROXY s)
 
+let set_unix_socket_path conn unix_socket_path =
+  setopt conn (CURLOPT_UNIX_SOCKET_PATH unix_socket_path)
+
 let get_effectiveurl conn =
   match (getinfo conn CURLINFO_EFFECTIVE_URL) with
   | CURLINFO_String s -> s
@@ -1527,6 +1531,7 @@ class handle =
     method set_tcpkeepidle seconds = set_tcpkeepidle conn seconds
     method set_tcpkeepintvl seconds = set_tcpkeepintvl conn seconds
     method set_noproxy s = set_noproxy conn s
+    method set_unix_socket_path unix_socket_path = set_unix_socket_path conn unix_socket_path
 
     method get_effectiveurl = get_effectiveurl conn
     method get_redirecturl = get_redirecturl conn

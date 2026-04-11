@@ -2,6 +2,8 @@
 
 * Add support for proxy types CURLPROXY_HTTPS and CURLPROXY_HTTPS2.
   (Volker Diels-Grabsch)
+* Add support for CURLOPT_UNIX_SOCKET_PATH.
+  (Volker Diels-Grabsch)
 
 ## 0.10.0 - 14 May 2025
 
