@@ -4014,7 +4014,7 @@ value caml_curl_easy_cleanup(value conn)
 
 enum GetInfoResultType {
     StringValue, LongValue, DoubleValue, StringListValue, StringListListValue,
-    SocketValue, OCamlValue, /* keep last - no matching OCaml CURLINFO_ constructor */
+    SocketValue, HTTPInfoValue, OCamlValue, /* keep last - no matching OCaml CURLINFO_ constructor */
 };
 
 value convertStringList(struct curl_slist *p)
@@ -4477,7 +4477,7 @@ value caml_curl_easy_getinfo(value conn, value option)
 #endif
 #if HAVE_DECL_CURLINFO_HTTP_VERSION
     case 38: /* CURLINFO_HTTP_VERSION */
-        resultType = LongValue;
+        resultType = HTTPInfoValue;
 
         curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_HTTP_VERSION,
@@ -4529,6 +4529,11 @@ value caml_curl_easy_getinfo(value conn, value option)
     case SocketValue:
         result = caml_alloc(1, SocketValue);
         Store_field(result, 0, Val_socket(socketValue));
+        break;
+
+    case HTTPInfoValue:
+        result = caml_alloc(1, HTTPInfoValue);
+        Store_field(result, 0, Val_long(longValue));
         break;
 
     case OCamlValue:
