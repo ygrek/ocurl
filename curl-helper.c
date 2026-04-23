@@ -4940,7 +4940,6 @@ value caml_curlm_remove_finished(value v_multi)
     {
         Store_field(Field(conn->ocamlValues, Ocaml_ERRORBUFFER), 0, caml_copy_string(conn->curl_ERRORBUFFER));
     }
-    conn->refcount--;
     /* NB: same handle, but different block */
     v_easy = caml_curl_alloc(conn);
     v_tuple = caml_alloc_tuple(2);
