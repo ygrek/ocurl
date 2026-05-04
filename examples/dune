@@ -7,6 +7,8 @@
   test_memory_leaks
   test_enum)
  (libraries curl unix)
+ ; static link (except system libs)
+ (link_flags -cc "%{cc} -Wl,-Bstatic" -cclib -Wl,-Bdynamic)
  (modules
   ocurl
   ominimal

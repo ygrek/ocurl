@@ -1,5 +1,7 @@
 module C = Configurator.V1
 
+[@@@warning "-40"]
+
 module List = struct
   (* Compatibility with OCaml < 4.10 *)
   let [@warning "-32"] rec concat_map f = function
@@ -389,6 +391,22 @@ let extract_all_declarations c ~cflags ~libs =
   extract_declarations c ~cflags ~libs ~declarations:curl_h_declarations ~includes:[ "#include <curl/curl.h>" ]
   @ extract_declarations c ~cflags ~libs ~declarations:header_h_declarations ~includes:[ "#include <curl/curl.h>"; "#include <curl/header.h>" ]
 
+(* naive (what if some lib requires -L) *)
+let dynamic over libs =
+  (* NB adding all as dynamic, not only the ones present, because libcurl.pc misses sasl dep *)
+  let (_over,libs) = List.partition (fun l -> List.mem l over) libs in
+  (if over <> [] then ["-Wl,--push-state"; "-Wl,-Bdynamic"] @ over @ ["-Wl,--pop-state"] else []) @ libs
+
+(* basically Pkg_config.query_expr_err with --static and no smartness finding pkg-config itself (it is up to the host owner to set it up properly) *)
+let pkg_config ~package ?(expr=package) c =
+  let open C in
+  let run args =
+    Flags.extract_blank_separated_words @@ String.trim @@ Process.run_capture_exn c "pkg-config" @@ [ "--print-errors"] @ args @ [ package ]
+  in
+  match Process.run c "pkg-config" [ "--print-errors"; expr ] with
+  | { exit_code = 0; _ } -> Ok { Pkg_config.libs = run ["--static"; "--libs"]; cflags = run ["--static"; "--cflags"] }
+  | { stderr; _ } -> Error stderr
+
 let main c =
   let cflags, libs =
     match C.ocaml_config_var c "ccomp_type" with
@@ -396,9 +414,11 @@ let main c =
        let {C.Pkg_config.cflags; libs} =
          match C.Pkg_config.get c with
          | None -> { cflags = []; C.Pkg_config.libs = [ "-lcurl" ]}
-         | Some pc ->
-            (match C.Pkg_config.query_expr_err pc ~package:"libcurl" ~expr:"libcurl >= 7.28.0" with
-            | Ok c ->  c
+         | Some _pc ->
+            (match pkg_config c ~package:"libcurl" ~expr:"libcurl >= 7.28.0" with
+            (* static sasl is unusable (requires a lot of dependencies), p11-kit doesn't provide static lib *)
+            (* TODO figure the absence of static lib automatically *)
+            | Ok c -> { c with libs = dynamic ["-lsasl2";"-lp11-kit"] c.libs }
             | Error err -> C.die "%s" err)
        in
        "-Wall" :: "-Wno-deprecated-declarations" :: cflags, libs
