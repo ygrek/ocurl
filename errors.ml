@@ -49,6 +49,7 @@ let all = [
   "CURLE_TOO_MANY_REDIRECTS";
   "CURLE_UNKNOWN_TELNET_OPTION";
   "CURLE_TELNET_OPTION_SYNTAX";
+  "CURLE_OBSOLETE";
   "CURLE_SSL_PEER_CERTIFICATE";
   "CURLE_GOT_NOTHING";
   "CURLE_SSL_ENGINE_NOTFOUND";
@@ -82,24 +83,38 @@ let all = [
   "CURLE_AGAIN";
 ]
 
+(* Names whose OCaml variant tag does NOT match the libcurl numeric value
+   because the C side resolves them through a #define alias to a different
+   code. Skip the index/value assertion for these. *)
+let aliased = [
+  (* renamed to CURLE_PEER_FAILED_VERIFICATION at slot 51 in libcurl 7.17.1,
+     then moved to slot 60 in 7.62.0, folding in CURLE_SSL_CACERT *)
+  "CURLE_SSL_PEER_CERTIFICATE";
+]
+
 let pr fmt = Printf.ksprintf print_endline fmt
 
 let () =
   match List.tl @@ Array.to_list @@ Sys.argv with
   | [] | "c"::[] ->
-    all |> List.iteri begin fun i s ->
+    all |> List.iter begin fun s ->
       match s with
       | "CURLE_OK" ->
         pr "    {\"%s\", %s}," s s
       | _ ->
         pr "#if HAVE_DECL_%s" s;
-        pr "#if %s != %d" s i;
-        pr "#warning error code mismatch: %s != %d" s i;
-        pr "#endif";
         pr "    {\"%s\", %s}," s s;
         pr "#else";
         pr "    {\"%s\", -1}," s;
         pr"#endif";
+    end
+  | "c-assert"::[] ->
+    all |> List.iteri begin fun i s ->
+      if s <> "CURLE_OK" && not (List.mem s aliased) then begin
+        pr "#if HAVE_DECL_%s" s;
+        pr "_Static_assert((int)%s == %d, \"%s expected to be %d\");" s i s i;
+        pr "#endif";
+      end
     end
   | "ml"::[] -> all |> List.iter (pr "  | %s")
   | "configure"::[] ->
