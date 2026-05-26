@@ -398,6 +398,7 @@ let dynamic over libs =
   (if over <> [] then ["-Wl,--push-state"; "-Wl,-Bdynamic"] @ over @ ["-Wl,--pop-state"] else []) @ libs
 
 let main c =
+  Unix.putenv "PKG_CONFIG_ARGN" "--static"; (* set env for Pkg_config.get *)
   let cflags, libs =
     match C.ocaml_config_var c "ccomp_type" with
     | Some "cc" ->
@@ -405,7 +406,6 @@ let main c =
          match C.Pkg_config.get c with
          | None -> { cflags = []; C.Pkg_config.libs = [ "-lcurl" ]}
          | Some pc ->
-            Unix.putenv "PKG_CONFIG_ARGN" "--static";
             (match C.Pkg_config.query_expr_err pc ~package:"libcurl" ~expr:"libcurl >= 7.28.0" with
             | Ok c ->
                 (* static sasl is unusable (requires a lot of dependencies), p11-kit doesn't provide static lib *)
