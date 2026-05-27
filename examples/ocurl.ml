@@ -18,10 +18,6 @@ let showInfo connection =
     (Curl.get_totaltime connection)
     (Curl.get_effectiveurl connection)
 
-let getContent connection url =
-  Curl.set_url connection url;
-  Curl.perform connection
-
 let _ =
   Curl.global_init Curl.CURLINIT_GLOBALALL;
   begin
