@@ -4,6 +4,8 @@
   (Volker Diels-Grabsch)
 * Add support for CURLOPT_UNIX_SOCKET_PATH.
   (Volker Diels-Grabsch)
+* Bind CURLE_OBSOLETE and CURLE_* codes 82-101.
+  (Yasunari Watanabe)
 
 ## 0.10.0 - 14 May 2025
 
