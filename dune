@@ -18,6 +18,10 @@
  (libraries curl lwt.unix)
  (modules curl_lwt))
 
+(executable
+ (name errors)
+ (modules errors))
+
 (deprecated_library_name
  (old_public_name curl.lwt)
  (new_public_name curl_lwt))
