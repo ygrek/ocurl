@@ -11,6 +11,11 @@
   Fix leaking easy handles still added to a multi handle on Multi.cleanup or
   Curl.cleanup.
   (Eli Dowling)
+* Fix use-after-free in the Multi.set_closesocket_function callback when an
+  easy handle is used again after its multi handle is cleaned up. The function
+  is now only used for sockets opened while the easy handle is added to the
+  multi handle.
+  (Eli Dowling)
 
 ## 0.10.0 - 14 May 2025
 

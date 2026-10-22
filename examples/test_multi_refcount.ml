@@ -2,9 +2,8 @@
 
 module M = Curl.Multi
 
-(* no URL set, so the transfer fails immediately without touching the network *)
-let finish mt h =
-  M.add mt h;
+(* runs the transfers until h is finished and removed *)
+let run mt h =
   let rec loop () =
     ignore (M.perform mt);
     match M.remove_finished mt with
@@ -13,6 +12,10 @@ let finish mt h =
   in
   loop ()
 
+let finish mt h =
+  M.add mt h;
+  run mt h
+
 (* Multi.remove after Multi.remove_finished must not release the multi's
    reference to h a second time, which used to free it while still in use.
    https://github.com/ygrek/ocurl/pull/113 *)
@@ -20,6 +23,7 @@ let test_remove_after_finished () =
   let mt = M.create () in
   let h = Curl.init () in
   for _ = 1 to 100 do
+    (* no URL set, so the transfer fails immediately without touching the network *)
     finish mt h;
     (* already removed: a no-op, or an error before libcurl 7.33.0 *)
     (try M.remove mt h with M.CError _ -> ());
@@ -68,8 +72,51 @@ let test_easy_cleanup () =
   Gc.full_major ();
   M.cleanup mt
 
+(* a refused connection opens and closes a socket without needing a server *)
+let set_refused h =
+  Curl.set_url h "http://127.0.0.1:1/";
+  Curl.set_timeoutms h 5000
+
+let perform_refused h =
+  set_refused h;
+  try Curl.perform h with Curl.CurlException _ -> ()
+
+(* The multi's closesocket function is only used while the handle is added *)
+let test_closesocket () =
+  let closed = ref 0 in
+  let mt = M.create () in
+  M.set_closesocket_function mt (fun fd -> incr closed; Unix.close fd);
+  let removed = Curl.init () in
+  set_refused removed;
+  finish mt removed;
+  assert (!closed > 0);
+  closed := 0;
+  (* not once removed *)
+  perform_refused removed;
+  assert (!closed = 0);
+  (* nor after failing to add a handle that is in another multi handle *)
+  let other = M.create () in
+  let h = Curl.init () in
+  set_refused h;
+  M.add other h;
+  (try M.add mt h; assert false with M.CError _ -> ());
+  run other h;
+  assert (!closed = 0);
+  M.cleanup other;
+  Curl.cleanup h;
+  (* nor after Multi.cleanup freed the multi *)
+  let added = Curl.init () in
+  M.add mt added;
+  M.cleanup mt;
+  perform_refused added;
+  perform_refused removed;
+  assert (!closed = 0);
+  Curl.cleanup added;
+  Curl.cleanup removed
+
 let () =
   test_remove_after_finished ();
   test_multi_cleanup ();
   test_easy_cleanup ();
+  test_closesocket ();
   print_endline "OK"

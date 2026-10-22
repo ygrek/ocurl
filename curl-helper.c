@@ -836,12 +836,13 @@ static void removeConnection(Connection *connection, int finalization)
       caml_release_runtime_system();
       curl_easy_cleanup(connection->handle);
       caml_acquire_runtime_system();
-
-      /* curl_easy_cleanup also removes the handle from its multi handle */
-      multi_detach(connection);
     }
 
     connection->handle = NULL;
+
+    /* curl_easy_cleanup also removed it from its multi handle. Detach only now
+       that handle is NULL, so that multi_detach leaves the freed one alone */
+    multi_detach(connection);
 
     caml_remove_global_root(&connection->ocamlValues);
 
@@ -4910,6 +4911,8 @@ typedef struct ml_multi_handle ml_multi_handle;
 #define Multi_val(v) (*(ml_multi_handle**)Data_custom_val(v))
 #define CURLM_val(v) (Multi_val(v)->handle)
 
+static int curlm_closesocket_cb(void *data, curl_socket_t socket);
+
 /* the multi handle holds a reference to each connection added to it, keeping
    it alive for libcurl's callbacks even when no OCaml value refers to it */
 static void multi_attach(ml_multi_handle* multi, Connection* conn)
@@ -4917,6 +4920,14 @@ static void multi_attach(ml_multi_handle* multi, Connection* conn)
   /* conn may still be listed in a previous multi handle if it was added from
      a callback during that one's cleanup, after libcurl removed it there */
   multi_detach(conn);
+
+  /* sockets opened while added are closed with the multi's closesocket function.
+     Set only after a successful add, so that a failed one changes nothing */
+  if (Field(multi->values, curlmopt_closesocket_function) != Val_unit)
+  {
+    curl_easy_setopt(conn->handle, CURLOPT_CLOSESOCKETDATA, multi);
+    curl_easy_setopt(conn->handle, CURLOPT_CLOSESOCKETFUNCTION, curlm_closesocket_cb);
+  }
 
   conn->multi = multi;
   conn->multi_prev = NULL;
@@ -4933,6 +4944,15 @@ static void multi_detach(Connection* conn)
 {
   if (NULL == conn->multi)
     return;
+
+  /* the closesocket callback points to the multi handle, which may be freed
+     before the easy handle is used again. Connections in the multi's pool keep
+     their own copy, and curl_multi_cleanup closes them before it is freed */
+  if (NULL != conn->handle)
+  {
+    curl_easy_setopt(conn->handle, CURLOPT_CLOSESOCKETFUNCTION, NULL);
+    curl_easy_setopt(conn->handle, CURLOPT_CLOSESOCKETDATA, NULL);
+  }
 
   if (NULL != conn->multi_prev)
     conn->multi_prev->multi_next = conn->multi_next;
@@ -5045,9 +5065,10 @@ value caml_curl_multi_cleanup(value handle)
   /* on error libcurl cleaned up nothing, so leave the multi handle usable */
   check_mcode("curl_multi_cleanup",rc);
 
-  /* libcurl removed the handles still added, release them. Empty the list
-     before cleaning up the unreferenced ones (linked through multi_next), as
-     that releases the runtime lock, letting threads and callbacks use the rest */
+  /* libcurl removed the handles still added, release their references.
+     Empty the list before cleaning up the unreferenced ones (linked through
+     multi_next): that releases the runtime lock, and other threads or
+     callbacks may then add the referenced ones to another multi handle */
   while (NULL != (conn = h->conns))
   {
     multi_detach(conn);
@@ -5280,17 +5301,6 @@ value caml_curl_multi_add_handle(value v_multi, value v_easy)
   CURLMcode rc = CURLM_OK;
   CURLM* multi = CURLM_val(v_multi);
   Connection* conn = Connection_val(v_easy);
-
-  if (Field(Multi_val(v_multi)->values, curlmopt_closesocket_function) != Val_unit)
-  {
-    CURLcode result = CURLE_OK;
-    result = curl_easy_setopt(conn->handle, CURLOPT_CLOSESOCKETDATA, Multi_val(v_multi));
-    if (result != CURLE_OK)
-      raiseError(conn, result);
-    result = curl_easy_setopt(conn->handle, CURLOPT_CLOSESOCKETFUNCTION, curlm_closesocket_cb);
-    if (result != CURLE_OK)
-      raiseError(conn, result);
-  }
 
   /* may invoke callbacks so need to be consistent with locks */
   caml_release_runtime_system();

@@ -1295,7 +1295,8 @@ module Multi : sig
       The underlying callback is a property of the easy handle, but cannot be stored there
       in these bindings because libcurl's use of this callback may occur outside the
       lifetime of the easy handle. This means that all easy handles added to a multi
-      handle must use the same closesocket function. *)
+      handle must use the same closesocket function. It is only used for sockets opened
+      while the easy handle is added to the multi handle. *)
   val set_closesocket_function : mt -> (Unix.file_descr -> unit) -> unit
 
   (** perform pending data transfers (if any) on all handles currently in multi stack
