@@ -1261,7 +1261,8 @@ module Multi : sig
   (** remove finished handle from the multi stack if any. The returned handle may be reused *)
   val remove_finished : mt -> (t * curlCode) option
 
-  (** destroy multi handle (all transfers are stopped, but individual {!type: Curl.t} handles can be reused) *)
+  (** destroy multi handle (all transfers are stopped, but individual {!type: Curl.t} handles can be reused).
+      Handles still added that are no longer referenced from OCaml are cleaned up. *)
   val cleanup : mt -> unit
 
   (** events that should be reported for the socket *)

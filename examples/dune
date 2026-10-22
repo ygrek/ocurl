@@ -5,7 +5,8 @@
   ossl
   test_cb_exn
   test_memory_leaks
-  test_enum)
+  test_enum
+  test_multi_refcount)
  (libraries curl unix)
  (modules
   ocurl
@@ -13,7 +14,8 @@
   ossl
   test_cb_exn
   test_memory_leaks
-  test_enum))
+  test_enum
+  test_multi_refcount))
 
 (executables
  (names
@@ -46,3 +48,7 @@
 (rule
  (alias runtest)
  (action (run ./test_memory_leaks.exe)))
+
+(rule
+ (alias runtest)
+ (action (run ./test_multi_refcount.exe)))

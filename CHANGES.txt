@@ -6,6 +6,11 @@
   (Volker Diels-Grabsch)
 * Bind CURLE_OBSOLETE and CURLE_* codes 82-101.
   (Yasunari Watanabe)
+* Fix use-after-free when calling Multi.remove on a handle already removed by
+  Multi.remove_finished.
+  Fix leaking easy handles still added to a multi handle on Multi.cleanup or
+  Curl.cleanup.
+  (Eli Dowling)
 
 ## 0.10.0 - 14 May 2025
 

@@ -134,6 +134,10 @@ struct Connection
 
     size_t refcount; /* number of references to this structure */
 
+    struct ml_multi_handle *multi; /* multi handle it is added to, holding one reference */
+    Connection *multi_prev; /* neighbours in that multi handle's list of connections */
+    Connection *multi_next;
+
     char *curl_ERRORBUFFER;
     char *curl_POSTFIELDS;
     struct curl_slist *curl_HTTPHEADER;
@@ -770,6 +774,10 @@ static Connection* allocConnection(CURL* h)
 
     connection->refcount = 0;
 
+    connection->multi = NULL;
+    connection->multi_prev = NULL;
+    connection->multi_next = NULL;
+
     connection->curl_ERRORBUFFER = NULL;
     connection->curl_POSTFIELDS = NULL;
     connection->curl_HTTPHEADER = NULL;
@@ -802,6 +810,8 @@ static Connection *newConnection(void)
 
 static void free_if(void* p) { if (NULL != p) free(p); }
 
+static void multi_detach(Connection* conn);
+
 static void removeConnection(Connection *connection, int finalization)
 {
     const char* fin_url = NULL;
@@ -826,6 +836,9 @@ static void removeConnection(Connection *connection, int finalization)
       caml_release_runtime_system();
       curl_easy_cleanup(connection->handle);
       caml_acquire_runtime_system();
+
+      /* curl_easy_cleanup also removes the handle from its multi handle */
+      multi_detach(connection);
     }
 
     connection->handle = NULL;
@@ -4879,6 +4892,7 @@ struct ml_multi_handle
 {
   CURLM* handle;
   value values; /* callbacks */
+  Connection* conns; /* added easy handles */
 };
 
 enum
@@ -4895,6 +4909,43 @@ typedef struct ml_multi_handle ml_multi_handle;
 
 #define Multi_val(v) (*(ml_multi_handle**)Data_custom_val(v))
 #define CURLM_val(v) (Multi_val(v)->handle)
+
+/* the multi handle holds a reference to each connection added to it, keeping
+   it alive for libcurl's callbacks even when no OCaml value refers to it */
+static void multi_attach(ml_multi_handle* multi, Connection* conn)
+{
+  /* conn may still be listed in a previous multi handle if it was added from
+     a callback during that one's cleanup, after libcurl removed it there */
+  multi_detach(conn);
+
+  conn->multi = multi;
+  conn->multi_prev = NULL;
+  conn->multi_next = multi->conns;
+  if (NULL != multi->conns)
+    multi->conns->multi_prev = conn;
+  multi->conns = conn;
+  conn->refcount++;
+}
+
+/* undoes multi_attach, if conn is added. The caller must free conn if this
+   released the last reference */
+static void multi_detach(Connection* conn)
+{
+  if (NULL == conn->multi)
+    return;
+
+  if (NULL != conn->multi_prev)
+    conn->multi_prev->multi_next = conn->multi_next;
+  else
+    conn->multi->conns = conn->multi_next;
+  if (NULL != conn->multi_next)
+    conn->multi_next->multi_prev = conn->multi_prev;
+
+  conn->multi = NULL;
+  conn->multi_prev = NULL;
+  conn->multi_next = NULL;
+  conn->refcount--;
+}
 
 static struct custom_operations curl_multi_ops = {
   "ygrek.curl_multi",
@@ -4967,6 +5018,7 @@ value caml_curl_multi_init(value unit)
   }
 
   multi->handle = h;
+  multi->conns = NULL;
   multi->values = caml_alloc(multi_values_total, 0);
   caml_register_generational_global_root(&multi->values);
 
@@ -4980,6 +5032,8 @@ value caml_curl_multi_cleanup(value handle)
 {
   CAMLparam1(handle);
   ml_multi_handle* h = Multi_val(handle);
+  Connection* conn;
+  Connection* unreferenced = NULL;
 
   if (NULL == h)
     CAMLreturn(Val_unit);
@@ -4988,17 +5042,43 @@ value caml_curl_multi_cleanup(value handle)
   CURLMcode rc = curl_multi_cleanup(h->handle);
   caml_acquire_runtime_system();
 
+  /* on error libcurl cleaned up nothing, so leave the multi handle usable */
+  check_mcode("curl_multi_cleanup",rc);
+
+  /* libcurl removed the handles still added, release them. Empty the list
+     before cleaning up the unreferenced ones (linked through multi_next), as
+     that releases the runtime lock, letting threads and callbacks use the rest */
+  while (NULL != (conn = h->conns))
+  {
+    multi_detach(conn);
+    if (0 == conn->refcount)
+    {
+      conn->multi_next = unreferenced;
+      unreferenced = conn;
+    }
+  }
+
   caml_remove_generational_global_root(&h->values);
 
   caml_stat_free(h);
   Multi_val(handle) = (ml_multi_handle*)NULL;
 
-  check_mcode("curl_multi_cleanup",rc);
+  while (NULL != (conn = unreferenced))
+  {
+    unreferenced = conn->multi_next;
+    conn->multi_next = NULL;
+    /* unreachable from OCaml, so clean it up as Curl.cleanup would */
+    removeConnection(conn, 0);
+    /* a callback during the cleanup may have handed it to OCaml again,
+       leaving it to the finalizer */
+    if (0 == conn->refcount)
+      free(conn);
+  }
 
   CAMLreturn(Val_unit);
 }
 
-static CURL* curlm_remove_finished(CURLM* multi_handle, CURLcode* result)
+static CURL* curlm_remove_finished(CURLM* multi_handle, CURLcode* result, int* removed)
 {
   int msgs_in_queue = 0;
 
@@ -5010,10 +5090,7 @@ static CURL* curlm_remove_finished(CURLM* multi_handle, CURLcode* result)
     {
       CURL* easy_handle = msg->easy_handle;
       if (result) *result = msg->data.result;
-      if (CURLM_OK != curl_multi_remove_handle(multi_handle, easy_handle))
-      {
-        /*caml_failwith("curlm_remove_finished");*/
-      }
+      *removed = (CURLM_OK == curl_multi_remove_handle(multi_handle, easy_handle));
       return easy_handle;
     }
   }
@@ -5026,12 +5103,13 @@ value caml_curlm_remove_finished(value v_multi)
   CURL* handle;
   CURLM* multi_handle;
   CURLcode result;
+  int removed = 0;
   Connection* conn = NULL;
 
   multi_handle = CURLM_val(v_multi);
 
   caml_release_runtime_system();
-  handle = curlm_remove_finished(multi_handle,&result);
+  handle = curlm_remove_finished(multi_handle,&result,&removed);
   caml_acquire_runtime_system();
 
   if (NULL == handle)
@@ -5045,9 +5123,12 @@ value caml_curlm_remove_finished(value v_multi)
     {
         Store_field(Field(conn->ocamlValues, Ocaml_ERRORBUFFER), 0, caml_copy_string(conn->curl_ERRORBUFFER));
     }
-    conn->refcount--;
     /* NB: same handle, but different block */
     v_easy = caml_curl_alloc(conn);
+    /* release the multi reference if the handle was removed, but only now
+       that v_easy holds one: a GC during the allocation could free conn */
+    if (removed)
+      multi_detach(conn);
     v_tuple = caml_alloc_tuple(2);
     Store_field(v_tuple,0,v_easy);
     Store_field(v_tuple,1,Val_int(result)); /* CURLcode */
@@ -5211,20 +5292,13 @@ value caml_curl_multi_add_handle(value v_multi, value v_easy)
       raiseError(conn, result);
   }
 
-  /* prevent collection of OCaml value while the easy handle is used
-   and may invoke callbacks registered on OCaml side */
-  conn->refcount++;
-
   /* may invoke callbacks so need to be consistent with locks */
   caml_release_runtime_system();
   rc = curl_multi_add_handle(multi, conn->handle);
-  if (CURLM_OK != rc)
-  {
-    conn->refcount--; /* not added, revert */
-    caml_acquire_runtime_system();
-    check_mcode("curl_multi_add_handle",rc);
-  }
   caml_acquire_runtime_system();
+  check_mcode("curl_multi_add_handle",rc);
+
+  multi_attach(Multi_val(v_multi), conn);
 
   CAMLreturn(Val_unit);
 }
@@ -5239,9 +5313,12 @@ value caml_curl_multi_remove_handle(value v_multi, value v_easy)
   /* may invoke callbacks so need to be consistent with locks */
   caml_release_runtime_system();
   rc = curl_multi_remove_handle(multi, conn->handle);
-  conn->refcount--;
   caml_acquire_runtime_system();
   check_mcode("curl_multi_remove_handle",rc);
+
+  /* libcurl >= 7.33.0 also succeeds for a handle that is not added, e.g.
+     one already removed by remove_finished, then multi_detach does nothing */
+  multi_detach(conn);
 
   CAMLreturn(Val_unit);
 }
