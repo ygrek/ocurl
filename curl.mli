@@ -11,6 +11,58 @@
 
 type t
 
+(** {2 Share interface} *)
+
+(** Share handles let easy handles share data such as cookies, the DNS cache, SSL sessions
+    or connections, see {{:https://curl.se/libcurl/c/libcurl-share.html} libcurl-share}.
+    An easy handle uses one after {!set_share}, which keeps it alive meanwhile.
+
+    Easy handles using the same share handle can perform transfers in different threads
+    at the same time, the shared data is locked. libcurl does not support sharing
+    connections between transfers running concurrently in different threads though.
+
+    Like easy handles, share handles must be cleaned up with {!Share.cleanup}, otherwise they
+    are reported as leaked when collected. *)
+module Share : sig
+  type st
+
+  type curlShareCode =
+    | CURLSHE_OK
+    | CURLSHE_BAD_OPTION
+    | CURLSHE_IN_USE
+    | CURLSHE_INVALID
+    | CURLSHE_NOMEM
+    | CURLSHE_NOT_BUILT_IN
+
+  (** data to share *)
+  type curlShareData =
+    | CURLSHOPT_SHARE_COOKIE
+    | CURLSHOPT_SHARE_DNS
+    | CURLSHOPT_SHARE_SSL_SESSION
+    | CURLSHOPT_SHARE_CONNECT (** cannot be used with {!Multi.set_closesocket_function} *)
+
+  type curlShareOption =
+    | CURLSHOPT_SHARE of curlShareData
+    | CURLSHOPT_UNSHARE of curlShareData
+
+  (** error code, the same as an integer, and its message *)
+  exception ShareError of (curlShareCode * int * string)
+
+  (** create a share handle *)
+  val init : unit -> st
+
+  (** destroy share handle, once easy handles using it are cleaned up. Does nothing if
+      already destroyed.
+      @raise ShareError with [CURLSHE_IN_USE] if easy handles still use it *)
+  val cleanup : st -> unit
+
+  (** set option, before easy handles use the share handle.
+      @raise ShareError with [CURLSHE_IN_USE] if easy handles already use it *)
+  val setopt : st -> curlShareOption -> unit
+
+  val strerror : curlShareCode -> string
+end
+
 type curlCode =
   | CURLE_OK
   | CURLE_UNSUPPORTED_PROTOCOL
@@ -551,6 +603,7 @@ type curlOption =
   | CURLOPT_TCP_KEEPINTVL of int
   | CURLOPT_NOPROXY of string
   | CURLOPT_UNIX_SOCKET_PATH of string (* @since libcurl 7.40.0 *)
+  | CURLOPT_SHARE of Share.st
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -934,6 +987,12 @@ val set_sshkeyfunction : t -> (curlKHMatch -> string -> curlKHStat) -> unit
 val set_noproxy : t -> string -> unit
 val set_unix_socket_path : t -> string -> unit
 
+(** use the share handle, also after {!reset}, until another one is set or the easy
+    handle is cleaned up
+    @raise Invalid_argument if it shares connections, and the easy handle is added to a
+    multi handle with a closesocket function *)
+val set_share : t -> Share.st -> unit
+
 (** {2 Get transfer properties} *)
 
 val get_effectiveurl : t -> string
@@ -1152,6 +1211,7 @@ class handle :
     method set_tcpkeepintvl : int -> unit
     method set_noproxy : string -> unit
     method set_unix_socket_path : string -> unit
+    method set_share : Share.st -> unit
 
     method get_effectiveurl : string
     method get_redirecturl : string
@@ -1226,7 +1286,9 @@ module Multi : sig
   (** create new multi stack *)
   val create : unit -> mt
 
-  (** add handle to multi stack *)
+  (** add handle to multi stack
+      @raise Invalid_argument if the multi handle has a closesocket function and the
+      easy handle uses a share handle sharing connections *)
   val add : mt -> t -> unit
 
   (** remove handle from multi stack (effectively halting the transfer) *)
@@ -1296,7 +1358,12 @@ module Multi : sig
       in these bindings because libcurl's use of this callback may occur outside the
       lifetime of the easy handle. This means that all easy handles added to a multi
       handle must use the same closesocket function. It is only used for sockets opened
-      while the easy handle is added to the multi handle. *)
+      while the easy handle is added to the multi handle.
+
+      It cannot be used with easy handles using a share handle that shares connections
+      ([Share.CURLSHOPT_SHARE_CONNECT]), whose connections may be closed after the multi
+      handle is cleaned up.
+      @raise Invalid_argument if such easy handles are added *)
   val set_closesocket_function : mt -> (Unix.file_descr -> unit) -> unit
 
   (** perform pending data transfers (if any) on all handles currently in multi stack

@@ -16,6 +16,8 @@
   is now only used for sockets opened while the easy handle is added to the
   multi handle.
   (Eli Dowling)
+* Bind the share interface: Curl.Share, CURLOPT_SHARE and Curl.set_share.
+  (Eli Dowling)
 
 ## 0.10.0 - 14 May 2025
 

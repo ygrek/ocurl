@@ -3,30 +3,36 @@
   ocurl
   ominimal
   ossl
+  oshare
   test_cb_exn
   test_memory_leaks
   test_enum
-  test_multi_refcount)
+  test_multi_refcount
+  test_share)
  (libraries curl unix)
  (modules
   ocurl
   ominimal
   ossl
+  oshare
   test_cb_exn
   test_memory_leaks
   test_enum
-  test_multi_refcount))
+  test_multi_refcount
+  test_share))
 
 (executables
  (names
   opar
   ocurl_test_threads
-  test_ws)
+  test_ws
+  test_share_threads)
  (libraries curl threads)
  (modules
   opar
   ocurl_test_threads
-  test_ws))
+  test_ws
+  test_share_threads))
 
 (executables
  (names
@@ -52,3 +58,11 @@
 (rule
  (alias runtest)
  (action (run ./test_multi_refcount.exe)))
+
+(rule
+ (alias runtest)
+ (action (run ./test_share.exe)))
+
+(rule
+ (alias runtest)
+ (action (run ./test_share_threads.exe)))

@@ -17,6 +17,7 @@
 #include <caml/version.h>
 #ifndef _WIN32
 #include <unistd.h>
+#include <pthread.h>
 #endif
 /* suppress false gcc warning on seekFunction */
 #define CURL_DISABLE_TYPECHECK
@@ -121,6 +122,7 @@ typedef enum OcamlValues
     Ocaml_ERRORBUFFER,
     Ocaml_CALLBACKBUFFER,
     Ocaml_PRIVATE,
+    Ocaml_SHARE,
 
     /* Not used, last for size */
     OcamlValuesSize
@@ -1793,12 +1795,16 @@ value caml_curl_easy_init(void)
 value caml_curl_easy_reset(value conn)
 {
     CAMLparam1(conn);
+    CAMLlocal1(share);
     Connection *connection = Connection_val(conn);
 
     checkConnection(connection);
     curl_easy_reset(connection->handle);
     curl_easy_setopt(connection->handle, CURLOPT_PRIVATE, connection);
+    /* curl_easy_reset keeps the share handle */
+    share = Field(connection->ocamlValues, Ocaml_SHARE);
     resetOcamlValues(connection);
+    Store_field(connection->ocamlValues, Ocaml_SHARE, share);
 
     CAMLreturn(Val_unit);
 }
@@ -3121,7 +3127,24 @@ SETOPT_STRING( FTP_ACCOUNT)
 #endif
 
 #if HAVE_DECL_CURLOPT_COOKIELIST
-SETOPT_STRING( COOKIELIST)
+static void handle_COOKIELIST(Connection *conn, value option)
+{
+    CAMLparam1(option);
+    CURLcode result = CURLE_OK;
+    char* cookie = caml_stat_strdup(String_val(option));
+
+    /* takes the cookie lock of the share handle, which other threads may hold
+       while running OCaml callbacks, e.g. a debug function */
+    caml_release_runtime_system();
+    result = curl_easy_setopt(conn->handle, CURLOPT_COOKIELIST, cookie);
+    caml_acquire_runtime_system();
+    caml_stat_free(cookie);
+
+    if (result != CURLE_OK)
+        raiseError(conn, result);
+
+    CAMLreturn0;
+}
 #endif
 
 #if HAVE_DECL_CURLOPT_IGNORE_CONTENT_LENGTH
@@ -3595,6 +3618,52 @@ SETOPT_LONG( TCP_KEEPIDLE)
 
 SETOPT_LONG( TCP_KEEPINTVL)
 
+#ifdef _WIN32
+typedef CRITICAL_SECTION ml_share_lock;
+#else
+typedef pthread_mutex_t ml_share_lock;
+#endif
+
+struct ml_share_handle
+{
+  CURLSH* handle; /* NULL once cleaned up */
+  int shares_connections; /* CURL_LOCK_DATA_CONNECT is shared */
+  ml_share_lock locks[CURL_LOCK_DATA_LAST]; /* one for each kind of shared data */
+};
+
+typedef struct ml_share_handle ml_share_handle;
+
+#define Share_val(v) (*(ml_share_handle**)Data_custom_val(v))
+
+static void raise_share_error(CURLSHcode code);
+static void check_share_closesocket(ml_share_handle* share, struct ml_multi_handle* multi);
+
+static void handle_SHARE(Connection *conn, value option)
+{
+    CAMLparam1(option);
+    CURLcode result = CURLE_OK;
+    ml_share_handle* share = Share_val(option);
+
+    if (NULL == share->handle)
+        raise_share_error(CURLSHE_INVALID);
+
+    check_share_closesocket(share, conn->multi);
+
+    /* takes locks of the share handles, which other threads may hold while
+       running OCaml callbacks, e.g. a debug function */
+    caml_release_runtime_system();
+    result = curl_easy_setopt(conn->handle, CURLOPT_SHARE, share->handle);
+    caml_acquire_runtime_system();
+
+    if (result != CURLE_OK)
+        raiseError(conn, result);
+
+    /* keep the share handle alive while the easy handle uses it */
+    Store_field(conn->ocamlValues, Ocaml_SHARE, option);
+
+    CAMLreturn0;
+}
+
 /**
  **  curl_easy_setopt helper function
  **/
@@ -4049,6 +4118,7 @@ HAVE(NOPROXY),
 #else
   HAVENOT(UNIX_SOCKET_PATH),
 #endif
+HAVE(SHARE),
 };
 
 value caml_curl_easy_setopt(value conn, value option)
@@ -4473,9 +4543,12 @@ value caml_curl_easy_getinfo(value conn, value option)
     case 28: /* CURLINFO_COOKIELIST */
         resultType = StringListValue;
 
+        /* takes the cookie lock of the share handle, see handle_COOKIELIST */
+        caml_release_runtime_system();
         curlResult = curl_easy_getinfo(connection->handle,
                                        CURLINFO_COOKIELIST,
                                        &stringListValue);
+        caml_acquire_runtime_system();
         break;
 #endif
 
@@ -4913,6 +4986,32 @@ typedef struct ml_multi_handle ml_multi_handle;
 
 static int curlm_closesocket_cb(void *data, curl_socket_t socket);
 
+static ml_share_handle* conn_share(Connection* conn)
+{
+  value v;
+
+  if (NULL == conn->handle)
+    return NULL; /* cleaned up, ocamlValues is not a root anymore */
+
+  v = Field(conn->ocamlValues, Ocaml_SHARE);
+  return (Val_unit == v) ? NULL : Share_val(v);
+}
+
+/* connections opened with the multi's closesocket function would go to the
+   pool of a share handle sharing connections instead of the multi's, and could
+   then be closed after the multi handle is freed */
+static void reject_shared_connections(ml_share_handle* share)
+{
+  if (NULL != share && share->shares_connections)
+    caml_invalid_argument("Curl: a multi handle with a closesocket function cannot be used with a share handle sharing connections");
+}
+
+static void check_share_closesocket(ml_share_handle* share, ml_multi_handle* multi)
+{
+  if (NULL != multi && Field(multi->values, curlmopt_closesocket_function) != Val_unit)
+    reject_shared_connections(share);
+}
+
 /* the multi handle holds a reference to each connection added to it, keeping
    it alive for libcurl's callbacks even when no OCaml value refers to it */
 static void multi_attach(ml_multi_handle* multi, Connection* conn)
@@ -4947,7 +5046,8 @@ static void multi_detach(Connection* conn)
 
   /* the closesocket callback points to the multi handle, which may be freed
      before the easy handle is used again. Connections in the multi's pool keep
-     their own copy, and curl_multi_cleanup closes them before it is freed */
+     their own copy, and curl_multi_cleanup closes them before it is freed
+     (they cannot be in a share handle's pool, see check_share_closesocket) */
   if (NULL != conn->handle)
   {
     curl_easy_setopt(conn->handle, CURLOPT_CLOSESOCKETFUNCTION, NULL);
@@ -5302,6 +5402,8 @@ value caml_curl_multi_add_handle(value v_multi, value v_easy)
   CURLM* multi = CURLM_val(v_multi);
   Connection* conn = Connection_val(v_easy);
 
+  check_share_closesocket(conn_share(conn), Multi_val(v_multi));
+
   /* may invoke callbacks so need to be consistent with locks */
   caml_release_runtime_system();
   rc = curl_multi_add_handle(multi, conn->handle);
@@ -5498,6 +5600,10 @@ value caml_curl_multi_closesocketfunction(value v_multi, value v_cb)
 {
   CAMLparam2(v_multi, v_cb);
   ml_multi_handle* multi = Multi_val(v_multi);
+  Connection* conn;
+
+  for (conn = multi->conns; NULL != conn; conn = conn->multi_next)
+    reject_shared_connections(conn_share(conn));
 
   Store_field(multi->values, curlmopt_closesocket_function, v_cb);
 
@@ -5654,6 +5760,7 @@ struct used_enum
 
 static const struct used_enum check_enums[] = {
   { CURLINFO_SSL_DATA_OUT, CURLINFO_END, "DEBUGFUNCTION curl_infotype" },
+  { CURLSHE_NOT_BUILT_IN, CURLSHE_LAST, "CURLSHcode" },
 #if HAVE_DECL_CURL_HTTP_VERSION_3
   CURL_ENUM(HTTP_VERSION, 3),
 #endif
@@ -5804,6 +5911,232 @@ value caml_curl_ws_send(value conn_v, value buffer_v, value flags_v)
   caml_failwith("WebSocket support not available");
 }
 #endif
+
+/*
+ * Curl share interface support
+ *
+ * Exported functions are prefixed with caml_curl_share_
+ */
+
+static void raise_share_error(CURLSHcode code)
+{
+  CAMLparam0();
+  CAMLlocal1(exceptionData);
+  static const value* exception = NULL;
+
+  if (NULL == exception)
+  {
+    exception = caml_named_value("Curl.Share.Error");
+    if (NULL == exception) caml_invalid_argument("Curl.Share.Error");
+  }
+
+  /* (code, code as integer, message), like CurlException */
+  exceptionData = caml_alloc_tuple(3);
+  Store_field(exceptionData, 0, Val_int(code));
+  Store_field(exceptionData, 1, Val_int(code));
+  Store_field(exceptionData, 2, caml_copy_string(curl_share_strerror(code)));
+
+  caml_raise_with_arg(*exception, exceptionData);
+
+  CAMLreturn0;
+}
+
+static void check_share_code(CURLSHcode code)
+{
+  if (code != CURLSHE_OK) raise_share_error(code);
+}
+
+value caml_curl_share_strerror(value v_code)
+{
+  CAMLparam1(v_code);
+  CAMLreturn(caml_copy_string(curl_share_strerror((CURLSHcode)Int_val(v_code))));
+}
+
+/* libcurl locks the shared data with these, so that easy handles using the
+   share handle can perform transfers in different threads at the same time */
+#ifdef _WIN32
+static int share_lock_init(ml_share_lock* lock)
+{
+  InitializeCriticalSection(lock);
+  return 0;
+}
+#define share_lock_destroy DeleteCriticalSection
+#define share_lock_acquire EnterCriticalSection
+#define share_lock_release LeaveCriticalSection
+#else
+#define share_lock_init(lock) pthread_mutex_init(lock, NULL)
+#define share_lock_destroy pthread_mutex_destroy
+#define share_lock_acquire pthread_mutex_lock
+#define share_lock_release pthread_mutex_unlock
+#endif
+
+/* called by libcurl without the OCaml runtime lock, so must not use it */
+static void curlsh_lock_cb(CURL* handle, curl_lock_data data, curl_lock_access access, void* userptr)
+{
+  ml_share_handle* share = (ml_share_handle*)userptr;
+  (void)handle;
+  (void)access;
+
+  if ((unsigned)data < CURL_LOCK_DATA_LAST)
+    share_lock_acquire(&share->locks[data]);
+}
+
+static void curlsh_unlock_cb(CURL* handle, curl_lock_data data, void* userptr)
+{
+  ml_share_handle* share = (ml_share_handle*)userptr;
+  (void)handle;
+
+  if ((unsigned)data < CURL_LOCK_DATA_LAST)
+    share_lock_release(&share->locks[data]);
+}
+
+/* frees share and the first n of its locks */
+static void free_share(ml_share_handle* share, int n)
+{
+  while (n > 0)
+    share_lock_destroy(&share->locks[--n]);
+  caml_stat_free(share);
+}
+
+static void op_curl_share_finalize(value v)
+{
+  ml_share_handle* share = Share_val(v);
+
+  if (NULL != share->handle)
+  {
+    /* like easy handles, do not clean up at finalization: closing the shared
+       connections may block, e.g. waiting for an FTP server to answer QUIT */
+    fprintf(stderr, "Curl: share handle %p leaked\n", (void*)share->handle);
+    fflush(stderr);
+    return; /* the leaked share handle still uses its locks */
+  }
+
+  free_share(share, CURL_LOCK_DATA_LAST);
+}
+
+static int op_curl_share_compare(value v1, value v2)
+{
+  size_t p1 = (size_t)Share_val(v1);
+  size_t p2 = (size_t)Share_val(v2);
+  return (p1 == p2 ? 0 : (p1 > p2 ? 1 : -1)); /* compare addresses */
+}
+
+static intnat op_curl_share_hash(value v)
+{
+  return (size_t)Share_val(v); /* address */
+}
+
+static struct custom_operations curl_share_ops = {
+  "ygrek.curl_share",
+  op_curl_share_finalize,
+  op_curl_share_compare,
+  op_curl_share_hash,
+  custom_serialize_default,
+  custom_deserialize_default,
+#if defined(custom_compare_ext_default)
+  custom_compare_ext_default,
+#endif
+#if defined(custom_fixed_length_default)
+  custom_fixed_length_default,
+#endif
+};
+
+value caml_curl_share_init(value v_unit)
+{
+  CAMLparam1(v_unit);
+  CAMLlocal1(v);
+  ml_share_handle* share = (ml_share_handle*)caml_stat_alloc(sizeof(ml_share_handle));
+  CURLSHcode rc = CURLSHE_OK;
+  int locks = 0;
+
+  while (locks < CURL_LOCK_DATA_LAST && 0 == share_lock_init(&share->locks[locks]))
+    locks++;
+
+  share->handle = (CURL_LOCK_DATA_LAST == locks) ? curl_share_init() : NULL;
+  share->shares_connections = 0;
+
+  if (NULL == share->handle)
+  {
+    free_share(share, locks);
+    raise_share_error(CURLSHE_NOMEM);
+  }
+
+  rc = curl_share_setopt(share->handle, CURLSHOPT_USERDATA, share);
+  if (CURLSHE_OK == rc)
+    rc = curl_share_setopt(share->handle, CURLSHOPT_LOCKFUNC, curlsh_lock_cb);
+  if (CURLSHE_OK == rc)
+    rc = curl_share_setopt(share->handle, CURLSHOPT_UNLOCKFUNC, curlsh_unlock_cb);
+
+  if (CURLSHE_OK != rc)
+  {
+    /* so that cleaning up does not lock without unlocking */
+    curl_share_setopt(share->handle, CURLSHOPT_LOCKFUNC, (curl_lock_function)NULL);
+    curl_share_cleanup(share->handle);
+    free_share(share, locks);
+    raise_share_error(rc);
+  }
+
+  v = caml_alloc_custom(&curl_share_ops, sizeof(ml_share_handle*), 0, 1);
+  Share_val(v) = share;
+
+  CAMLreturn(v);
+}
+
+value caml_curl_share_cleanup(value v_share)
+{
+  CAMLparam1(v_share);
+  ml_share_handle* share = Share_val(v_share);
+  CURLSH* handle = share->handle;
+  CURLSHcode rc;
+
+  if (NULL == handle)
+    CAMLreturn(Val_unit); /* already cleaned up */
+
+  /* closing the shared connections may take a while. Mark the share handle
+     cleaned up meanwhile, so that other threads do not use it */
+  share->handle = NULL;
+  caml_release_runtime_system();
+  rc = curl_share_cleanup(handle);
+  caml_acquire_runtime_system();
+
+  if (CURLSHE_OK != rc)
+  {
+    /* nothing was cleaned up, e.g. easy handles still use it */
+    share->handle = handle;
+    raise_share_error(rc);
+  }
+
+  CAMLreturn(Val_unit);
+}
+
+/* same order as Curl.Share.curlShareData */
+static const curl_lock_data shareData[] = {
+  CURL_LOCK_DATA_COOKIE,
+  CURL_LOCK_DATA_DNS,
+  CURL_LOCK_DATA_SSL_SESSION,
+  CURL_LOCK_DATA_CONNECT,
+};
+
+value caml_curl_share_setopt(value v_share, value option)
+{
+  CAMLparam2(v_share, option);
+  ml_share_handle* share = Share_val(v_share);
+  /* same order as Curl.Share.curlShareOption */
+  CURLSHoption opt = (0 == Tag_val(option)) ? CURLSHOPT_SHARE : CURLSHOPT_UNSHARE;
+  curl_lock_data data = shareData[Int_val(Field(option, 0))];
+
+  if (NULL == share->handle)
+    raise_share_error(CURLSHE_INVALID);
+
+  /* fails with CURLSHE_IN_USE once easy handles use it, so the shared data
+     cannot change while they do */
+  check_share_code(curl_share_setopt(share->handle, opt, data));
+
+  if (CURL_LOCK_DATA_CONNECT == data)
+    share->shares_connections = (CURLSHOPT_SHARE == opt);
+
+  CAMLreturn(Val_unit);
+}
 
 #ifdef __cplusplus
 }
