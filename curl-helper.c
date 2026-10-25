@@ -1385,6 +1385,7 @@ static curl_socket_t cb_OPENSOCKETFUNCTION2(void *data,
 
     CAMLparam0();
     CAMLlocal5(result, v_sock_purpose, v_sockdomain, v_socktype, v_sockaddr_record);
+    CAMLlocal1(v_unix_sockaddr);
     Connection *conn = (Connection *)data;
     curl_socket_t sock = CURL_SOCKET_BAD;
 
@@ -1433,7 +1434,7 @@ static curl_socket_t cb_OPENSOCKETFUNCTION2(void *data,
         goto cleanup;
     }
     memcpy(&sock_addr.s_gen, &(addr->addr), addr->addrlen);
-    value v_unix_sockaddr = alloc_sockaddr(&sock_addr, addr->addrlen, -1);
+    v_unix_sockaddr = alloc_sockaddr(&sock_addr, addr->addrlen, -1);
 
     v_sockaddr_record = caml_alloc(4, 0);
     Store_field(v_sockaddr_record, 0, v_sockdomain);
