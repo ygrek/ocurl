@@ -39,7 +39,7 @@ let create () =
   in
   let on_timer _ =
     Lwt_engine.stop_event !timer_event;
-    M.action_timeout mt;
+    let (_:int) = M.action_timeout' mt in
     finished "on_timer"
   in
   M.set_timer_function mt begin fun timeout ->
