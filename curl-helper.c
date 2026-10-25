@@ -5692,8 +5692,9 @@ value caml_curl_ws_send(value conn_v, value buffer_v, value flags_v)
   size_t sent;
   CURLcode result;
 
-  char* buffer = caml_stat_strdup(String_val(buffer_v));
   size_t buffer_len = caml_string_length(buffer_v);
+  char* buffer = caml_stat_alloc(buffer_len);
+  memcpy(buffer, String_val(buffer_v), buffer_len);
   int flags = curlWSFlag_list_to_int(flags_v);
 
   caml_release_runtime_system();
