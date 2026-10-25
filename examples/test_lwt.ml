@@ -2,9 +2,6 @@
 
 open Printf
 
-let (@@) f x = f x
-let (|>) x f = f x
-
 let printfn fmt = ksprintf print_endline fmt
 
 let curl_setup_simple h =

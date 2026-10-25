@@ -12,8 +12,8 @@ let show_progress fname conn =
     printf "%s : %.2f%%\n" fname (bytes /. total *. 100.0);
     flush stdout
 
-let writer _fname _conn accum data =
-  (* show_progress fname conn; *)
+let writer fname conn accum data =
+  if false then show_progress fname conn;
   Buffer.add_string accum data;
   String.length data
 

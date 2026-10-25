@@ -32,8 +32,7 @@ let _ =
 	Curl.set_errorbuffer connection errorBuffer;
 	Curl.set_writefunction connection (writer result);
 	Curl.set_followlocation connection true;
-	Curl.set_url connection Sys.argv.(1);
-	Curl.perform connection;
+	getContent connection Sys.argv.(1);
 	showContent result;
 	showInfo connection;
 	Curl.cleanup connection
