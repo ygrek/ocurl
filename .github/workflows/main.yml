@@ -25,12 +25,15 @@ jobs:
 
     steps:
       - name: Checkout tree
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set-up OCaml
         uses: ocaml/setup-ocaml@v3
         with:
           ocaml-compiler: ${{ matrix.ocaml-compiler }}
+
+      - name: Refresh system package index
+        run: opam update --depexts
 
       - name: Install opam dependencies
         run: opam install . --deps-only --with-test --with-dev-setup
