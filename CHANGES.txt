@@ -1,11 +1,27 @@
-## unreleased
+## 0.10.1 - 25 Oct 2026
 
-* Add support for proxy types CURLPROXY_HTTPS and CURLPROXY_HTTPS2.
-  (Volker Diels-Grabsch)
-* Add support for CURLOPT_UNIX_SOCKET_PATH.
-  (Volker Diels-Grabsch)
-* Bind CURLE_OBSOLETE and CURLE_* codes 82-101.
-  (Yasunari Watanabe)
++ Add support for proxy types CURLPROXY_HTTPS and CURLPROXY_HTTPS2.
+  (@vog, #122)
++ Add support for CURLOPT_UNIX_SOCKET_PATH.
+  (@vog, #124)
++ Bind CURLE_OBSOLETE and CURLE_* codes 82-101.
+  (@yasunariw, #125)
++ Add set_opensocketfunction2, which passes the socket address to the callback
+  and lets it create the socket, as documented for CURLOPT_OPENSOCKETFUNCTION.
+  (@yasunariw, #117)
++ Add SSLVERSION_MAX_* flags.
+  (@lukepalmer, #114)
++ Add support for WebSocket [ws_meta] and [ws_send].
+  (@er433, #115)
++ Add Multi.action_timeout', which returns the number of still active handles.
+  Multi.action_timeout is deprecated.
+  (@madroach, #121)
+* Fix CURLINFO_HTTP_VERSION.
+  (@ygrek)
+* Fix double free in WRITEFUNCTION_BUF.
+  (@lukepalmer, #111)
+* Remove the ocurl transition package definition.
+  (@MisterDA, #107)
 
 ## 0.10.0 - 14 May 2025
 
