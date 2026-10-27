@@ -41,5 +41,5 @@
   base-unix
   (curl (= :version))
   lwt
-  (lwt_ppx :with-dev-setup))
+  (lwt_ppx :with-test))
  (tags (org:ygrek clib:curl)))
