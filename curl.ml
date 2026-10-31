@@ -664,6 +664,14 @@ external curlCode_of_int : int -> curlCode option = "caml_curl_curlCode_of_int"
 external int_of_curlCode : curlCode -> int = "caml_curl_int_of_curlCode"
 let errno = int_of_curlCode
 
+let () =
+  Printexc.register_printer @@ function
+  | CurlException (code, i, s) ->
+    Printf.sprintf "Curl.CurlException(%s, %i, %s)"
+      (strerror code) i s
+    |> Option.some
+  | _ -> None
+
 type pauseOption = PAUSE_SEND | PAUSE_RECV | PAUSE_ALL
 
 external pause : t -> pauseOption list -> unit = "caml_curl_pause"
