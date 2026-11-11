@@ -3569,6 +3569,10 @@ SETOPT_LONG( BUFFERSIZE)
   SETOPT_STRING( UNIX_SOCKET_PATH)
 #endif
 
+#if HAVE_DECL_CURLOPT_PATH_AS_IS
+  SETOPT_BOOL( PATH_AS_IS)
+#endif
+
 /* Windows headers define these symbols and there is no (sane) way to
  * prevent macro expansion */
 
@@ -4035,6 +4039,11 @@ HAVE(NOPROXY),
   HAVE(UNIX_SOCKET_PATH),
 #else
   HAVENOT(UNIX_SOCKET_PATH),
+#endif
+#if HAVE_DECL_CURLOPT_PATH_AS_IS
+  HAVE(PATH_AS_IS),
+#else
+  HAVENOT(PATH_AS_IS),
 #endif
 };
 

@@ -551,6 +551,7 @@ type curlOption =
   | CURLOPT_TCP_KEEPINTVL of int
   | CURLOPT_NOPROXY of string
   | CURLOPT_UNIX_SOCKET_PATH of string (* @since libcurl 7.40.0 *)
+  | CURLOPT_PATH_AS_IS of bool (* @since libcurl 7.42.0 *)
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -934,6 +935,11 @@ val set_sshkeyfunction : t -> (curlKHMatch -> string -> curlKHStat) -> unit
 val set_noproxy : t -> string -> unit
 val set_unix_socket_path : t -> string -> unit
 
+(** [set_path_as_is t flag] when [flag] is true, sends [/../] and [/./]
+    path segments as-is instead of squashing them.
+    @since libcurl 7.42.0 *)
+val set_path_as_is : t -> bool -> unit
+
 (** {2 Get transfer properties} *)
 
 val get_effectiveurl : t -> string
@@ -1152,6 +1158,7 @@ class handle :
     method set_tcpkeepintvl : int -> unit
     method set_noproxy : string -> unit
     method set_unix_socket_path : string -> unit
+    method set_path_as_is : bool -> unit
 
     method get_effectiveurl : string
     method get_redirecturl : string

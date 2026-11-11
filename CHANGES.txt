@@ -1,3 +1,8 @@
+## unreleased
+
++ Add support for CURLOPT_PATH_AS_IS.
+  (@Khady, #130)
+
 ## 0.10.1 - 25 Oct 2026
 
 + Add support for proxy types CURLPROXY_HTTPS and CURLPROXY_HTTPS2.
