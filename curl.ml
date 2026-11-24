@@ -275,6 +275,12 @@ type curlProxyType =
 
 type curlSockType =
   | CURLSOCKTYPE_IPCXN
+  | CURLSOCKTYPE_ACCEPT
+
+type curlSockOptResult =
+  | CURL_SOCKOPT_OK
+  | CURL_SOCKOPT_ERROR
+  | CURL_SOCKOPT_ALREADY_CONNECTED
 
 type curlSockAddr = {
   family: Unix.socket_domain;
@@ -540,6 +546,7 @@ type curlOption =
   | CURLOPT_NOPROXY of string
   | CURLOPT_UNIX_SOCKET_PATH of string
   | CURLOPT_PATH_AS_IS of bool
+  | CURLOPT_SOCKOPTFUNCTION of (Unix.file_descr -> curlSockType -> curlSockOptResult)
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -1122,6 +1129,9 @@ let set_opensocketfunction conn closure =
 let set_opensocketfunction2 conn closure =
   setopt conn (CURLOPT_OPENSOCKETFUNCTION2 closure)
 
+let set_sockoptfunction conn closure =
+  setopt conn (CURLOPT_SOCKOPTFUNCTION closure)
+
 (*
 let set_closesocketfunction conn closure =
   setopt conn (CURLOPT_CLOSESOCKETFUNCTION closure)
@@ -1549,6 +1559,7 @@ class handle =
     method set_autoreferer b = set_autoreferer conn b
     method set_opensocketfunction closure = set_opensocketfunction conn closure
     method set_opensocketfunction2 closure = set_opensocketfunction2 conn closure
+    method set_sockoptfunction closure = set_sockoptfunction conn closure
 (*     method set_closesocketfunction closure = set_closesocketfunction conn closure *)
     method set_proxytype t = set_proxytype conn t
     method set_mimepost p = set_mimepost conn p

@@ -2,6 +2,8 @@
 
 + Add support for CURLOPT_PATH_AS_IS.
   (@Khady, #130)
++ Add support for CURLOPT_SOCKOPTFUNCTION.
+  (@lukepalmer, #131)
 
 ## 0.10.1 - 25 Oct 2026
 

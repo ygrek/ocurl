@@ -116,6 +116,7 @@ typedef enum OcamlValues
     Ocaml_IOCTLFUNCTION,
     Ocaml_SEEKFUNCTION,
     Ocaml_OPENSOCKETFUNCTION,
+    Ocaml_SOCKOPTFUNCTION,
     Ocaml_SSH_KEYFUNCTION,
 
     Ocaml_ERRORBUFFER,
@@ -1457,6 +1458,50 @@ cleanup:
     return sock;
 }
 
+static int cb_SOCKOPTFUNCTION(void *data,
+                              curl_socket_t curlfd,
+                              curlsocktype purpose)
+{
+    caml_acquire_runtime_system();
+
+    CAMLparam0();
+    CAMLlocal3(v_sock, v_sock_purpose, v_result);
+    Connection *conn = (Connection *)data;
+    /* an unknown purpose, an exception and an unknown result all fail the connection */
+    int result = CURL_SOCKOPT_ERROR;
+
+    switch (purpose) {
+        case CURLSOCKTYPE_IPCXN:
+            v_sock_purpose = Val_int(0);
+            break;
+        case CURLSOCKTYPE_ACCEPT:
+            v_sock_purpose = Val_int(1);
+            break;
+        default:
+            goto cleanup;
+    }
+
+    v_sock = Val_socket(curlfd);
+
+    v_result = caml_callback2_exn(Field(conn->ocamlValues, Ocaml_SOCKOPTFUNCTION),
+                                  v_sock, v_sock_purpose);
+
+    if (!Is_exception_result(v_result))
+    {
+        switch (Int_val(v_result)) {
+            case 0: result = CURL_SOCKOPT_OK; break;
+            case 1: result = CURL_SOCKOPT_ERROR; break;
+            case 2: result = CURL_SOCKOPT_ALREADY_CONNECTED; break;
+        }
+    }
+
+cleanup:
+    CAMLdrop;
+
+    caml_release_runtime_system();
+    return result;
+}
+
 static int cb_SSH_KEYFUNCTION(CURL *easy,
                               const struct curl_khkey *knownkey,
                               const struct curl_khkey *foundkey,
@@ -1837,6 +1882,7 @@ SETOPT_FUNCTION( IOCTL)
 
 SETOPT_FUNCTION( OPENSOCKET)
 SETOPT_FUNCTION2( OPENSOCKET)
+SETOPT_FUNCTION( SOCKOPT)
 
 static void handle_slist(Connection *conn, struct curl_slist** slist, CURLoption curl_option, value option)
 {
@@ -4045,6 +4091,7 @@ HAVE(NOPROXY),
 #else
   HAVENOT(PATH_AS_IS),
 #endif
+  HAVE(SOCKOPTFUNCTION),
 };
 
 value caml_curl_easy_setopt(value conn, value option)
