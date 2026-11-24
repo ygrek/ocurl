@@ -282,7 +282,13 @@ type curlProxyType =
   | CURLPROXY_HTTPS2 (** since libcurl 8.1.0 *)
 
 type curlSockType =
-  | CURLSOCKTYPE_IPCXN
+  | CURLSOCKTYPE_IPCXN (** socket created for a specific IP connection *)
+  | CURLSOCKTYPE_ACCEPT (** socket created by accept() call, never passed to opensocketfunction *)
+
+type curlSockOptResult =
+  | CURL_SOCKOPT_OK
+  | CURL_SOCKOPT_ERROR (** libcurl closes the socket and the connection fails *)
+  | CURL_SOCKOPT_ALREADY_CONNECTED (** the socket is already connected, libcurl does not connect it. Only for CURLSOCKTYPE_IPCXN *)
 
 type curlSockAddr = {
   family: Unix.socket_domain;
@@ -552,6 +558,7 @@ type curlOption =
   | CURLOPT_NOPROXY of string
   | CURLOPT_UNIX_SOCKET_PATH of string (* @since libcurl 7.40.0 *)
   | CURLOPT_PATH_AS_IS of bool (* @since libcurl 7.42.0 *)
+  | CURLOPT_SOCKOPTFUNCTION of (Unix.file_descr -> curlSockType -> curlSockOptResult)
 
 type initOption =
   | CURLINIT_GLOBALALL
@@ -890,6 +897,11 @@ val set_seekfunction : t -> (int64 -> curlSeek -> curlSeekResult) -> unit
 val set_autoreferer : t -> bool -> unit
 val set_opensocketfunction : t -> (Unix.file_descr -> unit) -> unit
 val set_opensocketfunction2 : t -> (curlSockType -> curlSockAddr -> Unix.file_descr option) -> unit
+
+(** callback is called with every socket that libcurl creates, before the socket is connected,
+    to set options on it. If callback raises exception it is treated as [CURL_SOCKOPT_ERROR] *)
+val set_sockoptfunction : t -> (Unix.file_descr -> curlSockType -> curlSockOptResult) -> unit
+
 val set_tcpkeepalive : t -> bool -> unit
 val set_tcpkeepidle : t -> int -> unit
 val set_tcpkeepintvl : t -> int -> unit
@@ -1142,6 +1154,7 @@ class handle :
     method set_autoreferer : bool -> unit
     method set_opensocketfunction : (Unix.file_descr -> unit) -> unit
     method set_opensocketfunction2 : (curlSockType -> curlSockAddr -> Unix.file_descr option) -> unit
+    method set_sockoptfunction : (Unix.file_descr -> curlSockType -> curlSockOptResult) -> unit
     method set_proxytype : curlProxyType -> unit
     method set_resolve : (string * int * string) list -> (string * int) list -> unit
     method set_dns_servers : string list -> unit
