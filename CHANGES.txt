@@ -1,5 +1,7 @@
 ## unreleased
 
++ Require OCaml >= 4.14.
+  (@nojb, #132)
 + Add support for CURLOPT_PATH_AS_IS.
   (@Khady, #130)
 

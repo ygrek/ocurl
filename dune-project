@@ -22,7 +22,7 @@
  (description "libcurl is a client-side URL transfer library, supporting HTTP and a multitude of other network protocols (FTP/SMTP/RTSP/etc). This library wrap easy synchronous API (Curl) and synchronous parallel and generic asynchronous API (Curl.Multi). For the Lwt-enabled asynchronous interface (Curl_lwt) see curl_lwt package.")
  (depends
   dune
-  (ocaml (>= "4.11"))
+  (ocaml (>= "4.14"))
   (dune-configurator (>= "3.18.1"))
   base-bigarray
   base-unix
@@ -37,7 +37,7 @@
  (description "libcurl is a client-side URL transfer library, supporting HTTP and a multitude of other network protocols (FTP/SMTP/RTSP/etc). This library  provides an Lwt-enabled asynchronous interface (Curl_lwt).")
  (depends
   dune
-  (ocaml (>= "4.11"))
+  (ocaml (>= "4.14"))
   base-unix
   (curl (= :version))
   lwt

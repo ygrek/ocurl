@@ -14,7 +14,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-#include <caml/version.h>
 #ifndef _WIN32
 #include <unistd.h>
 #endif
@@ -37,30 +36,10 @@
 #include <caml/threads.h>
 #include <caml/bigarray.h>
 
-#ifndef CAMLdrop
-#define CAMLdrop caml_local_roots = caml__frame
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #else
 #pragma message("No config file given.")
-#endif
-
-#if OCAML_VERSION < 41200
-#define Val_none Val_int(0)
-#define Some_val(v) Field(v, 0)
-#define Tag_some 0
-#define Is_none(v) ((v) == Val_none)
-#define Is_some(v) Is_block(v)
-
-static inline value caml_alloc_some(value v)
-{
-  CAMLparam1(v);
-  value some = caml_alloc_small(1, Tag_some);
-  Field(some, 0) = v;
-  CAMLreturn(some);
-}
 #endif
 
 #ifdef __cplusplus

@@ -1,18 +1,5 @@
 module C = Configurator.V1
 
-module List = struct
-  (* Compatibility with OCaml < 4.10 *)
-  let [@warning "-32"] rec concat_map f = function
-    | [] -> []
-    | x::xs -> prepend_concat_map (f x) f xs
-  and [@warning "-32"] prepend_concat_map ys f xs =
-    match ys with
-    | [] -> concat_map f xs
-    | y :: ys -> y :: prepend_concat_map ys f xs
-
-  include List
-end
-
 let curl_h_declarations = [
   "CURLE_ABORTED_BY_CALLBACK";
   "CURLE_AGAIN";
